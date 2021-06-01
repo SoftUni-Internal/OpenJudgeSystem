@@ -99,6 +99,8 @@
 
         public string ProcessingComment { get; set; }
 
+        public string Worker { get; set; }
+
         /// <summary>
         /// Cache field for submissions points (to speed-up some of the database queries)
         /// </summary>
