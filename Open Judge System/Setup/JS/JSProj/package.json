@@ -1,0 +1,12 @@
+{
+    "name": "exam",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.html",
+    "dependencies": {
+        "htm": "3.0.4",
+        "page": "1.11.6",
+        "underscore": "^1.12.0"
+    },
+    "license": "ISC"
+}

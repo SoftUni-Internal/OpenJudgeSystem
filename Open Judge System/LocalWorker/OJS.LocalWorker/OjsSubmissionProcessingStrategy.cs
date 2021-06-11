@@ -181,9 +181,10 @@
                     this.submission.Points = 0;
                 }
                 else
-                {
-                    var coefficient = (double)this.submission.CorrectTestRunsWithoutTrialTestsCount /
-                        this.submission.TestsWithoutTrialTestsCount;
+                { 
+                    var totalTestRunsWithoutTrialTestsCount = this.submission.CorrectTestRunsWithoutTrialTestsCount + this.submission.IncorrectTestRunsWithoutTrialTestsCount;
+
+                    var coefficient = (double)this.submission.CorrectTestRunsWithoutTrialTestsCount / totalTestRunsWithoutTrialTestsCount;
 
                     this.submission.Points = (int)(coefficient * this.submission.Problem.MaximumPoints);
                 }

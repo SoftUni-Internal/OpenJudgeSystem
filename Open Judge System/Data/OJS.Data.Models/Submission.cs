@@ -123,6 +123,15 @@
         }
 
         [NotMapped]
+        public int IncorrectTestRunsWithoutTrialTestsCount
+        {
+            get
+            {
+                return this.TestRuns.Count(x => x.ResultType != TestRunResultType.CorrectAnswer && !x.Test.IsTrialTest);
+            }
+        }
+
+        [NotMapped]
         public int TestsWithoutTrialTestsCount
         {
             get
