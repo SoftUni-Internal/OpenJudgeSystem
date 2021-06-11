@@ -39,14 +39,14 @@
 
             // Get the data representing the current grid state - page, sort and filter
             request.PageSize = 0;
-            IEnumerable items = data.ToDataSourceResult(request).Data;
+            var items = data.ToDataSourceResult(request).Data;
             return this.CreateExcelFile(items);
         }
 
         [NonAction]
         protected FileResult CreateExcelFile(IEnumerable items)
         {
-            Type dataType = items.GetType().GetGenericArguments()[0];
+            var dataType = items.GetType().GetGenericArguments()[0];
 
             var dataTypeProperties = dataType.GetProperties();
 
@@ -58,11 +58,11 @@
 
             // Create a header row
             var headerRow = sheet.CreateRow(0);
-            int columnNumber = 0;
+            var columnNumber = 0;
             foreach (var property in dataTypeProperties)
             {
-                bool include = true;
-                object[] excludeAttributes = property.GetCustomAttributes(typeof(ExcludeFromExcelAttribute), true);
+                var include = true;
+                var excludeAttributes = property.GetCustomAttributes(typeof(ExcludeFromExcelAttribute), true);
                 if (excludeAttributes.Any())
                 {
                     include = false;
@@ -70,7 +70,7 @@
 
                 if (include)
                 {
-                    string cellName = property.Name;
+                    var cellName = property.Name;
                     object[] attributes = property.GetCustomAttributes(typeof(DisplayAttribute), true);
                     if (attributes.Any())
                     {
@@ -169,5 +169,5 @@
                 c => c.Index(),
                 new { area = GlobalConstants.AdministrationAreaName });
         }
-    }
+    }   
 }
