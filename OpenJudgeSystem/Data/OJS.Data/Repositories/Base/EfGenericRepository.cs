@@ -160,6 +160,7 @@
             typeof(T)
                 .GetProperties()
                 .Where(pr => !pr.GetCustomAttributes(typeof(NotMappedAttribute), true).Any())
+                .ToList()
                 .ForEach(prop =>
                         {
                             if (members.Contains(prop.Name))

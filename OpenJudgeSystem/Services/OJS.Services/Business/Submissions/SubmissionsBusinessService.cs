@@ -144,6 +144,7 @@
                 .Select(s => s.Id)
                 .AsEnumerable()
                 .ChunkBy(GlobalConstants.BatchOperationsChunkSize)
+                .ToList()
                 .ForEach(submissionIds =>
                     this.HardDeleteByArchivedIds(new HashSet<int>(submissionIds)));
 

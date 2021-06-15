@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OJS.Web.Common</RootNamespace>
     <AssemblyName>OJS.Web.Common</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SccProjectName>
     </SccProjectName>
@@ -172,13 +172,13 @@
       <Project>{1807194c-9e25-4365-b3be-fe1df627612b}</Project>
       <Name>OJS.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\OJS.Common2\OJS.Common2.csproj">
+      <Project>{24dd4066-baf5-499b-897c-337d83cbe168}</Project>
+      <Name>OJS.Common2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\OJS.Common\OJS.Common.csproj">
       <Project>{69B10B02-22CF-47D6-B5F3-8A5FFB7DC771}</Project>
       <Name>OJS.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Workers\OJS.Workers.Common\OJS.Workers.Common.csproj">
-      <Project>{7F714D0B-CE81-4DD7-B6B2-62080FE22CD8}</Project>
-      <Name>OJS.Workers.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

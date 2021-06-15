@@ -47,6 +47,7 @@
             {
                 submissionIds
                     .ChunkBy(GlobalConstants.BatchOperationsChunkSize)
+                    .ToList()
                     .ForEach(chunk => this.submissionsForProcessing
                         .Delete(sfp => chunk.Contains(sfp.SubmissionId)));
 

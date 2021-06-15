@@ -16,8 +16,6 @@
     using Kendo.Mvc.Extensions;
     using Kendo.Mvc.UI;
 
-    using MissingFeatures;
-
     using OJS.Common;
     using OJS.Common.Extensions;
     using OJS.Common.Models;
@@ -204,7 +202,9 @@
             var newProblem = problem.GetEntityModel();
             newProblem.Checker = this.checkersData.GetByName(problem.Checker);
 
-            problem.SubmissionTypes.ForEach(s =>
+            problem.SubmissionTypes
+                .ToList()
+                .ForEach(s =>
             {
                 if (s.IsChecked && s.Id.HasValue)
                 {
@@ -296,6 +296,7 @@
             this.submissionTypesData
                 .GetAll()
                 .Select(SubmissionTypeViewModel.ViewModel)
+                .ToList()
                 .ForEach(SubmissionTypeViewModel.ApplySelectedTo(selectedProblem));
 
             return this.View(selectedProblem);
@@ -341,6 +342,7 @@
                 this.submissionTypesData
                     .GetAll()
                     .Select(SubmissionTypeViewModel.ViewModel)
+                    .ToList()
                     .ForEach(SubmissionTypeViewModel.ApplySelectedTo(problem));
 
                 return this.View(problem);
@@ -366,7 +368,9 @@
                 }
             }
 
-            problem.SubmissionTypes.ForEach(s =>
+            problem.SubmissionTypes
+                .ToList()
+                .ForEach(s =>
             {
                 if (s.IsChecked && s.Id.HasValue)
                 {

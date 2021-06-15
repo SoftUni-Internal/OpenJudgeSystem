@@ -6,11 +6,9 @@
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
-
     using OJS.Common;
     using OJS.Common.Extensions;
-    using OJS.Common.Models;
-    using OJS.Workers.Common.Extensions;
+    using OJS.Common2.Extensions;
     using OJS.Workers.Common.Models;
 
     public class SubmissionType

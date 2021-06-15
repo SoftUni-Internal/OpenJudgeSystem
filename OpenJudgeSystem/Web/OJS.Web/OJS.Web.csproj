@@ -15,7 +15,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>OJS.Web</RootNamespace>
     <AssemblyName>OJS.Web</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort>44307</IISExpressSSLPort>
@@ -62,8 +62,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="DotNetZip, Version=1.13.0.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\DotNetZip.1.13.0\lib\net40\DotNetZip.dll</HintPath>
+    <Reference Include="DotNetZip, Version=1.15.0.0, Culture=neutral, PublicKeyToken=6583c7c814667745">
+      <HintPath>..\..\packages\DotNetZip.1.15.0\lib\net40\DotNetZip.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Elmah, Version=1.2.14706.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\..\packages\elmah.corelibrary.1.2.2\lib\Elmah.dll</HintPath>
@@ -209,7 +210,6 @@
       <HintPath>..\..\packages\SimpleInjector.Packaging.4.0.12\lib\net40\SimpleInjector.Packaging.dll</HintPath>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Activities" />
     <Reference Include="System.AppContext, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.AppContext.4.3.0\lib\net463\System.AppContext.dll</HintPath>
     </Reference>
@@ -296,7 +296,6 @@
     </Reference>
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web.DynamicData" />
-    <Reference Include="System.Web.Entity" />
     <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Web.Extensions" />
@@ -3983,6 +3982,10 @@
       <Project>{1807194c-9e25-4365-b3be-fe1df627612b}</Project>
       <Name>OJS.Data</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\OJS.Common2\OJS.Common2.csproj">
+      <Project>{24dd4066-baf5-499b-897c-337d83cbe168}</Project>
+      <Name>OJS.Common2</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\OJS.Common\OJS.Common.csproj">
       <Project>{69b10b02-22cf-47d6-b5f3-8a5ffb7dc771}</Project>
       <Name>OJS.Common</Name>
@@ -3991,6 +3994,10 @@
       <Project>{7d684e33-0aa6-44f8-bcfe-a82b70bd48bc}</Project>
       <Name>OJS.Data.Archives</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\OJS.Worker.Compilers\OJS.Worker.Compilers.csproj">
+      <Project>{8b904be4-5647-44df-a9a3-3a7cf6a6f3af}</Project>
+      <Name>OJS.Worker.Compilers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Services\OJS.Services.Common\OJS.Services.Common.csproj">
       <Project>{a7de52ac-62e7-43f0-8f73-047728eb5af2}</Project>
       <Name>OJS.Services.Common</Name>
@@ -3998,14 +4005,6 @@
     <ProjectReference Include="..\..\Services\OJS.Services\OJS.Services.csproj">
       <Project>{44659a90-f81e-4007-8729-c37f4f650a81}</Project>
       <Name>OJS.Services</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Workers\OJS.Workers.Common\OJS.Workers.Common.csproj">
-      <Project>{7F714D0B-CE81-4DD7-B6B2-62080FE22CD8}</Project>
-      <Name>OJS.Workers.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Workers\OJS.Workers.Compilers\OJS.Workers.Compilers.csproj">
-      <Project>{8570183B-9D7A-408D-9EA6-F86F59B05A10}</Project>
-      <Name>OJS.Workers.Compilers</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Workers\OJS.Workers.Tools\OJS.Workers.Tools.csproj">
       <Project>{a1f48412-495a-434c-bdd0-e70aedad6897}</Project>
