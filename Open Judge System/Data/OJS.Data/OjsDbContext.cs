@@ -26,6 +26,7 @@
         protected OjsDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString, throwIfV1Schema: false)
         {
+            this.DbContext.Database.CommandTimeout = 240;
         }
 
         public virtual IDbSet<Setting> Settings { get; set; }

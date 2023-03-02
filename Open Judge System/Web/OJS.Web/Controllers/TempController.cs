@@ -85,6 +85,26 @@
             return null;
         }
 
+        public ActionResult RegisterJobForHardDeletingArchivedSubmissions()
+        {
+            this.backgroundJobs.AddOrUpdateRecurringJob<IArchivedSubmissionsBusinessService>(
+                "HardDeleteArchivedSubmissions",
+                s => s.HardDeleteCurrentArchived(null),
+                Cron.Weekly(DayOfWeek.Monday, 1, 30));
+
+            return null;
+        }
+
+        public ActionResult RegisterCleanUpJobsForArchiving()
+        {
+            this.backgroundJobs.AddOrUpdateRecurringJob<IArchivedSubmissionsBusinessService>(
+                "CleanUpArchivedOldSubmissions",
+                s => s.ArchiveCleanOldSubmissions(null),
+                Cron.Weekly(DayOfWeek.Monday, 1, 30));
+
+            return null;
+        }
+
         public ActionResult RegisterJobForNormalizingSubmissionAndParticipantScorePoints()
         {
             this.backgroundJobs.AddOrUpdateRecurringJob<IParticipantScoresBusinessService>(

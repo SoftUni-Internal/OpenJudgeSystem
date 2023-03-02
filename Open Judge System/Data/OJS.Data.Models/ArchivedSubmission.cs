@@ -78,5 +78,16 @@
 
         [Index]
         public bool IsHardDeletedFromMainDatabase { get; set; }
+
+        public override bool Equals(object obj)
+            => obj is ArchivedSubmission other
+            && this.Equals(other);
+
+        public bool Equals(ArchivedSubmission other)
+            => other != null
+               && this.Id == other.Id;
+
+        public override int GetHashCode()
+            => this.Id.GetHashCode();
     }
 }

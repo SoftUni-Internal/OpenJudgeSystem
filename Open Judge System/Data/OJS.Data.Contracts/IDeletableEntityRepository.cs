@@ -12,5 +12,7 @@
         void HardDelete(T entity);
 
         int HardDelete(Expression<Func<T, bool>> filterExpression);
+
+        int HardDelete(Expression<Func<T, bool>> filterExpression, int batchSize);
     }
 }

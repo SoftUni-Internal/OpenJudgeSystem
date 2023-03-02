@@ -1,6 +1,7 @@
 ﻿namespace OJS.Data.Repositories.Base
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
@@ -11,11 +12,14 @@
 
     using EntityFramework.BulkInsert.Extensions;
     using EntityFramework.Extensions;
-
+    
     using MissingFeatures;
-
+    
+    using OJS.Common;
     using OJS.Common.Extensions;
     using OJS.Data.Repositories.Contracts;
+    
+    using efplus = Z.EntityFramework.Plus;
 
     public class EfGenericRepository<T> : IEfGenericRepository<T>
         where T : class
@@ -52,7 +56,11 @@
             }
         }
 
-        public void Add(IEnumerable<T> entities) => this.Context.BulkInsert(entities);
+        public void Add(IEnumerable<T> entities)
+            => this.Context.BulkInsert(entities, new BulkInsertOptions
+            {
+                TimeOut = GlobalConstants.BulkInsertTimeoutInSeconds,
+            });
 
         public virtual void Update(T entity)
         {
@@ -68,7 +76,17 @@
         public virtual int Update(
             Expression<Func<T, bool>> filterExpression,
             Expression<Func<T, T>> updateExpression) =>
-                this.DbSet.Where(filterExpression).Update(updateExpression);
+                this.DbSet.Where(filterExpression)
+                    .Update(updateExpression);
+
+        public virtual int Update(
+            Expression<Func<T, bool>> filterExpression,
+            Expression<Func<T, T>> updateExpression,
+            int batchSize) =>
+            efplus.BatchUpdateExtensions.Update(
+                this.DbSet.Where(filterExpression),
+                updateExpression,
+                x => x.BatchSize = batchSize);
 
         public virtual void Delete(T entity)
         {
@@ -96,6 +114,11 @@
 
         public virtual int Delete(Expression<Func<T, bool>> filterExpression) =>
             this.DbSet.Where(filterExpression).Delete();
+
+        public virtual int Delete(Expression<Func<T, bool>> filterExpression, int batchSize)
+            => efplus.BatchDeleteExtensions.Delete(
+                this.DbSet.Where(filterExpression),
+                x => x.BatchSize = batchSize);
 
         public virtual void Detach(T entity)
         {

@@ -21,11 +21,18 @@
 
         int Update(Expression<Func<T, bool>> filterExpression, Expression<Func<T, T>> updateExpression);
 
+        int Update(
+            Expression<Func<T, bool>> filterExpression,
+            Expression<Func<T, T>> updateExpression,
+            int batchSize);
+
         void Delete(T entity);
 
         void Delete(int id);
 
         int Delete(Expression<Func<T, bool>> filterExpression);
+
+        int Delete(Expression<Func<T, bool>> filterExpression, int batchSize);
 
         void Detach(T entity);
 

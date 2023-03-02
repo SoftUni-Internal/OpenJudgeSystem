@@ -9,6 +9,8 @@
 
     using OJS.Data.Contracts;
     using OJS.Data.Repositories.Contracts;
+    
+    using efplus= Z.EntityFramework.Plus;
 
     public class EfDeletableEntityRepository<T> : EfGenericRepository<T>, IEfDeletableEntityRepository<T>
         where T : class, IDeletableEntity, new()
@@ -35,9 +37,18 @@
                 .Where(filterExpression)
                 .Update(entity => new T { IsDeleted = true, DeletedOn = DateTime.Now });
 
+        public override int Delete(Expression<Func<T, bool>> filterExpression, int batchSize)
+            => this.Update(
+                filterExpression,
+                x => new T { IsDeleted = true, DeletedOn = DateTime.Now },
+                batchSize);
+
         public void HardDelete(T entity) => base.Delete(entity);
 
         public int HardDelete(Expression<Func<T, bool>> filterExpression) =>
             base.Delete(filterExpression);
+
+        public int HardDelete(Expression<Func<T, bool>> filterExpression, int batchSize)
+            => base.Delete(filterExpression, batchSize);
     }
 }

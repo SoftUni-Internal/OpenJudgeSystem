@@ -4,7 +4,7 @@
     using System.Linq;
 
     using EntityFramework.Extensions;
-
+    using OJS.Common;
     using OJS.Data.Models;
     using OJS.Data.Repositories.Contracts;
     using OJS.Services.Data.Participants;
@@ -153,6 +153,7 @@
                     ps => new ParticipantScore
                     {
                         SubmissionId = null
-                    });
+                    },
+                    batchSize: GlobalConstants.BatchOperationsChunkSize);
     }
 }

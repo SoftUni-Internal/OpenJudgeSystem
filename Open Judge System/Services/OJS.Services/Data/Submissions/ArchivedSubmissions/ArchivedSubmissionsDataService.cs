@@ -2,7 +2,9 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-
+    using MissingFeatures;
+    using OJS.Common;
+    using OJS.Common.Extensions;
     using OJS.Data.Archives.Repositories.Contracts;
     using OJS.Data.Models;
 
@@ -19,17 +21,33 @@
                 .All()
                 .Where(s => !s.IsHardDeletedFromMainDatabase);
 
-        public void Add(IEnumerable<ArchivedSubmission> entities) =>
-            this.archivedSubmissions.Add(entities);
+        public void Add(IEnumerable<ArchivedSubmission> entities)
+        {
+            var entitiesList = entities.ToList();
+            var ids = entitiesList
+                .Select(x => x.Id)
+                .ToSet();
+            
+            var existingEntities = this.archivedSubmissions.All()
+                .Where(x => ids.Contains(x.Id))
+                .Select(x => x.Id)
+                .ToSet();
+            
+            var entitiesToAdd = entitiesList
+                .Where(x => !existingEntities.Contains(x.Id))
+                .ToList();
 
-        public void SetToHardDeletedFromMainDatabaseByIds(IEnumerable<int> ids) =>
-            this.archivedSubmissions
-                .Update(
-                    s => ids.Contains(s.Id),
-                    s => new ArchivedSubmission
-                    {
-                        IsHardDeletedFromMainDatabase = true
-                    });
+            this.archivedSubmissions.Add(entitiesToAdd);
+        }
+
+        public void SetToHardDeletedFromMainDatabaseByIds(IEnumerable<int> ids)
+            => this.archivedSubmissions.Update(
+                s => ids.Contains(s.Id),
+                s => new ArchivedSubmission
+                {
+                    IsHardDeletedFromMainDatabase = true
+                },
+                batchSize: GlobalConstants.BatchOperationsChunkSize);
 
         public void CreateDatabaseIfNotExists() =>
             this.archivedSubmissions.CreateDatabaseIfNotExists();

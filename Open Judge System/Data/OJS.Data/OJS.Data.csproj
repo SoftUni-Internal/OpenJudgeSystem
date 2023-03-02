@@ -98,6 +98,18 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Z.EntityFramework.Extensions, Version=7.18.3.0, Culture=neutral, PublicKeyToken=59b66d028979105b">
+      <HintPath>..\..\packages\Z.EntityFramework.Extensions.7.18.3\lib\net45\Z.EntityFramework.Extensions.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Z.EntityFramework.Plus.EF6, Version=7.18.3.0, Culture=neutral, PublicKeyToken=59b66d028979105b">
+      <HintPath>..\..\packages\Z.EntityFramework.Plus.EF6.7.18.3\lib\net45\Z.EntityFramework.Plus.EF6.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Z.Expressions.Eval, Version=5.0.0.0, Culture=neutral, PublicKeyToken=59b66d028979105b">
+      <HintPath>..\..\packages\Z.Expressions.Eval.5.0.0\lib\net45\Z.Expressions.Eval.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Configurations\ParticipantAnswersConfiguration.cs" />
