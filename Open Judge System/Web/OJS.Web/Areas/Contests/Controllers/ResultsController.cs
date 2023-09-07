@@ -78,24 +78,16 @@
                 throw new HttpException((int)HttpStatusCode.Forbidden, Resource.Problem_results_not_available);
             }
 
-            string resultsByProblemOfficialConstFormat = official ? "Official" : "Practice";
-            var results = this.cacheService.GetOrSet<List<ProblemResultViewModel>>(
-                string.Format(CacheConstants.ResultsByProblem, resultsByProblemOfficialConstFormat, problem.Id),
-                () =>
+            var results = this.participantScoresData
+                .GetAll()
+                .Where(ps => ps.ProblemId == problem.Id && ps.IsOfficial == official)
+                .Select(ps => new ProblemResultViewModel
                 {
-                    return this.participantScoresData
-                        .GetAll()
-                        .Where(ps => ps.ProblemId == problem.Id && ps.IsOfficial == official)
-                        .Select(ps => new ProblemResultViewModel
-                        {
-                            SubmissionId = ps.SubmissionId,
-                            ParticipantName = ps.ParticipantName,
-                            MaximumPoints = problem.MaximumPoints,
-                            Result = ps.Points
-                        })
-                        .ToList();
-                },
-                TimeSpan.FromMinutes(CacheExpirationTimeInMinutes));
+                    SubmissionId = ps.SubmissionId,
+                    ParticipantName = ps.ParticipantName,
+                    MaximumPoints = problem.MaximumPoints,
+                    Result = ps.Points
+                });
 
             return this.Json(results.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
