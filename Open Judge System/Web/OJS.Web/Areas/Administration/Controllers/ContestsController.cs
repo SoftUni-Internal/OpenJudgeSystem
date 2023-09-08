@@ -1,4 +1,6 @@
-﻿namespace OJS.Web.Areas.Administration.Controllers
+﻿using OJS.Services.Data.Settings;
+
+namespace OJS.Web.Areas.Administration.Controllers
 {
     using System;
     using System.Collections;
@@ -45,6 +47,7 @@
         private readonly IContestsBusinessService contestsBusiness;
         private readonly IParticipantsBusinessService participantsBusiness;
         private readonly ICacheItemsProviderService cacheItemsProvider;
+        private readonly ISettingsService settingsService;
 
         public ContestsController(
             IOjsData data,
@@ -54,7 +57,8 @@
             IIpsDataService ipsData,
             IContestsBusinessService contestsBusiness,
             IParticipantsBusinessService participantsBusiness,
-            ICacheItemsProviderService cacheItemsProvider)
+            ICacheItemsProviderService cacheItemsProvider,
+            ISettingsService settingsService)
             : base(data)
         {
             this.contestsData = contestsData;
@@ -64,6 +68,7 @@
             this.contestsBusiness = contestsBusiness;
             this.participantsBusiness = participantsBusiness;
             this.cacheItemsProvider = cacheItemsProvider;
+            this.settingsService = settingsService;
         }
 
         public override IEnumerable GetData()
@@ -560,13 +565,9 @@
                 .GetAll()
                 .ToList();
 
-            var dbSettings = this.Data.Settings.All().ToList();
-
             var model = new ContestLoadCalculationViewModel();
-            model.MaxAllowedTimeForSubmissionCompletion = this.ApplyDbSettingValue<int>(
-                dbSettings,
-                GlobalConstants.MaxAllowedTimeForSubmissionCompletion,
-                MaxAllowedTimeForSubmissionCompletionInSecs);
+            model.MaxAllowedTimeForSubmissionCompletion = this.settingsService.Get<int>(
+                GlobalConstants.MaxAllowedTimeForSubmissionCompletion, MaxAllowedTimeForSubmissionCompletionInSecs);
 
             foreach (var contest in contests)
             {
@@ -586,10 +587,8 @@
                             false,
                             model.MaxAllowedTimeForSubmissionCompletion);
 
-                    model.ActualWorkers = this.ApplyDbSettingValue(
-                        dbSettings,
-                        GlobalConstants.RemoteWorkers,
-                        ActualWorkersDefaultValue);
+                    model.ActualWorkers =
+                        this.settingsService.Get<int>(GlobalConstants.RemoteWorkers, ActualWorkersDefaultValue);
 
                     // Currently is setted to 0 because it is not fetched from the SULS
                     model.ExpectedStudentsCount = 0;
@@ -638,24 +637,6 @@
             var calculatedLoad = this.contestsBusiness.CalculateLoadForContest(model);
 
             return this.Json(calculatedLoad);
-        }
-
-        private T ApplyDbSettingValue<T>(IEnumerable<Setting> dbSettings, string settingName, T alternativeValue)
-        {
-            var setting = dbSettings.FirstOrDefault(s => s.Name == settingName);
-            if (setting == null)
-            {
-                return alternativeValue;
-            }
-
-            try
-            {
-                return (T)Convert.ChangeType(setting.Value, typeof(T));
-            }
-            catch
-            {
-                throw new InvalidCastException($"Unable to cast object of type {typeof(T)}");
-            }
         }
 
         private void PrepareViewBagData(int? contestId = null)
