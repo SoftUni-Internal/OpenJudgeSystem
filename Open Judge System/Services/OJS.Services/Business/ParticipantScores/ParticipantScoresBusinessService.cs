@@ -29,7 +29,7 @@
         public ParticipantScoresBusinessService(
             IParticipantScoresDataService participantScoresData,
             ISubmissionsDataService submissionsData,
-            IParticipantsDataService participantsData, 
+            IParticipantsDataService participantsData,
             IContestsDataService contestsDataService)
         {
             this.participantScoresData = participantScoresData;
@@ -63,7 +63,24 @@
             }
         }
 
-        public CategoryContestsParticipationSummary GetCategoryParticipationSummary(int categoryId, bool showHidden, bool official = true)
+        public CategoryContestsParticipationSummary GetCategoryParticipationSummary(
+            int categoryId, 
+            bool showHidden,
+            bool official)
+        {
+            return this.GetCategoryParticipationSummaryData(categoryId, showHidden, official);
+        }
+
+        public CategoryContestsParticipationSummary GetCategoryParticipationSummary(
+            int categoryId, 
+            bool showHidden)
+        {
+            return this.GetCategoryParticipationSummaryData(categoryId, showHidden);
+        }
+        private CategoryContestsParticipationSummary GetCategoryParticipationSummaryData(
+            int categoryId,
+            bool showHidden,
+            bool official = true)
         {
             var contests = this.contestsDataService
                 .GetAllNotDeletedByCategory(categoryId, showHidden)
@@ -73,7 +90,8 @@
                 .OrderByDescending(c => c.CreatedOn)
                 .ToList();
 
-            var participants =  this.participantsData.GetAllByContestIdsAndIsOfficial(contests.Select(c => c.Id), official)
+            var participants = this.participantsData
+                .GetAllByContestIdsAndIsOfficial(contests.Select(c => c.Id), official)
                 .Include(p => p.User)
                 .Include(p => p.Submissions)
                 .Include(p => p.Scores)
@@ -81,11 +99,12 @@
                 .Where(p => p.Scores.Count != 0)
                 .OrderBy(p => p.Contest.OrderBy)
                 .ToList();
-           
+
             var results = new List<ParticipantScoresSummaryModel>();
             participants
                 .ChunkBy(GlobalConstants.BatchOperationsChunkSize)
-                .ForEach(batch => results.AddRange(this.GetStatisticsForParticipants(batch, StatisticsLevel.ProblemGroup)));
+                .ForEach(batch =>
+                    results.AddRange(this.GetStatisticsForParticipants(batch, StatisticsLevel.ProblemGroup)));
 
             var maxProblemsCount = results
                 .Select(ps => ps.ProblemsCount)
@@ -97,21 +116,21 @@
                 Results = results,
             };
         }
-        
         public ContestParticipationSummary GetContestParticipationSummary(int contestId, bool official = true)
         {
-            var participants =  this.participantsData.GetAllByContestAndIsOfficial(contestId, official)
+            var participants = this.participantsData.GetAllByContestAndIsOfficial(contestId, official)
                 .Include(p => p.User)
                 .Include(p => p.Submissions)
                 .Include(p => p.Scores)
                 .Include(p => p.Problems)
                 .Where(p => p.Scores.Count != 0)
                 .ToList();
-           
+
             var results = new List<ParticipantScoresSummaryModel>();
             participants
                 .ChunkBy(GlobalConstants.BatchOperationsChunkSize)
-                .ForEach(batch => results.AddRange(this.GetStatisticsForParticipants(batch, StatisticsLevel.ProblemName)));
+                .ForEach(batch =>
+                    results.AddRange(this.GetStatisticsForParticipants(batch, StatisticsLevel.ProblemName)));
 
             return new ContestParticipationSummary
             {
@@ -156,8 +175,8 @@
                     .OrderBy(v => v.Value.ProblemGroup)
                     .ToDictionary(k => k.Key, v => v.Value);
             }
-            
-            
+
+
             return new ParticipantScoresSummaryModel
             {
                 ParticipantName = participantInfo.Participant.User.UserName,
@@ -170,10 +189,11 @@
             };
         }
 
-        private Dictionary<string, ParticipantSummarySubmissionInfoServiceModel> CalculateTimeTakenBetweenBestForProblems(
-            IEnumerable<MaximumResultSubmissionByProblemServiceModel> maxSubmissionsBySubmissionTime,
-            StatisticsLevel level,
-            DateTime userStartTime)
+        private Dictionary<string, ParticipantSummarySubmissionInfoServiceModel>
+            CalculateTimeTakenBetweenBestForProblems(
+                IEnumerable<MaximumResultSubmissionByProblemServiceModel> maxSubmissionsBySubmissionTime,
+                StatisticsLevel level,
+                DateTime userStartTime)
         {
             var maxSubmissionsBySubmissionTimeList = maxSubmissionsBySubmissionTime.ToList();
 
@@ -189,17 +209,17 @@
                         LaterSubmission = laterSubmission,
                     };
                 });
-            
+
             var result = this.GetTimeTakenAndLengthStatistics(values, level);
 
             var earliestSubmission = maxSubmissionsBySubmissionTimeList.First().Submission;
-            result[this.GetSubmissionKey(level, earliestSubmission)] = 
+            result[this.GetSubmissionKey(level, earliestSubmission)] =
                 this.GetSubmissionTimeTakenToSolveAndLength(
-                    result, 
+                    result,
                     earliestSubmission,
                     level,
                     userStartTime);
-            
+
             return result;
         }
 
@@ -210,19 +230,19 @@
             var resultDict = new Dictionary<string, ParticipantSummarySubmissionInfoServiceModel>();
 
             submissionPairsValues.ForEach(v =>
-             {
-                 resultDict[this.GetSubmissionKey(level, v.LaterSubmission.Submission)] =
-                     this.GetSubmissionTimeTakenToSolveAndLength(
-                         resultDict, 
-                         v.LaterSubmission.Submission,
-                         level,
-                         v.EarlierSubmission.Submission.CreatedOn);
-             });
-            
+            {
+                resultDict[this.GetSubmissionKey(level, v.LaterSubmission.Submission)] =
+                    this.GetSubmissionTimeTakenToSolveAndLength(
+                        resultDict,
+                        v.LaterSubmission.Submission,
+                        level,
+                        v.EarlierSubmission.Submission.CreatedOn);
+            });
+
             return resultDict;
         }
-        
-        private string GetSubmissionKey(StatisticsLevel level, Submission submission) 
+
+        private string GetSubmissionKey(StatisticsLevel level, Submission submission)
             => level == StatisticsLevel.ProblemName
                 ? submission.Problem.Name
                 : submission.Problem.ProblemGroup.OrderBy.ToString();
@@ -234,16 +254,16 @@
             DateTime timeToCompareWith)
         {
             var timeTaken = submission.CreatedOn.GetMinutesDifferenceRounded(timeToCompareWith);
-            
+
             var submissionLength = this.GetSubmissionCodeLength(submission);
 
             var problemIndex = this.GetSubmissionKey(level, submission);
-            
+
             if (resultDict.ContainsKey(problemIndex) && level == StatisticsLevel.ProblemGroup)
             {
                 (submissionLength, timeTaken) = this.CalculateSubmissionAverageTimeTakenAndLength(
                     resultDict[problemIndex],
-                    timeTaken, 
+                    timeTaken,
                     submissionLength);
             }
 
@@ -256,11 +276,11 @@
         }
 
         private Tuple<int, double> CalculateSubmissionAverageTimeTakenAndLength(
-            ParticipantSummarySubmissionInfoServiceModel existingValue, 
-            double timeTaken, 
+            ParticipantSummarySubmissionInfoServiceModel existingValue,
+            double timeTaken,
             int length)
             => new Tuple<int, double>(
-                Convert.ToInt32((existingValue.Length + length) / 2), 
+                Convert.ToInt32((existingValue.Length + length) / 2),
                 Math.Round((existingValue.TimeTaken + timeTaken) / 2));
 
         private int GetSubmissionCodeLength(Submission submission)
@@ -277,19 +297,19 @@
                     .Where(e =>
                         GlobalConstants.ParticipationStatisticsFileSubmissionsAllowedExtensions
                             .Any(fe => e.FullName.EndsWith(fe)));
-                
+
                 var sumFileContentsLength = eligibleFileEntries
                     .Select(e =>
                     {
                         using (var reader = new StreamReader(e.Open(), Encoding.UTF8))
                         {
                             var fileContent = reader.ReadToEnd();
-                        
+
                             return this.GetCodeSubmissionLength(fileContent);
                         }
                     })
                     .Sum();
-                
+
                 return sumFileContentsLength;
             }
         }
@@ -297,7 +317,8 @@
         private int GetCodeSubmissionLength(string codeContentAsString)
             => codeContentAsString.CountNewLines();
 
-        private IEnumerable<ParticipantSummaryInfoServiceModel> BuildStatisticsData(IEnumerable<Participant> participants)
+        private IEnumerable<ParticipantSummaryInfoServiceModel> BuildStatisticsData(
+            IEnumerable<Participant> participants)
         {
             return participants
                 .Where(p => p.Submissions.Any())
@@ -320,6 +341,7 @@
                             })
                 });
         }
+
         private double CalculateTimeInMinutesFromParticipationStartToLastSubmission(Participant participant)
             => participant.Submissions
                 .Select(s => s.CreatedOn)
@@ -327,9 +349,10 @@
                 .FirstOrDefault()
                 .GetMinutesDifferenceRounded(participant.ParticipationStartTime ?? participant.CreatedOn);
 
-        private Dictionary<string, ParticipantSummarySubmissionInfoServiceModel> NormalizeProblemGroupIndexesAndEmptyValues(
-            Dictionary<string, ParticipantSummarySubmissionInfoServiceModel> values,
-            IEnumerable<int> problemGroupsOrderBy)
+        private Dictionary<string, ParticipantSummarySubmissionInfoServiceModel>
+            NormalizeProblemGroupIndexesAndEmptyValues(
+                Dictionary<string, ParticipantSummarySubmissionInfoServiceModel> values,
+                IEnumerable<int> problemGroupsOrderBy)
         {
             var sortedOrderedBy = problemGroupsOrderBy
                 .OrderBy(n => n)
@@ -353,7 +376,7 @@
                 })
                 .ToDictionary(k => k.Key.ToString(), v => v.Value);
         }
-        
+
         private void NormalizeSubmissionPoints() =>
             this.submissionsData
                 .GetAllHavingPointsExceedingLimit()
@@ -376,13 +399,15 @@
                 .Select(ps => new
                 {
                     ParticipantScore = ps,
-                    ProblemMaxPoints = ps.Problem.MaximumPoints
+                    ProblemMaxPoints = ps.Problem.MaximumPoints,
+                    Particinapnt = ps.Participant,
                 })
                 .ToList()
                 .ForEach(x =>
                     this.participantScoresData.UpdateBySubmissionAndPoints(
                         x.ParticipantScore,
                         x.ParticipantScore.SubmissionId,
-                        x.ProblemMaxPoints));
+                        x.ProblemMaxPoints,
+                        x.Particinapnt));
     }
 }

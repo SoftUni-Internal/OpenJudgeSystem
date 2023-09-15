@@ -152,6 +152,7 @@
     <Compile Include="Business\ParticipantScores\Models\ExcelModels\ContestParticipationSummaryExcelModel.cs" />
     <Compile Include="Business\ParticipantScores\Models\ExcelModels\BaseParticipationStatisticsSummaryExcelModel.cs" />
     <Compile Include="Business\ParticipantScores\Models\MaximumResultSubmissionByProblemServiceModel.cs" />
+    <Compile Include="Business\ParticipantScores\Models\ParticipantScoreDataModel.cs" />
     <Compile Include="Business\ParticipantScores\Models\ParticipantScoresSummaryModel.cs" />
     <Compile Include="Business\ParticipantScores\Models\ParticipantSummaryInfoServiceModel.cs" />
     <Compile Include="Business\ParticipantScores\Models\ParticipantSummarySubmissionInfoServiceModel.cs" />

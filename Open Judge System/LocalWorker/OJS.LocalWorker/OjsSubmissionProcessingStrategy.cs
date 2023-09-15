@@ -2,8 +2,8 @@
 {
     using System;
     using System.Linq;
-    using OJS.Common.Models;
-    using OJS.Data.Models;
+    using Data.Models;
+    using OJS.Services.Business.ParticipantScores.Models;
     using OJS.Services.Data.Participants;
     using OJS.Services.Data.ParticipantScores;
     using OJS.Services.Data.Submissions;
@@ -11,9 +11,9 @@
     using OJS.Services.Data.TestRuns;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.SubmissionProcessors;
-    using OJS.Workers.SubmissionProcessors.Models;
+    using Workers.ExecutionStrategies.Models;
+    using Workers.SubmissionProcessors;
+    using Workers.SubmissionProcessors.Models;
     using ExceptionType = Workers.Common.Models.ExceptionType;
 
     public class OjsSubmissionProcessingStrategy : SubmissionProcessingStrategy<int>
@@ -190,10 +190,12 @@
                 }
                 else
                 {
-                    var totalTestRunsWithoutTrialTestsCount = this.submission.CorrectTestRunsWithoutTrialTestsCount + this.submission.IncorrectTestRunsWithoutTrialTestsCount;
+                    var totalTestRunsWithoutTrialTestsCount = this.submission.CorrectTestRunsWithoutTrialTestsCount +
+                                                              this.submission.IncorrectTestRunsWithoutTrialTestsCount;
 
                     var coefficient = totalTestRunsWithoutTrialTestsCount > 0
-                        ? (double)this.submission.CorrectTestRunsWithoutTrialTestsCount / totalTestRunsWithoutTrialTestsCount
+                        ? (double)this.submission.CorrectTestRunsWithoutTrialTestsCount /
+                          totalTestRunsWithoutTrialTestsCount
                         : 0;
 
                     this.submission.Points = (int)(coefficient * this.submission.Problem.MaximumPoints);
@@ -219,16 +221,12 @@
                     return;
                 }
 
-                var participant = this.participantsData
+                var participantObject = this.participantsData
                     .GetByIdQuery(this.submission.ParticipantId.Value)
-                    .Select(p => new
-                    {
-                        p.IsOfficial,
-                        p.User.UserName
-                    })
+                    .Select(ParticipantScoreDataModel.FromParticipant)
                     .FirstOrDefault();
 
-                if (participant == null)
+                if (participantObject == null)
                 {
                     return;
                 }
@@ -240,14 +238,14 @@
                     existingScore = this.participantScoresData.GetByParticipantIdProblemIdAndIsOfficial(
                         this.submission.ParticipantId.Value,
                         this.submission.ProblemId.Value,
-                        participant.IsOfficial);
+                        participantObject.IsOfficial);
 
                     if (existingScore == null)
                     {
                         this.participantScoresData.AddBySubmissionByUsernameAndIsOfficial(
                             this.submission,
-                            participant.UserName,
-                            participant.IsOfficial);
+                            participantObject.UserName,
+                            participantObject.Participant);
 
                         return;
                     }
@@ -259,7 +257,8 @@
                     this.participantScoresData.UpdateBySubmissionAndPoints(
                         existingScore,
                         this.submission.Id,
-                        this.submission.Points);
+                        this.submission.Points,
+                        participantObject.Participant);
                 }
             }
             catch (Exception ex)
@@ -320,7 +319,7 @@
                     .ProblemSubmissionTypeExecutionDetails
                     .FirstOrDefault(s => s.SubmissionTypeId == this.submission.SubmissionTypeId);
 
-            if (submissionTypeDetails != null && 
+            if (submissionTypeDetails != null &&
                 submissionTypeDetails.TimeLimit.HasValue &&
                 submissionTypeDetails.TimeLimit > 0)
             {
@@ -349,24 +348,24 @@
                 Input = new TestsInputModel
                 {
                     TaskSkeleton = this.submission.Problem
-                    .ProblemSubmissionTypeExecutionDetails
-                    .Where(x => x.SubmissionTypeId == this.submission.SubmissionTypeId)
-                    .Select(x => x.SolutionSkeleton)
-                    .FirstOrDefault(),
+                        .ProblemSubmissionTypeExecutionDetails
+                        .Where(x => x.SubmissionTypeId == this.submission.SubmissionTypeId)
+                        .Select(x => x.SolutionSkeleton)
+                        .FirstOrDefault(),
                     CheckerParameter = this.submission.Problem.Checker.Parameter,
                     CheckerAssemblyName = this.submission.Problem.Checker.DllFile,
                     CheckerTypeName = this.submission.Problem.Checker.ClassName,
                     Tests = this.submission.Problem.Tests
-                    .AsQueryable()
-                    .Select(t => new TestContext
-                    {
-                        Id = t.Id,
-                        Input = t.InputDataAsString,
-                        Output = t.OutputDataAsString,
-                        IsTrialTest = t.IsTrialTest,
-                        OrderBy = t.OrderBy
-                    })
-                    .ToList()
+                        .AsQueryable()
+                        .Select(t => new TestContext
+                        {
+                            Id = t.Id,
+                            Input = t.InputDataAsString,
+                            Output = t.OutputDataAsString,
+                            IsTrialTest = t.IsTrialTest,
+                            OrderBy = t.OrderBy
+                        })
+                        .ToList()
                 }
             };
         }

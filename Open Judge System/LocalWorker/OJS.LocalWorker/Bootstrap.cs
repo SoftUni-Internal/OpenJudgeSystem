@@ -1,4 +1,7 @@
-﻿namespace OJS.LocalWorker
+﻿using OJS.Services.Cache;
+using OJS.Services.Cache.Implementations;
+
+namespace OJS.LocalWorker
 {
     using System.Data.Entity;
     using System.Linq;
@@ -37,6 +40,7 @@
         private static void RegisterTypes(Container container)
         {
             container.Register<OjsDbContext>(Lifestyle.Scoped);
+            container.Register<IOjsDbContext>(container.GetInstance<OjsDbContext>, Lifestyle.Scoped);
             container.Register<ArchivesDbContext>(Lifestyle.Scoped);
             container.Register<DbContext>(container.GetInstance<OjsDbContext>, Lifestyle.Scoped);
 
@@ -58,6 +62,14 @@
             container.Register(
                 typeof(IArchivesGenericRepository<>),
                 typeof(ArchivesGenericReposity<>),
+                Lifestyle.Scoped);
+            
+            container.Register<ICacheService>(
+                () => new MemoryCacheService(),
+                Lifestyle.Scoped);
+
+            container.Register<IMemoryCacheService>(
+                () => new MemoryCacheService(),
                 Lifestyle.Scoped);
 
             RegisterServices(container);

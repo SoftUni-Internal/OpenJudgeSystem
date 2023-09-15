@@ -13,7 +13,7 @@
             // When apps work on http, but Load Balancer calls them over HTTPS,
             // we want to redirect back to https.
             string redirectUrl = request.IsSecureConnection
-                ? $"{request.UrlReferrer}Account/Login"
+                ? $"{request.UrlReferrer.Scheme}://{request.UrlReferrer.Authority}/Account/Login"
                 : "/Account/Login"; // Default behavior (HTTP)
 
             redirectUrl += "?returnUrl=" + Uri.EscapeDataString(request.RawUrl);

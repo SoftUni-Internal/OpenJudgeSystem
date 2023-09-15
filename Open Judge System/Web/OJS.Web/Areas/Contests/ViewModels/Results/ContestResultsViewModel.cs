@@ -2,9 +2,8 @@
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Contests;
     using OJS.Common.Models;
-    using OJS.Web.Areas.Contests.ViewModels.Contests;
-
     using X.PagedList;
 
     public class ContestResultsViewModel
@@ -15,7 +14,7 @@
 
         public IEnumerable<ContestProblemListViewModel> Problems { get; set; }
 
-        public IEnumerable<ParticipantResultViewModel> Results { get; set; }
+        public List<ParticipantResultViewModel> Results { get; set; }
 
         public IPagedList<ParticipantResultViewModel> PagedResults { get; private set; }
 
@@ -29,9 +28,12 @@
 
         public bool IsCompete { get; set; }
 
-        public async Task<ContestResultsViewModel> ToPagedResults(int page, int pageSize)
+        public int TotalCount { get; set; }
+
+        public ContestResultsViewModel ToPagedResults(int page, int pageSize)
         {
-            this.PagedResults = await this.Results.ToPagedListAsync(page, pageSize);
+            this.PagedResults =
+                new StaticPagedList<ParticipantResultViewModel>(this.Results, page, pageSize, this.TotalCount);
 
             return this;
         }

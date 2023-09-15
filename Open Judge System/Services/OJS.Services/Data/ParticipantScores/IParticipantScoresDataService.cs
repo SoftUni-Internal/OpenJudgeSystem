@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-
     using OJS.Data.Models;
     using OJS.Services.Common;
 
@@ -28,12 +27,13 @@
 
         void Delete(IEnumerable<ParticipantScore> participantScores);
 
-        void AddBySubmissionByUsernameAndIsOfficial(Submission submission, string username, bool isOfficial);
+        void AddBySubmissionByUsernameAndIsOfficial(Submission submission, string userName, Participant participant);
 
         void UpdateBySubmissionAndPoints(
             ParticipantScore participantScore,
             int? submissionId,
-            int submissionPoints);
+            int submissionPoints,
+            Participant participant);
 
         void RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds);
     }

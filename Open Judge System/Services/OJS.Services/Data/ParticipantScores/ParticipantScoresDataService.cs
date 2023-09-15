@@ -1,8 +1,9 @@
-﻿namespace OJS.Services.Data.ParticipantScores
+﻿using OJS.Services.Business.ParticipantScores.Models;
+
+namespace OJS.Services.Data.ParticipantScores
 {
     using System.Collections.Generic;
     using System.Linq;
-
     using EntityFramework.Extensions;
     using OJS.Common;
     using OJS.Data.Models;
@@ -29,7 +30,8 @@
                     ps.ParticipantId == participantId &&
                     ps.ProblemId == problemId);
 
-        public ParticipantScore GetByParticipantIdProblemIdAndIsOfficial(int participantId, int problemId, bool isOfficial) =>
+        public ParticipantScore GetByParticipantIdProblemIdAndIsOfficial(int participantId, int problemId,
+            bool isOfficial) =>
             this.participantScores
                 .All()
                 .FirstOrDefault(ps =>
@@ -63,11 +65,7 @@
 
             var participant = this.participantsData
                 .GetByIdQuery(submission.ParticipantId.Value)
-                .Select(p => new
-                {
-                    p.IsOfficial,
-                    p.User.UserName
-                })
+                .Select(ParticipantScoreDataModel.FromParticipant)
                 .FirstOrDefault();
 
             if (participant == null)
@@ -82,11 +80,12 @@
 
             if (existingScore == null)
             {
-                this.AddBySubmissionByUsernameAndIsOfficial(submission, participant.UserName, participant.IsOfficial);
+                this.AddBySubmissionByUsernameAndIsOfficial(submission, participant.UserName, participant.Participant);
             }
             else
             {
-                this.UpdateBySubmissionAndPoints(existingScore, submission.Id, submission.Points);
+                this.UpdateBySubmissionAndPoints(existingScore, submission.Id, submission.Points,
+                    participant.Participant);
             }
         }
 
@@ -119,31 +118,37 @@
             this.participantScores.SaveChanges();
         }
 
-        public void AddBySubmissionByUsernameAndIsOfficial(Submission submission, string username, bool isOfficial)
+        public void AddBySubmissionByUsernameAndIsOfficial(
+            Submission submission,
+            string userName,
+            Participant participant)
         {
-            this.participantScores.Add(new ParticipantScore
+            participant.Scores.Add(new ParticipantScore
             {
                 ParticipantId = submission.ParticipantId.Value,
                 ProblemId = submission.ProblemId.Value,
                 SubmissionId = submission.Id,
-                ParticipantName = username,
+                ParticipantName = userName,
                 Points = submission.Points,
-                IsOfficial = isOfficial
+                IsOfficial = participant.IsOfficial
             });
+            participant.TotalScoreSnapshot += submission.Points;
 
-            this.participantScores.SaveChanges();
+            this.participantsData.Update(participant);
         }
 
         public void UpdateBySubmissionAndPoints(
             ParticipantScore participantScore,
             int? submissionId,
-            int submissionPoints)
+            int submissionPoints,
+            Participant participant)
         {
+            participant.TotalScoreSnapshot = (participant.TotalScoreSnapshot - participantScore.Points) + submissionPoints;
+
             participantScore.SubmissionId = submissionId;
             participantScore.Points = submissionPoints;
 
-            this.participantScores.Update(participantScore);
-            this.participantScores.SaveChanges();
+            this.participantsData.Update(participant);
         }
 
         public void RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds) =>

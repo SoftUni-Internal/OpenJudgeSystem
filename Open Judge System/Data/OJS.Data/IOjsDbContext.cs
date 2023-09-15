@@ -1,9 +1,10 @@
-﻿namespace OJS.Data
+﻿using System.Threading.Tasks;
+
+namespace OJS.Data
 {
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
-
     using OJS.Data.Models;
 
     public interface IOjsDbContext : IDisposable
@@ -58,7 +59,13 @@
 
         int SaveChanges();
 
+        Task<int> SaveChangesAsync();
+
         void ClearDatabase();
+
+        void DbExecuteSqlCommand(string query);
+
+        void ExecuteSqlCommandWithTimeout(string query, int timeoutInSeconds);
 
         DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity)
             where TEntity : class;

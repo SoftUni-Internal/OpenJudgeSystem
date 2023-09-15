@@ -1,4 +1,7 @@
-﻿namespace OJS.Web.Controllers
+﻿using System.Diagnostics;
+using X.PagedList;
+
+namespace OJS.Web.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -39,6 +42,7 @@
         private readonly IProblemsDataService problemsDataService;
         private readonly IParticipantsDataService participantsData;
         private readonly IHttpRequesterService httpRequester;
+        private readonly IOjsDbContext db;
 
         public TempController(
             IOjsData data,
@@ -46,7 +50,8 @@
             IProblemGroupsDataService problemGroupsData,
             IParticipantsDataService participantsData,
             IHttpRequesterService httpRequester,
-            IProblemsDataService problemsDataService)
+            IProblemsDataService problemsDataService,
+            IOjsDbContext db)
             : base(data)
         {
             this.backgroundJobs = backgroundJobs;
@@ -54,6 +59,7 @@
             this.participantsData = participantsData;
             this.httpRequester = httpRequester;
             this.problemsDataService = problemsDataService;
+            this.db = db;
         }
 
         public ActionResult RegisterJobForCleaningSubmissionsForProcessingTable()
@@ -100,7 +106,8 @@
         {
             this.backgroundJobs.AddOrUpdateRecurringJob<IArchivedSubmissionsBusinessService>(
                 "ArchiveOldSubmissionsDailyBatch",
-                s => s.ArchiveOldSubmissionsDailyBatch(null, Settings.ArchiveDailyBatchSize, Settings.ArchiveMaxSubBatchSize),
+                s => s.ArchiveOldSubmissionsDailyBatch(null, Settings.ArchiveDailyBatchSize,
+                    Settings.ArchiveMaxSubBatchSize),
                 Cron.Daily(1, 30));
 
             return null;
@@ -174,7 +181,7 @@
                 .Delete();
 
             return this.Content($"Done! ProblemGroups set to deleted: {softDeleted}" +
-                $"<br/> ProblemGroups hard deleted: {hardDeleted}");
+                                $"<br/> ProblemGroups hard deleted: {hardDeleted}");
         }
 
         public ActionResult DeleteDuplicatedParticipantsInSameContest()
@@ -305,7 +312,7 @@
                 foreach (var skeleton in skeletons)
                 {
                     var skeletonAsString = skeleton.SolutionSkeleton.Decompress();
-                    
+
                     if (!string.IsNullOrWhiteSpace(skeletonAsString))
                     {
                         if (MySqlStrategiesHelper.TryOptimizeQuery(skeletonAsString, out var newSkeleton))
@@ -347,7 +354,8 @@
                 var checkers = this.Data.Checkers.All().ToList();
                 var submissionTypes = this.Data.SubmissionTypes.All().ToList();
 
-                await this.LoadContestCategoryAndAssignCheckerAndSubmissionTypes(contestCategoryResponse.Data, checkers, submissionTypes);
+                await this.LoadContestCategoryAndAssignCheckerAndSubmissionTypes(contestCategoryResponse.Data, checkers,
+                    submissionTypes);
 
                 using (var scope = TransactionsHelper.CreateTransactionScope())
                 {
@@ -362,6 +370,38 @@
                 return this.Content(
                     $"Contest categories can't be migrated and exception {e}");
             }
+        }
+
+        public ActionResult UpdateParticipantsTotalScore()
+        {
+            var query = @"DECLARE @BatchSize INT = 5000;
+           DECLARE @MaxId INT = (SELECT MAX(Id) FROM Participants);
+           DECLARE @Offset INT = 0;
+
+           WHILE @Offset <= @MaxId
+           BEGIN
+               WITH OrderedParticipants AS (
+               SELECT TOP (@BatchSize) Id
+           FROM Participants
+           WHERE Id > @Offset
+           ORDER BY Id
+               )
+           UPDATE p
+           SET TotalScoreSnapshot = ISNULL((
+               SELECT SUM(ps.Points)
+           FROM ParticipantScores ps
+               JOIN Problems pr ON ps.ProblemId = pr.Id AND pr.IsDeleted = 0
+           WHERE ps.ParticipantId = p.Id
+               ), 0)
+           FROM OrderedParticipants op
+               JOIN Participants p ON op.Id = p.Id;
+
+           SET @Offset = @Offset + @BatchSize;
+           END;";
+
+            this.db.ExecuteSqlCommandWithTimeout(query, 0);
+
+            return this.Content("UPDATED");
         }
 
         private async Task LoadContestCategoryAndAssignCheckerAndSubmissionTypes(
@@ -390,7 +430,9 @@
                 var contestCategoryResponse = await this.FetchContestCategory(id);
 
                 contestCategory.Children.Add(contestCategoryResponse.Data);
-                await this.LoadContestCategoryAndAssignCheckerAndSubmissionTypes(contestCategoryResponse.Data, checkers, submissionTypes);
+                await this.LoadContestCategoryAndAssignCheckerAndSubmissionTypes(contestCategoryResponse.Data,
+                    checkers,
+                    submissionTypes);
             }
         }
 

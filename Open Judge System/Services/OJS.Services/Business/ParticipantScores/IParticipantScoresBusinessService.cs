@@ -11,6 +11,8 @@
 
         CategoryContestsParticipationSummary GetCategoryParticipationSummary(int categoryId, bool showHidden, bool official);
 
+        CategoryContestsParticipationSummary GetCategoryParticipationSummary(int categoryId, bool showHidden);
+
         ContestParticipationSummary GetContestParticipationSummary(int contestId, bool official = true);
     }
 }
