@@ -218,15 +218,15 @@
                 return this.RedirectToAction(c => c.NewContestIp(id));
             }
 
+            var contestViewModel = this.cacheService.GetOrSet<ContestViewModel>(
+                string.Format(CacheConstants.ContestView, participant.ContestId),
+                () => { return ContestViewModel.FromContest.Compile()(participant.Contest); });
+
             var participantViewModel = new ParticipantViewModel(
                 participant,
                 official,
-                isUserAdminOrLecturerInContest)
-            {
-                Contest = this.cacheService.GetOrSet<ContestViewModel>(
-                    string.Format(CacheConstants.ContestView, participant.ContestId),
-                     () => { return ContestViewModel.FromContest.Compile()(participant.Contest); })
-            };
+                isUserAdminOrLecturerInContest,
+                contestViewModel);
 
             this.ViewBag.CompeteType = official ? CompeteActionName : PracticeActionName;
             this.ViewBag.IsUserAdminOrLecturer = isUserAdminOrLecturerInContest;

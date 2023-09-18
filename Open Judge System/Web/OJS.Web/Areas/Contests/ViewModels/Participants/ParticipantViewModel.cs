@@ -10,9 +10,9 @@
     {
         private readonly DateTime? participationEndTime;
 
-        public ParticipantViewModel(Participant participant, bool official, bool isAdminOrLecturer)
+        public ParticipantViewModel(Participant participant, bool official, bool isAdminOrLecturer,ContestViewModel contest)
         {
-            this.Contest = new ContestViewModel();
+            this.Contest = contest;
             this.LastSubmissionTime = participant.Submissions.Any()
                 ? (DateTime?)participant.Submissions.Max(x => x.CreatedOn)
                 : null;
