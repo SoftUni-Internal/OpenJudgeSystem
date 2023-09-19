@@ -57,12 +57,9 @@ namespace OJS.Web.Controllers
             IParticipantsDataService participantsData,
             IHttpRequesterService httpRequester,
             IProblemsDataService problemsDataService,
-<<<<<<< HEAD
-            IOjsDbContext db)
-=======
+            IOjsDbContext db,
             ISubmissionTypesDataService submissionTypesDataService,
             IContestsDataService contestsDataService)
->>>>>>> strategies-for-removing
             : base(data)
         {
             this.backgroundJobs = backgroundJobs;
@@ -70,12 +67,9 @@ namespace OJS.Web.Controllers
             this.participantsData = participantsData;
             this.httpRequester = httpRequester;
             this.problemsDataService = problemsDataService;
-<<<<<<< HEAD
             this.db = db;
-=======
             this.submissionTypesDataService = submissionTypesDataService;
             this.contestsDataService = contestsDataService;
->>>>>>> strategies-for-removing
         }
 
         public ActionResult RegisterJobForCleaningSubmissionsForProcessingTable()
