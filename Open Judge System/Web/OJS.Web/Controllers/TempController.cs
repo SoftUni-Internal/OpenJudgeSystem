@@ -10,9 +10,11 @@ namespace OJS.Web.Controllers
     using System.Text;
     using System.Threading.Tasks;
     using System.Web.Mvc;
+    using System.Web.Services.Protocols;
     using EntityFramework.Extensions;
     using Hangfire;
     using MissingFeatures;
+    using NPOI.SS.Formula.Functions;
     using OJS.Common;
     using OJS.Common.Helpers;
     using OJS.Common.Models;
@@ -25,10 +27,12 @@ namespace OJS.Web.Controllers
     using OJS.Services.Common.HttpRequester;
     using OJS.Services.Common.HttpRequester.Models;
     using OJS.Services.Common.HttpRequester.Models.Users;
+    using OJS.Services.Data.Contests;
     using OJS.Services.Data.Participants;
     using OJS.Services.Data.ProblemGroups;
     using OJS.Services.Data.Problems;
     using OJS.Services.Data.SubmissionsForProcessing;
+    using OJS.Services.Data.SubmissionTypes;
     using OJS.Web.Common.Attributes;
     using OJS.Web.Common.Helpers;
     using OJS.Workers.Common.Extensions;
@@ -40,6 +44,8 @@ namespace OJS.Web.Controllers
         private readonly IHangfireBackgroundJobService backgroundJobs;
         private readonly IProblemGroupsDataService problemGroupsData;
         private readonly IProblemsDataService problemsDataService;
+        private readonly ISubmissionTypesDataService submissionTypesDataService;
+        private readonly IContestsDataService contestsDataService;
         private readonly IParticipantsDataService participantsData;
         private readonly IHttpRequesterService httpRequester;
         private readonly IOjsDbContext db;
@@ -51,7 +57,12 @@ namespace OJS.Web.Controllers
             IParticipantsDataService participantsData,
             IHttpRequesterService httpRequester,
             IProblemsDataService problemsDataService,
+<<<<<<< HEAD
             IOjsDbContext db)
+=======
+            ISubmissionTypesDataService submissionTypesDataService,
+            IContestsDataService contestsDataService)
+>>>>>>> strategies-for-removing
             : base(data)
         {
             this.backgroundJobs = backgroundJobs;
@@ -59,7 +70,12 @@ namespace OJS.Web.Controllers
             this.participantsData = participantsData;
             this.httpRequester = httpRequester;
             this.problemsDataService = problemsDataService;
+<<<<<<< HEAD
             this.db = db;
+=======
+            this.submissionTypesDataService = submissionTypesDataService;
+            this.contestsDataService = contestsDataService;
+>>>>>>> strategies-for-removing
         }
 
         public ActionResult RegisterJobForCleaningSubmissionsForProcessingTable()
@@ -343,6 +359,101 @@ namespace OJS.Web.Controllers
                 $"Done. Processed {problems.Count} Problems. <br/>" +
                 $"Updated {changedSkeletonsCount} solution skeletons. <br/>" +
                 $"Updated {changedTestsCount} test inputs.");
+        }
+
+        public ActionResult RemoveUnusedSubmissionTypes()
+        {
+            var submissionTypesToRemove = new Dictionary<int, string>
+            {
+                // PhpProjectWithDbExecutionStrategy
+                { 38, "PHP Project with DB" },
+
+                // PhpProjectExecutionStrategy
+                { 36, "PHP Project" },
+
+                // CSharpAspProjectTestsExecutionStrategy
+                { 31, "C# ASP Project Tests" },
+
+                // DotNetCoreTestRunner
+                { 21 ,"C# test runner" },
+
+                // CSharpPerformanceProjectTestsExecutionStrategy
+                { 33, "C# Performance Project Tests" },
+
+                // RubyExecutionStrategy
+                { 34, "Ruby Code" },
+
+                // CSharpProjectTestsExecutionStrategy
+                { 27, "C# Project Tests" },
+
+                // SolidityCompileDeployAndRunUnitTestsExecutionStrategy
+                { 445, "Solidity code" },
+
+                // CSharpUnitTestsExecutionStrategy 
+                { 26, "C# Unit Tests" },
+
+                // C# project/solution
+                { 4, "C# project/solution" },
+            };
+
+            var sb = new StringBuilder();
+            try
+            {
+                foreach (var stToRemove in submissionTypesToRemove.Keys)
+                {
+                    var contests = this.contestsDataService
+                        .GetAll()
+                        .Where(c => c.IsVisible && c.ProblemGroups
+                            .Any(pg => pg.Problems
+                                .Any(p => p.SubmissionTypes.Count == 1
+                                    && p.SubmissionTypes.Any(st => st.Id == stToRemove))))
+                        .ToList();
+
+                    var iteration = 0;
+                    sb.AppendLine($" Deleted {submissionTypesToRemove.First(st => st.Key == stToRemove).Value}");
+                    foreach (var contest in contests)
+                    {
+                        iteration += 1;
+                        sb.AppendLine($"  {iteration}. Contest: {contest.Name} (#{contest.Id})");
+
+                        if (contest.ProblemGroups
+                            .All(x => x.Problems
+                                .All(p => p.SubmissionTypes.Count == 1 && p.SubmissionTypes.First().Id == stToRemove)))
+                        {
+                            sb.AppendLine($"   -All tasks");
+                        }
+                        else
+                        {
+                            var problems = contest.ProblemGroups
+                                .SelectMany(x => x.Problems
+                                    .Where(p => p.SubmissionTypes.Count == 1 && p.SubmissionTypes.First().Id == stToRemove))
+                                .ToList();
+
+                            if (problems.Any())
+                            {
+                                foreach (var problem in problems)
+                                {
+                                    sb.AppendLine($"   - Problem: {problem.Name} (#{problem.Id})");
+                                }
+                            }
+                        }
+
+                        sb.AppendLine();
+                    }
+
+                    sb.AppendLine();
+                }
+
+                this.submissionTypesDataService.GetAll().Where(st => submissionTypesToRemove.ContainsKey(st.Id)).Delete();
+
+                var formattedString = string.Format(sb.ToString());
+
+                return this.Content($"<pre>{formattedString}<pre>");
+            }
+            catch (Exception ex)
+            {
+                return this.Content($"Something failed, {ex.Message}");
+            }
         }
 
         public async Task<ActionResult> MigrateContestCategoryFromRemoteJudge(string id)

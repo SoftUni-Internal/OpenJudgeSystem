@@ -369,17 +369,6 @@
                 },
                 new SubmissionType
                 {
-                    Name = "C# test runner",
-                    IsSelectedByDefault = false,
-                    ExecutionStrategyType = ExecutionStrategyType.DotNetCoreTestRunner,
-                    CompilerType = CompilerType.MsBuild,
-                    AdditionalCompilerArguments =
-                        "/t:rebuild /p:Configuration=Release,Optimize=true /verbosity:quiet /nologo",
-                    AllowBinaryFilesUpload = true,
-                    AllowedFileExtensions = "zip"
-                },
-                new SubmissionType
-                {
                     Name = "JavaScript Zip File (DOM, Mocha and Module Transpiling)",
                     IsSelectedByDefault = false,
                     ExecutionStrategyType =
@@ -473,33 +462,11 @@
                 },
                 new SubmissionType
                 {
-                    Name = "C# ASP Project Tests",
-                    IsSelectedByDefault = false,
-                    ExecutionStrategyType = ExecutionStrategyType.CSharpAspProjectTestsExecutionStrategy,
-                    CompilerType = CompilerType.MsBuildLibrary,
-                    AdditionalCompilerArguments =
-                        "/t:rebuild /p:Configuration=Release,Optimize=true /verbosity:quiet /nologo",
-                    AllowBinaryFilesUpload = true,
-                    AllowedFileExtensions = "zip"
-                },
-                new SubmissionType
-                {
                     Name = "Java Project (Spring + Hibernate)",
                     IsSelectedByDefault = false,
                     ExecutionStrategyType = ExecutionStrategyType.JavaSpringAndHibernateProjectExecutionStrategy,
                     CompilerType = CompilerType.JavaZip,
                     AdditionalCompilerArguments = "-encoding utf8",
-                    AllowBinaryFilesUpload = true,
-                    AllowedFileExtensions = "zip"
-                },
-                new SubmissionType
-                {
-                    Name = "C# Performance Project Tests",
-                    IsSelectedByDefault = false,
-                    ExecutionStrategyType = ExecutionStrategyType.CSharpPerformanceProjectTestsExecutionStrategy,
-                    CompilerType = CompilerType.MsBuildLibrary,
-                    AdditionalCompilerArguments =
-                        "/t:rebuild /p:Configuration=Release,Optimize=true /verbosity:quiet /nologo",
                     AllowBinaryFilesUpload = true,
                     AllowedFileExtensions = "zip"
                 },
@@ -523,28 +490,10 @@
                 },
                 new SubmissionType
                 {
-                    Name = "PHP Project",
-                    IsSelectedByDefault = false,
-                    ExecutionStrategyType = ExecutionStrategyType.PhpProjectExecutionStrategy,
-                    CompilerType = CompilerType.None,
-                    AllowBinaryFilesUpload = true,
-                    AllowedFileExtensions = "zip"
-                },
-                new SubmissionType
-                {
                     Name = ".NET Core Project Tests",
                     IsSelectedByDefault = false,
                     ExecutionStrategyType = ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy,
                     CompilerType = CompilerType.DotNetCompiler,
-                    AllowBinaryFilesUpload = true,
-                    AllowedFileExtensions = "zip"
-                },
-                new SubmissionType
-                {
-                    Name = "PHP Project with DB",
-                    IsSelectedByDefault = false,
-                    ExecutionStrategyType = ExecutionStrategyType.PhpProjectWithDbExecutionStrategy,
-                    CompilerType = CompilerType.None,
                     AllowBinaryFilesUpload = true,
                     AllowedFileExtensions = "zip"
                 },
@@ -566,15 +515,6 @@
                     CompilerType = CompilerType.DotNetCompiler,
                     AllowBinaryFilesUpload = true,
                     AllowedFileExtensions = "zip"
-                },
-                new SubmissionType
-                {
-                    Name = "Solidity code",
-                    IsSelectedByDefault = false,
-                    ExecutionStrategyType = ExecutionStrategyType.SolidityCompileDeployAndRunUnitTestsExecutionStrategy,
-                    CompilerType = CompilerType.SolidityCompiler,
-                    AllowBinaryFilesUpload = false,
-                    AllowedFileExtensions = null
                 },
                 new SubmissionType
                 {
