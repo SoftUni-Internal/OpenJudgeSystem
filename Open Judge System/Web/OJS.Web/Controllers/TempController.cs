@@ -503,6 +503,10 @@ namespace OJS.Web.Controllers
 
         public ActionResult UpdateParticipantsTotalScore()
         {
+            // This request causes 504 (Timeout error)
+            // It will work if query is executed directly in database
+            return this.Content("Unsupported");
+            
             var query = @"DECLARE @BatchSize INT = 5000;
            DECLARE @MaxId INT = (SELECT MAX(Id) FROM Participants);
            DECLARE @Offset INT = 0;
