@@ -69,17 +69,6 @@
             @Html.HiddenFor(m => m.Id)
             <input type="submit" class="btn btn-sm btn-primary" value=@Resource.Retest />
         }
-        <div class="submission-type-box">
-            <div>
-                <p><strong>Submission Type:</strong> @Model.SubmissionType.Name</p>
-            </div>
-            @if (Model.UserHasAdminPermission)
-            {
-                <div>
-                    <p><strong>Submission Type Name:</strong> @Model.SubmissionType.ExecutionStrategyType</p>
-                </div>
-            }
-        </div>
     }
 </div>
 
@@ -362,14 +351,15 @@ else
     <textarea id="code">@Model.ContentAsString</textarea>
 }
 
-<p class="top-buffer">@AdministrationResource.Created_on: @Model.CreatedOn</p>
-
+<p class="top-buffer"><strong>@AdministrationResource.Created_on:</strong> @Model.CreatedOn</p>
 @if (Model.UserHasAdminPermission)
 {
-    <p>@AdministrationResource.Modified_on: @Model.ModifiedOn</p>
-    <p>@AdministrationResource.Started_execution_on: @Model.StartedExecutionOn</p>
-    <p>@AdministrationResource.Completed_execution_on: @Model.CompletedExecutionOn</p>
+    <p><strong>@AdministrationResource.Modified_on</strong>: @Model.ModifiedOn</p>
+    <p><strong>@AdministrationResource.Started_execution_on</strong>: @Model.StartedExecutionOn</p>
+    <p><strong>@AdministrationResource.Completed_execution_on</strong>: @Model.CompletedExecutionOn</p>
+    <p><strong>Submission Type Name:</strong> @Model.SubmissionType.ExecutionStrategyType</p>
 }
+<p><strong>Submission Type:</strong> @Model.SubmissionType.Name</p>
 
 <script>
     function onTestInputDataSuccess() {
