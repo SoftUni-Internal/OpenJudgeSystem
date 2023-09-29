@@ -7,7 +7,6 @@
 
 @using Resource = Resources.Areas.Contests.Views.SubmissionsView
 @using AdministrationResource = Resources.Areas.Administration.AdministrationGeneral
-
 @model OJS.Web.Areas.Contests.ViewModels.Submissions.SubmissionDetailsViewModel
 
 @{
@@ -77,7 +76,7 @@
             @if (Model.UserHasAdminPermission)
             {
                 <div>
-                    <p><strong>Submission TypeId:</strong> @Model.SubmissionType.Id</p>
+                    <p><strong>Submission Type Name:</strong> @Model.SubmissionType.ExecutionStrategyType</p>
                 </div>
             }
         </div>
