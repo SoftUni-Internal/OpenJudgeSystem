@@ -1984,6 +1984,7 @@
     <Content Include="Content\css\home\index\home.css" />
     <Content Include="Content\css\home\search\search-results.css" />
     <Content Include="Content\css\statistics\index\statistics.css" />
+    <Content Include="Content\css\Submissions\SubmissionDetails.css" />
     <Content Include="Content\docs.css" />
     <Content Include="Content\fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Content\KendoUI\Black\editor.png" />

@@ -21,6 +21,7 @@
 @section styles {
     @Styles.Render("~/Content/CodeMirror/codemirror")
     @Styles.Render("~/Content/CodeMirror/codemirrormerge")
+    @Styles.Render("~/Content/css/Submissions/SubmissionDetails.css")
 }
 
 @section scripts {
@@ -69,25 +70,19 @@
             @Html.HiddenFor(m => m.Id)
             <input type="submit" class="btn btn-sm btn-primary" value=@Resource.Retest />
         }
+        <div class="submission-type-box">
+            <div>
+                <p><strong>Submission Type:</strong> @Model.SubmissionType.Name</p>
+            </div>
+            @if (Model.UserHasAdminPermission)
+            {
+                <div>
+                    <p><strong>Submission TypeId:</strong> @Model.SubmissionType.Id</p>
+                </div>
+            }
+        </div>
     }
 </div>
-
-@if (Model.UserHasAdminPermission)
-{
-    <div class="clearfix"></div>
-    if (!string.IsNullOrWhiteSpace(Model.ProcessingComment))
-    {
-        <h2>@Resource.Execution_result:</h2>
-        <pre>@Model.ProcessingComment</pre>
-        if (Model.UserHasAdminPermission)
-        {
-            <pre>@Resource.Exception_type: @Model.ExceptionType  
-            @Model.ExecutionComment
-            </pre>
-        }
-
-    }
-}
 
 @if (Model.IsDeleted)
 {
@@ -100,6 +95,22 @@
 }
 else
 {
+    if (Model.UserHasAdminPermission)
+    {
+        <div class="clearfix"></div>
+        if (!string.IsNullOrWhiteSpace(Model.ProcessingComment))
+        {
+            <h2>@Resource.Execution_result:</h2>
+            <pre>@Model.ProcessingComment</pre>
+            if (Model.UserHasAdminPermission)
+            {
+                <pre>@Resource.Exception_type: @Model.ExceptionType  
+            @Model.ExecutionComment
+            </pre>
+            }
+
+        }
+    }
     if (!Model.IsCompiledSuccessfully)
     {
         <div class="alert alert-danger top-buffer">@Resource.Compile_time_error_occured</div>
