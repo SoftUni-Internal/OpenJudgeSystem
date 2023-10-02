@@ -234,5 +234,24 @@
                 throw;
             }
         }
+        
+        public void DbExecuteSqlCommand(string query)
+        {
+            this.Database.ExecuteSqlCommand(query);
+        }
+
+        public void ExecuteSqlCommandWithTimeout(string query, int timeoutInSeconds)
+        {
+            var originalTimeout = this.Database.CommandTimeout;
+            try
+            {
+                this.Database.CommandTimeout = timeoutInSeconds;
+                this.DbExecuteSqlCommand(query);
+            }
+            finally
+            {
+                this.Database.CommandTimeout = originalTimeout;
+            }
+        }
     }
 }

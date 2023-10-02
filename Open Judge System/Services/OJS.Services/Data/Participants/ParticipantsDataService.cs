@@ -1,13 +1,13 @@
-﻿namespace OJS.Services.Data.Participants
+﻿using OJS.Data;
+
+namespace OJS.Services.Data.Participants
 {
     using System;
     using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
-
     using EntityFramework.Extensions;
-
     using OJS.Common.Models;
     using OJS.Data.Models;
     using OJS.Data.Repositories.Contracts;
@@ -15,9 +15,13 @@
     public class ParticipantsDataService : IParticipantsDataService
     {
         private readonly IEfGenericRepository<Participant> participants;
+        private readonly IOjsDbContext db;
 
-        public ParticipantsDataService(IEfGenericRepository<Participant> participants) =>
+        public ParticipantsDataService(IEfGenericRepository<Participant> participants, IOjsDbContext db)
+        {
             this.participants = participants;
+            this.db = db;
+        }
 
         public Participant GetById(int id) => this.participants.GetById(id);
 
@@ -39,7 +43,7 @@
         public IQueryable<Participant> GetAllByContest(int contestId) =>
             this.GetAll()
                 .Where(p => p.ContestId == contestId);
-        
+
         public IQueryable<Participant> GetAllByManyContestsAndUserId(int[] contestIds, string userId) =>
             this.GetAll()
                 .Where(p => contestIds.Contains(p.ContestId) && p.UserId == userId);
@@ -62,11 +66,11 @@
             int contestId,
             DateTime participationStartTimeRangeStart,
             DateTime participationStartTimeRangeEnd) =>
-                this.GetAllOfficialByContest(contestId)
-                    .Where(p =>
-                        p.ParticipationStartTime >= participationStartTimeRangeStart &&
-                        p.ParticipationStartTime <= participationStartTimeRangeEnd &&
-                        p.Contest.Type == ContestType.OnlinePracticalExam);
+            this.GetAllOfficialByContest(contestId)
+                .Where(p =>
+                    p.ParticipationStartTime >= participationStartTimeRangeStart &&
+                    p.ParticipationStartTime <= participationStartTimeRangeEnd &&
+                    p.Contest.Type == ContestType.OnlinePracticalExam);
 
         // Not doing .ToDictionary directly after .GroupBy as it will generate slower query
         public IDictionary<int, int> GetContestParticipantsCount(IEnumerable<int> contestIds, bool isOfficial) =>
@@ -82,8 +86,9 @@
         public IQueryable<Participant> GetAllByContestAndIsOfficial(int contestId, bool isOfficial) =>
             this.GetAllByContest(contestId)
                 .Where(p => p.IsOfficial == isOfficial);
-        
-        public IQueryable<Participant> GetAllByContestAndIsOfficialWithUserSubmissionsScoresAndProblems(int contestId, bool isOfficial) =>
+
+        public IQueryable<Participant> GetAllByContestAndIsOfficialWithUserSubmissionsScoresAndProblems(int contestId,
+            bool isOfficial) =>
             this.GetAllByContest(contestId)
                 .AsQueryable()
                 .Include(p => p.User)
@@ -139,6 +144,40 @@
                     IsInvalidated = true
                 });
 
+        public void UpdateTotalScoreSnapshot()
+        {
+            var totalScoreSnapshot = nameof(Participant.TotalScoreSnapshot);
+            var problemId = nameof(ParticipantScore.ProblemId);
+            var points = nameof(ParticipantScore.Points);
+            
+            var command = $@"DECLARE @BatchSize INT = 5000;
+               DECLARE @MaxId INT = (SELECT MAX(Id) FROM Participants);
+               DECLARE @Offset INT = 0;
+
+               WHILE @Offset <= @MaxId
+               BEGIN
+                   WITH OrderedParticipants AS (
+                   SELECT TOP (@BatchSize) {nameof(Participant.Id)}
+               FROM Participants
+               WHERE {nameof(Participant.Id)} > @Offset
+               ORDER BY {nameof(Participant.Id)}
+                   )
+               UPDATE p
+               SET {totalScoreSnapshot} = ISNULL((
+                   SELECT SUM(ps.{points})
+               FROM ParticipantScores ps
+                   JOIN Problems pr ON ps.{problemId} = pr.{nameof(ParticipantScore.Id)} AND pr.{nameof(Problem.IsDeleted)} = 0
+               WHERE ps.{nameof(ParticipantScore.ParticipantId)} = p.{nameof(Participant.Id)}
+                   ), 0)
+               FROM OrderedParticipants op
+                   JOIN Participants p ON op.{nameof(Participant.Id)} = p.{nameof(Participant.Id)};
+
+               SET @Offset = @Offset + @BatchSize;
+               END;";
+
+            this.db.ExecuteSqlCommandWithTimeout(command, 0);
+        }
+
         private IQueryable<Participant> GetAllByContestAndUser(int contestId, string userId) =>
             this.GetAllByContest(contestId)
                 .Where(p => p.UserId == userId);
@@ -147,7 +186,7 @@
             int contestId,
             string userId,
             bool isOfficial) =>
-                this.GetAllByContestAndUser(contestId, userId)
-                    .Where(p => p.IsOfficial == isOfficial);
+            this.GetAllByContestAndUser(contestId, userId)
+                .Where(p => p.IsOfficial == isOfficial);
     }
 }

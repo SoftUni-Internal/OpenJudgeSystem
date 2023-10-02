@@ -61,5 +61,7 @@
         void Delete(IEnumerable<Participant> participants);
 
         void InvalidateByContestAndIsOfficial(int contestId, bool isOfficial);
+
+        void UpdateTotalScoreSnapshot();
     }
 }

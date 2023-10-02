@@ -16,6 +16,7 @@
     using OJS.Data;
     using OJS.Data.Models;
     using OJS.Data.Repositories.Base;
+    using OJS.Services.Business.Participants;
     using OJS.Services.Business.ParticipantScores;
     using OJS.Services.Business.Submissions.ArchivedSubmissions;
     using OJS.Services.Common.BackgroundJobs;
@@ -495,38 +496,14 @@
             }
         }
 
-        public ActionResult UpdateParticipantsTotalScore()
+        public ActionResult RegisterJobForUpdatingParticipantTotalScoreSnapshot()
         {
-            // This request causes 504 (Timeout error)
-            // It will work if query is executed directly in database
-            var command = @"DECLARE @BatchSize INT = 5000;
-               DECLARE @MaxId INT = (SELECT MAX(Id) FROM Participants);
-               DECLARE @Offset INT = 0;
-
-               WHILE @Offset <= @MaxId
-               BEGIN
-                   WITH OrderedParticipants AS (
-                   SELECT TOP (@BatchSize) Id
-               FROM Participants
-               WHERE Id > @Offset
-               ORDER BY Id
-                   )
-               UPDATE p
-               SET TotalScoreSnapshot = ISNULL((
-                   SELECT SUM(ps.Points)
-               FROM ParticipantScores ps
-                   JOIN Problems pr ON ps.ProblemId = pr.Id AND pr.IsDeleted = 0
-               WHERE ps.ParticipantId = p.Id
-                   ), 0)
-               FROM OrderedParticipants op
-                   JOIN Participants p ON op.Id = p.Id;
-
-               SET @Offset = @Offset + @BatchSize;
-               END;";
-
-            return this.Content(
-                $"This method is unsupported, as it time outs. Execute the following command directly in the db: <br/>"
-                + command);
+            this.backgroundJobs.AddOrUpdateRecurringJob<IParticipantsBusinessService>(
+                "UpdateTotalScoreSnapshotOfParticipants",
+                p => p.UpdateTotalScoreSnapshotOfParticipants(),
+                Cron.Daily(3));
+            
+            return null;
         }
 
         private async Task LoadContestCategoryAndAssignCheckerAndSubmissionTypes(

@@ -141,6 +141,11 @@
             return ServiceResult<ICollection<string>>.Success(invalidForUpdateParticipantUsernames);
         }
 
+        public void UpdateTotalScoreSnapshotOfParticipants()
+        {
+            this.participantsData.UpdateTotalScoreSnapshot();
+        }
+
         private void AssignRandomProblemsToParticipant(Participant participant, Contest contest)
         {
             var random = new Random();
