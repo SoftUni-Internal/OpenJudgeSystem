@@ -56,6 +56,10 @@ namespace OJS.Services.Data.ParticipantScores
             this.GetAll()
                 .Where(ps => ps.Points > ps.Problem.MaximumPoints);
 
+        public IQueryable<ParticipantScore> GetAllByParticipants(IEnumerable<int> participantIds) =>
+            this.GetAll()
+                .Where(ps => !ps.Problem.IsDeleted && participantIds.Contains(ps.ParticipantId));
+
         public void ResetBySubmission(Submission submission)
         {
             if (submission.ParticipantId == null || submission.ProblemId == null)

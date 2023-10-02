@@ -11,6 +11,7 @@
         public static Expression<Func<ParticipantScore, ProblemResultPairViewModel>> FromParticipantScoreAsSimpleResult =>
             score => new ProblemResultPairViewModel
             {
+                ParticipantId = score.ParticipantId,
                 ProblemId = score.ProblemId,
                 ShowResult = score.Problem.ShowResults,
                 BestSubmission = new BestSubmissionViewModel
@@ -23,6 +24,7 @@
         public static Expression<Func<ParticipantScore, ProblemResultPairViewModel>> FromParticipantScoreAsFullResult =>
             score => new ProblemResultPairViewModel
             {
+                ParticipantId = score.ParticipantId,
                 ProblemId = score.ProblemId,
                 ShowResult = score.Problem.ShowResults,
                 MaximumPoints = score.Problem.MaximumPoints,
@@ -44,6 +46,7 @@
         public static Expression<Func<ParticipantScore, ProblemResultPairViewModel>> FromParticipantScoreAsExportResult =>
             score => new ProblemResultPairViewModel
             {
+                ParticipantId = score.ParticipantId,
                 ProblemId = score.ProblemId,
                 ShowResult = score.Problem.ShowResults,
                 IsExcludedFromHomework = score.Problem.ProblemGroup.Type == ProblemGroupType.ExcludedFromHomework,
@@ -53,6 +56,8 @@
                     Points = score.Points
                 }
             };
+
+        public int ParticipantId { get; set; }
 
         public int ProblemId { get; set; }
 

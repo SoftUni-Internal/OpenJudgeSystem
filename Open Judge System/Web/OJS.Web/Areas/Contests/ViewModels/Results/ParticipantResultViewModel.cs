@@ -9,6 +9,18 @@
 
     public class ParticipantResultViewModel
     {
+        public static Expression<Func<Participant, ParticipantResultViewModel>> FromParticipant =>
+            participant => new ParticipantResultViewModel
+            {
+                Id = participant.Id,
+                ParticipantUsername = participant.User.UserName,
+                ParticipantFirstName = participant.User.UserSettings.FirstName,
+                ParticipantLastName = participant.User.UserSettings.LastName,
+                ParticipantProblemIds = participant.Problems.Select(p => p.Id),
+            };
+
+        public int Id { get; set; }
+
         public string ParticipantUsername { get; set; }
 
         public string ParticipantFirstName { get; set; }

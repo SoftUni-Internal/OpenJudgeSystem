@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace OJS.Data
+﻿namespace OJS.Data
 {
     using System;
     using System.Collections.Generic;
@@ -9,7 +7,9 @@ namespace OJS.Data
     using System.Data.Entity.Validation;
     using System.Diagnostics;
     using System.Linq;
+
     using Microsoft.AspNet.Identity.EntityFramework;
+
     using OJS.Common.Constants;
     using OJS.Data.Configurations;
     using OJS.Data.Contracts;
@@ -90,18 +90,6 @@ namespace OJS.Data
 #endif
         }
 
-        public override async Task<int> SaveChangesAsync()
-        {
-            this.ApplyAuditInfoRules();
-
-#if DEBUG
-            //// Use this to see DB validation errors
-            return await this.SaveChangesWithTracingDbExceptionsAsync();
-#else
-            return await base.SaveChangesAsync();
-#endif
-        }
-
         public void ClearDatabase()
         {
             /*
@@ -116,26 +104,26 @@ namespace OJS.Data
                       .ToList();
                  */
                 new List<string>
-                {
-                    "ParticipantAnswers",
-                    "FeedbackReports",
-                    "AspNetUserRoles",
-                    "AspNetRoles",
-                    "AspNetUserLogins",
-                    "AspNetUserClaims",
-                    "Events",
-                    "TestRuns",
-                    "Submissions",
-                    "Participants",
-                    "AspNetUsers",
-                    "Tests",
-                    "Problems",
-                    "Checkers",
-                    "ContestQuestionAnswers",
-                    "ContestQuestions",
-                    "Contests",
-                    "ContestCategories"
-                };
+                    {
+                        "ParticipantAnswers",
+                        "FeedbackReports",
+                        "AspNetUserRoles",
+                        "AspNetRoles",
+                        "AspNetUserLogins",
+                        "AspNetUserClaims",
+                        "Events",
+                        "TestRuns",
+                        "Submissions",
+                        "Participants",
+                        "AspNetUsers",
+                        "Tests",
+                        "Problems",
+                        "Checkers",
+                        "ContestQuestionAnswers",
+                        "ContestQuestions",
+                        "Contests",
+                        "ContestCategories"
+                    };
 
             foreach (var tableName in tableNames)
             {
@@ -151,25 +139,6 @@ namespace OJS.Data
             }
 
             this.SaveChanges();
-        }
-
-        public void DbExecuteSqlCommand(string query)
-        {
-            this.Database.ExecuteSqlCommand(query);
-        }
-
-        public void ExecuteSqlCommandWithTimeout(string query, int timeoutInSeconds)
-        {
-            var originalTimeout = this.Database.CommandTimeout;
-            try
-            {
-                this.Database.CommandTimeout = timeoutInSeconds;
-                this.DbExecuteSqlCommand(query);
-            }
-            finally
-            {
-                this.Database.CommandTimeout = originalTimeout;
-            }
         }
 
         public new IDbSet<T> Set<T>()
@@ -196,11 +165,10 @@ namespace OJS.Data
         {
             // Approach via @julielerman: http://bit.ly/123661P
             foreach (var entry in
-                     this.ChangeTracker.Entries()
-                         .Where(
-                             e =>
-                                 e.Entity is IAuditInfo &&
-                                 ((e.State == EntityState.Added) || (e.State == EntityState.Modified))))
+                this.ChangeTracker.Entries()
+                    .Where(
+                        e =>
+                        e.Entity is IAuditInfo && ((e.State == EntityState.Added) || (e.State == EntityState.Modified))))
             {
                 var entity = (IAuditInfo)entry.Entity;
 
@@ -224,8 +192,8 @@ namespace OJS.Data
             // Approach via @julielerman: http://bit.ly/123661P
             foreach (
                 var entry in
-                this.ChangeTracker.Entries()
-                    .Where(e => e.Entity is IDeletableEntity && (e.State == EntityState.Deleted)))
+                    this.ChangeTracker.Entries()
+                        .Where(e => e.Entity is IDeletableEntity && (e.State == EntityState.Deleted)))
             {
                 var entity = (IDeletableEntity)entry.Entity;
 
@@ -243,57 +211,27 @@ namespace OJS.Data
             }
             catch (DbUpdateException ex)
             {
-                HandleDbUpdateException(ex);
-
-                throw;
-            }
-            catch (DbEntityValidationException ex)
-            {
-                HandleDbEntityValidationException(ex);
-
-                throw;
-            }
-        }
-
-        private async Task<int> SaveChangesWithTracingDbExceptionsAsync()
-        {
-            try
-            {
-                return await base.SaveChangesAsync();
-            }
-            catch (DbUpdateException ex)
-            {
-                HandleDbUpdateException(ex);
-
-                throw;
-            }
-            catch (DbEntityValidationException ex)
-            {
-                HandleDbEntityValidationException(ex);
-
-                throw;
-            }
-        }
-
-        private static void HandleDbEntityValidationException(DbEntityValidationException ex)
-        {
-            foreach (var validationErrors in ex.EntityValidationErrors)
-            {
-                foreach (var validationError in validationErrors.ValidationErrors)
+                Exception currentException = ex;
+                while (currentException != null)
                 {
-                    Trace.TraceError(
-                        $"Property: {validationError.PropertyName}{Environment.NewLine} Error: {validationError.ErrorMessage}");
+                    Trace.TraceError(currentException.Message);
+                    currentException = currentException.InnerException;
                 }
-            }
-        }
 
-        private static void HandleDbUpdateException(DbUpdateException ex)
-        {
-            Exception currentException = ex;
-            while (currentException != null)
+                throw;
+            }
+            catch (DbEntityValidationException ex)
             {
-                Trace.TraceError(currentException.Message);
-                currentException = currentException.InnerException;
+                foreach (var validationErrors in ex.EntityValidationErrors)
+                {
+                    foreach (var validationError in validationErrors.ValidationErrors)
+                    {
+                        Trace.TraceError(
+                            $"Property: {validationError.PropertyName}{Environment.NewLine} Error: {validationError.ErrorMessage}");
+                    }
+                }
+
+                throw;
             }
         }
     }

@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using X.PagedList;
-
-namespace OJS.Web.Controllers
+﻿namespace OJS.Web.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -48,7 +45,6 @@ namespace OJS.Web.Controllers
         private readonly IParticipantScoresDataService participantScoresData;
         private readonly IParticipantsDataService participantsData;
         private readonly IHttpRequesterService httpRequester;
-        private readonly IOjsDbContext db;
 
         public TempController(
             IOjsData data,
@@ -57,7 +53,6 @@ namespace OJS.Web.Controllers
             IParticipantsDataService participantsData,
             IHttpRequesterService httpRequester,
             IProblemsDataService problemsDataService,
-            IOjsDbContext db,
             ISubmissionTypesDataService submissionTypesDataService,
             IContestsDataService contestsDataService,
             IParticipantScoresDataService participantScoresData)
@@ -68,7 +63,6 @@ namespace OJS.Web.Controllers
             this.participantsData = participantsData;
             this.httpRequester = httpRequester;
             this.problemsDataService = problemsDataService;
-            this.db = db;
             this.submissionTypesDataService = submissionTypesDataService;
             this.contestsDataService = contestsDataService;
             this.participantScoresData = participantScoresData;
@@ -505,36 +499,34 @@ namespace OJS.Web.Controllers
         {
             // This request causes 504 (Timeout error)
             // It will work if query is executed directly in database
-            return this.Content("Unsupported");
-            
-            var query = @"DECLARE @BatchSize INT = 5000;
-           DECLARE @MaxId INT = (SELECT MAX(Id) FROM Participants);
-           DECLARE @Offset INT = 0;
+            var command = @"DECLARE @BatchSize INT = 5000;
+               DECLARE @MaxId INT = (SELECT MAX(Id) FROM Participants);
+               DECLARE @Offset INT = 0;
 
-           WHILE @Offset <= @MaxId
-           BEGIN
-               WITH OrderedParticipants AS (
-               SELECT TOP (@BatchSize) Id
-           FROM Participants
-           WHERE Id > @Offset
-           ORDER BY Id
-               )
-           UPDATE p
-           SET TotalScoreSnapshot = ISNULL((
-               SELECT SUM(ps.Points)
-           FROM ParticipantScores ps
-               JOIN Problems pr ON ps.ProblemId = pr.Id AND pr.IsDeleted = 0
-           WHERE ps.ParticipantId = p.Id
-               ), 0)
-           FROM OrderedParticipants op
-               JOIN Participants p ON op.Id = p.Id;
+               WHILE @Offset <= @MaxId
+               BEGIN
+                   WITH OrderedParticipants AS (
+                   SELECT TOP (@BatchSize) Id
+               FROM Participants
+               WHERE Id > @Offset
+               ORDER BY Id
+                   )
+               UPDATE p
+               SET TotalScoreSnapshot = ISNULL((
+                   SELECT SUM(ps.Points)
+               FROM ParticipantScores ps
+                   JOIN Problems pr ON ps.ProblemId = pr.Id AND pr.IsDeleted = 0
+               WHERE ps.ParticipantId = p.Id
+                   ), 0)
+               FROM OrderedParticipants op
+                   JOIN Participants p ON op.Id = p.Id;
 
-           SET @Offset = @Offset + @BatchSize;
-           END;";
+               SET @Offset = @Offset + @BatchSize;
+               END;";
 
-            this.db.ExecuteSqlCommandWithTimeout(query, 0);
-
-            return this.Content("UPDATED");
+            return this.Content(
+                $"This method is unsupported, as it time outs. Execute the following command directly in the db: <br/>"
+                + command);
         }
 
         private async Task LoadContestCategoryAndAssignCheckerAndSubmissionTypes(

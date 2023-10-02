@@ -18,41 +18,36 @@
     using NPOI.HSSF.UserModel;
     using NPOI.SS.UserModel;
     using OJS.Common;
-    using OJS.Common.Constants;
     using OJS.Common.Models;
     using OJS.Data.Models;
-    using OJS.Services.Cache;
     using OJS.Services.Data.Contests;
     using OJS.Services.Data.Participants;
     using OJS.Services.Data.ParticipantScores;
     using OJS.Web.Areas.Contests.ViewModels.Contests;
     using OJS.Web.Controllers;
     using ViewModels.Results;
+    using X.PagedList;
     using Resource = Resources.Areas.Contests.ContestsGeneral;
 
     public class ResultsController : BaseController
     {
         public const int OfficialResultsPageSize = 100;
         public const int NotOfficialResultsPageSize = 50;
-        private const double CacheExpirationTimeInMinutes = 2;
 
         private readonly IContestsDataService contestsData;
         private readonly IParticipantsDataService participantsData;
         private readonly IParticipantScoresDataService participantScoresData;
-        private readonly ICacheService cacheService;
 
         public ResultsController(
             IOjsData data,
             IContestsDataService contestsData,
             IParticipantsDataService participantsData,
-            IParticipantScoresDataService participantScoresData,
-            ICacheService cacheService)
+            IParticipantScoresDataService participantScoresData)
             : base(data)
         {
             this.contestsData = contestsData;
             this.participantsData = participantsData;
             this.participantScoresData = participantScoresData;
-            this.cacheService = cacheService;
         }
 
         /// <summary>
@@ -141,8 +136,8 @@
                     isUserAdminOrLecturerInContest,
                     false,
                     false,
-                    page.Value)
-                .ToPagedResults(page.Value, resultsInPage);
+                    page: page.Value,
+                    itemsInPage: resultsInPage);
 
             return this.View(contestResults);
         }
@@ -152,6 +147,7 @@
             int contestId,
             bool official,
             bool isUserAdminOrLecturerInContest,
+            int totalResulsCount,
             int page,
             int resultsInPage)
         {
@@ -178,7 +174,9 @@
                     isUserAdminOrLecturerInContest,
                     isFullResults: false,
                     isExportResults: false,
-                    page: page).ToPagedResults(page, resultsInPage);
+                    totalResultsCount: totalResulsCount,
+                    page: page,
+                    itemsInPage: resultsInPage);
 
                 if (!official && !isUserAdminOrLecturerInContest)
                 {
@@ -221,12 +219,13 @@
             }
 
             var contestResults = this.GetContestResults(
-                contest,
-                official,
-                isUserAdminOrLecturer: true,
-                isFullResults: true,
-                isExportResults: false,
-                page: page).ToPagedResults(page.Value, resultsInPage);
+                    contest,
+                    official,
+                    isUserAdminOrLecturer: true,
+                    isFullResults: true,
+                    isExportResults: false,
+                    page: page.Value,
+                    itemsInPage: resultsInPage);
 
             return this.View(contestResults);
         }
@@ -235,6 +234,7 @@
         public ActionResult FullPartial(
             int contestId,
             bool official,
+            int totalResulsCount,
             int page,
             int resultsInPage)
         {
@@ -251,7 +251,9 @@
                 isUserAdminOrLecturer: true,
                 isFullResults: true,
                 isExportResults: false,
-                page: page).ToPagedResults(page, resultsInPage);
+                totalResultsCount: totalResulsCount,
+                page: page,
+                itemsInPage: resultsInPage);
 
             return this.PartialView("_FullResultsPagedList", contestResults);
         }
@@ -484,15 +486,69 @@
 
             return this.PartialView("_StatsChartPartial", contestId);
         }
+
         private ContestResultsViewModel GetContestResults(
             Contest contest,
             bool official,
             bool isUserAdminOrLecturer,
             bool isFullResults,
             bool isExportResults = false,
-            int? page = null)
+            int? totalResultsCount = null,
+            int page = 1,
+            int itemsInPage = int.MaxValue)
         {
-            var contestResults = new ContestResultsViewModel
+            var problems = contest.ProblemGroups
+                .SelectMany(pg => pg.Problems)
+                .AsQueryable()
+                .AsNoTracking()
+                .Where(p => !p.IsDeleted)
+                .OrderBy(p => p.OrderBy)
+                .ThenBy(p => p.Name)
+                .Select(ContestProblemListViewModel.FromProblem)
+                .ToList();
+
+            var totalParticipantsCount = totalResultsCount
+                ?? this.participantsData.GetAllByContestAndIsOfficial(contest.Id, official).Count();
+
+            // Get the requested participants without their problem results.
+            // Splitting the queries improves performance and avoids unexpected results from joins with Scores.
+            var participants = this.GetParticipantsPage(contest, official, page, itemsInPage)
+                .Select(ParticipantResultViewModel.FromParticipant)
+                .ToList();
+
+            // Get the ParticipantScores with another query and map problem results for each participant.
+            var participantScores = this.participantScoresData
+                .GetAllByParticipants(participants.Select(p => p.Id))
+                .AsNoTracking();
+
+            IEnumerable<ProblemResultPairViewModel> problemResults;
+
+            if (isExportResults)
+            {
+                problemResults = participantScores
+                    .Select(ProblemResultPairViewModel.FromParticipantScoreAsExportResult)
+                    .ToList();
+            }
+            else if (isFullResults)
+            {
+                problemResults = participantScores
+                    .Select(ProblemResultPairViewModel.FromParticipantScoreAsFullResult)
+                    .ToList();
+            }
+            else
+            {
+                problemResults = participantScores
+                    .Select(ProblemResultPairViewModel.FromParticipantScoreAsSimpleResult)
+                    .ToList();
+            }
+
+            participants.ForEach(p =>
+                p.ProblemResults = problemResults.Where(pr => pr.ParticipantId == p.Id));
+
+            var results =
+                new StaticPagedList<ParticipantResultViewModel>(participants, page, itemsInPage, totalParticipantsCount);
+
+            return new ContestResultsViewModel
             {
                 Id = contest.Id,
                 Name = contest.Name,
@@ -501,96 +557,22 @@
                 ContestCanBePracticed = contest.CanBePracticed,
                 UserHasContestRights = isUserAdminOrLecturer,
                 ContestType = contest.Type,
-                Problems = contest.ProblemGroups
-                    .SelectMany(pg => pg.Problems)
-                    .AsQueryable()
-                    .AsNoTracking()
-                    .Where(p => !p.IsDeleted)
-                    .OrderBy(p => p.OrderBy)
-                    .ThenBy(p => p.Name)
-                    .Select(ContestProblemListViewModel.FromProblem),
+                Problems = problems,
+                Results = results,
             };
+        }
 
-            var participantsToSkip = 0;
-            var participantsToTake = int.MaxValue;
-
-            if (page.HasValue)
-            {
-                participantsToSkip = (page.Value - 1) *
-                                     (official
-                                         ? OfficialResultsPageSize
-                                         : NotOfficialResultsPageSize);
-
-                participantsToTake = official
-                    ? OfficialResultsPageSize
-                    : NotOfficialResultsPageSize;
-            }
-
-            var participants = this.participantsData
+        /// <summary>
+        /// Gets IQueryable results with one page of participants, ordered by top score.
+        /// </summary>
+        private IQueryable<Participant> GetParticipantsPage(Contest contest, bool official, int page, int itemsInPage) =>
+            this.participantsData
                 .GetAllByContestAndIsOfficial(contest.Id, official)
+                .AsNoTracking()
                 .OrderByDescending(p => p.TotalScoreSnapshot)
                 .ThenBy(p => p.TotalScoreSnapshotModifiedOn)
-                .Skip(participantsToSkip)
-                .Take(participantsToTake)
-                .ToList();
-
-
-            contestResults.TotalCount =
-                this.participantsData.GetAllByContestAndIsOfficial(contest.Id, official).Count();
-
-            if (isExportResults)
-            {
-                contestResults.Results = participants
-                    .Select(p => new ParticipantResultViewModel
-                    {
-                        ParticipantUsername = p.User.UserName,
-                        ParticipantFirstName = p.User.UserSettings.FirstName,
-                        ParticipantLastName = p.User.UserSettings.LastName,
-                        ProblemResults = p.Scores
-                            .Where(sc => !sc.Problem.IsDeleted)
-                            .AsQueryable()
-                            .Select(ProblemResultPairViewModel.FromParticipantScoreAsExportResult)
-                    })
-                    .ToList();
-
-
-                return contestResults;
-            }
-
-            if (isFullResults)
-            {
-                contestResults.Results = participants
-                    .Select(p => new ParticipantResultViewModel
-                    {
-                        ParticipantUsername = p.User.UserName,
-                        ParticipantFirstName = p.User.UserSettings.FirstName,
-                        ParticipantLastName = p.User.UserSettings.LastName,
-                        ProblemResults = p.Scores
-                            .Where(sc => !sc.Problem.IsDeleted)
-                            .AsQueryable()
-                            .Select(ProblemResultPairViewModel.FromParticipantScoreAsFullResult)
-                    })
-                    .ToList();
-            }
-            else
-            {
-                contestResults.Results = participants
-                    .Select(p => new ParticipantResultViewModel
-                    {
-                        ParticipantUsername = p.User.UserName,
-                        ParticipantFirstName = p.User.UserSettings.FirstName,
-                        ParticipantLastName = p.User.UserSettings.LastName,
-                        ParticipantProblemIds = p.Problems.Select(pr => pr.Id),
-                        ProblemResults = p.Scores
-                            .Where(sc => !sc.Problem.IsDeleted)
-                            .AsQueryable()
-                            .Select(ProblemResultPairViewModel.FromParticipantScoreAsSimpleResult)
-                    })
-                    .ToList();
-            }
-
-            return contestResults;
-        }
+                .Skip((page - 1) * itemsInPage)
+                .Take(itemsInPage);
 
         private int CreateResultsSheetHeaderRow(ISheet sheet, ContestResultsViewModel contestResults)
         {
@@ -621,7 +603,7 @@
         private void FillSheetWithParticipantResults(ISheet sheet, ContestResultsViewModel contestResults)
         {
             var rowNumber = 1;
-            foreach (var result in contestResults.Results)
+            foreach (var result in contestResults.Results.ToList())
             {
                 var colNumber = 0;
                 var row = sheet.CreateRow(rowNumber++);
