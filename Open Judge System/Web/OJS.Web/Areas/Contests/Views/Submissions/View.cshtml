@@ -93,10 +93,9 @@ else
             if (Model.UserHasAdminPermission)
             {
                 <pre>@Resource.Exception_type: @Model.ExceptionType  
-            @Model.ExecutionComment
-            </pre>
+                     @Model.ExecutionComment
+                </pre>
             }
-
         }
     }
     if (!Model.IsCompiledSuccessfully)
