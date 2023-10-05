@@ -33,5 +33,7 @@
             DateTime participationStartTimeRangeEnd);
 
         void UpdateTotalScoreSnapshotOfParticipants();
+
+        void RemoveParticipantMultipleScores();
     }
 }

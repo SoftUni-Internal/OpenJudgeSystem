@@ -501,6 +501,16 @@
             this.backgroundJobs.AddOrUpdateRecurringJob<IParticipantsBusinessService>(
                 "UpdateTotalScoreSnapshotOfParticipants",
                 p => p.UpdateTotalScoreSnapshotOfParticipants(),
+                Cron.Daily(4));
+            
+            return null;
+        }
+        
+        public ActionResult RegisterJobForRemovingMultipleParticipantScoresForProblem()
+        {
+            this.backgroundJobs.AddOrUpdateRecurringJob<IParticipantsBusinessService>(
+                "RemoveParticipantMultipleScores",
+                p => p.RemoveParticipantMultipleScores(),
                 Cron.Daily(3));
             
             return null;
