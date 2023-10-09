@@ -180,4 +180,7 @@
   <data name="Problem_group_type" xml:space="preserve">
     <value>Problem group type</value>
   </data>
+  <data name="DefaultSubmissionTypeName" xml:space="preserve">
+    <value>Default Submission Type</value>
+  </data>
 </root>

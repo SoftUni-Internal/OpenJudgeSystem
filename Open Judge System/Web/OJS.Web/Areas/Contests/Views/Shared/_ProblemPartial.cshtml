@@ -101,9 +101,9 @@
                 </div>
                 <div class="col-md-12">
                     <div class="pull-left submit-container">
-                        <strong>@Resource.Allowed_working_time:</strong> <span id="timeLimit-box">@string.Format("{0:0.000}", Model.TimeLimit) sec</span>
+                        <strong>@Resource.Allowed_working_time:</strong> <span id="timeLimit-box-@Model.ProblemId">@string.Format("{0:0.000}", Model.TimeLimit) sec</span>
                         <br />
-                        <strong>@Resource.Allowed_memory:</strong> <span id="memoryLimit-box">@string.Format("{0:0.00}", Model.MemoryLimit) MB</span>
+                        <strong>@Resource.Allowed_memory:</strong> <span id="memoryLimit-box-@Model.ProblemId">@string.Format("{0:0.00}", Model.MemoryLimit) MB</span>
                         <br />
                         @if (Model.FileSizeLimit.HasValue)
                         {
@@ -115,32 +115,44 @@
                     </div>
                     <div class="submit-container pull-right">
                         <script>
+                        function setDefault(ev) {
+                            let defaultSubmissiontypeId = @Html.Raw(Json.Encode(Model.DefaultSubmissionTypeId))
+                            if (!defaultSubmissiontypeId){
+                                onSubmissionTypeChange(ev);
+                                return null;
+                                }
+                            var defaultItem = this.dataSource.data().find(x => Number(x.Value) === defaultSubmissiontypeId);
+                            
+                            this.selectedIndex = this.dataSource.data().indexOf(defaultItem);
+                            let createDropdownId = `#dropdown_${@Model.ProblemId}`
+                            $(createDropdownId).data("kendoDropDownList").value(defaultItem.Value);
+                            onSubmissionTypeChange(ev)
+                        }
                             function onSubmissionTypeChange(e) {
-                                var index = this.selectedIndex;
-                                var dataItem = this.dataItem(index);
+                                var index = e.sender.selectedIndex;
+                                var dataItem = e.sender.dataSource.data()[index];
                                 var form = $("#problem_@Model.ProblemId");
                                 var fileUpload = $("#FileUploadInputFields_@Model.ProblemId");
                                 var codeArea = $("#SourceCodeInputFields_@Model.ProblemId");
-
-                                var timeLimit = e.sender.dataItem().TimeLimit;
-                                var memoryLimit = e.sender.dataItem().MemoryLimit;
+                                var timeLimit = dataItem.TimeLimit;
+                                var memoryLimit = dataItem.MemoryLimit;
+                                 
                                 if (timeLimit == null) {
                                     timeLimit = @string.Format("{0:0.000}", Model.TimeLimit);
-                                    $("#timeLimit-box").text(`${timeLimit.toFixed(3)} sec`);
+                                    $("#timeLimit-box-@Model.ProblemId").text(`${timeLimit.toFixed(3)} sec`);
                                 }
                                 else {
                                     var formattedTimeLimit = (Number(timeLimit) / 1000.0).toFixed(3)
-                                    $("#timeLimit-box").text(`${formattedTimeLimit} sec`);
-
+                                    $("#timeLimit-box-@Model.ProblemId").text(`${formattedTimeLimit} sec`);
                                 }
 
                                 if (memoryLimit == null) {
                                     memoryLimit = @string.Format("{0:0.00}", Model.MemoryLimit);
-                                    $("#memoryLimit-box").text(`${memoryLimit.toFixed(2)} MB`);
+                                    $("#memoryLimit-box-@Model.ProblemId").text(`${memoryLimit.toFixed(2)} MB`);
                                 }
                                 else {
                                     var formattedmemoryLimit = (Number(memoryLimit) / 1024.0).toFixed(2)
-                                    $("#memoryLimit-box").text(`${formattedmemoryLimit} MB`);
+                                    $("#memoryLimit-box-@Model.ProblemId").text(`${formattedmemoryLimit} MB`);
 
                                 }
 
@@ -191,9 +203,9 @@
                             .Name("SubmissionTypeId")
                             .DataTextField("Text")
                             .DataValueField("Value")
-                            .Events(ev => ev.Change("onSubmissionTypeChange").DataBound("onSubmissionTypeChange").Open("Ojs.KendoControls.DropDownList.alignDropDownToInput"))
+                            .Events(ev => ev.Change("onSubmissionTypeChange").DataBound("setDefault").Open("Ojs.KendoControls.DropDownList.alignDropDownToInput"))
                             .DataSource(data => data.Read("GetAllowedSubmissionTypes", ViewBag.CompeteType, new { id = Model.ProblemId }))
-                            .HtmlAttributes(new { id = "dropdown_" + Model.ProblemId }))
+                            .HtmlAttributes(new { @Id = "dropdown_" + Model.ProblemId}))
                         <input type="submit" value="@Resource.Submit" class="k-button submision-submit-button" />
                     </div>
                 </div>

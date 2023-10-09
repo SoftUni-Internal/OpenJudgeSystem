@@ -9,7 +9,7 @@
             @Html.HiddenFor(m => m.Id)
             @Html.HiddenFor(m => m.Name)
             @Html.HiddenFor(m => m.ExecutionStrategyType)
-            @Html.LabelFor(m => m.IsChecked, Model.Name)
+            @Html.LabelFor(m => m.IsChecked, Model.Name, new{ @Id = $"Label_for_SubmissionTypes_{Model.Name}__IsChecked"})
         </div>
     </div>
     <div class="editor-field col-xs-1">

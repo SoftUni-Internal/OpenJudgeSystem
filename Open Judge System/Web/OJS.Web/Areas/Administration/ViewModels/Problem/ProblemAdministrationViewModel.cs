@@ -56,6 +56,7 @@
                     ProblemSubmissionTypesSkeletons = problem.ProblemSubmissionTypeExecutionDetails
                         .AsQueryable()
                         .Select(ProblemSubmissionTypeExecutionDetailsViewModel.ViewModel),
+                    DefaultSubmissionTypeId = problem.DefaultSubmissionTypeId,
                 };
             }
         }
@@ -183,5 +184,8 @@
         [ExcludeFromExcel]
         [UIHint(FileUpload)]
         public HttpPostedFileBase Tests { get; set; }
+
+        [Display(Name = nameof(Resource.DefaultSubmissionTypeName), ResourceType = typeof(Resource))]
+        public int? DefaultSubmissionTypeId { get; set; }
     }
 }

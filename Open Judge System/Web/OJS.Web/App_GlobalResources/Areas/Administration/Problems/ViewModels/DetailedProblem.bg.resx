@@ -181,4 +181,7 @@
   <data name="Problem_group_type" xml:space="preserve">
     <value>Тип на група от задачи</value>
   </data>
+  <data name="DefaultSubmissionTypeName" xml:space="preserve">
+    <value>Стратегия по подразбиране</value>
+  </data>
 </root>

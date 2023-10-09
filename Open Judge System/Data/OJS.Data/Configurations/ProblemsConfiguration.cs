@@ -1,7 +1,6 @@
 ﻿namespace OJS.Data.Configurations
 {
     using System.Data.Entity.ModelConfiguration;
-
     using OJS.Data.Models;
 
     public class ProblemsConfiguration : EntityTypeConfiguration<Problem>
@@ -16,6 +15,14 @@
                 .WithMany(c => c.Problems)
                 .HasForeignKey(p => p.ProblemGroupId)
                 .WillCascadeOnDelete(false);
+
+            this.HasOptional(p => p.DefaultSubmissionType)
+                .WithMany()
+                .HasForeignKey(p => p.DefaultSubmissionTypeId)
+                .WillCascadeOnDelete(false);
+
+            this.HasMany(p => p.SubmissionTypes)
+                .WithMany(st => st.Problems);
         }
     }
 }

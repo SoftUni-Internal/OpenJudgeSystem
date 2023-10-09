@@ -153,4 +153,7 @@
   <data name="Tests_label" xml:space="preserve">
     <value>Тестове (.zip файл)</value>
   </data>
+  <data name="Default_submission_Type" xml:space="preserve">
+    <value>Избрана стратегия по подразбиране.</value>
+  </data>
 </root>
