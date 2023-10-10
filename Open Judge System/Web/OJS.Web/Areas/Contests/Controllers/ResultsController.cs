@@ -82,7 +82,8 @@
                     ParticipantName = ps.ParticipantName,
                     MaximumPoints = problem.MaximumPoints,
                     Result = ps.Points
-                });
+                })
+                .ToList();
 
             return this.Json(results.ToDataSourceResult(request), JsonRequestBehavior.AllowGet);
         }
