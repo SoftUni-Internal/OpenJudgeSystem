@@ -176,7 +176,6 @@ namespace OJS.Services.Data.ParticipantScores
                         SubmissionId = null
                     },
                     batchSize: GlobalConstants.BatchOperationsChunkSize);
-
         private void UpdateTotalScoreSnapshot(
             Participant participant, 
             int previousPoints, 
