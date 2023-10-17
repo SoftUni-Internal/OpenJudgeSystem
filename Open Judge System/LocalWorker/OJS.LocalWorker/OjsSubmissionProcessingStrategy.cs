@@ -94,6 +94,8 @@
             this.submission.ProcessingComment = submissionModel.ProcessingComment;
             this.submission.ExecutionComment = $"{ex.Message} {ex.InnerException} \n" + $"{ex.StackTrace}";
             this.submission.ExceptionType = submissionModel.ExceptionType;
+            this.submission.StartedExecutionOn = submissionModel.StartedExecutionOn;
+            this.submission.CompletedExecutionOn = submissionModel.CompletedExecutionOn;
 
             this.UpdateResults();
         }
