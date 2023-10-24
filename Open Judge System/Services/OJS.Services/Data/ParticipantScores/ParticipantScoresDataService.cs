@@ -153,18 +153,15 @@ namespace OJS.Services.Data.ParticipantScores
             int submissionPoints,
             Participant participant)
         {
-            //The submission TotalScoreSnapshotModifiedOn must be changed only if it is new submission in other way the results will not be ordered correctly.
-            bool shouldUpdateTotalScoreDate = submissionId != null && submissionId != participantScore.SubmissionId;
-            UpdateTotalScoreSnapshot(
-                participant, 
-                participantScore.Points, 
-                submissionPoints,
-                shouldUpdateTotalScoreDate);
-
-            participantScore.SubmissionId = submissionId;
-            participantScore.Points = submissionPoints;
-
+            UpdateTotalScoreAndPoints(participantScore, submissionId, submissionPoints,participant);
             this.participantsData.Update(participant);
+        }
+
+        public void UpdateBySubmissionAndPoints(ParticipantScore participantScore, int? submissionId, int submissionPoints,
+            Participant participant, bool withSaveChanges)
+        {
+            UpdateTotalScoreAndPoints(participantScore, submissionId, submissionPoints,participant);
+            this.participantsData.Update(participant,withSaveChanges);
         }
 
         public void RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds) =>
@@ -176,6 +173,21 @@ namespace OJS.Services.Data.ParticipantScores
                         SubmissionId = null
                     },
                     batchSize: GlobalConstants.BatchOperationsChunkSize);
+        
+        private void UpdateTotalScoreAndPoints(ParticipantScore participantScore, int? submissionId, int submissionPoints,
+            Participant participant)
+        {
+            //The submission TotalScoreSnapshotModifiedOn must be changed only if it is new submission in other way the results will not be ordered correctly.
+            bool shouldUpdateTotalScoreDate = submissionId != null && submissionId != participantScore.SubmissionId;
+            UpdateTotalScoreSnapshot(
+                participant, 
+                participantScore.Points, 
+                submissionPoints,
+                shouldUpdateTotalScoreDate);
+
+            participantScore.SubmissionId = submissionId;
+            participantScore.Points = submissionPoints;
+        }
         private void UpdateTotalScoreSnapshot(
             Participant participant, 
             int previousPoints, 

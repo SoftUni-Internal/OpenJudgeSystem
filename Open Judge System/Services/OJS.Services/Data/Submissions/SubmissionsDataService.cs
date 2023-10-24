@@ -126,11 +126,28 @@
             this.submissions.SaveChanges();
         }
 
+        public void Update(Submission submission, bool withSaveChanges)
+        {
+            if (withSaveChanges)
+            {
+                this.Update(submission);
+            }
+            else
+            {
+                this.submissions.Update(submission);
+            }
+        }
+        
         public void RemoveTestRunsCacheByProblem(int problemId) =>
             this.GetAllByProblem(problemId)
                 .Update(s => new Submission
                 {
                     TestRunsCache = null
                 });
+
+        public void SaveChanges()
+        {
+            this.submissions.SaveChanges();
+        }
     }
 }

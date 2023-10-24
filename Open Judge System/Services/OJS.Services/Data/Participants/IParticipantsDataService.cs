@@ -54,6 +54,8 @@
 
         void Update(Participant participant);
 
+        void Update(Participant participant, bool withSaveChanges);
+        
         void Update(
             IQueryable<Participant> participantsQuery,
             Expression<Func<Participant, Participant>> updateExpression);
@@ -63,5 +65,7 @@
         void InvalidateByContestAndIsOfficial(int contestId, bool isOfficial);
 
         void UpdateTotalScoreSnapshot();
+
+        void SaveChanges();
     }
 }

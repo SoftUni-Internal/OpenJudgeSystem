@@ -54,13 +54,8 @@
 
         public void NormalizeAllPointsThatExceedAllowedLimit()
         {
-            using (var scope = TransactionsHelper.CreateLongRunningTransactionScope())
-            {
                 this.NormalizeSubmissionPoints();
                 this.NormalizeParticipantScorePoints();
-
-                scope.Complete();
-            }
         }
 
         public CategoryContestsParticipationSummary GetCategoryParticipationSummary(
@@ -377,37 +372,51 @@
                 .ToDictionary(k => k.Key.ToString(), v => v.Value);
         }
 
-        private void NormalizeSubmissionPoints() =>
-            this.submissionsData
+        private void NormalizeSubmissionPoints()
+        {
+            var itemsToTake = 300;
+            var itemsToSkip = 0;
+            var submissionsWithProblemMaxPoints = this.submissionsData
                 .GetAllHavingPointsExceedingLimit()
                 .Select(s => new
                 {
                     Submission = s,
                     ProblemMaxPoints = s.Problem.MaximumPoints,
                 })
-                .ToList()
-                .ForEach(x =>
-                {
-                    x.Submission.Points = x.ProblemMaxPoints;
+                .ToList();
+            while (itemsToSkip < submissionsWithProblemMaxPoints.Count)
+            {
+                    submissionsWithProblemMaxPoints.Skip(itemsToSkip).Take(itemsToTake).ToList().ForEach(x =>
+                    {
+                        x.Submission.Points = x.ProblemMaxPoints;
 
-                    this.submissionsData.Update(x.Submission);
-                });
+                        this.submissionsData.Update(x.Submission, withSaveChanges:false);
+                    });
+                    this.submissionsData.SaveChanges();
+                    itemsToSkip += itemsToTake;
+            }
+        }
 
-        private void NormalizeParticipantScorePoints() =>
+
+        private void NormalizeParticipantScorePoints()
+        {
             this.participantScoresData
-                .GetAllHavingPointsExceedingLimit()
-                .Select(ps => new
-                {
-                    ParticipantScore = ps,
-                    ProblemMaxPoints = ps.Problem.MaximumPoints,
-                    Particinapnt = ps.Participant,
-                })
-                .ToList()
-                .ForEach(x =>
-                    this.participantScoresData.UpdateBySubmissionAndPoints(
-                        x.ParticipantScore,
-                        x.ParticipantScore.SubmissionId,
-                        x.ProblemMaxPoints,
-                        x.Particinapnt));
+                    .GetAllHavingPointsExceedingLimit()
+                    .Select(ps => new
+                    {
+                        ParticipantScore = ps,
+                        ProblemMaxPoints = ps.Problem.MaximumPoints,
+                        Particinapnt = ps.Participant,
+                    })
+                    .ToList()
+                    .ForEach(x =>
+                        this.participantScoresData.UpdateBySubmissionAndPoints(
+                            x.ParticipantScore,
+                            x.ParticipantScore.SubmissionId,
+                            x.ProblemMaxPoints,
+                            x.Particinapnt,
+                            withSaveChanges:false));
+                this.participantsData.SaveChanges();
+        }
     }
 }
