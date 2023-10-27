@@ -400,23 +400,34 @@
 
         private void NormalizeParticipantScorePoints()
         {
-            this.participantScoresData
-                    .GetAllHavingPointsExceedingLimit()
-                    .Select(ps => new
-                    {
-                        ParticipantScore = ps,
-                        ProblemMaxPoints = ps.Problem.MaximumPoints,
-                        Particinapnt = ps.Participant,
-                    })
-                    .ToList()
-                    .ForEach(x =>
-                        this.participantScoresData.UpdateBySubmissionAndPoints(
-                            x.ParticipantScore,
-                            x.ParticipantScore.SubmissionId,
-                            x.ProblemMaxPoints,
-                            x.Particinapnt,
-                            withSaveChanges:false));
+            var batchSize = 500;
+            var itemsToSkip = 0;
+            var participantScoresToUpdate =   this.participantScoresData
+                .GetAllHavingPointsExceedingLimit()
+                .Select(ps => new
+                {
+                    ParticipantScore = ps,
+                    ProblemMaxPoints = ps.Problem.MaximumPoints,
+                    Particinapnt = ps.Participant,
+                })
+                .ToList();
+
+            while (itemsToSkip < participantScoresToUpdate.Count)
+            {
+                participantScoresToUpdate
+                    .Skip(itemsToSkip)
+                    .Take(batchSize)
+                    .ForEach(x =>this.participantScoresData.UpdateBySubmissionAndPoints(
+                    x.ParticipantScore,
+                    x.ParticipantScore.SubmissionId,
+                    x.ProblemMaxPoints,
+                    x.Particinapnt,
+                    withSaveChanges:false));
+                
                 this.participantsData.SaveChanges();
+
+                itemsToSkip += batchSize;
+            }
         }
     }
 }
