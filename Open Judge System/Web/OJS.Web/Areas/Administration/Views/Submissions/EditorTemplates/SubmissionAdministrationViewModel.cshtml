@@ -64,7 +64,19 @@
 
     </div>
 </div>
+<div class="form-group">
+     @Html.LabelFor(model => model.WorkerType, new { @class = "control-label col-md-12" })
+    <div class="col-md-12">
+        @(Html.Kendo()
+            .DropDownListFor(m => m.WorkerType)
+            .DataTextField("Text")
+            .DataValueField("Value")
+            .Events(e=>e.DataBound("setDefaultWorkerType"))
+            .HtmlAttributes(new { style = "width: 100%;" })
+            .BindTo(ViewBag.WorkersType))
+    </div>
 
+</div>
 <div id="CodeSubmissionContainer" class="form-group">
     @Html.LabelFor(model => model.ContentAsString, new { @class = "control-label col-md-12" })
     <div class="col-md-12">
@@ -74,6 +86,10 @@
 </div>
 
 <script>
+function setDefaultWorkerType(e) {
+    var defaultWorkerType = @Html.Raw(Json.Encode(Model.WorkerType));
+        $("#@Html.IdFor(m => m.WorkerType)").data("kendoDropDownList").value(defaultWorkerType);
+}
     function onSubmissionDataBound(e) {
         return changeSubmissionType(e, this);
     }

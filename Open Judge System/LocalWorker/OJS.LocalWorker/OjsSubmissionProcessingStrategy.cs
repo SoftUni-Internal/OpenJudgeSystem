@@ -41,7 +41,7 @@
             this.submissionsForProcessingData = submissionsForProcessingData;
         }
 
-        public override IOjsSubmission RetrieveSubmission()
+        public override IOjsSubmission RetrieveSubmission(WorkerType workerType)
         {
             lock (this.SubmissionsForProcessing)
             {
@@ -49,6 +49,7 @@
                 {
                     this.submissionsForProcessingData
                         .GetAllUnprocessed()
+                        .Where(s => s.WorkerType == workerType)
                         .OrderBy(x => x.Id)
                         .Select(x => x.SubmissionId)
                         .ToList()
@@ -96,7 +97,7 @@
             this.submission.ExceptionType = submissionModel.ExceptionType;
             this.submission.StartedExecutionOn = submissionModel.StartedExecutionOn;
             this.submission.CompletedExecutionOn = submissionModel.CompletedExecutionOn;
-
+            this.submission.WorkerEndpoint = submissionModel.WorkerEndpoint;
             this.UpdateResults();
         }
 
@@ -142,6 +143,7 @@
 
             this.submission.StartedExecutionOn = executionResult.StartedExecutionOn;
             this.submission.CompletedExecutionOn = executionResult.CompletedExecutionOn;
+            this.submission.WorkerEndpoint = executionResult.WorkerEndpoint;
             
             if (!executionResult.IsCompiledSuccessfully)
             {

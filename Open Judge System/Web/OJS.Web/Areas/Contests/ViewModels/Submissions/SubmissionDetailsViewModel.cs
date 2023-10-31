@@ -39,6 +39,8 @@
                 ExceptionType = submission.ExceptionType,
                 StartedExecutionOn = submission.StartedExecutionOn,
                 CompletedExecutionOn = submission.CompletedExecutionOn,
+                WorkerEndpoint = submission.WorkerEndpoint,
+                WorkerType = submission.WorkerType
             };
 
         public int Id { get; set; }
@@ -104,5 +106,9 @@
         public DateTime? StartedExecutionOn { get; set; }
 
         public DateTime? CompletedExecutionOn { get; set; }
+
+        public string WorkerEndpoint { get; set; }
+        
+        public WorkerType WorkerType { get; set; }
     }
 }

@@ -486,7 +486,8 @@
                                 (!participant.IsOfficial && contest.PracticePassword == null)) &&
                             contest.Visible &&
                             !contest.IsDeleted &&
-                            problem.ShowResults
+                            problem.ShowResults,
+                WorkerType = contest.DefaultWorkerType,
             };
 
             this.Data.Submissions.Add(newSubmission);

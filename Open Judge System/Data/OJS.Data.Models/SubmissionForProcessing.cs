@@ -1,4 +1,7 @@
-﻿namespace OJS.Data.Models
+﻿using OJS.Common.Models;
+using OJS.Workers.Common.Models;
+
+namespace OJS.Data.Models
 {
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -12,5 +15,7 @@
         public bool Processing { get; set; }
 
         public bool Processed { get; set; }
+        
+        public WorkerType WorkerType { get; set; }
     }
 }

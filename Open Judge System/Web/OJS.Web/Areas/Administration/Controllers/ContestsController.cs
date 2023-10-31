@@ -1,4 +1,5 @@
 ﻿using OJS.Services.Data.Settings;
+using OJS.Workers.Common.Models;
 
 namespace OJS.Web.Areas.Administration.Controllers
 {
@@ -139,7 +140,7 @@ namespace OJS.Web.Areas.Administration.Controllers
             }
 
             var contest = model.GetEntityModel();
-
+            contest.DefaultWorkerType = model.DefaultWorkerType;
             this.AddProblemGroupsToContest(contest, model.ProblemGroupsCount);
 
             this.AddIpsToContest(contest, model.AllowedIps);
@@ -246,6 +247,7 @@ namespace OJS.Web.Areas.Administration.Controllers
             contest.AllowedIps.Clear();
             this.AddIpsToContest(contest, model.AllowedIps);
 
+            contest.DefaultWorkerType = model.DefaultWorkerType;
             this.contestsData.Update(contest);
             this.cacheItemsProvider.ClearContests();
 
@@ -643,7 +645,14 @@ namespace OJS.Web.Areas.Administration.Controllers
         {
             this.ViewBag.TypeData = DropdownViewModel.GetEnumValues<ContestType>();
             this.ViewBag.SubmissionExportTypes = DropdownViewModel.GetEnumValues<SubmissionExportType>();
-
+            
+            this.ViewBag.WorkersType = Enum.GetValues(typeof(WorkerType)).Cast<WorkerType>()
+                        .Select(e => new SelectListItem
+                        {
+                            Text = e.ToString(),
+                            Value = ((int)e).ToString()
+                        }).ToList();
+            
             if (contestId.HasValue)
             {
                 // TODO: find a better solution for determining whether a Contest is active or not

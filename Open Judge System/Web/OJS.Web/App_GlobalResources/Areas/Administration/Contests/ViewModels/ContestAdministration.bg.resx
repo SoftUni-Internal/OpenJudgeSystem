@@ -192,4 +192,7 @@
   <data name="EnsureValidAuthorSubmisions" xml:space="preserve">
     <value>Предупреди за липсващи авторски решения</value>
   </data>
+  <data name="Default_worker_type" xml:space="preserve">
+    <value>Тип уъркър по подразбиране</value>
+  </data>
 </root>

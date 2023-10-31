@@ -1,4 +1,6 @@
-﻿namespace OJS.Web.Areas.Administration.ViewModels.Submission
+﻿using OJS.Workers.Common.Models;
+
+namespace OJS.Web.Areas.Administration.ViewModels.Submission
 {
     using System;
     using System.ComponentModel;
@@ -38,6 +40,7 @@
                     FileExtension = sub.FileExtension,
                     CreatedOn = sub.CreatedOn,
                     ModifiedOn = sub.ModifiedOn,
+                    WorkerType = sub.WorkerType
                 };
             }
         }
@@ -121,5 +124,11 @@
 
         [DatabaseProperty]
         public string FileExtension { get; set; }
+
+        [DatabaseProperty]
+        [AllowHtml]
+        [Display(Name = "Worker Type")]
+        [Required]
+        public WorkerType WorkerType { get; set; }
     }
 }

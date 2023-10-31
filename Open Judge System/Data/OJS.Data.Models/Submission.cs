@@ -114,6 +114,10 @@
 
         public ExceptionType ExceptionType { get; set; }
 
+        public WorkerType WorkerType { get; set; }
+        
+        public string WorkerEndpoint { get; set; }
+        
         [NotMapped]
         public int CorrectTestRunsCount
         {

@@ -192,4 +192,7 @@
   <data name="EnsureValidAuthorSubmisions" xml:space="preserve">
     <value>Warn on missing author solutions</value>
   </data>
+  <data name="Default_worker_type" xml:space="preserve">
+    <value>Default Worker Type</value>
+  </data>
 </root>
