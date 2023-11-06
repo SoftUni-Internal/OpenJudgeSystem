@@ -1,0 +1,647 @@
+﻿@model ContestLoadCalculationViewModel
+@using OJS.Web.Areas.Administration.ViewModels.Contest
+@using OJS.Services.Business.Contests.Models
+
+@{
+    ViewBag.Title = "Calculate contest load";
+    JudgeLoadResults responseModel = new JudgeLoadResults();
+}
+
+
+@section Styles {
+    <link href="@Url.Content("~/Content/kendo/kendo.common.min.css")" rel="stylesheet" type="text/css"/>
+    <link href="@Url.Content("~/Content/kendo/kendo.default.min.css")" rel="stylesheet" type="text/css"/>
+
+}
+
+<style>
+
+    #judge-work-results .row.k-upload-cancel,
+    #doomsday-results .row.k-upload-cancel,
+    #distribution-results .row.k-upload-cancel,
+    #previous-contest-info .row.k-upload-cancel 
+    {
+        padding: 10px;
+    }
+    
+</style>
+
+<h2>Calculate Load For Contest: @Model.ContestName </h2>
+<div id="create-form" class="online-contest-editor-container">
+@using (Html.BeginForm("CalculateContestLoad", "Contests", FormMethod.Post))
+{
+    <fieldset>
+        <legend>Current exam info</legend>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Exam length</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.ExamLengthInHours, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+                @Html.HiddenFor(m => m.CurrentContestId)
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Exam length in hours" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Expected exam problems</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.ExpectedExamProblemsCount, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Expected next exam number of problems. NOTE: If you have multiple exams at the same time, you need to sum their number of problems." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Expected students</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.ExpectedStudentsCount, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Expected next exam students. NOTE: Your projection of total students or current enrollments. If you have multiple exams at the same time, you need to sum their number of students." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Average problem runtime in (s)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.AverageProblemRunTimeInSeconds, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Average problem run time in seconds.NOTE: You can calculate it for each problem by the multiplying the number of tests and the problem time limit * 120% (for additional work required to process a task).
+You can also see the difference between the Modified On and the Created On properties for a solution submitted on a 'calm' judge.
+Try not to design a task which takes more than 5 seconds. If you need such a problem - discuss with the dev team." data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset>
+        <legend>Previous exam info</legend>
+        <div class="row" style="margin-bottom:2rem">
+            <div class="editor-field col-xs-4">
+                <strong>Fill previous contest data manually</strong>
+            </div>
+            <div class="editor-field col-xs-2">
+                <input type="checkbox" id="toggle-previous-exams" onchange="togglePreviousExamInputs(this)"/>
+            </div>
+        </div>
+
+        <div id="previous-contests-wrapper">
+            <div class="row k-upload-cancel">
+                <div class="col-xs-8">
+                    @(Html.Kendo().ComboBoxFor(m => m.ContestsDropdownData)
+                        .Name("dropdownlist")
+                        .DataValueField("Value")
+                        .DataTextField("Name")
+                        .BindTo((System.Collections.IEnumerable)Model.ContestsDropdownData)
+                        .HtmlAttributes(new { @class = "full-editor pull-right" })
+                        .Placeholder("Please select contest...")
+                        .Events(e => e.Change("changePreviousExam")))
+
+                    @Html.HiddenFor(m => m.PreviousContestId)
+                </div>
+            </div>
+        </div>
+
+        <div id="previous-contests-data" style="display:none">
+            <div class="row k-upload-cancel">
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    <label>Previous contest students</label>
+                </div>
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    @Html.EditorFor(m => m.PreviousContestParticipants, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam students" data-tooltip="true"></span>
+                </div>
+            </div>
+            <div class="row k-upload-cancel">
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    <label>Previous contest submissions</label>
+                </div>
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    @Html.EditorFor(m => m.PreviousContestSubmissions, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam total submissions" data-tooltip="true"></span>
+                </div>
+            </div>
+            <div class="row k-upload-cancel">
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    <label>Previous contest problems</label>
+                </div>
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    @Html.EditorFor(m => m.PreviousContestExpectedProblems, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam number of problems" data-tooltip="true"></span>
+                </div>
+            </div>
+            <div class="row k-upload-cancel">
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    <label>Average contest problems runtime in (s)</label>
+                </div>
+                <div class="editor-label col-xs-4 k-upload-cancel">
+                    @Html.EditorFor(m => m.PreviousAverageProblemRunTimeInSeconds, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam number of average problem run time in seconds" data-tooltip="true"></span>
+                </div>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Maximum Submission Runtime(secs)</label>
+            </div>
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                @Html.EditorFor(m => m.MaxAllowedTimeForSubmissionCompletion, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Calculation of the average runtime for the previous contest will be done based on submissions, which average runtime is lower or equal to this parameter." data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend>Judge Settings</legend>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Safety factor</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.SafetyFactor, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Safety factor. NOTE: We want to play it extra safe because we do not pause judge for exercises during exams so we multiply important calculations with this safety factor." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Work idle time in percentage</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.WorkerIdleTimeInPercentage, new { htmlAttributes = new { @class = "form-control pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Worker idle time in percentage. NOTE: We do not want workers to be busy all the time. Such situation may lead to overloading, exceptions and wrong results." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Max judge parallel work</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.MaxJudgeParalelWork, new { htmlAttributes = new { @class = "form-control pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Maximum parallel judge work compared to exam length in percentage. NOTE: We should aim for total parallel judge work to be maximum 25% of the total exam length for safety reasons." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Actual workers</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                @Html.EditorFor(m => m.ActualWorkers, new { htmlAttributes = new { @class = "form-control full-editor pull-left", min = 1 } })
+            </div>
+            <div class="editor-field col-xs-4">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Number of currently running workers. NOTE: Can be taken from the LocalWorker configuration." data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+    <hr/>
+    <div class="row k-upload-cancel">
+        <div class="editor-label col-xs-6">
+            <button type="submit" class="btn btn-primary pull-right">Calculate</button>
+        </div>
+        <div class="editor-label col-xs-6">
+            <a href="/Contests/@Model.CurrentContestId" class="btn btn-primary">Back</a>
+        </div>
+    </div>
+}
+<div id="previous-contests-data-results" hidden="hidden" >
+    <fieldset>
+        <legend>Results</legend>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Suggested workers</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="SuggestedWorkers" value="@responseModel.SuggestedWorkers" disabled="disabled"/>
+                 <label id="suggested-workers-helper-text" style="color:#ff0a00">Please contact dev team</label>
+            </div>
+            <div class="editor-field col-xs-3">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Suggested workers. NOTE: If you have more than 50 workers suggested here - discuss with dev team. Workers do not scale proportionally.
+                    For example, 100 workers will not have twice the performance of 50 workers.
+                    " data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Time between submissions (in s)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="SecondsBetweenSubmissionsHigh" value="@responseModel.SecondsBetweenSubmissionsHigh" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-3">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Seconds between submissions for doomsday scenario
+            on high performance scale with actual workers. NOTE: Less than 30 seconds and more than 5 minutes are not desirable for various reasons. We should tweak the exam itself, and not judge.
+            Suggestion is based on the safety factor below and actual workers.
+            " data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<div id="judge-work-wrapper" hidden class="top-buffer-lg">
+<div id="judge-work-results" class="top-buffer-lg">
+    <fieldset >
+        <legend>Judge Work Results</legend>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Expected judge work</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="TotalWork" value="@responseModel.ExpectedTotalJudgeWorkInMinutes" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Expected total judge work in minutes" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Expected Submissions</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="Submissions" value="@responseModel.ExpectedExamSubmissions" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Expected exam submissions" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label class="editor-label">Minimum workers required</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control " id="MinimumWorkersRequired" value="@responseModel.MinimumWorkersRequired" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Minimum workers required" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Processed submissions per worker</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="ProcessedSubmissionsPerWorkerPerMinute" value="@responseModel.ProcessedSubmissionsPerWorkerPerMinute" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Processed submissions per worker for a minute" data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<div id="doomsday-results" class="top-buffer-lg">
+    <fieldset>
+        <legend>Doomsday Scenario Results</legend>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Judge work required</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class=" form-control" id="JudgeWork" value="@responseModel.JudgeWorkInMnutes" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Judge work required for the doomsday scenario in minutes. NOTE: Doomsday scenario happens if all exam participants submit a solution at the same time.
+If a solution is not processed until the student can submit again, the system will be overloaded.
+Such case is highly unlikely to occur but we should design our exams with a protection in mind." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Judge work per worker (in min's)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="JudgeWorkInMinute" value="@responseModel.JudgeWorkPerWorkerInMinutes" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Judge work required for the doomsday scenario per worker in minutes. NOTE: We can introduce automation to prevent doomsday scenarios.
+For example, we can forbid the user to submit a solution for the a task, if she already has a one for it in the queue.
+" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Time between submissions base (in s)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="SecondsBetweenSubmissionsBase" value="@responseModel.SecondsBetweenSubmissionsBase" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Seconds between submissions for doomsday scenario
+on base performance scale without additional workers. NOTE: Less than 30 seconds and more than 5 minutes are not desirable for various reasons. We should tweak the exam itself, and not judge.
+Suggestion is based on the safety factor below and 20 workers.
+" data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+</div>
+
+<div id="distribution-results" class="top-buffer-lg">
+    <fieldset>
+        <legend>Distribution Results</legend>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Max submissions per minute</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="MaxSubmissionsPerMinute" value="@responseModel.MaxSubmissionsPerMinute" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Maximum submissions per minute on a distributed environment. NOTE: Calculation based on Gaussian Distribution peak - 34.1% submissions will be during 1/8 of the total exam time." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Min workers required</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="MaxDistributedWorkersRequired" value="@responseModel.MaxDistributedWorkersRequired" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Minimum workers required for distributed maximum. NOTE: Safety factor calculated here." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Judge work required (in min's)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="JudgeWorkRequiredInMinutes" value="@responseModel.JudgeWorkRequiredInMinutes" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Judge work required for the distributed maximum in minutes." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Minimum workers required (in s)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="JudgeWorkRequiredPerWorkerInSeconds" value="@responseModel.JudgeWorkRequiredPerWorkerInSeconds" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Judge work required for the distributed maximum per worker in seconds" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4">
+                <label>Max users at same time</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="MaxUsersAtSameTime" value="@responseModel.MaxUsersAtSameTime" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Maximum users at the same time on a distributed environment.NOTE: Calculation based on Gaussian Distribution peak - 34.1% ot the total users." data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Time between submissions base (in s)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="SecondsBetweenSubmission" value="@responseModel.SecondsBetweenSubmission" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Seconds between submissions for the distributed maximum. NOTE: Safety factor calculated here. " data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Time between submissions high (in s)</label>
+            </div>
+            <div class="editor-field col-xs-4">
+                <input class="form-control" id="MaxSecondsBetweenSubmissions" value="@responseModel.MaxSecondsBetweenSubmissions" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Seconds between submissions for the distributed maximum on high performance scale with actual workers. NOTE: Safety factor calculated here. " data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+</div>
+<div id="previous-contest-info" class="top-buffer-lg">
+    <fieldset>
+        <legend>Previous contest data</legend>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Previous contest participants</label>
+            </div>
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <input class="form-control" id="PreviousContestParticipantsResult" value="@responseModel.PreviousContestParticipants" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam students" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Previous contest submissions</label>
+            </div>
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <input class="form-control" id="PreviousContestSubmissionsResult" value="@responseModel.PreviousContestSubmissions" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam total submissions" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Previous contest problems</label>
+            </div>
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <input class="form-control" id="PreviousContestExpectedProblemsResult" value="@responseModel.PreviousContestExpectedProblems" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam number of problems" data-tooltip="true"></span>
+            </div>
+        </div>
+        <div class="row k-upload-cancel">
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <label>Average contest problems runtime in (s)</label>
+            </div>
+            <div class="editor-label col-xs-4 k-upload-cancel">
+                <input class="form-control" id="PreviousAverageProblemRunTimeInSecondsResult" value="@responseModel.PreviousAverageProblemRunTimeInSeconds" disabled="disabled"/>
+            </div>
+            <div class="editor-field col-xs-2">
+                <span class="glyphicon glyphicon-question-sign text-primary" title="Previous exam number of average problem run time in seconds" data-tooltip="true"></span>
+            </div>
+        </div>
+    </fieldset>
+</div>
+</div>
+</div>
+
+<script>
+     $(document).ready(function() {
+                $("#previous-contest-info").kendoPanelBar({
+                    expandMode: "multiple",
+                    expand: onPanelBarExpand,
+                    collapse: onPanelBarCollapse
+                });
+                
+                $("#doomsday-results").kendoPanelBar({
+                    expandMode: "multiple",
+                     expand: onPanelBarExpand,
+                     collapse: onPanelBarCollapse
+                });
+                
+                $("#judge-work-results").kendoPanelBar({
+                    expandMode: "multiple",
+                     expand: onPanelBarExpand,
+                     collapse: onPanelBarCollapse
+                });   
+                
+                $("#distribution-results").kendoPanelBar({
+                    expandMode: "multiple",
+                     expand: onPanelBarExpand,
+                     collapse: onPanelBarCollapse
+                 });
+            });
+    function changePreviousExam(e) {
+        let receivedModel = e.sender.dataItem()
+        $("#PreviousContestId").val(receivedModel.Id);
+    }
+
+     $(function () {
+         $('form').submit(function (event) {
+             let responseDataWrapper = document.getElementById('judge-work-wrapper');
+             responseDataWrapper.setAttribute("hidden","hidden");
+             
+             let isPreviousExamDataManuallyAdded = document.getElementById("toggle-previous-exams").checked;
+             event.preventDefault();
+
+             let formData = $(this).serialize();
+
+             let params = new URLSearchParams(formData);
+
+             let previousContestId = params.get("PreviousContestId");
+            let actualWorkers = params.get("ActualWorkers")
+             if (!isPreviousExamDataManuallyAdded && !previousContestId)
+             {
+                 alert("Please select previous exam.")
+                 return;
+             }
+             if (isPreviousExamDataManuallyAdded) {
+                 params.delete("PreviousContestId")
+                 params.append("PreviousContestParticipants", document.getElementById("PreviousContestParticipants").value)
+                 params.append("PreviousContestSubmissions", document.getElementById("PreviousContestSubmissions").value)
+                 params.append("PreviousContestExpectedProblems", document.getElementById("PreviousContestExpectedProblems").value)
+                 params.append("PreviousAverageProblemRunTimeInSeconds", document.getElementById("PreviousAverageProblemRunTimeInSeconds").value)
+             }
+
+             formData = params.toString()
+
+             $.post('@Url.Action("CalculateContestLoad", "Contests")', formData)
+                 .done(function (response) {
+                     $('#Submissions').val(response.ExpectedExamSubmissions);
+                     $('#TotalWork').val(response.ExpectedTotalJudgeWorkInMinutes);
+                     $('#SuggestedWorkers').val(response.SuggestedWorkers);
+                     $('#ProcessedSubmissionsPerWorkerPerMinute').val(response.ProcessedSubmissionsPerWorkerPerMinute);
+                     $('#MinimumWorkersRequired').val(response.MinimumWorkersRequired);
+
+                     $('#JudgeWork').val(response.JudgeWorkInMnutes);
+                     $('#JudgeWorkInMinute').val(response.JudgeWorkPerWorkerInMinutes);
+                     $('#SecondsBetweenSubmissionsBase').val(response.SecondsBetweenSubmissionsBase);
+                     $('#SecondsBetweenSubmissionsHigh').val(response.SecondsBetweenSubmissionsHigh);
+
+                     $('#MaxSubmissionsPerMinute').val(response.MaxSubmissionsPerMinute);
+                     $('#MaxDistributedWorkersRequired').val(response.MaxDistributedWorkersRequired);
+                     $('#JudgeWorkRequiredInMinutes').val(response.JudgeWorkRequiredInMinutes);
+                     $('#JudgeWorkRequiredPerWorkerInSeconds').val(response.JudgeWorkRequiredPerWorkerInSeconds);
+                     $('#SecondsBetweenSubmission').val(response.SecondsBetweenSubmission);
+                     $('#MaxSecondsBetweenSubmissions').val(response.MaxSecondsBetweenSubmissions);
+                     $('#MaxUsersAtSameTime').val(response.MaxUsersAtSameTime.toFixed(3));
+
+                     $('#PreviousContestParticipantsResult').val(response.PreviousContestParticipants)
+                     $('#PreviousContestSubmissionsResult').val(response.PreviousContestSubmissions)
+                     $('#PreviousContestExpectedProblemsResult').val(response.PreviousContestExpectedProblems)
+                     $('#PreviousAverageProblemRunTimeInSecondsResult').val(response.PreviousAverageProblemRunTimeInSeconds)
+
+                     
+                     responseDataWrapper.removeAttribute("hidden");
+
+                     var previousExamBox = document.getElementById("previous-contests-data")
+                     if(previousExamBox){
+                     previousExamBox.setAttribute("hidden","hidden");
+                     }
+
+                     var previousExamBox = document.getElementById("previous-contests-data-results")
+                     previousExamBox.removeAttribute("hidden");
+                     
+                     if (response.SuggestedWorkers > actualWorkers){
+                        document.getElementById("SuggestedWorkers").style.background ="rgba(255,10,0,0.4)" ;
+                        document.getElementById("suggested-workers-helper-text").removeAttribute("hidden")
+                     }
+                     else {
+                          document.getElementById("SuggestedWorkers").style.background ="rgba(5,255,36,0.4)" ;
+                          document.getElementById("suggested-workers-helper-text").setAttribute("hidden","hidden")
+                     }
+                 })
+                 .fail(function (error) {
+                     alert(error)
+                 });
+        });
+    });
+    function togglePreviousExamInputs(e) {
+        let previousContestDropdown = document.getElementById("previous-contests-wrapper");
+        let previousContestData = document.getElementById("previous-contests-data")
+    
+        let previousContestParticipants =  document.getElementById("PreviousContestParticipants")
+        let previousContestSubmissions =  document.getElementById("PreviousContestSubmissions")
+        let previousContestExpectedProblems = document.getElementById("PreviousContestExpectedProblems")
+        let previousAverageProblemRunTimeInSeconds = document.getElementById("PreviousAverageProblemRunTimeInSeconds")
+    
+        if (e.checked) {
+            previousContestDropdown.style.display = "none";
+            previousContestData.style.display = "block"
+            previousContestParticipants.value = 0
+            previousContestSubmissions.value = 0
+            previousContestExpectedProblems.value = 0
+            previousAverageProblemRunTimeInSeconds.value = 0
+        }
+        else {
+            previousContestDropdown.style.display = "block";
+            previousContestData.style.display = "none"
+            previousContestParticipants.value = null
+            previousContestSubmissions.value = null
+            previousContestExpectedProblems.value = null
+            previousAverageProblemRunTimeInSeconds.value = null
+        }
+    }
+    
+        function onPanelBarExpand(e) {
+            var legend = $(e.item).find("legend")[0];
+            
+            if (legend) {
+                legend.style.color = "white"; 
+            }
+        }
+        
+
+        function onPanelBarCollapse(e) {
+            var legend = $(e.item).find("legend")[0];
+            
+            if (legend) {
+                legend.style.color = ""; 
+            }
+        }
+        
+</script>
+@(Html.Kendo().Tooltip().For("#create-form").Filter("[data-tooltip='true']").Position(TooltipPosition.Bottom).Width(400))

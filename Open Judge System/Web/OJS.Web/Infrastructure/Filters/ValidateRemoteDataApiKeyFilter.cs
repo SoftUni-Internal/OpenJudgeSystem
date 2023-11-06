@@ -23,7 +23,6 @@
         public ValidateRemoteDataApiKeyFilter(IOjsDbContext context) => 
             this.userManager = new OjsUserManager<UserProfile>(new UserStore<UserProfile>(context.DbContext));
 
-
         public void OnActionExecuting(
             ValidateRemoteDataApiKeyAttribute attribute,
             ActionExecutingContext filterContext)

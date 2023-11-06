@@ -31,5 +31,9 @@
             int minutes,
             DateTime participationStartTimeRangeStart,
             DateTime participationStartTimeRangeEnd);
+
+        void UpdateTotalScoreSnapshotOfParticipants();
+
+        void RemoveParticipantMultipleScores();
     }
 }

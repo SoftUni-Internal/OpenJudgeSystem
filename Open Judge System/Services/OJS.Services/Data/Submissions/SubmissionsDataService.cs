@@ -13,9 +13,15 @@
     public class SubmissionsDataService : ISubmissionsDataService
     {
         private readonly IEfDeletableEntityRepository<Submission> submissions;
+        private readonly IEfGenericRepository<ParticipantScore> participantScores;
 
-        public SubmissionsDataService(IEfDeletableEntityRepository<Submission> submissions) =>
+        public SubmissionsDataService(
+            IEfDeletableEntityRepository<Submission> submissions,
+            IEfGenericRepository<ParticipantScore> participantScores)
+        {
             this.submissions = submissions;
+            this.participantScores = participantScores;
+        }
 
         public Submission GetById(int id) => this.submissions.GetById(id);
 
@@ -28,6 +34,9 @@
 
         public IQueryable<Submission> GetAll() =>
             this.submissions.All();
+
+        public IQueryable<Submission> GetAllWithDeleted() =>
+            this.submissions.AllWithDeleted();
 
         public IQueryable<Submission> GetByIdQuery(int id) =>
             this.GetAll()
@@ -71,11 +80,13 @@
         public IQueryable<Submission> GetAllCreatedBeforeDateAndNonBestCreatedBeforeDate(
             DateTime createdBeforeDate,
             DateTime nonBestCreatedBeforeDate) =>
-            this.submissions
-                .AllWithDeleted()
-                .Where(s => s.CreatedOn < createdBeforeDate ||
-                    (s.CreatedOn < nonBestCreatedBeforeDate &&
-                        s.Participant.Scores.All(ps => ps.SubmissionId != s.Id)));
+            //Optimized for SQL
+            from s in this.submissions.AllWithDeleted()
+            join ps in this.participantScores.All() on s.Id equals ps.SubmissionId
+            into participanWithScores
+            from ps in participanWithScores.DefaultIfEmpty()
+            where (s.CreatedOn < createdBeforeDate || (s.CreatedOn < nonBestCreatedBeforeDate && ps == null))
+            select s;
 
         public IQueryable<Submission> GetAllHavingPointsExceedingLimit() =>
             this.GetAll()
@@ -115,11 +126,28 @@
             this.submissions.SaveChanges();
         }
 
+        public void Update(Submission submission, bool withSaveChanges)
+        {
+            if (withSaveChanges)
+            {
+                this.Update(submission);
+            }
+            else
+            {
+                this.submissions.Update(submission);
+            }
+        }
+        
         public void RemoveTestRunsCacheByProblem(int problemId) =>
             this.GetAllByProblem(problemId)
                 .Update(s => new Submission
                 {
                     TestRunsCache = null
                 });
+
+        public void SaveChanges()
+        {
+            this.submissions.SaveChanges();
+        }
     }
 }

@@ -186,4 +186,7 @@
   <data name="Contest_visible_from" xml:space="preserve">
     <value>Изберете време и час от които състезанието става видимо</value>
   </data>
+  <data name="Ensure_valid_author_submisions" xml:space="preserve">
+    <value>Покажи/скрий нотификации за стратегии без текущо минаващ събмит с максимален брой точки</value>
+  </data>
 </root>

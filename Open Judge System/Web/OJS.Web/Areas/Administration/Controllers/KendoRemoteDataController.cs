@@ -2,7 +2,6 @@
 {
     using System.Linq;
     using System.Web.Mvc;
-
     using OJS.Data;
     using OJS.Services.Data.Contests;
     using OJS.Services.Data.ProblemGroups;
@@ -45,6 +44,7 @@
             }
 
             var result = users
+                .OrderBy(u => u.UserName.Length)
                 .Take(DefaultItemsToTake)
                 .Select(u => new SelectListItem
                 {

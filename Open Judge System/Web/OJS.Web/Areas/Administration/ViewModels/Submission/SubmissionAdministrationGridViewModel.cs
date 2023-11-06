@@ -34,7 +34,10 @@
                         ? SubmissionStatus.Processed
                         : SubmissionStatus.Pending,
                     CreatedOn = sub.CreatedOn,
-                    ModifiedOn = sub.ModifiedOn
+                    ModifiedOn = sub.ModifiedOn,
+                    StartedExecutionOn = sub.StartedExecutionOn,
+                    CompletedExecutionOn = sub.CompletedExecutionOn,
+                    IsOfficial = sub.Participant.IsOfficial
                 };
             }
         }
@@ -65,6 +68,12 @@
         [Display(Name = "Status", ResourceType = typeof(Resource))]
         public SubmissionStatus Status { get; set; }
 
+        public DateTime? StartedExecutionOn { get; set; }
+
+        public DateTime? CompletedExecutionOn { get; set; }
+        
+        public bool IsOfficial { get; set; }
+        
         public string ContestUrlName => this.ContestName?.ToUrl();
     }
 }

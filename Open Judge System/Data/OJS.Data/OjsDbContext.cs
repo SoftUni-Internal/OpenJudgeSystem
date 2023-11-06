@@ -26,7 +26,6 @@
         protected OjsDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString, throwIfV1Schema: false)
         {
-            this.DbContext.Database.CommandTimeout = 240;
         }
 
         public virtual IDbSet<Setting> Settings { get; set; }
@@ -154,7 +153,7 @@
             modelBuilder.Configurations.Add(new ParticipantScoresConfiguration());
             modelBuilder.Configurations.Add(new UserProfileConfiguration());
             modelBuilder.Configurations.Add(new ProblemsConfiguration());
-            modelBuilder.Configurations.Add(new ProblemSubmissionTypeSkeletonConfiguration());
+            modelBuilder.Configurations.Add(new ProblemSubmissionTypeExecutionDetailsConfiguration());
 
             ManyToManyTableNamesConfiguration.Configure(modelBuilder);
 
@@ -233,6 +232,25 @@
                 }
 
                 throw;
+            }
+        }
+        
+        public void DbExecuteSqlCommand(string query)
+        {
+            this.Database.ExecuteSqlCommand(query);
+        }
+
+        public void ExecuteSqlCommandWithTimeout(string query, int timeoutInSeconds)
+        {
+            var originalTimeout = this.Database.CommandTimeout;
+            try
+            {
+                this.Database.CommandTimeout = timeoutInSeconds;
+                this.DbExecuteSqlCommand(query);
+            }
+            finally
+            {
+                this.Database.CommandTimeout = originalTimeout;
             }
         }
     }

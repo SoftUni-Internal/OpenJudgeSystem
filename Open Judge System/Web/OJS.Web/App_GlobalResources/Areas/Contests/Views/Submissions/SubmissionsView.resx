@@ -141,6 +141,9 @@
   <data name="Execution_result" xml:space="preserve">
     <value>Execution result</value>
   </data>
+	<data name="Exception_type" xml:space="preserve">
+    <value>Exception type</value>
+  </data>
   <data name="Home" xml:space="preserve">
     <value>Home</value>
   </data>

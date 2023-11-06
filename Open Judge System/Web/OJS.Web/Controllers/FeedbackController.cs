@@ -10,7 +10,7 @@
     using OJS.Web.ViewModels.Feedback;
     using Resource = Resources.Feedback.Views;
 
-    [Authorize]
+    [AuthorizeCustom]
     public class FeedbackController : BaseController
     {
         protected const int RequestsPerInterval = 3;

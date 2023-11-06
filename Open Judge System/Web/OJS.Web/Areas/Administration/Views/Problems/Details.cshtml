@@ -52,21 +52,6 @@
         }
     </div>
     <br />
-    @if (Model.SolutionSkeleton != null)
-    {
-        <div class="editor-label">
-            @Html.LabelFor(m => m.SolutionSkeleton)
-        </div>
-        <div class="panel-body bordered-content editor-label">
-            <pre id="solution-skeleton" class="monospace-font">@Model.SolutionSkeletonShort</pre>
-
-            @if (Model.SolutionSkeleton.Length > 200)
-            {
-                @Ajax.ActionLink(Resource.See_more, "FullSolutionSkeleton", new { id = Model.Id }, new AjaxOptions { HttpMethod = "Get", UpdateTargetId = "solution-skeleton", InsertionMode = InsertionMode.Replace, OnComplete = "removeFullSolutionSkeletonAjaxLink" }, new { id = "ajax-solution-skeleton-link" })
-            }
-        </div>
-        <br />
-    }
     <div class="editor-label">
         @Html.LabelFor(m => m.MaximumPoints)
     </div>
@@ -114,10 +99,3 @@
     @(Html.ActionLink<ProblemsController>(Resource.Edit, c => c.Edit(Model.Id), null, new { @class = "btn btn-primary" }))
     @(Html.ActionLink<ProblemsController>(Resource.Back, c => c.Index(Model.ContestId), null, new { @class = "btn btn-primary" }))
 </div>
-@section scripts {
-    <script>
-        function removeFullSolutionSkeletonAjaxLink() {
-            $('#ajax-solution-skeleton-link').hide();
-        }
-    </script>    
-}

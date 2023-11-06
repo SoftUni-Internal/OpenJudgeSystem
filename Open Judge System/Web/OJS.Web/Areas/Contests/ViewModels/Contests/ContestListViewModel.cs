@@ -33,25 +33,20 @@
 
         public bool UserIsAdminOrLecturerInContest { get; set; }
 
+        public ContestType Type { get; set; }
+
         public static Expression<Func<Contest, ContestListViewModel>> FromContest(string userId, bool isUserAdmin) =>
             contest => new ContestListViewModel
             {
                 Id = contest.Id,
                 Name = contest.Name,
                 ProblemsCount = contest.ProblemGroups.Count(pg => !pg.IsDeleted),
-                OfficialParticipants = contest.Participants.Count(x => x.IsOfficial),
-                PracticeParticipants = contest.Participants.Count(x => !x.IsOfficial),
+                Type = contest.Type,
                 HasContestPassword = contest.ContestPassword != null,
                 HasPracticePassword = contest.PracticePassword != null,
-                CanBeCompeted = (contest.StartTime.HasValue &&
+                CanBeCompeted = contest.StartTime.HasValue &&
                         contest.StartTime.Value <= DateTime.Now &&
-                        (!contest.EndTime.HasValue || contest.EndTime.Value >= DateTime.Now)) ||
-                    (contest.Type == ContestType.OnlinePracticalExam &&
-                         contest.Participants
-                            .Any(p =>
-                                p.UserId == userId &&
-                                p.ParticipationEndTime.HasValue &&
-                                p.ParticipationEndTime >= DateTime.Now)),
+                        (!contest.EndTime.HasValue || contest.EndTime.Value >= DateTime.Now),
                 CanBePracticed = contest.PracticeStartTime.HasValue &&
                      contest.PracticeStartTime.Value <= DateTime.Now &&
                      (!contest.PracticeEndTime.HasValue ||
@@ -59,10 +54,7 @@
                 ResultsArePubliclyVisible = contest.StartTime.HasValue &&
                     contest.EndTime.HasValue &&
                     contest.EndTime.Value < DateTime.Now,
-                UserIsAdminOrLecturerInContest = isUserAdmin ||
-                     contest.Lecturers.Any(l => l.LecturerId == userId) ||
-                     contest.Category.Lecturers.Any(l => l.LecturerId == userId),
-                UserIsParticipant = contest.Participants.Any(p => p.UserId == userId)
+                UserIsAdminOrLecturerInContest = isUserAdmin || contest.Lecturers.Any(l => l.LecturerId == userId),
             };
     }
 }

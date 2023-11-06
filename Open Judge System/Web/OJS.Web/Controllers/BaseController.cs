@@ -10,9 +10,7 @@
     using System.Web.Mvc.Expressions;
     using System.Web.Routing;
     using System.Web.Script.Serialization;
-
     using MvcThrottle;
-
     using OJS.Common;
     using OJS.Data;
     using OJS.Data.Models;
@@ -20,7 +18,6 @@
     using OJS.Services.Data.Contests;
     using OJS.Web.Common;
     using OJS.Web.Common.Extensions;
-
     using static OJS.Common.GlobalConstants;
 
     // TODO: handle setting ViewBag data throught the help of this attribute
@@ -37,7 +34,8 @@
 
         protected UserProfile UserProfile { get; set; }
 
-        protected internal RedirectToRouteResult RedirectToAction<TController>(Expression<Action<TController>> expression)
+        protected internal RedirectToRouteResult RedirectToAction<TController>(
+            Expression<Action<TController>> expression)
             where TController : Controller
         {
             if (expression.Body is MethodCallExpression method)
@@ -98,7 +96,8 @@
             {
                 var controllerName = this.ControllerContext.RouteData.Values["Controller"].ToString();
                 var actionName = this.ControllerContext.RouteData.Values["Action"].ToString();
-                this.View("Error", new HandleErrorInfo(filterContext.Exception, controllerName, actionName)).ExecuteResult(this.ControllerContext);
+                this.View("Error", new HandleErrorInfo(filterContext.Exception, controllerName, actionName))
+                    .ExecuteResult(this.ControllerContext);
             }
 
             filterContext.ExceptionHandled = true;
@@ -125,28 +124,28 @@
             var contestsData = ObjectFactory.GetInstance<IContestsDataService>();
 
             return this.UserProfile != null &&
-                (this.User.IsAdmin() ||
+                   (this.User.IsAdmin() ||
                     contestsData.IsUserLecturerInByContestAndUser(contestId, this.UserProfile.Id));
         }
 
         protected bool CheckIfUserHasProblemPermissions(int problemId) =>
             this.UserProfile != null &&
             (this.User.IsAdmin() ||
-                this.Data.Problems
-                    .All()
-                    .Any(x =>
-                        x.Id == problemId &&
-                        (x.ProblemGroup.Contest.Lecturers.Any(y => y.LecturerId == this.UserProfile.Id) ||
-                        x.ProblemGroup.Contest.Category.Lecturers.Any(cl => cl.LecturerId == this.UserProfile.Id))));
+             this.Data.Problems
+                 .All()
+                 .Any(x =>
+                     x.Id == problemId &&
+                     (x.ProblemGroup.Contest.Lecturers.Any(y => y.LecturerId == this.UserProfile.Id) ||
+                      x.ProblemGroup.Contest.Category.Lecturers.Any(cl => cl.LecturerId == this.UserProfile.Id))));
 
         protected bool CheckIfUserHasContestCategoryPermissions(int categoryId) =>
             this.UserProfile != null &&
             (this.User.IsAdmin() ||
-                this.Data.ContestCategories
-                    .All()
-                    .Any(x =>
-                        x.Id == categoryId &&
-                        x.Lecturers.Any(y => y.LecturerId == this.UserProfile.Id)));
+             this.Data.ContestCategories
+                 .All()
+                 .Any(x =>
+                     x.Id == categoryId &&
+                     x.Lecturers.Any(y => y.LecturerId == this.UserProfile.Id)));
 
         protected bool CheckIfUserOwnsSubmission(int submissionId) =>
             this.UserProfile != null &&
@@ -154,25 +153,7 @@
                 .All()
                 .Any(s => s.Id == submissionId && s.Participant.UserId == this.UserProfile.Id);
 
-        private static void SetUiCultureFromCookie(RequestContext requestContext)
-        {
-            var languageCookie = requestContext.HttpContext.Request.Cookies[GlobalConstants.LanguageCookieName];
-
-            if (languageCookie == null)
-            {
-                languageCookie = new HttpCookie(GlobalConstants.LanguageCookieName, GlobalConstants.EnglishCultureCookieValue);
-                requestContext.HttpContext.Response.AppendCookie(languageCookie);
-            }
-
-            switch (languageCookie.Value)
-            {
-                default:
-                    Thread.CurrentThread.CurrentUICulture = new CultureInfo(GlobalConstants.EnglishCultureInfoName);
-                    break;
-            }
-        }
-
-        private SystemMessageCollection PrepareSystemMessages()
+        protected SystemMessageCollection PrepareSystemMessages()
         {
             // Warning: always escape data to prevent XSS
             var messages = new SystemMessageCollection();
@@ -196,6 +177,26 @@
             }
 
             return messages;
+        }
+
+        private static void SetUiCultureFromCookie(RequestContext requestContext)
+        {
+            var languageCookie = requestContext.HttpContext.Request.Cookies[GlobalConstants.LanguageCookieName];
+
+            if (languageCookie == null)
+            {
+                languageCookie = new HttpCookie(
+                    GlobalConstants.LanguageCookieName,
+                    GlobalConstants.EnglishCultureCookieValue);
+                requestContext.HttpContext.Response.AppendCookie(languageCookie);
+            }
+
+            switch (languageCookie.Value)
+            {
+                default:
+                    Thread.CurrentThread.CurrentUICulture = new CultureInfo(GlobalConstants.EnglishCultureInfoName);
+                    break;
+            }
         }
     }
 }

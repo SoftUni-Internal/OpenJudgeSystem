@@ -24,17 +24,20 @@
             string senderEmail,
             string senderDisplayName)
         {
+
             this.mailClient = new SmtpClient
             {
-                Credentials = new NetworkCredential(username, password),
-                Port = emailServerPort,
-                Host = emailServerHost
+                UseDefaultCredentials = false,
+
             };
+            mailClient.Credentials = new NetworkCredential(username, password);
+            mailClient.Port = emailServerPort;
+            mailClient.Host = emailServerHost;
+            mailClient.EnableSsl = true;
 
             this.senderEmail = senderEmail;
             this.senderDisplayName = senderDisplayName;
         }
-
         public void SendEmail(
             string recipient,
             string subject,
@@ -43,7 +46,15 @@
             AttachmentCollection attachments = null)
         {
             var message = this.PrepareMessage(recipient, subject, body, bccRecipients, attachments);
-            this.mailClient.Send(message);
+            try
+            {
+                this.mailClient.Send(message);
+
+            }
+            catch (Exception)
+            {
+                //TODO log error
+            }
         }
 
         public async Task SendEmailAsync(
@@ -53,7 +64,16 @@
             IEnumerable<string> bccRecipients = null)
         {
             var message = this.PrepareMessage(recipient, subject, body, bccRecipients, null);
-            await this.mailClient.SendMailAsync(message);
+
+            try
+            {
+                await this.mailClient.SendMailAsync(message);
+
+            }
+            catch (Exception)
+            {
+                //TODO log error
+            }
         }
 
         public void Dispose()

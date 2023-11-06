@@ -19,11 +19,13 @@
     using MissingFeatures;
 
     using OJS.Common;
+    using OJS.Common.Constants;
     using OJS.Common.Extensions;
     using OJS.Common.Models;
     using OJS.Data;
     using OJS.Data.Models;
     using OJS.Services.Business.Problems;
+    using OJS.Services.Cache;
     using OJS.Services.Data.Checkers;
     using OJS.Services.Data.Contests;
     using OJS.Services.Data.ProblemGroups;
@@ -42,6 +44,7 @@
     using OJS.Web.Common.Extensions;
     using OJS.Web.Common.Helpers;
     using OJS.Web.Common.ZippedTestManipulator;
+    using OJS.Web.Infrastructure.Filters.Attributes;
     using OJS.Web.ViewModels.Common;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Extensions;
@@ -61,6 +64,7 @@
         private readonly ISubmissionsDataService submissionsData;
         private readonly ISubmissionTypesDataService submissionTypesData;
         private readonly IProblemsBusinessService problemsBusiness;
+        private readonly ICacheService cacheService;
 
         public ProblemsController(
             IOjsData data,
@@ -71,7 +75,8 @@
             IProblemResourcesDataService problemResourcesData,
             ISubmissionsDataService submissionsData,
             ISubmissionTypesDataService submissionTypesData,
-            IProblemsBusinessService problemsBusiness)
+            IProblemsBusinessService problemsBusiness,
+            ICacheService cacheService)
             : base(data)
         {
             this.contestsData = contestsData;
@@ -82,6 +87,7 @@
             this.submissionsData = submissionsData;
             this.submissionTypesData = submissionTypesData;
             this.problemsBusiness = problemsBusiness;
+            this.cacheService = cacheService;
         }
 
         public ActionResult Index() => this.View();
@@ -148,6 +154,7 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ClearContestFromProblemAttribute(queryKeyForContestId: nameof(ViewModelType.ContestId))]
         public ActionResult Create(int id, ViewModelType problem)
         {
             if (!this.CheckIfUserHasContestPermissions(id))
@@ -208,25 +215,28 @@
                 .Where(s => s.IsChecked && s.Id.HasValue)
                 .ForEach(s =>
             {
-                    var submission = this.submissionTypesData.GetById(s.Id.Value);
-                    newProblem.SubmissionTypes.Add(submission);
-                    
-                    if (!s.SolutionSkeletonData.IsNullOrEmpty())
-                    {
-                        newProblem.ProblemSubmissionTypesSkeletons.Add(
-                            new ProblemSubmissionTypeSkeleton
-                            {
-                                ProblemId = problem.Id,
-                                SubmissionTypeId = submission.Id,
-                                SolutionSkeleton = this.GetOptimizedSolutionSkeleton(problem, s.SolutionSkeleton)?.Compress()
-                            });
-                    }
-            });
+                var submission = this.submissionTypesData.GetById(s.Id.Value);
+                newProblem.SubmissionTypes.Add(submission);
 
-            if (problem.SolutionSkeletonData != null && problem.SolutionSkeletonData.Any())
-            {
-                newProblem.SolutionSkeleton = problem.SolutionSkeletonData;
-            }
+                if (s.SolutionSkeletonData.IsNullOrEmpty() && (s.TimeLimit is null || s.TimeLimit.Value <= 0))
+                {
+                    return;
+                }
+                var problemSubmissionExectuionDetails = new ProblemSubmissionTypeExecutionDetails()
+                {
+                    ProblemId = problem.Id,
+                    SubmissionTypeId = submission.Id,
+                    TimeLimit = s.TimeLimit,
+                    MemoryLimit = s.MemoryLimit,
+                };
+
+                if (!s.SolutionSkeletonData.IsNullOrEmpty())
+                {
+                    problemSubmissionExectuionDetails.SolutionSkeleton = this.GetOptimizedSolutionSkeleton(problem, s.SolutionSkeleton)?.Compress();
+                }
+
+                newProblem.ProblemSubmissionTypeExecutionDetails.Add(problemSubmissionExectuionDetails);
+            });
 
             if (problem.Resources != null && problem.Resources.Any())
             {
@@ -275,8 +285,9 @@
                 };
             }
 
+            newProblem.DefaultSubmissionTypeId = problem.DefaultSubmissionTypeId;
             this.problemsData.Add(newProblem);
-
+            
             this.TempData.AddInfoMessage(GlobalResource.Problem_added);
             return this.RedirectToAction("Problem", "Tests", new { newProblem.Id });
         }
@@ -313,6 +324,7 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ClearContestFromProblemAttribute(queryKeyForContestId: nameof(ViewModelType.ContestId))]
         public ActionResult Edit(int id, ViewModelType problem)
         {
             if (!this.CheckIfUserHasProblemPermissions(id))
@@ -358,9 +370,9 @@
 
             existingProblem = problem.GetEntityModel(existingProblem);
             existingProblem.Checker = this.checkersData.GetByName(problem.Checker);
-            existingProblem.SolutionSkeleton = problem.SolutionSkeletonData;
             existingProblem.SubmissionTypes.Clear();
             existingProblem.ProblemGroup.Type = ((ProblemGroupType?)problem.ProblemGroupType).GetValidTypeOrNull();
+            existingProblem.DefaultSubmissionTypeId = problem.DefaultSubmissionTypeId;
 
             if (!existingProblem.ProblemGroup.Contest.IsOnline)
             {
@@ -375,20 +387,20 @@
                     existingProblem.AdditionalFiles = archiveStream.ToArray();
                 }
             }
-            
+
             var currentSubmissionTypes = problem
                 .SubmissionTypes
                 .Where(x => x.IsChecked && x.Id.HasValue)
                 .ToList();
-            
+
             currentSubmissionTypes.ForEach(
                     s =>
                     {
                         var submission = this.submissionTypesData.GetById(s.Id.Value);
                         existingProblem.SubmissionTypes.Add(submission);
                     });
-            
-            this.ProcessProblemSubmissionTypesSkeletons(problem, currentSubmissionTypes, existingProblem);
+
+            this.ProcessProblemSubmissionTypesDetails(problem, currentSubmissionTypes, existingProblem);
 
             this.problemsData.Update(existingProblem);
 
@@ -455,6 +467,7 @@
 
             this.problemsBusiness.DeleteById(problemId);
 
+            this.cacheService.Remove(string.Format(CacheConstants.ContestView, problem.ProblemGroup.ContestId));
             this.TempData.AddInfoMessage(GlobalResource.Problem_deleted);
             return this.RedirectToAction(c => c.Index(problem.ProblemGroup.ContestId));
         }
@@ -498,6 +511,7 @@
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ClearContestFromProblemAttribute(queryKeyForContestId: nameof(ViewModelType.ContestId))]
         public ActionResult ConfirmDeleteAll(int contestId)
         {
             if (!this.CheckIfUserHasContestPermissions(contestId))
@@ -659,7 +673,7 @@
         }
 
         [HttpPost]
-        public JsonResult ReadSubmissions([DataSourceRequest]DataSourceRequest request, int id)
+        public JsonResult ReadSubmissions([DataSourceRequest] DataSourceRequest request, int id)
         {
             if (!this.CheckIfUserHasProblemPermissions(id))
             {
@@ -685,7 +699,7 @@
         }
 
         [HttpPost]
-        public ActionResult ReadResources([DataSourceRequest]DataSourceRequest request, int id)
+        public ActionResult ReadResources([DataSourceRequest] DataSourceRequest request, int id)
         {
             if (!this.CheckIfUserHasProblemPermissions(id))
             {
@@ -733,21 +747,6 @@
             };
 
             return this.PartialView("_ProblemResourceForm", resourceViewModel);
-        }
-
-        public ActionResult FullSolutionSkeleton(int id)
-        {
-            if (!this.CheckIfUserHasProblemPermissions(id))
-            {
-                return this.Json(GeneralResource.No_privileges_message);
-            }
-
-            var solutionSkeleton = this.problemsData
-                .GetByIdQuery(id)
-                .Select(p => p.SolutionSkeleton)
-                .FirstOrDefault();
-
-            return this.Content(solutionSkeleton.Decompress());
         }
 
         [AjaxOnly]
@@ -888,13 +887,20 @@
                 .Select(ViewModelType.FromProblem)
                 .FirstOrDefault();
 
-            var contest = problemEntity.FirstOrDefault()?.ProblemGroup.Contest;
+            var problemEntityWithData = problemEntity.FirstOrDefault();
+            Contest contest = null;
 
+            if (problemEntityWithData != null)
+            {
+                contest = problemEntityWithData.ProblemGroup.Contest;
+            }
+             
             if (problem == null || contest == null)
             {
                 return null;
             }
-
+            
+            problem.DefaultSubmissionTypeId = problemEntityWithData.DefaultSubmissionTypeId;
             this.AddCheckersAndProblemGroupsToProblemViewModel(
                 problem,
                 contest.ProblemGroups.Count,
@@ -988,35 +994,40 @@
 
             return skeleton;
         }
-        
-        private void ProcessProblemSubmissionTypesSkeletons(
+
+        private void ProcessProblemSubmissionTypesDetails(
             ProblemAdministrationViewModel problem,
             List<SubmissionTypeViewModel> currentSubmissionTypes,
             Problem existingProblem)
         {
             currentSubmissionTypes?
-                .Where(x => !x.SolutionSkeletonData.IsNullOrEmpty())
                 .ForEach(
                     s =>
                     {
-                        var currentPst = existingProblem
-                            .ProblemSubmissionTypesSkeletons
-                            .FirstOrDefault(pst => s.Id.HasValue && pst.SubmissionTypeId == s.Id.Value);
+                        var currentSubmissionDetails = existingProblem
+                                .ProblemSubmissionTypeExecutionDetails
+                                .FirstOrDefault(pst => s.Id.HasValue && pst.SubmissionTypeId == s.Id.Value);
 
-                        if (currentPst != null)
+                        var solutionSekeltonData = s.SolutionSkeletonData.IsNullOrEmpty()
+                                ? null
+                                : this.GetOptimizedSolutionSkeleton(problem, s.SolutionSkeleton)?.Compress();
+
+                        if (currentSubmissionDetails != null)
                         {
-                            currentPst.SolutionSkeleton =
-                                this.GetOptimizedSolutionSkeleton(problem, s.SolutionSkeleton)?.Compress();
+                            currentSubmissionDetails.TimeLimit = s.TimeLimit;
+                            currentSubmissionDetails.SolutionSkeleton = solutionSekeltonData;
+                            currentSubmissionDetails.MemoryLimit = s.MemoryLimit;
                         }
                         else
                         {
-                            existingProblem.ProblemSubmissionTypesSkeletons.Add(
-                                new ProblemSubmissionTypeSkeleton
+                            existingProblem.ProblemSubmissionTypeExecutionDetails.Add(
+                                new ProblemSubmissionTypeExecutionDetails
                                 {
                                     ProblemId = problem.Id,
                                     SubmissionTypeId = s.Id.Value,
-                                    SolutionSkeleton = this.GetOptimizedSolutionSkeleton(problem, s.SolutionSkeleton)
-                                        ?.Compress()
+                                    SolutionSkeleton = solutionSekeltonData,
+                                    TimeLimit = s.TimeLimit,
+                                    MemoryLimit = s.MemoryLimit,
                                 });
                         }
                     });
@@ -1025,14 +1036,14 @@
                 .Where(
                     st => !st.IsChecked &&
                          st.Id.HasValue &&
-                         existingProblem.ProblemSubmissionTypesSkeletons
+                         existingProblem.ProblemSubmissionTypeExecutionDetails
                              .Any(y => y.SubmissionTypeId == st.Id.Value))
                 .ForEach(
                     st =>
                     {
-                        existingProblem.ProblemSubmissionTypesSkeletons.Remove(
+                        existingProblem.ProblemSubmissionTypeExecutionDetails.Remove(
                             existingProblem
-                                .ProblemSubmissionTypesSkeletons.FirstOrDefault(y => y.SubmissionTypeId == st.Id.Value));
+                                .ProblemSubmissionTypeExecutionDetails.FirstOrDefault(y => y.SubmissionTypeId == st.Id.Value));
                     });
         }
     }

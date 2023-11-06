@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Linq;
-
     using OJS.Data.Models;
     using OJS.Services.Common;
 
@@ -20,6 +19,8 @@
 
         IQueryable<ParticipantScore> GetAllHavingPointsExceedingLimit();
 
+        IQueryable<ParticipantScore> GetAllByParticipants(IEnumerable<int> participantIds);
+
         void ResetBySubmission(Submission submission);
 
         void DeleteAllByProblem(int problemId);
@@ -28,12 +29,20 @@
 
         void Delete(IEnumerable<ParticipantScore> participantScores);
 
-        void AddBySubmissionByUsernameAndIsOfficial(Submission submission, string username, bool isOfficial);
+        void AddBySubmissionByUsernameAndIsOfficial(Submission submission, string userName, Participant participant);
 
         void UpdateBySubmissionAndPoints(
             ParticipantScore participantScore,
             int? submissionId,
-            int submissionPoints);
+            int submissionPoints,
+            Participant participant);
+        
+        void UpdateBySubmissionAndPoints(
+            ParticipantScore participantScore,
+            int? submissionId,
+            int submissionPoints,
+            Participant participant,
+            bool withSaveChanges);
 
         void RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds);
     }

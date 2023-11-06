@@ -186,4 +186,7 @@
   <data name="Problem_groups_edit_from_administration" xml:space="preserve">
     <value>You can manage problem groups count from the Problem Groups Administration</value>
   </data>
+  <data name="Ensure_valid_author_submisions" xml:space="preserve">
+    <value>Show/Hide warnings for strategies that don't have a currently passing submission with max points</value>
+  </data>
 </root>

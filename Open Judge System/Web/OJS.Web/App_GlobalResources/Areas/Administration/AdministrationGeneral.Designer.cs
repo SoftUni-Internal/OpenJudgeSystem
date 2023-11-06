@@ -19,7 +19,7 @@ namespace Resources.Areas.Administration {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class AdministrationGeneral {
@@ -102,6 +102,15 @@ namespace Resources.Areas.Administration {
         public static string Choose_file {
             get {
                 return ResourceManager.GetString("Choose_file", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Completed execution on.
+        /// </summary>
+        public static string Completed_execution_on {
+            get {
+                return ResourceManager.GetString("Completed_execution_on", resourceCulture);
             }
         }
         
@@ -201,6 +210,15 @@ namespace Resources.Areas.Administration {
         public static string Remove {
             get {
                 return ResourceManager.GetString("Remove", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Started execution on.
+        /// </summary>
+        public static string Started_execution_on {
+            get {
+                return ResourceManager.GetString("Started_execution_on", resourceCulture);
             }
         }
     }

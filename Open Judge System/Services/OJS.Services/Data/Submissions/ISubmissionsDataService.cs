@@ -15,6 +15,8 @@
 
         IQueryable<Submission> GetAll();
 
+        IQueryable<Submission> GetAllWithDeleted();
+
         IQueryable<Submission> GetByIdQuery(int id);
 
         IQueryable<Submission> GetAllByProblem(int problemId);
@@ -45,7 +47,10 @@
         void DeleteByProblem(int problemId);
 
         void Update(Submission submission);
+        void Update(Submission submission, bool withSaveChanges);
 
         void RemoveTestRunsCacheByProblem(int problemId);
+
+        void SaveChanges();
     }
 }

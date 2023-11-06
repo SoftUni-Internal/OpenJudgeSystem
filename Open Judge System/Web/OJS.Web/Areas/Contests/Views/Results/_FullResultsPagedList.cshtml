@@ -13,7 +13,7 @@
     const string OnPageChangedEventHandlerName = "OnPageChanged";
     var isOfficialStr = Model.IsCompete ? CompeteController.CompeteActionName : CompeteController.PracticeActionName;
     var isOfficial = Model.IsCompete;
-    var results = Model.PagedResults;
+    var results = Model.Results;
 }
 
 <div class="loading-mask-container" id="@ResultsContainerId">
@@ -22,7 +22,7 @@
         @Html.PagedListPager(
             results,
             page => Url.Action<ResultsController>(
-                c => c.FullPartial(Model.Id,isOfficial,page,results.PageSize)),
+                c => c.FullPartial(Model.Id,isOfficial, Model.Results.TotalItemCount, page,results.PageSize)),
             PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions
             {
                 HttpMethod = "GET",
@@ -126,7 +126,7 @@
         @Html.PagedListPager(
             results,
             page => Url.Action<ResultsController>(
-                c => c.FullPartial(Model.Id, isOfficial,page, results.PageSize)),
+                c => c.FullPartial(Model.Id, isOfficial, Model.Results.TotalItemCount, page, results.PageSize)),
             PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions
             {
                 HttpMethod = "GET",

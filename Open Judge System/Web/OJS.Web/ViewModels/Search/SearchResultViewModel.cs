@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace OJS.Web.ViewModels.Search
+﻿namespace OJS.Web.ViewModels.Search
 {
     using System;
     using System.Linq.Expressions;

@@ -116,7 +116,7 @@
     <Compile Include="Configurations\ManyToManyTableNamesConfiguration.cs" />
     <Compile Include="Configurations\ParticipantScoresConfiguration.cs" />
     <Compile Include="Configurations\ProblemsConfiguration.cs" />
-    <Compile Include="Configurations\ProblemSubmissionTypeSkeletonConfiguration.cs" />
+    <Compile Include="Configurations\ProblemSubmissionTypeExecutionDetailsConfiguration.cs" />
     <Compile Include="Configurations\TestRunConfiguration.cs" />
     <Compile Include="Configurations\UserProfileConfiguration.cs" />
     <Compile Include="Migrations\DefaultMigrationConfiguration.cs" />

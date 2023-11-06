@@ -10,7 +10,7 @@
     {
         IQueryable<ArchivedSubmission> GetAllUndeletedFromMainDatabase();
 
-        void Add(IEnumerable<ArchivedSubmission> entities);
+        int Add(IEnumerable<ArchivedSubmission> entities);
 
         void SetToHardDeletedFromMainDatabaseByIds(IEnumerable<int> ids);
 

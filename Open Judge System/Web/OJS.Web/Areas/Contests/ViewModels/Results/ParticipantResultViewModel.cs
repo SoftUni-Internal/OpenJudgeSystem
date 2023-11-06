@@ -9,6 +9,18 @@
 
     public class ParticipantResultViewModel
     {
+        public static Expression<Func<Participant, ParticipantResultViewModel>> FromParticipant =>
+            participant => new ParticipantResultViewModel
+            {
+                Id = participant.Id,
+                ParticipantUsername = participant.User.UserName,
+                ParticipantFirstName = participant.User.UserSettings.FirstName,
+                ParticipantLastName = participant.User.UserSettings.LastName,
+                ParticipantProblemIds = participant.Problems.Select(p => p.Id),
+            };
+
+        public int Id { get; set; }
+
         public string ParticipantUsername { get; set; }
 
         public string ParticipantFirstName { get; set; }
@@ -31,42 +43,5 @@
             .Sum(pr => pr.BestSubmission.Points);
 
         public IEnumerable<int> ParticipantProblemIds { get; set; }
-
-        public static Expression<Func<Participant, ParticipantResultViewModel>> FromParticipantAsSimpleResultByContest(int contestId) =>
-            participant => new ParticipantResultViewModel
-            {
-                ParticipantUsername = participant.User.UserName,
-                ParticipantFirstName = participant.User.UserSettings.FirstName,
-                ParticipantLastName = participant.User.UserSettings.LastName,
-                ParticipantProblemIds = participant.Problems.Select(p => p.Id),
-                ProblemResults = participant.Scores
-                    .Where(sc => !sc.Problem.IsDeleted && sc.Problem.ProblemGroup.ContestId == contestId)
-                    .AsQueryable()
-                    .Select(ProblemResultPairViewModel.FromParticipantScoreAsSimpleResult)
-            };
-
-        public static Expression<Func<Participant, ParticipantResultViewModel>> FromParticipantAsFullResultByContest(int contestId) =>
-            participant => new ParticipantResultViewModel
-            {
-                ParticipantUsername = participant.User.UserName,
-                ParticipantFirstName = participant.User.UserSettings.FirstName,
-                ParticipantLastName = participant.User.UserSettings.LastName,
-                ProblemResults = participant.Scores
-                    .Where(sc => !sc.Problem.IsDeleted && sc.Problem.ProblemGroup.ContestId == contestId)
-                    .AsQueryable()
-                    .Select(ProblemResultPairViewModel.FromParticipantScoreAsFullResult)
-            };
-
-        public static Expression<Func<Participant, ParticipantResultViewModel>> FromParticipantAsExportResultByContest(int contestId) =>
-            participant => new ParticipantResultViewModel
-            {
-                ParticipantUsername = participant.User.UserName,
-                ParticipantFirstName = participant.User.UserSettings.FirstName,
-                ParticipantLastName = participant.User.UserSettings.LastName,
-                ProblemResults = participant.Scores
-                    .Where(sc => !sc.Problem.IsDeleted && sc.Problem.ProblemGroup.ContestId == contestId)
-                    .AsQueryable()
-                    .Select(ProblemResultPairViewModel.FromParticipantScoreAsExportResult)
-            };
     }
 }

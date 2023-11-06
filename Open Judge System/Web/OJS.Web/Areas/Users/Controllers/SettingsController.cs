@@ -2,15 +2,15 @@
 {
     using System.Web.Mvc;
 
-    using OJS.Common;
     using OJS.Data;
     using OJS.Data.Models;
     using OJS.Web.Areas.Users.ViewModels;
+    using OJS.Web.Common.Attributes;
     using OJS.Web.Controllers;
 
     using Resource = Resources.Areas.Users.Views.Settings.SettingsIndex;
 
-    [Authorize]
+    [AuthorizeCustom]
     public class SettingsController : BaseController
     {
         public SettingsController(IOjsData data)

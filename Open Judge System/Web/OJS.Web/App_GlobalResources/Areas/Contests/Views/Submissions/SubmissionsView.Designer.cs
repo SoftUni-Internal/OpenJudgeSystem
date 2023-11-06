@@ -19,7 +19,7 @@ namespace Resources.Areas.Contests.Views {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class SubmissionsView {
@@ -129,6 +129,15 @@ namespace Resources.Areas.Contests.Views {
         public static string Download_binary_file {
             get {
                 return ResourceManager.GetString("Download_binary_file", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Exception type.
+        /// </summary>
+        public static string Exception_type {
+            get {
+                return ResourceManager.GetString("Exception_type", resourceCulture);
             }
         }
         

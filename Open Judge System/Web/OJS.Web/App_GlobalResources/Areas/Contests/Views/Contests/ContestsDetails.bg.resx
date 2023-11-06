@@ -186,4 +186,7 @@
   <data name="Problem_groups" xml:space="preserve">
     <value>Групи задачи</value>
   </data>
+  <data name="Calculate_load" xml:space="preserve">
+    <value>Изчисли натоварване</value>
+  </data>
 </root>

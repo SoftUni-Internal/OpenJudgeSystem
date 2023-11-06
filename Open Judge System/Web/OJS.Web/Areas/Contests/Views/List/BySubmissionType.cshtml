@@ -1,7 +1,7 @@
 ﻿@using OJS.Web.Areas.Contests.ViewModels.Contests
 @using Resource = Resources.Areas.Contests.Views.ListByType
 
-@model IEnumerable<ContestViewModel>
+@model IEnumerable<ContestSimpleViewModel>
 
 @{
     ViewBag.Title = string.Format(Resource.Contests_with_allowed, ViewBag.SubmissionType);
@@ -12,12 +12,12 @@
 </h2>
 
 @(Html.Kendo()
-        .Grid<ContestViewModel>()
+        .Grid<ContestSimpleViewModel>()
         .Name("Contests")
         .BindTo(Model)
         .Columns(col =>
         {
-            col.Bound(x => x.Name).ClientTemplate("<a href='/Contests/#:Id#/#:Name.replace(/ |\\.|[0-9]/g, '-')#'>#:Name#</a>");
+            col.Bound(x => x.Name).ClientTemplate("<a href='/Contests/#:Id#/#:NameForUrl#'>#:Name#</a>");
         }).DataSource(data =>
         {
             data.Ajax().ServerOperation(false).PageSize(10);

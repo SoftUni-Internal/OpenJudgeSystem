@@ -1,6 +1,7 @@
 ﻿namespace OJS.Services.Data.Contests
 {
     using System;
+    using System.Collections.Generic;
     using System.Data.Entity;
     using System.Linq;
     using System.Linq.Expressions;
@@ -8,6 +9,7 @@
     using OJS.Common.Models;
     using OJS.Data.Models;
     using OJS.Data.Repositories.Contracts;
+    using OJS.Services.Data.Submissions.Models;
 
     public class ContestsDataService : IContestsDataService
     {
@@ -172,5 +174,23 @@
                 .Where(c => (c.IsVisible && c.VisibleFrom < DateTime.Now) 
                             || (!c.IsVisible && c.VisibleFrom < DateTime.Now)
                             || c.IsVisible && c.VisibleFrom == null);
+
+        public IEnumerable<SubmissionTypeForProblem> GetSumbissionTypesForProblemsWithCurrentAuthorSolution(int id) =>
+            this.GetByIdQuery(id)
+                .SelectMany(c => c.ProblemGroups.Where(pg => pg.IsDeleted == false), (c, pg) =>
+                    pg.Problems
+                        .Where(p => p.IsDeleted == false)
+                        .SelectMany(p => p.SubmissionTypes, (p2, st) => new SubmissionTypeForProblem()
+                        {
+                            ProblemId = p2.Id,
+                            ProblemName = p2.Name,
+                            SubmissionTypeId = st.Id,
+                            SubmissionTypeName = st.Name,
+                            HasAuthorSubmission = p2.Submissions.Any(s => s.ProblemId == p2.Id &&
+                                s.TestRuns.Any() &&
+                                s.Points == s.Problem.MaximumPoints &&
+                                s.SubmissionTypeId == st.Id)
+                        }))
+            .SelectMany(submissionTypesForProblemGroup => submissionTypesForProblemGroup);
     }
 }

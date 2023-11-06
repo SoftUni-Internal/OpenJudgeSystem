@@ -21,7 +21,7 @@
                 .All()
                 .Where(s => !s.IsHardDeletedFromMainDatabase);
 
-        public void Add(IEnumerable<ArchivedSubmission> entities)
+        public int Add(IEnumerable<ArchivedSubmission> entities)
         {
             var entitiesList = entities.ToList();
             var ids = entitiesList
@@ -38,6 +38,7 @@
                 .ToList();
 
             this.archivedSubmissions.Add(entitiesToAdd);
+            return entitiesToAdd.Count;
         }
 
         public void SetToHardDeletedFromMainDatabaseByIds(IEnumerable<int> ids)

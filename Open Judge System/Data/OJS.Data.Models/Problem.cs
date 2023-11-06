@@ -62,6 +62,10 @@
         [DefaultValue(false)]
         public bool ShowDetailedFeedback { get; set; }
 
+        public int? DefaultSubmissionTypeId { get; set; }
+
+        public virtual SubmissionType DefaultSubmissionType { get; set; }
+
         public virtual ICollection<Test> Tests { get; set; } = new HashSet<Test>();
 
         public virtual ICollection<ProblemResource> Resources { get; set; } = new HashSet<ProblemResource>();
@@ -74,7 +78,7 @@
 
         public virtual ICollection<SubmissionType> SubmissionTypes { get; set; } = new HashSet<SubmissionType>();
         
-        public virtual ICollection<ProblemSubmissionTypeSkeleton> ProblemSubmissionTypesSkeletons { get; set; } = new HashSet<ProblemSubmissionTypeSkeleton>();
+        public virtual ICollection<ProblemSubmissionTypeExecutionDetails> ProblemSubmissionTypeExecutionDetails { get; set; } = new HashSet<ProblemSubmissionTypeExecutionDetails>();
 
         public virtual ICollection<Participant> Participants { get; set; } = new HashSet<Participant>();
     }

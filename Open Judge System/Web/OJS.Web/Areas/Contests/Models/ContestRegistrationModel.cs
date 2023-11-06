@@ -14,7 +14,7 @@
         private IOjsData data;
 
         public ContestRegistrationModel()
-            : this(new OjsData())
+            : this(new OjsData(new OjsDbContext()))
         {
         }
 

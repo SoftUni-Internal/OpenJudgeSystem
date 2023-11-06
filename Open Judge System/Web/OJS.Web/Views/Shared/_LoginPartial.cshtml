@@ -30,7 +30,10 @@ else
             var externalRegisterFullAddress = $"{string.Format(UrlConstants.ExternalRegisterUrlFormat, Settings.SulsPlatformBaseUrl)}?lang={langCookieName}";
         }
 
-        <li><a href="@externalRegisterFullAddress">@Resource.Register</a></li>
+        @if (Settings.IsRegisterEnabled)
+        {
+            <li><a href="@externalRegisterFullAddress">@Resource.Register</a></li>
+        }
         <li>@Html.ActionLink(Resource.Log_in, "Login", "Account", new {area = string.Empty}, htmlAttributes: new {id = "loginLink"})</li>
     </ul>
 }

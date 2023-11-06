@@ -14,10 +14,11 @@
     using OJS.Services.Common.HttpRequester;
     using OJS.Services.Common.HttpRequester.Models.Users;
     using OJS.Web.Common;
+    using OJS.Web.Common.Attributes;
     using OJS.Web.Common.Extensions;
     using OJS.Web.ViewModels.Account;
 
-    [Authorize]
+    [AuthorizeCustom]
     public class AccountController : BaseController
     {
         private readonly IHttpRequesterService httpRequester;
@@ -51,6 +52,15 @@
             {
                 return this.View(model);
             }
+
+#if DEBUG
+            var existingUser = await this.UserManager.FindAsync(model.UserName, model.Password);
+            if (existingUser != null)
+            {
+                await this.SignInAsync(existingUser, model.RememberMe);
+                return this.RedirectToLocal(returnUrl);
+            }
+#endif
 
             ExternalUserInfoModel externalUser;
 
@@ -161,7 +171,7 @@
         [HttpPost]
         public ActionResult ChangeEmail(ChangeEmailViewModel model) => this.RedirectToExternalSystemMessage();
 
-        [Authorize]
+        [AuthorizeCustom]
         public ActionResult ChangeUsername() => this.RedirectToExternalSystemMessage();
 
         [HttpPost]

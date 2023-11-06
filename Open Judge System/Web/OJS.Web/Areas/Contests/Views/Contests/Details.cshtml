@@ -170,6 +170,7 @@
                 {
                     @:<div class="clearfix"></div>
                 }
+
             }
         }
         else if (Model.UserIsAdminOrLecturerInContest)
@@ -216,6 +217,14 @@
                     c => c.ChangeActiveParticipantsEndTime(Model.Id),
                     new { area = GlobalConstants.AdministrationAreaName },
                     new { @class = "btn btn-sm btn-primary bottom-buffer-sm" }))
+            }
+            if (Model.UserIsAdminOrLecturerInContest)
+            {
+                @(Html.ActionLink<ContestsController>(
+                    Resource.Calculate_load,
+                    c => c.CalculateContestLoad(Model.Id),
+                    new { area = GlobalConstants.AdministrationAreaName },
+                    new { @class = "btn btn-sm btn-primary bottom-buffer-sm left-buffer" }))
             }
         }
     </div>

@@ -1,0 +1,35 @@
+on:
+  pull_request_review:
+    types: [submitted]
+jobs:
+  check-change-requested:
+    runs-on: ubuntu-latest
+    # Job level 'if' condition
+    if: github.event.review.state == 'changes_requested'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Cache npm dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/projects-workflow-scripts/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: |
+          cd projects-workflow-scripts
+          npm ci
+      - name: Run script
+        env:
+          GITHUB_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
+          ORGANIZATION_NAME: ${{ github.repository_owner }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          cd projects-workflow-scripts
+          node on-pr-requested-changes.js

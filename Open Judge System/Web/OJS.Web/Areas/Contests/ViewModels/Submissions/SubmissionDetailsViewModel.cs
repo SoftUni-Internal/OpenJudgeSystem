@@ -4,9 +4,9 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
-
     using OJS.Data.Models;
     using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Models;
 
     public class SubmissionDetailsViewModel
     {
@@ -34,7 +34,13 @@
                 ShowResults = submission.Problem.ShowResults,
                 ShowDetailedFeedback = submission.Problem.ShowDetailedFeedback,
                 TotalTests = submission.Problem.Tests.Count,
-                TestRuns = submission.TestRuns.AsQueryable().Select(TestRunDetailsViewModel.FromTestRun)
+                TestRuns = submission.TestRuns.AsQueryable().Select(TestRunDetailsViewModel.FromTestRun),
+                ExecutionComment = submission.ExecutionComment,
+                ExceptionType = submission.ExceptionType,
+                StartedExecutionOn = submission.StartedExecutionOn,
+                CompletedExecutionOn = submission.CompletedExecutionOn,
+                WorkerEndpoint = submission.WorkerEndpoint,
+                WorkerType = submission.WorkerType
             };
 
         public int Id { get; set; }
@@ -92,5 +98,17 @@
         public string ContentAsString => this.IsBinaryFile ? "Binary file." : this.Content.Decompress();
 
         public bool HasTestRuns => this.TestRuns.Any();
+
+        public string ExecutionComment { get; set; }
+
+        public ExceptionType ExceptionType { get; set; }
+
+        public DateTime? StartedExecutionOn { get; set; }
+
+        public DateTime? CompletedExecutionOn { get; set; }
+
+        public string WorkerEndpoint { get; set; }
+        
+        public WorkerType WorkerType { get; set; }
     }
 }

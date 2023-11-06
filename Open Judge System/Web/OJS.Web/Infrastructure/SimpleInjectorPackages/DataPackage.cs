@@ -1,7 +1,7 @@
 ﻿namespace OJS.Web.Infrastructure.SimpleInjectorPackages
 {
     using System.Data.Entity;
-
+    using OJS.Common.Constants;
     using OJS.Data;
     using OJS.Data.Archives;
     using OJS.Data.Archives.Repositories;
@@ -17,13 +17,23 @@
     {
         public void RegisterServices(Container container)
         {
+            container.Register<OjsDbContext>(
+                () =>
+                {
+                    var context = new OjsDbContext();
+                    context.Database.CommandTimeout = Settings.DatabaseCommandTimeoutInSeconds;
+                    return context;
+                },
+                Lifestyle.Scoped);
+
+            container.Register<IOjsDbContext>(container.GetInstance<OjsDbContext>, Lifestyle.Scoped);
+
             container.Register<IOjsData, OjsData>(Lifestyle.Scoped);
 
-            container.Register<OjsDbContext>(Lifestyle.Scoped);
             container.Register<ArchivesDbContext>(Lifestyle.Scoped);
 
             container.Register<DbContext>(container.GetInstance<OjsDbContext>, Lifestyle.Scoped);
-            container.Register<IOjsDbContext>(container.GetInstance<OjsDbContext>, Lifestyle.Scoped);
+
             container.Register<IArchivesDbContext>(container.GetInstance<ArchivesDbContext>, Lifestyle.Scoped);
 
             container.Register(

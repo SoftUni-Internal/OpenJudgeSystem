@@ -8,6 +8,7 @@
     using System.Text;
 
     using OJS.Common;
+    using OJS.Common.Models;
     using OJS.Data.Contracts;
     using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Models;
@@ -81,6 +82,7 @@
 
         public virtual ICollection<TestRun> TestRuns { get; set; } = new HashSet<TestRun>();
 
+
         /// <summary>
         /// Cache field for submission test runs representing each test run result as an integer equal to <see cref="TestRunResultType"/>.
         /// The first integer represent the number of trial tests associated with this submissions.
@@ -97,6 +99,10 @@
 
         public bool Processed { get; set; }
 
+        public DateTime? StartedExecutionOn { get; set; }
+
+        public DateTime? CompletedExecutionOn { get; set; }
+
         public string ProcessingComment { get; set; }
 
         /// <summary>
@@ -104,6 +110,14 @@
         /// </summary>
         public int Points { get; set; }
 
+        public string ExecutionComment { get; set; }
+
+        public ExceptionType ExceptionType { get; set; }
+
+        public WorkerType WorkerType { get; set; }
+        
+        public string WorkerEndpoint { get; set; }
+        
         [NotMapped]
         public int CorrectTestRunsCount
         {

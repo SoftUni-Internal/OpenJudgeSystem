@@ -124,6 +124,7 @@
     <Compile Include="ActionResults\StandardJsonResult.cs" />
     <Compile Include="Attributes\AjaxOnlyAttribute.cs" />
     <Compile Include="Attributes\AuthorizeRolesAttribute.cs" />
+    <Compile Include="Attributes\AuthorizeCustomAttribute.cs" />
     <Compile Include="Attributes\DisableCache.cs" />
     <Compile Include="Attributes\RestrictRequestsAttribute.cs" />
     <Compile Include="EnumConverter.cs" />

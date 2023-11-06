@@ -38,8 +38,6 @@
                 HasContestQuestions = contest.Questions.Any(x => x.AskOfficialParticipants),
                 HasPracticeQuestions = contest.Questions.Any(x => x.AskPracticeParticipants),
                 ContestType = contest.Type,
-                OfficialParticipants = contest.Participants.Count(x => x.IsOfficial),
-                PracticeParticipants = contest.Participants.Count(x => !x.IsOfficial),
                 ProblemsCount = contest.ProblemGroups.SelectMany(pg => pg.Problems).Count(p => !p.IsDeleted),
                 Problems = contest.ProblemGroups
                     .SelectMany(pg => pg.Problems)
@@ -136,7 +134,7 @@
         {
             get
             {
-                if (!this.IsVisible)
+                if (!this.Visible)
                 {
                     return false;
                 }
@@ -166,7 +164,7 @@
         {
             get
             {
-                if (!this.IsVisible)
+                if (!this.Visible)
                 {
                     return false;
                 }

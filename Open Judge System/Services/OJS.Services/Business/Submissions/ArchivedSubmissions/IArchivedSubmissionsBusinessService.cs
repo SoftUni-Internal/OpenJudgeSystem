@@ -1,15 +1,17 @@
 ﻿namespace OJS.Services.Business.Submissions.ArchivedSubmissions
 {
+    using Hangfire;
     using Hangfire.Server;
 
     using OJS.Services.Common;
 
     public interface IArchivedSubmissionsBusinessService : IService
     {
-        void ArchiveOldSubmissions(PerformContext context);
+        [AutomaticRetry(Attempts = 0)]
+        int ArchiveOldSubmissionsDailyBatch(PerformContext context, int limit, int maxSubBatchSize);
 
-        void HardDeleteCurrentArchived(PerformContext context);
+        int ArchiveOldSubmissionsWithLimit(PerformContext context, int limit);
 
-        void ArchiveCleanOldSubmissions(PerformContext context);
+        int HardDeleteArchivedByLimit(PerformContext context, int limit);
     }
 }

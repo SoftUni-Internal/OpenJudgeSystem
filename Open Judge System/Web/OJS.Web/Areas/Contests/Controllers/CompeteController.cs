@@ -17,11 +17,13 @@
     using MissingFeatures;
 
     using OJS.Common;
+    using OJS.Common.Constants;
     using OJS.Common.Models;
     using OJS.Data;
     using OJS.Data.Models;
     using OJS.Services.Business.Contests;
     using OJS.Services.Business.Participants;
+    using OJS.Services.Cache;
     using OJS.Services.Data.Contests;
     using OJS.Services.Data.Ips;
     using OJS.Services.Data.Participants;
@@ -38,7 +40,7 @@
     using OJS.Web.Common.Exceptions;
     using OJS.Web.Common.Extensions;
     using OJS.Web.Controllers;
-
+    using OJS.Web.Infrastructure.Filters.Attributes;
     using Resource = Resources.Areas.Contests;
 
     public class CompeteController : BaseController
@@ -54,6 +56,7 @@
         private readonly ISubmissionsDataService submissionsData;
         private readonly ISubmissionsForProcessingDataService submissionsForProcessingData;
         private readonly IIpsDataService ipsData;
+        private readonly ICacheService cacheService;
 
         public CompeteController(
             IOjsData data,
@@ -64,7 +67,8 @@
             IProblemsDataService problemsData,
             ISubmissionsDataService submissionsData,
             ISubmissionsForProcessingDataService submissionsForProcessingData,
-            IIpsDataService ipsData)
+            IIpsDataService ipsData,
+             ICacheService cacheService)
             : base(data)
         {
             this.participantsBusiness = participantsBusiness;
@@ -75,6 +79,7 @@
             this.submissionsData = submissionsData;
             this.submissionsForProcessingData = submissionsForProcessingData;
             this.ipsData = ipsData;
+            this.cacheService = cacheService;
         }
 
         protected CompeteController(
@@ -156,7 +161,7 @@
         /// Displays user compete information: tasks, send source form, ranking, submissions, ranking, etc.
         /// Users only.
         /// </summary>
-        [Authorize]
+        [AuthorizeCustom]
         [DisableCache]
         public ActionResult Index(int id, bool official, bool? hasConfirmed)
         {
@@ -213,10 +218,15 @@
                 return this.RedirectToAction(c => c.NewContestIp(id));
             }
 
+            var contestViewModel = this.cacheService.GetOrSet<ContestViewModel>(
+                string.Format(CacheConstants.ContestView, participant.ContestId),
+                () => { return ContestViewModel.FromContest.Compile()(participant.Contest); });
+
             var participantViewModel = new ParticipantViewModel(
                 participant,
                 official,
-                isUserAdminOrLecturerInContest);
+                isUserAdminOrLecturerInContest,
+                contestViewModel);
 
             this.ViewBag.CompeteType = official ? CompeteActionName : PracticeActionName;
             this.ViewBag.IsUserAdminOrLecturer = isUserAdminOrLecturerInContest;
@@ -229,7 +239,7 @@
         /// Users only.
         /// </summary>
         [HttpGet]
-        [Authorize]
+        [AuthorizeCustom]
         public ActionResult Register(int id, bool official)
         {
             var participant = this.participantsData
@@ -277,7 +287,7 @@
         /// </summary>
         //// TODO: Refactor
         [HttpPost]
-        [Authorize]
+        [AuthorizeCustom]
         [ValidateAntiForgeryToken]
         public ActionResult Register(bool official, ContestRegistrationModel registrationData)
         {
@@ -405,7 +415,7 @@
         /// <param name="official">A check whether the contest is official or practice.</param>
         /// <returns>Returns confirmation if the submission was correctly processed.</returns>
         [HttpPost]
-        [Authorize]
+        [AuthorizeCustom]
         [ValidateAntiForgeryToken]
         public ActionResult Submit(SubmissionModel participantSubmission, bool official)
         {
@@ -452,12 +462,12 @@
             {
                 throw new HttpException((int)HttpStatusCode.BadRequest, Resource.ContestsGeneral.Submission_too_long);
             }
-            
+
             if (this.Data.Submissions.HasUserNotProcessedSubmissionForProblem(problem.Id, this.UserProfile.Id))
             {
                 throw new HttpException((int)HttpStatusCode.BadRequest, Resource.ContestsGeneral.User_has_not_processed_submission_for_problem);
             }
-            
+
             if (participant.Contest.UsersCantSubmitConcurrently && this.Data.Submissions.UserHasUnprocessedSubmissionInContest(participant.ContestId, this.UserProfile.Id))
             {
                 return this.JsonError(Resource.ContestsGeneral.User_has_not_processed_submission_for_contest);
@@ -476,7 +486,8 @@
                                 (!participant.IsOfficial && contest.PracticePassword == null)) &&
                             contest.Visible &&
                             !contest.IsDeleted &&
-                            problem.ShowResults
+                            problem.ShowResults,
+                WorkerType = contest.DefaultWorkerType,
             };
 
             this.Data.Submissions.Add(newSubmission);
@@ -573,7 +584,7 @@
         /// <param name="id">The problem Id</param>
         /// <param name="official">A check whether the problem is practiced or competed.</param>
         /// <returns>Returns a partial view with the problem information.</returns>
-        [Authorize]
+        [AuthorizeCustom]
         public ActionResult Problem(int id, bool official)
         {
             this.ViewBag.IsOfficial = official;
@@ -615,8 +626,8 @@
         /// <param name="id">The problem id.</param>
         /// <param name="official">A check whether the problem is practiced or competed.</param>
         /// <returns>Returns the submissions results for a participant's problem.</returns>
-        [Authorize]
-        public ActionResult ReadSubmissionResults([DataSourceRequest]DataSourceRequest request, int id, bool official)
+        [AuthorizeCustom]
+        public ActionResult ReadSubmissionResults([DataSourceRequest] DataSourceRequest request, int id, bool official)
         {
             var problem = this.problemsData.GetWithProblemGroupById(id);
 
@@ -642,8 +653,8 @@
             return this.Json(userSubmissions.ToDataSourceResult(request));
         }
 
-        [Authorize]
-        public ActionResult ReadSubmissionResultsAreCompiled([DataSourceRequest]DataSourceRequest request, int id, bool official)
+        [AuthorizeCustom]
+        public ActionResult ReadSubmissionResultsAreCompiled([DataSourceRequest] DataSourceRequest request, int id, bool official)
         {
             var problem = this.problemsData.GetWithProblemGroupById(id);
 
@@ -673,16 +684,20 @@
         {
             var submissionTypesSelectListItems =
                 this.Data.Problems.All()
-                    .Where(x => x.Id == id)
-                    .SelectMany(x => x.SubmissionTypes)
+                    .Where(p => p.Id == id)
+                    .SelectMany(st => st.SubmissionTypes)
                     .ToList()
-                    .Select(x => new
+                    .Select(st => new
                     {
-                        Text = x.Name,
-                        Value = x.Id.ToString(CultureInfo.InvariantCulture),
-                        Selected = x.IsSelectedByDefault,
-                        x.AllowBinaryFilesUpload,
-                        x.AllowedFileExtensions
+                        Text = st.Name,
+                        Value = st.Id.ToString(CultureInfo.InvariantCulture),
+                        Selected = st.IsSelectedByDefault,
+                        st.AllowBinaryFilesUpload,
+                        st.AllowedFileExtensions,
+                        st.ProblemSubmissionTypeExecutionDetails
+                            .FirstOrDefault(pstd => pstd.ProblemId == id && pstd.SubmissionTypeId == st.Id)?.TimeLimit,
+                        st.ProblemSubmissionTypeExecutionDetails
+                            .FirstOrDefault(pstd => pstd.ProblemId == id && pstd.SubmissionTypeId == st.Id)?.MemoryLimit,
                     });
 
             return this.Json(submissionTypesSelectListItems, JsonRequestBehavior.AllowGet);
@@ -756,7 +771,7 @@
         /// <param name="id">The submission id.</param>
         /// <returns>Returns a JSON with the submission content.</returns>
         //// TODO: Remove if not used
-        [Authorize]
+        [AuthorizeCustom]
         public ActionResult GetSubmissionContent(int id)
         {
             var submission = this.Data.Submissions.All().FirstOrDefault(x => x.Id == id);
@@ -777,7 +792,7 @@
         }
 
         [HttpGet]
-        [Authorize]
+        [AuthorizeCustom]
         public ActionResult NewContestIp(int id)
         {
             if (!this.participantsData.ExistsByContestByUserAndIsOfficial(id, this.UserProfile.Id, true))
@@ -799,7 +814,7 @@
         }
 
         [HttpPost]
-        [Authorize]
+        [AuthorizeCustom]
         [ValidateAntiForgeryToken]
         public ActionResult NewContestIp(NewContestIpViewModel model)
         {

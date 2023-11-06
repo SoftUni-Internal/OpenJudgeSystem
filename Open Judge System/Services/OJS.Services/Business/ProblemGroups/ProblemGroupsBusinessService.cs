@@ -76,6 +76,7 @@
                 .AsNoTracking()
                 .Include(pg => pg.Problems.Select(p => p.Tests))
                 .Include(pg => pg.Problems.Select(p => p.Resources))
+                .Include(pg=>pg.Problems.Select(p=>p.ProblemSubmissionTypeExecutionDetails))
                 .ToList();
 
             sourceContestProblemGroups

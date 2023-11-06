@@ -17,12 +17,7 @@
 
         private readonly Dictionary<Type, object> repositories = new Dictionary<Type, object>();
 
-        public OjsData()
-            : this(new OjsDbContext())
-        {
-        }
-
-        protected OjsData(IOjsDbContext context) => this.context = context;
+        public OjsData(IOjsDbContext context) => this.context = context;
 
         public IDeletableEntityRepository<Contest> Contests => this.GetDeletableEntityRepository<Contest>();
 

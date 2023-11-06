@@ -58,7 +58,7 @@
 
         public virtual ICollection<Problem> Problems { get; set; } = new HashSet<Problem>();
         
-        public virtual ICollection<ProblemSubmissionTypeSkeleton> ProblemSubmissionTypesSkeletons { get; set; } = new HashSet<ProblemSubmissionTypeSkeleton>();
+        public virtual ICollection<ProblemSubmissionTypeExecutionDetails> ProblemSubmissionTypeExecutionDetails { get; set; } = new HashSet<ProblemSubmissionTypeExecutionDetails>();
 
         [NotMapped]
         public string FileNameExtension

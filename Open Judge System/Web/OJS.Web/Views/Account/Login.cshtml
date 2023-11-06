@@ -63,9 +63,12 @@
                         <input type="submit" value="@Resource.Log_in" class="btn btn-default" />
                     </div>
                 </div>
-                <p>
-                    <a href="@externalRegisterFullAddress">@Resource.Register</a> @Resource.If_not_already_registered
-                </p>
+                if (Settings.IsRegisterEnabled)
+                {
+                    <p>
+                        <a href="@externalRegisterFullAddress">@Resource.Register</a> @Resource.If_not_already_registered
+                    </p>
+                }
                 <p>
                     @Html.ActionLink(Resource.Forgotten_password, "ForgottenPassword")
                 </p>

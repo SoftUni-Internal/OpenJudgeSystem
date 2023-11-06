@@ -2,7 +2,6 @@
 {
     using OJS.Data.Models;
     using OJS.Services.Business.Submissions.Models;
-    using OJS.Services.Common.Cache;
     using OJS.Services.Data.Submissions;
 
     using System;
@@ -13,15 +12,15 @@
 
     public class SubmissionStatisticsCacheService : ISubmissionStatisticsCacheService
     {
-        private readonly ICacheService cache;
         private readonly ISubmissionsDataService submissionsData;
+        private readonly ICacheService cacheService;
 
         public SubmissionStatisticsCacheService(
-            ICacheService cache,
-            ISubmissionsDataService submissionsData)
+            ISubmissionsDataService submissionsData,
+            ICacheService cacheService)
         {
-            this.cache = cache;
             this.submissionsData = submissionsData;
+            this.cacheService = cacheService;
         }
 
         public IEnumerable<SubmissionCountByMonthStatisticsModel> GetSubsmissionsCountByMonthForPastYear()
@@ -36,7 +35,7 @@
             if (eleventhMonth == lastMonth)
             {
                 // Next month has just started before the cache for last month is expired
-                this.cache.Remove(SubmissionsCountForLastMonthKey);
+                this.cacheService.Remove(SubmissionsCountForLastMonthKey);
                 lastMonthSubmissionsResult = this.GetSubsmissionsCountByMonthForLastMonth(currentDate);
             };
 
@@ -47,16 +46,16 @@
 
         private IEnumerable<SubmissionCountByMonthStatisticsModel> GetSubsmissionsCountByMonthForPastYearExceptLastMonth(
             DateTime currentDate)
-            => this.cache.Get(
+            => this.cacheService.GetOrSet(
                 SubmissionsCountByMonthsForPastElevenMonthsKey,
                 () => this.GetSubmissionsCountGroupsForPastYearExceptLastMonth(currentDate),
-                this.GetAbsoluteEndOfMonth(currentDate));
+                TimeSpan.FromTicks(this.GetAbsoluteEndOfMonth(currentDate).Ticks));
 
         private IEnumerable<SubmissionCountByMonthStatisticsModel> GetSubsmissionsCountByMonthForLastMonth(DateTime currentDate)
-            => this.cache.Get(
+            => this.cacheService.GetOrSet(
                 SubmissionsCountForLastMonthKey,
                 () => this.GetSubmissionsCountGroupForLastMonth(currentDate),
-                OneHourInSeconds);
+                TimeSpan.FromSeconds(OneHourInSeconds));
 
         private List<SubmissionCountByMonthStatisticsModel> GetSubmissionsCountGroupsByMonths(
             Expression<Func<Submission, bool>> filter,

@@ -37,6 +37,11 @@
             DateTime participationStartTimeRangeStart,
             DateTime participationStartTimeRangeEnd);
 
+        /// <summary>
+        /// Gets a dictionary with contest id as key and participants count (official or practice) as value.
+        /// </summary>
+        IDictionary<int, int> GetContestParticipantsCount(IEnumerable<int> contestIds, bool isOfficial);
+
         bool ExistsByIdAndContest(int id, int contestId);
 
         bool ExistsByContestAndUser(int contestId, string userId);
@@ -49,6 +54,8 @@
 
         void Update(Participant participant);
 
+        void Update(Participant participant, bool withSaveChanges);
+        
         void Update(
             IQueryable<Participant> participantsQuery,
             Expression<Func<Participant, Participant>> updateExpression);
@@ -56,5 +63,9 @@
         void Delete(IEnumerable<Participant> participants);
 
         void InvalidateByContestAndIsOfficial(int contestId, bool isOfficial);
+
+        void UpdateTotalScoreSnapshot();
+
+        void SaveChanges();
     }
 }

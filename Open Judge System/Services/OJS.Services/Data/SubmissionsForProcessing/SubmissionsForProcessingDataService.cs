@@ -1,4 +1,6 @@
-﻿namespace OJS.Services.Data.SubmissionsForProcessing
+﻿using OJS.Common.Models;
+
+namespace OJS.Services.Data.SubmissionsForProcessing
 {
     using System.Collections.Generic;
     using System.Linq;
@@ -14,9 +16,15 @@
     public class SubmissionsForProcessingDataService : ISubmissionsForProcessingDataService
     {
         private readonly IEfGenericRepository<SubmissionForProcessing> submissionsForProcessing;
+        private readonly IEfGenericRepository<Submission> submissions;
 
-        public SubmissionsForProcessingDataService(IEfGenericRepository<SubmissionForProcessing> submissionsForProcessing) =>
+        public SubmissionsForProcessingDataService(
+            IEfGenericRepository<SubmissionForProcessing> submissionsForProcessing,
+            IEfGenericRepository<Submission> submissions)
+        {
             this.submissionsForProcessing = submissionsForProcessing;
+            this.submissions = submissions;
+        }
 
         public SubmissionForProcessing GetBySubmission(int submissionId) =>
             this.submissionsForProcessing
@@ -67,9 +75,11 @@
             }
             else
             {
+                var submission = this.submissions.GetById(submissionId);
                 submissionForProcessing = new SubmissionForProcessing
                 {
-                    SubmissionId = submissionId
+                    SubmissionId = submissionId,
+                    WorkerType = submission.WorkerType,
                 };
 
                 this.submissionsForProcessing.Add(submissionForProcessing);

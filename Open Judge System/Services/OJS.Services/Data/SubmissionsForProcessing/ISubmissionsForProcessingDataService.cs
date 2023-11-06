@@ -1,4 +1,6 @@
-﻿namespace OJS.Services.Data.SubmissionsForProcessing
+﻿using OJS.Common.Models;
+
+namespace OJS.Services.Data.SubmissionsForProcessing
 {
     using System.Collections.Generic;
     using System.Linq;

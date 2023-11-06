@@ -132,6 +132,9 @@
   <data name="Choose_file" xml:space="preserve">
     <value>Choose File</value>
   </data>
+  <data name="Completed_execution_on" xml:space="preserve">
+    <value>Completed execution on</value>
+  </data>
   <data name="Create" xml:space="preserve">
     <value>Create</value>
   </data>
@@ -164,5 +167,8 @@
   </data>
   <data name="Remove" xml:space="preserve">
     <value>Remove</value>
+  </data>
+  <data name="Started_execution_on" xml:space="preserve">
+    <value>Started execution on</value>
   </data>
 </root>

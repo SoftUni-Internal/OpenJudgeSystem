@@ -186,4 +186,7 @@
   <data name="Problem_groups" xml:space="preserve">
     <value>Problem groups</value>
   </data>
+  <data name="Calculate_load" xml:space="preserve">
+    <value>Calculate Load</value>
+  </data>
 </root>

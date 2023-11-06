@@ -1,0 +1,15 @@
+{
+  "name": "Update issue data",
+  "version": "1.0.0",
+  "description": "",
+  "main": "issue-closed.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "graphql-request": "^6.0.0"
+  }
+}

@@ -1,9 +1,11 @@
 ﻿namespace OJS.Services.Data.Contests
 {
+    using System.Collections.Generic;
     using System.Linq;
 
     using OJS.Data.Models;
     using OJS.Services.Common;
+    using OJS.Services.Data.Submissions.Models;
 
     public interface IContestsDataService : IService
     {
@@ -62,5 +64,7 @@
         void Add(Contest contest);
 
         void Update(Contest contest);
+
+        IEnumerable<SubmissionTypeForProblem> GetSumbissionTypesForProblemsWithCurrentAuthorSolution(int id);
     }
 }

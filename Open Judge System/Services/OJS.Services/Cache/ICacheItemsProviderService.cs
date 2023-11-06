@@ -29,6 +29,27 @@
 
         IEnumerable<HomeContestViewModel> GetPastContests();
 
+        /// <summary>
+        /// Gets the participants count for contests in category page (for Compete and Practice mode).
+        /// <para>
+        /// Even a contest does not have any participants or a contest does not exist,
+        /// it will be included in the result with 0 participants.
+        /// </para>
+        /// </summary>
+        IDictionary<int, ParticipantsCountCacheModel> GetParticipantsCountForContestsInCategoryPage(
+            IReadOnlyCollection<int> contestIds,
+            int contestCategoryId,
+            int? page);
+        
+        /// <summary>
+        /// Gets the participants count for a contest (for Compete and Practice mode).
+        /// <para>
+        /// Even a contest does not have any participants or a contest does not exist,
+        /// it will be included in the result with 0 participants.
+        /// </para>
+        /// </summary>
+        ParticipantsCountCacheModel GetParticipantsCountForContest(int contestId);
+
         void ClearContests();
     }
 }

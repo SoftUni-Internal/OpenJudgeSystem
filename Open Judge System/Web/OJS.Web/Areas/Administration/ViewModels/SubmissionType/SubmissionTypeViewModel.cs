@@ -35,6 +35,12 @@
 
         public bool IsChecked { get; set; }
 
+        [Range(1, 10000)]
+        public int? TimeLimit { get; set; }
+
+        [Range(1, int.MaxValue)]
+        public int? MemoryLimit { get; set; }
+
         public ExecutionStrategyType ExecutionStrategyType { get; set; }
         
         [AllowHtml]
@@ -70,6 +76,13 @@
                 if (selectedSubmission != null)
                 {
                     submissionViewModel.IsChecked = true;
+                    submissionViewModel.TimeLimit = problem
+                        .ProblemSubmissionTypesSkeletons
+                        .FirstOrDefault(x => x.SubmissionTypeId == selectedSubmission.Id)?
+                        .TimeLimit;
+
+                    submissionViewModel.MemoryLimit = problem.ProblemSubmissionTypesSkeletons.FirstOrDefault(x => x.SubmissionTypeId == selectedSubmission.Id)?
+                        .MemoryLimit;
                 }
 
                 problem.SubmissionTypes.Add(submissionViewModel);

@@ -10,12 +10,13 @@
     using OJS.Services.Data.Submissions;
     using OJS.Services.Data.Tests;
     using OJS.Web.Areas.Contests.ViewModels.Tests;
+    using OJS.Web.Common.Attributes;
     using OJS.Web.Controllers;
     using OJS.Workers.Common.Extensions;
 
     using Resource = Resources.Areas.Contests.Controllers.Tests;
 
-    [Authorize]
+    [AuthorizeCustom]
     public class TestsController : BaseController
     {
         private readonly ITestsDataService testsData;

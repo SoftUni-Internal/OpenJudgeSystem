@@ -3,27 +3,32 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
     using OJS.Common.Constants;
+    using OJS.Common.Extensions;
     using OJS.Services.Cache.Models;
-    using OJS.Services.Common.Cache;
     using OJS.Services.Data.ContestCategories;
     using OJS.Services.Data.Contests;
+    using OJS.Services.Data.Participants;
 
     public class CacheItemsProviderService : ICacheItemsProviderService
     {
-        private readonly ICacheService cache;
         private readonly IContestCategoriesDataService contestCategoriesData;
         private readonly IContestsDataService contestsData;
+        private readonly ICacheService redisCache;
+        private readonly IParticipantsDataService participantsData;
+
+        private static readonly TimeSpan TimeToCacheParticipantsCount = TimeSpan.FromMinutes(5);
 
         public CacheItemsProviderService(
-            ICacheService cache,
             IContestCategoriesDataService contestCategoriesData,
-            IContestsDataService contestsData)
+            IContestsDataService contestsData,
+            ICacheService redisCache,
+            IParticipantsDataService participantsData)
         {
-            this.cache = cache;
             this.contestCategoriesData = contestCategoriesData;
             this.contestsData = contestsData;
+            this.redisCache = redisCache;
+            this.participantsData = participantsData;
         }
 
         public IEnumerable<ContestCategoryListViewModel> GetContestSubCategoriesList(
@@ -34,7 +39,13 @@
                 ? string.Format(CacheConstants.ContestSubCategoriesFormat, categoryId.Value)
                 : CacheConstants.ContestCategoriesTree;
 
-            return this.cache.Get(cacheId, GetSubCategories, cacheSeconds);
+            if (cacheSeconds.HasValue)
+            {
+                return this.redisCache.GetOrSet(cacheId, GetSubCategories, TimeSpan.FromSeconds(cacheSeconds.Value));
+            }
+
+            return this.redisCache.GetOrSet(cacheId, GetSubCategories);
+
 
             IEnumerable<ContestCategoryListViewModel> GetSubCategories() =>
                 this.contestCategoriesData
@@ -51,7 +62,8 @@
         {
             var cacheId = string.Format(CacheConstants.ContestParentCategoriesFormat, categoryId);
 
-            var contestCategories = this.cache.Get(cacheId, GetParentCategories, cacheSeconds);
+            var contestCategories =
+                this.redisCache.GetOrSet(cacheId, GetParentCategories, TimeSpan.FromSeconds(cacheSeconds.Value));
 
             IEnumerable<ContestCategoryListViewModel> GetParentCategories()
             {
@@ -78,23 +90,23 @@
         }
 
         public IEnumerable<CategoryMenuItemViewModel> GetMainContestCategories(int? cacheSeconds) =>
-            this.cache.Get(
+            this.redisCache.GetOrSet(
                 CacheConstants.MainContestCategoriesDropDown,
                 () =>
-                     this.contestCategoriesData
+                    this.contestCategoriesData
                         .GetAllVisible()
                         .Where(x => !x.ParentId.HasValue)
                         .OrderBy(x => x.OrderBy)
                         .Select(CategoryMenuItemViewModel.FromCategory)
                         .ToList(),
-                cacheSeconds);
-            
+                TimeSpan.FromSeconds(cacheSeconds.Value));
+
 
         public string GetContestCategoryName(int categoryId, int? cacheSeconds) =>
-            this.cache.Get(
+            this.redisCache.GetOrSet(
                 string.Format(CacheConstants.ContestCategoryNameFormat, categoryId),
                 () => this.contestCategoriesData.GetNameById(categoryId),
-                cacheSeconds);
+                TimeSpan.FromSeconds(cacheSeconds.Value));
 
         public void ClearContestCategory(int categoryId)
         {
@@ -131,9 +143,9 @@
                     CacheConstants.ContestParentCategoriesFormat,
                     contestCategoryId);
 
-                this.cache.Remove(categoryNameCacheId);
-                this.cache.Remove(subCategoriesCacheId);
-                this.cache.Remove(parentCategoriesCacheId);
+                this.redisCache.Remove(categoryNameCacheId);
+                this.redisCache.Remove(subCategoriesCacheId);
+                this.redisCache.Remove(parentCategoriesCacheId);
             }
         }
 
@@ -141,7 +153,7 @@
         {
             var upcomingMaxTime = DateTime.Now.AddHours(2);
 
-            var cachedResult = this.cache.Get(
+            var cachedResult = this.redisCache.GetOrSet(
                 CacheConstants.ActiveContests,
                 () => this.contestsData
                     .GetAllUpcoming()
@@ -152,7 +164,7 @@
                             .Select(HomeContestViewModel.FromContest))
                     .OrderBy(c => c.EndTime)
                     .ToList(),
-                DateTime.UtcNow.AddHours(1));
+                TimeSpan.FromHours(DateTime.UtcNow.AddHours(1).Hour));
 
             return cachedResult.Where(
                     c =>
@@ -163,7 +175,7 @@
         }
 
         public IEnumerable<HomeContestViewModel> GetPastContests() =>
-            this.cache.Get(
+            this.redisCache.GetOrSet(
                 CacheConstants.PastContests,
                 () => this.contestsData
                     .GetAllPast()
@@ -171,7 +183,22 @@
                     .Select(HomeContestViewModel.FromContest)
                     .Take(CacheConstants.DefaultPastContestsToTake)
                     .ToList(),
-                CacheConstants.OneHourInSeconds);
+                TimeSpan.FromSeconds(CacheConstants.OneHourInSeconds));
+
+        public IDictionary<int, ParticipantsCountCacheModel> GetParticipantsCountForContestsInCategoryPage(
+            IReadOnlyCollection<int> contestIds,
+            int contestCategoryId,
+            int? page) =>
+            this.redisCache.GetOrSet(
+                string.Format(CacheConstants.ParticipantsCountByContest, contestCategoryId, page),
+                () => this.GetContestsParticipantsCount(contestIds),
+                TimeToCacheParticipantsCount);
+
+        public ParticipantsCountCacheModel GetParticipantsCountForContest(int contestId)
+            => this.redisCache.GetOrSet(
+                string.Format(CacheConstants.ParticipantsCountByContest, contestId),
+                () => this.GetContestsParticipantsCount(new[] { contestId })[contestId],
+                TimeToCacheParticipantsCount);
 
         public void ClearContests()
         {
@@ -180,9 +207,34 @@
         }
 
         private void ClearActiveContests() =>
-            this.cache.Remove(CacheConstants.ActiveContests);
+            this.redisCache.Remove(CacheConstants.ActiveContests);
 
         private void ClearPastContests() =>
-            this.cache.Remove(CacheConstants.PastContests);
+            this.redisCache.Remove(CacheConstants.PastContests);
+
+        /// <summary>
+        /// Gets a dictionary with all provided contests (Id as Key) and their corresponding
+        /// participants count, separated by Compete and Practice mode.
+        /// <para>
+        /// Even if a contest has no participants or the contest with the provided id does not exist,
+        /// it will be included in the result with 0 participants.
+        /// </para>
+        /// </summary>
+        /// <param name="contestIds">The contests for which to gather participants count</param>
+        /// <returns>Dictionary with all the provided <see cref="contestIds"/> as keys</returns>
+        private IDictionary<int, ParticipantsCountCacheModel> GetContestsParticipantsCount(
+            IReadOnlyCollection<int> contestIds)
+        {
+            var officialParticipants = this.participantsData.GetContestParticipantsCount(contestIds, true);
+            var practiceParticipants = this.participantsData.GetContestParticipantsCount(contestIds, false);
+
+            return contestIds.ToDictionary(
+                id => id,
+                id => new ParticipantsCountCacheModel
+                {
+                    Official = officialParticipants.GetValuerOrDefault(id),
+                    Practice = practiceParticipants.GetValuerOrDefault(id),
+                });
+        }
     }
 }

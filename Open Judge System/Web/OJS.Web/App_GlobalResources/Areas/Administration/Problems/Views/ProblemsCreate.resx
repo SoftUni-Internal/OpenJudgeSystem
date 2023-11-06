@@ -153,4 +153,7 @@
   <data name="Tests_label" xml:space="preserve">
     <value>Tests (.zip file)</value>
   </data>
+  <data name="Default_submission_Type" xml:space="preserve">
+    <value>Default submission type for the problem.</value>
+  </data>
 </root>

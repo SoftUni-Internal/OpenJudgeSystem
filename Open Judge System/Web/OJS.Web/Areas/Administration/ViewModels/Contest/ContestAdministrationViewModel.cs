@@ -1,4 +1,6 @@
-﻿namespace OJS.Web.Areas.Administration.ViewModels.Contest
+﻿using OJS.Workers.Common.Models;
+
+namespace OJS.Web.Areas.Administration.ViewModels.Contest
 {
     using System;
     using System.Collections.Generic;
@@ -61,6 +63,8 @@
                     ModifiedOn = contest.ModifiedOn,
                     AutoChangeTestsFeedbackVisibility = contest.AutoChangeTestsFeedbackVisibility,
                     UsersCantSubmitConcurrently = contest.UsersCantSubmitConcurrently,
+                    EnsureValidAuthorSubmisions = contest.EnsureValidAuthorSubmisions,
+                    DefaultWorkerType = contest.DefaultWorkerType
                 };
             }
         }
@@ -178,6 +182,10 @@
         public bool UsersCantSubmitConcurrently { get; set; }
 
         [DatabaseProperty]
+        [Display(Name = nameof(Resource.EnsureValidAuthorSubmisions), ResourceType = typeof(Resource))]
+        public bool EnsureValidAuthorSubmisions { get; set; }
+
+        [DatabaseProperty]
         [Display(
             Name = nameof(Resource.Auto_change_tests_feedback_visibility),
             ResourceType = typeof(Resource))]
@@ -196,6 +204,9 @@
         [ExcludeFromExcel]
         [UIHint(SingleLineText)]
         public string CategoryName { get; set; }
+        
+        [Display(Name = nameof(Resource.Default_worker_type), ResourceType = typeof(Resource))]
+        public WorkerType DefaultWorkerType { get; set; }
 
         [Display(Name = "Allowed IPs")]
         public string AllowedIps { get; set; }

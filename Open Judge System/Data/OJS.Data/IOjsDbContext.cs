@@ -59,6 +59,14 @@
         int SaveChanges();
 
         void ClearDatabase();
+        
+        /// <summary>
+        /// Executes sql command with a timeout.
+        /// In case that the timeout is set to 0, this means that there is no timeout.
+        /// </summary>
+        void ExecuteSqlCommandWithTimeout(string query, int timeoutInSeconds);
+        
+        void DbExecuteSqlCommand(string query);
 
         DbEntityEntry<TEntity> Entry<TEntity>(TEntity entity)
             where TEntity : class;

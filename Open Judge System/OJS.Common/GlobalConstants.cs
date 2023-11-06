@@ -49,6 +49,9 @@
 
         public const string AdministrationAreaName = "Administration";
 
+        public const string AdministratorUserName = "judgeadmin";
+        public const string AdministratorEmail = "judgeadmin@softuni.bg";
+
         public const int FileExtentionMaxLength = 4;
 
         public const int IpAdressMaxLength = 45;
@@ -127,10 +130,16 @@
 
         // Date and time formats
         public const string DefaultDateTimeFormatString = "{0:dd/MM/yyyy HH:mm}";
-        
+
         // Settings DB name constants
         public const string MaximumFileSizeDbName = "Maximum_Resource_File_Size";
 
         public static readonly string[] ParticipationStatisticsFileSubmissionsAllowedExtensions = { ".java", ".cs", ".py", ".js", ".cpp", ".h" };
+
+        public static readonly string RemoteWorkers = "Remote_Workers_Count";
+        public static readonly int RemoteWorkersCount = 36;
+
+        public static readonly string MaxAllowedTimeForSubmissionCompletion = "Max_allowed_time_for_submission_completion_InSecs";
+        public static readonly int MaxAllowedTimeForSubmissionCompletionInSecs = 200;
     }
 }

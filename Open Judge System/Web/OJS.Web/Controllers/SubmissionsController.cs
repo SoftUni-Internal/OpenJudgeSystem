@@ -10,8 +10,10 @@
     using Newtonsoft.Json;
 
     using OJS.Common;
+    using OJS.Common.Models;
     using OJS.Data;
     using OJS.Services.Data.Submissions;
+    using OJS.Web.Common.Attributes;
     using OJS.Web.Common.Extensions;
     using OJS.Web.ViewModels.Submission;
     using OJS.Workers.Common;
@@ -107,7 +109,7 @@
         }
 
         [HttpPost]
-        [Authorize(Roles = GlobalConstants.AdministratorRoleName)]
+        [AuthorizeRoles(SystemRole.Administrator)]
         [ValidateAntiForgeryToken]
         public ActionResult StartOjsLocalWorkerService()
         {

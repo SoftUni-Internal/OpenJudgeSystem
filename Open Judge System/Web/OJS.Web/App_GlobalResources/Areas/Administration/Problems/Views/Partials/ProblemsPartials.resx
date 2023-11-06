@@ -147,8 +147,8 @@
   <data name="Enter_order" xml:space="preserve">
     <value>Enter the order for the current problem</value>
   </data>
-  <data name="Enter_solution_skeleton" xml:space="preserve">
-    <value>Enter solution skeleton</value>
+  <data name="Enter_solution_details" xml:space="preserve">
+    <value>Enter solution details</value>
   </data>
   <data name="Enter_sorce_code_size_limit" xml:space="preserve">
     <value>Enter the source code size limit (in bytes) for this problem</value>

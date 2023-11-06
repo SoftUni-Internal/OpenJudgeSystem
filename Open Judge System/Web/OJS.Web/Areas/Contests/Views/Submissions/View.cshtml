@@ -7,7 +7,6 @@
 
 @using Resource = Resources.Areas.Contests.Views.SubmissionsView
 @using AdministrationResource = Resources.Areas.Administration.AdministrationGeneral
-
 @model OJS.Web.Areas.Contests.ViewModels.Submissions.SubmissionDetailsViewModel
 
 @{
@@ -21,6 +20,7 @@
 @section styles {
     @Styles.Render("~/Content/CodeMirror/codemirror")
     @Styles.Render("~/Content/CodeMirror/codemirrormerge")
+    @Styles.Render("~/Content/css/Submissions/SubmissionDetails.css")
 }
 
 @section scripts {
@@ -72,16 +72,6 @@
     }
 </div>
 
-@if (Model.UserHasAdminPermission)
-{
-    <div class="clearfix"></div>
-    if (!string.IsNullOrWhiteSpace(Model.ProcessingComment))
-    {
-        <h2>@Resource.Execution_result:</h2>
-        <pre>@Model.ProcessingComment</pre>
-    }
-}
-
 @if (Model.IsDeleted)
 {
     <div class="alert alert-danger top-buffer">@Resource.Submission_is_deleted</div>
@@ -93,6 +83,21 @@
 }
 else
 {
+    if (Model.UserHasAdminPermission)
+    {
+        <div class="clearfix"></div>
+        if (!string.IsNullOrWhiteSpace(Model.ProcessingComment))
+        {
+            <h2>@Resource.Execution_result:</h2>
+            <pre>@Model.ProcessingComment</pre>
+            if (Model.UserHasAdminPermission)
+            {
+                <pre>@Resource.Exception_type: @Model.ExceptionType  
+                     @Model.ExecutionComment
+                </pre>
+            }
+        }
+    }
     if (!Model.IsCompiledSuccessfully)
     {
         <div class="alert alert-danger top-buffer">@Resource.Compile_time_error_occured</div>
@@ -301,7 +306,7 @@ else
 
                         JavaScriptSerializer serializer = new JavaScriptSerializer();
                         serializer.MaxJsonLength = Int32.MaxValue;
-                        
+
                         <script>
                             $(function () {
                                 var diffContainer = document.getElementById('diff-@testResult.Id');
@@ -345,12 +350,17 @@ else
     <textarea id="code">@Model.ContentAsString</textarea>
 }
 
-<p class="top-buffer">@AdministrationResource.Created_on: @Model.CreatedOn</p>
-
+<p class="top-buffer"><strong>@AdministrationResource.Created_on:</strong> @Model.CreatedOn</p>
 @if (Model.UserHasAdminPermission)
 {
-    <p>@AdministrationResource.Modified_on: @Model.ModifiedOn</p>
+    <p><strong>@AdministrationResource.Modified_on</strong>: @Model.ModifiedOn</p>
+    <p><strong>@AdministrationResource.Started_execution_on</strong>: @Model.StartedExecutionOn</p>
+    <p><strong>@AdministrationResource.Completed_execution_on</strong>: @Model.CompletedExecutionOn</p>
+    <p><strong>Submission Type Name:</strong> @Model.SubmissionType.ExecutionStrategyType</p>
+    <p><strong>Worker Type:</strong> @Model.WorkerType</p>
+    <p><strong>Worker endpoint:</strong> @Model.WorkerEndpoint</p>
 }
+<p><strong>Submission Type:</strong> @Model.SubmissionType.Name</p>
 
 <script>
     function onTestInputDataSuccess() {

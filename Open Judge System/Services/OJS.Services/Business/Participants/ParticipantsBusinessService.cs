@@ -1,15 +1,15 @@
-﻿namespace OJS.Services.Business.Participants
+﻿using OJS.Services.Data.ParticipantScores;
+
+namespace OJS.Services.Business.Participants
 {
     using System;
     using System.Collections.Generic;
     using System.Data.Entity.SqlServer;
     using System.Linq;
-
     using OJS.Data.Models;
     using OJS.Services.Common;
     using OJS.Services.Data.Contests;
     using OJS.Services.Data.Participants;
-
     using SharedResource = Resources.Contests.ContestsGeneral;
     using Resource = Resources.Services.Participants.ParticipantsBusiness;
 
@@ -17,13 +17,16 @@
     {
         private readonly IParticipantsDataService participantsData;
         private readonly IContestsDataService contestsData;
+        private readonly IParticipantScoresDataService scoresDataService;
 
         public ParticipantsBusinessService(
             IParticipantsDataService participantsData,
-            IContestsDataService contestsData)
+            IContestsDataService contestsData,
+            IParticipantScoresDataService scoresDataService)
         {
             this.participantsData = participantsData;
             this.contestsData = contestsData;
+            this.scoresDataService = scoresDataService;
         }
 
         public Participant CreateNewByContestByUserByIsOfficialAndIsAdmin(
@@ -85,11 +88,12 @@
             return ServiceResult<string>.Success(participant.User.UserName);
         }
 
-        public ServiceResult<ICollection<string>> UpdateParticipationsEndTimeByContestByParticipationStartTimeRangeAndTimeInMinutes(
-            int contestId,
-            int timeInMinutes,
-            DateTime participationStartTimeRangeStart,
-            DateTime participationStartTimeRangeEnd)
+        public ServiceResult<ICollection<string>>
+            UpdateParticipationsEndTimeByContestByParticipationStartTimeRangeAndTimeInMinutes(
+                int contestId,
+                int timeInMinutes,
+                DateTime participationStartTimeRangeStart,
+                DateTime participationStartTimeRangeEnd)
         {
             const string minuteParamName = "minute";
 
@@ -139,6 +143,29 @@
                 });
 
             return ServiceResult<ICollection<string>>.Success(invalidForUpdateParticipantUsernames);
+        }
+
+        public void UpdateTotalScoreSnapshotOfParticipants()
+        {
+            this.participantsData.UpdateTotalScoreSnapshot();
+        }
+
+        public void RemoveParticipantMultipleScores()
+        {
+            var participantScores =
+                this.scoresDataService.GetAll()
+                    .GroupBy(ps => new { ps.IsOfficial, ps.ProblemId, ps.ParticipantId })
+                    .Where(ps => ps.Count() > 1)
+                    .ToList();
+
+            var participantScoresToRemove = new List<ParticipantScore>();
+            foreach (var participantScoreGroup in participantScores)
+            {
+                participantScoresToRemove
+                    .AddRange(participantScoreGroup.OrderByDescending(ps => ps.Points).Skip(1)
+                    .ToList());
+            }
+            this.scoresDataService.Delete(participantScoresToRemove);
         }
 
         private void AssignRandomProblemsToParticipant(Participant participant, Contest contest)

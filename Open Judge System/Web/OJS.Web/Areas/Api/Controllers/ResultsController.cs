@@ -125,6 +125,21 @@
             return this.Json(participants, JsonRequestBehavior.AllowGet);
         }
 
+        public JsonResult GetEmailsOfParticipantsInContest(int? contestId)
+        {
+            if (!contestId.HasValue)
+            {
+                return this.Json(new ErrorMessageViewModel(InvalidArgumentsMessage), JsonRequestBehavior.AllowGet);
+            }
+
+            var participants = this.participantsData
+                .GetAllOfficialByContest(contestId.Value)
+                .Select(participant => participant.User.Email)
+                .ToList();
+
+            return this.Json(participants, JsonRequestBehavior.AllowGet);
+        }
+
         public JsonResult GetAllUserResultsPercentageByForContest(string apiKey, int? contestId)
         {
             if (!contestId.HasValue)

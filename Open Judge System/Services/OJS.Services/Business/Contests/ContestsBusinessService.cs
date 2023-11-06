@@ -3,9 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-
     using OJS.Data.Models;
     using OJS.Data.Repositories.Contracts;
+    using OJS.Services.Business.Contests.Models;
     using OJS.Services.Common;
     using OJS.Services.Data.Contests;
     using OJS.Services.Data.ExamGroups;
@@ -165,6 +165,144 @@
 
             this.contests.Delete(id);
             this.contests.SaveChanges();
+        }
+
+        public JudgeLoadResults CalculateLoadForContest(BaseContestBusinessModel model)
+        {
+            var responseModel = new JudgeLoadResults();
+
+            responseModel.PreviousAverageProblemRunTimeInSeconds = model.PreviousAverageProblemRunTimeInSeconds.Value;
+            responseModel.PreviousContestExpectedProblems = model.PreviousContestExpectedProblems.Value;
+            responseModel.PreviousContestSubmissions = model.PreviousContestSubmissions.Value;
+            responseModel.PreviousContestParticipants = model.PreviousContestParticipants.Value;
+
+            this.GetJudgeLoadData(model, responseModel);
+            GetDoomsDayScenario(model, responseModel);
+            GetDistributionResults(model, responseModel);
+
+            return responseModel;
+        }
+
+        public int GetContestSubmissionsAverageRunTimeSeconds(
+            Contest contest,
+            bool onlyOfficialSubmissions,
+            int? maxAllowedSubmissionCompletionTime)
+        {
+            var contestProblems = contest.ProblemGroups
+                .SelectMany(pg => pg.Problems)
+                .SelectMany(p => p.Submissions);
+
+            if (onlyOfficialSubmissions)
+            {
+                contestProblems.Where(s => s.Participant.IsOfficial);
+            }
+
+            var submissionsRunTimeSecondsList =
+                contestProblems.Select(s =>
+                {
+                    if (s.StartedExecutionOn.HasValue)
+                    {
+                        return s.CompletedExecutionOn.HasValue
+                            ? (s.CompletedExecutionOn.Value - s.StartedExecutionOn.Value).TotalSeconds
+                            : (s.ModifiedOn.Value - s.StartedExecutionOn.Value).TotalSeconds;
+                    }
+                    else
+                    {
+                        return s.CompletedExecutionOn.HasValue
+                            ? (s.CompletedExecutionOn.Value - s.CreatedOn).TotalSeconds
+                            : (s.ModifiedOn.Value - s.CreatedOn).TotalSeconds;
+                    }
+                }).ToList();
+
+            if (maxAllowedSubmissionCompletionTime.HasValue)
+            {
+                submissionsRunTimeSecondsList =
+                    submissionsRunTimeSecondsList.Where(s => s <= maxAllowedSubmissionCompletionTime.Value).ToList();
+            }
+
+            if (submissionsRunTimeSecondsList.Count == 0)
+            {
+                return 0;
+            }
+
+            return (int)submissionsRunTimeSecondsList.Average();
+        }
+
+        private static void GetDistributionResults(BaseContestBusinessModel model, JudgeLoadResults responseModel)
+        {
+            var gaussianDistributionPeak = 0.341;
+
+            responseModel.MaxSubmissionsPerMinute = (int)Math.Round(responseModel.ExpectedExamSubmissions *
+                gaussianDistributionPeak / ((double)model.ExamLengthInHours / 8.0 * 60));
+
+            if (responseModel.MaxSubmissionsPerMinute < 1)
+            {
+                responseModel.MaxSubmissionsPerMinute = 1;
+            }
+
+            responseModel.MaxDistributedWorkersRequired = responseModel.MaxSubmissionsPerMinute /
+                responseModel.ProcessedSubmissionsPerWorkerPerMinute * model.SafetyFactor;
+
+            if (responseModel.MaxDistributedWorkersRequired < 1)
+            {
+                responseModel.MaxDistributedWorkersRequired = 1;
+            }
+
+            responseModel.JudgeWorkRequiredInMinutes = (int)Math.Round(responseModel.MaxSubmissionsPerMinute *
+                model.AverageProblemRunTimeInSeconds * (1 + (model.WorkerIdleTimeInPercentage / 100.0)) / 60);
+            responseModel.JudgeWorkRequiredPerWorkerInSeconds = (int)Math.Round(
+                (double)responseModel.JudgeWorkRequiredInMinutes / (double)responseModel.MaxDistributedWorkersRequired *
+                60);
+            responseModel.SecondsBetweenSubmission = (int)Math.Round((double)responseModel.JudgeWorkRequiredInMinutes /
+                responseModel.MaxDistributedWorkersRequired * (1 - 1.0 / model.SafetyFactor) * 60);
+            responseModel.MaxSecondsBetweenSubmissions = (int)Math.Round(
+                (double)responseModel.JudgeWorkRequiredInMinutes / model.ActualWorkers *
+                (1 - 1.0 / model.SafetyFactor) * 60);
+            responseModel.MaxUsersAtSameTime = model.ExpectedStudentsCount * gaussianDistributionPeak;
+        }
+
+        private static void GetDoomsDayScenario(BaseContestBusinessModel model, JudgeLoadResults responseModel)
+        {
+            responseModel.JudgeWorkInMnutes = (int)Math.Round(model.ExpectedStudentsCount *
+                                                              model.AverageProblemRunTimeInSeconds *
+                                                              (1 + (model.WorkerIdleTimeInPercentage / 100.0))) / 60;
+            responseModel.JudgeWorkPerWorkerInMinutes =
+                (int)Math.Round((double)responseModel.JudgeWorkInMnutes / model.ActualWorkers);
+            responseModel.SecondsBetweenSubmissionsBase =
+                (int)Math.Round((responseModel.JudgeWorkInMnutes / 20.0) * (1 - 1.0 / model.SafetyFactor) * 60);
+            responseModel.SecondsBetweenSubmissionsHigh = (int)Math.Round((double)responseModel.JudgeWorkInMnutes /
+                model.ActualWorkers * (1 - 1.0 / model.SafetyFactor) * 60);
+        }
+
+        private void GetJudgeLoadData(BaseContestBusinessModel model, JudgeLoadResults responseModel)
+        {
+            double previousExamSubmissions = model.PreviousContestSubmissions.Value;
+            double previousExamStudents = model.PreviousContestParticipants.Value;
+            int previousExamProblems = model.PreviousContestExpectedProblems.Value;
+
+            var currentContestData = (double)model.ExpectedExamProblemsCount * model.ExpectedStudentsCount;
+
+            responseModel.ExpectedExamSubmissions = (int)Math.Round(previousExamSubmissions / previousExamStudents /
+                previousExamProblems * currentContestData);
+
+            if (responseModel.ExpectedExamSubmissions < 1)
+            {
+                responseModel.ExpectedExamSubmissions = 1;
+            }
+
+            responseModel.ProcessedSubmissionsPerWorkerPerMinute = (int)Math.Ceiling(
+                60 / (1 + (model.WorkerIdleTimeInPercentage / 100.0)) / model.AverageProblemRunTimeInSeconds);
+
+            var judgeParallelWorkInPercentage = model.MaxJudgeParalelWork / 100.0;
+            responseModel.MinimumWorkersRequired = (int)Math.Ceiling(
+                (responseModel.ExpectedExamSubmissions / (model.ExamLengthInHours * judgeParallelWorkInPercentage * 60 *
+                                                          responseModel.ProcessedSubmissionsPerWorkerPerMinute)) *
+                model.SafetyFactor);
+
+            if (responseModel.MinimumWorkersRequired < 1)
+            {
+                responseModel.MinimumWorkersRequired = 1;
+            }
         }
     }
 }

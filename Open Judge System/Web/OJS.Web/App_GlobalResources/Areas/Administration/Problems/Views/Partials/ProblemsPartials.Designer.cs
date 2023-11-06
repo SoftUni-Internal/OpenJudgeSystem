@@ -19,7 +19,7 @@ namespace Resources.Areas.Administration.Problems.Views.Partials {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class ProblemsPartials {
@@ -152,11 +152,11 @@ namespace Resources.Areas.Administration.Problems.Views.Partials {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enter solution skeleton.
+        ///   Looks up a localized string similar to Enter solution details.
         /// </summary>
-        public static string Enter_solution_skeleton {
+        public static string Enter_solution_details {
             get {
-                return ResourceManager.GetString("Enter_solution_skeleton", resourceCulture);
+                return ResourceManager.GetString("Enter_solution_details", resourceCulture);
             }
         }
         
