@@ -114,7 +114,10 @@
             this.GetAllByProblem(problemId)
                 .Update(s => new Submission
                 {
-                    Processed = false
+                    Processed = false,
+                    StartedExecutionOn = null,
+                    CompletedExecutionOn = null,
+                    WorkerEndpoint = null,
                 });
 
         public void DeleteByProblem(int problemId) =>

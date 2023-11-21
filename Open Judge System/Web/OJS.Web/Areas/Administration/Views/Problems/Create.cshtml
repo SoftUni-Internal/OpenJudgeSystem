@@ -364,6 +364,10 @@
             </li>
         </ul>
     </script>
-
+<script>
+$( document ).ready(function() {
+    window.workerTypesData = @Html.Raw(Json.Encode(ViewBag.WorkerTypes));
+});
+</script>
     @Scripts.Render("~/bundles/jqueryval")
 }

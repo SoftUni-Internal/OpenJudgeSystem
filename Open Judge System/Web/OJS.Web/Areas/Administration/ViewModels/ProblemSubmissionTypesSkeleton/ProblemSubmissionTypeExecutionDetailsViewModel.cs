@@ -1,4 +1,6 @@
-﻿namespace OJS.Web.Areas.Administration.ViewModels.ProblemSubmissionTypesSkeleton
+﻿using OJS.Workers.Common.Models;
+
+namespace OJS.Web.Areas.Administration.ViewModels.ProblemSubmissionTypesSkeleton
 {
     using System;
     using System.ComponentModel.DataAnnotations;
@@ -23,6 +25,7 @@
                     SubmissionTypeId = pst.SubmissionTypeId,
                     TimeLimit = pst.TimeLimit.Value,
                     MemoryLimit = pst.MemoryLimit.Value,
+                    WorkerType = pst.WorkerType,
                 };
             }
         }
@@ -38,6 +41,8 @@
         [Display(Name = nameof(Resource.Memory_limit), ResourceType = typeof(Resource))]
         [UIHint(SingleLineText)]
         public int? MemoryLimit { get; set; }
+        
+        public WorkerType WorkerType { get; set; }
 
         [AllowHtml]
         [Display(Name = nameof(Resource.Solution_skeleton), ResourceType = typeof(Resource))]

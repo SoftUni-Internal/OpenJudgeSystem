@@ -27,6 +27,8 @@
             this.problems
                 .All()
                 .Include(p => p.ProblemGroup)
+                .Include(p=>p.ProblemSubmissionTypeExecutionDetails)
+                .Include(p => p.ProblemGroup.Contest)
                 .FirstOrDefault(p => p.Id == id);
 
         public Problem GetWithContestById(int id) =>

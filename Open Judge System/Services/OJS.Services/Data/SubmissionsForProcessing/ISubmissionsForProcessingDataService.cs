@@ -18,7 +18,7 @@ namespace OJS.Services.Data.SubmissionsForProcessing
 
         void AddOrUpdateBySubmissionIds(ICollection<int> submissionIds);
 
-        void AddOrUpdateBySubmission(int submissionId);
+        void AddOrUpdateBySubmission(Submission submission);
 
         void RemoveBySubmission(int submissionId);
 
