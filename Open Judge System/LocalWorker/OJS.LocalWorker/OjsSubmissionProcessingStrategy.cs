@@ -1,4 +1,5 @@
-﻿using OJS.Workers.Common.Helpers;
+﻿using System.Collections.Generic;
+using OJS.Workers.Common.Helpers;
 
 namespace OJS.LocalWorker
 {
@@ -25,7 +26,6 @@ namespace OJS.LocalWorker
         private readonly IParticipantsDataService participantsData;
         private readonly IParticipantScoresDataService participantScoresData;
         private readonly ISubmissionsForProcessingDataService submissionsForProcessingData;
-        private readonly WorkerType defaultWorkerType;
         
         private Submission submission;
         private SubmissionForProcessing submissionForProcessing;
@@ -42,10 +42,9 @@ namespace OJS.LocalWorker
             this.participantsData = participantsData;
             this.participantScoresData = participantScoresData;
             this.submissionsForProcessingData = submissionsForProcessingData;
-            this.defaultWorkerType = (WorkerType)Enum.Parse(typeof(WorkerType), SettingsHelper.GetSetting("DefaultWorkerType"));
         }
 
-        public override IOjsSubmission RetrieveSubmission(WorkerType workerType)
+        public override IOjsSubmission RetrieveSubmission(List<WorkerType> workerTypes)
         {
             lock (this.SubmissionsForProcessing)
             {
@@ -53,7 +52,7 @@ namespace OJS.LocalWorker
                 {
                     this.submissionsForProcessingData
                         .GetAllUnprocessed()
-                        .Where(s => s.WorkerType == workerType)
+                        .Where(s => workerTypes.Contains(s.WorkerType))
                         .OrderBy(x => x.Id)
                         .Select(x => x.SubmissionId)
                         .ToList()

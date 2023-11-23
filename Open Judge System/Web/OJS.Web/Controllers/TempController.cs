@@ -1,6 +1,4 @@
-﻿using OJS.Workers.Common.Models;
-
-namespace OJS.Web.Controllers
+﻿namespace OJS.Web.Controllers
 {
     using System;
     using System.Collections.Generic;

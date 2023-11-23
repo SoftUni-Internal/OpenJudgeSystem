@@ -179,6 +179,7 @@ namespace OJS.Web.Areas.Administration.Controllers
 
             this.ViewBag.SubmissionAction = "Update";
             this.ViewBag.WorkersType = WorkerTypesHelper.GetWorkerTypes();
+            
             return this.View(submission);
         }
 
