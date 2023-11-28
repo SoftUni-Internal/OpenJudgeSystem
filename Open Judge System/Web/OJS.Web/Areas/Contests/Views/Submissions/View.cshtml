@@ -98,7 +98,14 @@ else
 
     if (!Model.IsCompiledSuccessfully)
     {
-        <div class="alert alert-danger top-buffer">@Resource.Compile_time_error_occured</div>
+        if (Model.ExceptionType == ExceptionType.Thread)
+        {
+            <div class="alert alert-danger top-buffer">@Resource.Thread_aborted_error_occured</div>
+        }
+        else
+        {
+            <div class="alert alert-danger top-buffer">@Resource.Compile_time_error_occured</div>
+        }
 
         if (!string.IsNullOrWhiteSpace(Model.CompilerComment))
         {

@@ -295,6 +295,15 @@ namespace Resources.Areas.Contests.Views {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to a compile time error occurred. This might be temporary, try submitting again.
+        /// </summary>
+        public static string Thread_aborted_error_occured {
+            get {
+                return ResourceManager.GetString("Thread_aborted_error_occured", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Time limit.
         /// </summary>
         public static string Time_limit {

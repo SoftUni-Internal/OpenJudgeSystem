@@ -135,13 +135,16 @@
   <data name="Compile_time_error_occured" xml:space="preserve">
     <value>A compile time error occurred.</value>
   </data>
+  <data name="Thread_aborted_error_occured" xml:space="preserve">
+    <value>A compile time error occurred. This might be temporary, try submitting again.</value>
+  </data>
   <data name="Delete" xml:space="preserve">
     <value>Delete</value>
   </data>
   <data name="Execution_result" xml:space="preserve">
     <value>Execution result</value>
   </data>
-	<data name="Exception_type" xml:space="preserve">
+  <data name="Exception_type" xml:space="preserve">
     <value>Exception type</value>
   </data>
   <data name="Home" xml:space="preserve">
