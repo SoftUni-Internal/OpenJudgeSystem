@@ -1,5 +1,6 @@
 ﻿@using System.Text.RegularExpressions
 @using System.Web.Script.Serialization
+@using System.Threading;
 
 @using OJS.Common.Extensions
 @using OJS.Web.Areas.Contests.Controllers
@@ -98,7 +99,7 @@ else
 
     if (!Model.IsCompiledSuccessfully)
     {
-        if (Model.ExceptionType == ExceptionType.Thread)
+        if (!string.IsNullOrEmpty(Model.ExecutionComment) && Model.ExecutionComment.Contains(nameof(ThreadAbortException)))
         {
             <div class="alert alert-danger top-buffer">@Resource.Thread_aborted_error_occured</div>
         }
