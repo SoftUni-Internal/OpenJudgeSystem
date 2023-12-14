@@ -1,4 +1,6 @@
-﻿namespace OJS.Web.Areas.Administration.ViewModels.SubmissionType
+﻿using MissingFeatures;
+
+namespace OJS.Web.Areas.Administration.ViewModels.SubmissionType
 {
     using System;
     using System.ComponentModel.DataAnnotations;
@@ -40,6 +42,8 @@
 
         [Range(1, int.MaxValue)]
         public int? MemoryLimit { get; set; }
+        
+        public WorkerType WorkerType { get; set; }
 
         public ExecutionStrategyType ExecutionStrategyType { get; set; }
         
@@ -69,6 +73,7 @@
                     SolutionSkeleton = problem
                         .ProblemSubmissionTypesSkeletons
                         .FirstOrDefault(x => x.SubmissionTypeId == st.Id)?.SolutionSkeleton,
+                    WorkerType = st.WorkerType,
                 };
 
                 var selectedSubmission = problem.SelectedSubmissionTypes.FirstOrDefault(s => s.Id == st.Id);
@@ -83,12 +88,26 @@
 
                     submissionViewModel.MemoryLimit = problem.ProblemSubmissionTypesSkeletons.FirstOrDefault(x => x.SubmissionTypeId == selectedSubmission.Id)?
                         .MemoryLimit;
+                    submissionViewModel.WorkerType = submissionViewModel.WorkerType = problem.ProblemSubmissionTypesSkeletons.FirstOrDefault()?.WorkerType ?? WorkerType.Default;
                 }
 
                 problem.SubmissionTypes.Add(submissionViewModel);
             };
         }
 
+        public bool ShouldCreateDbRecord()
+        {
+            if (this.SolutionSkeletonData.IsNullOrEmpty()
+                && (this.TimeLimit is null || this.TimeLimit.Value <= 0)
+                && (this.MemoryLimit is null || this.MemoryLimit.Value <= 0)
+                && this.WorkerType == WorkerType.Default)
+            {
+                return false;
+            }
+
+            return true;
+        }
+        
         public SubmissionType GetEntityModel(SubmissionType model = null)
         {
             model = model ?? new SubmissionType();

@@ -67,7 +67,7 @@
         public static string JudgeBaseUrl => GetSetting("JudgeBaseUrl");
 
         public static bool IsRegisterEnabled => GetSettingOrDefault("IsRegisterEnabled", true);
-
+        
         private static int GetIntSetting(string settingName) => int.Parse(GetSetting(settingName));
     }
 }

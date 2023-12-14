@@ -1,4 +1,5 @@
 ﻿using OJS.Services.Data.Settings;
+using OJS.Web.Common.Helpers;
 using OJS.Workers.Common.Models;
 
 namespace OJS.Web.Areas.Administration.Controllers
@@ -645,14 +646,9 @@ namespace OJS.Web.Areas.Administration.Controllers
         {
             this.ViewBag.TypeData = DropdownViewModel.GetEnumValues<ContestType>();
             this.ViewBag.SubmissionExportTypes = DropdownViewModel.GetEnumValues<SubmissionExportType>();
-            
-            this.ViewBag.WorkersType = Enum.GetValues(typeof(WorkerType)).Cast<WorkerType>()
-                        .Select(e => new SelectListItem
-                        {
-                            Text = e.ToString(),
-                            Value = ((int)e).ToString()
-                        }).ToList();
-            
+
+            this.ViewBag.WorkersType = WorkerTypesHelper.GetWorkerTypes();
+
             if (contestId.HasValue)
             {
                 // TODO: find a better solution for determining whether a Contest is active or not

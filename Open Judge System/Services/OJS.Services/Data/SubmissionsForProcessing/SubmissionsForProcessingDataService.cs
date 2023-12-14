@@ -1,12 +1,15 @@
-﻿using OJS.Common.Models;
+﻿using System;
+using System.Data.Entity;
+using OJS.Common.Models;
+using OJS.Services.Data.Submissions;
+using OJS.Workers.Common.Helpers;
+using OJS.Workers.Common.Models;
 
 namespace OJS.Services.Data.SubmissionsForProcessing
 {
     using System.Collections.Generic;
     using System.Linq;
-
     using MissingFeatures;
-
     using OJS.Common;
     using OJS.Common.Extensions;
     using OJS.Common.Helpers;
@@ -51,12 +54,24 @@ namespace OJS.Services.Data.SubmissionsForProcessing
                     SubmissionId = sId
                 });
 
+            var submissionsToGet = this.submissions
+                .All()
+                .Where(s => submissionIds.Contains(s.Id))
+                .Include(s => s.Problem)
+                .Include(s => s.Problem.ProblemGroup)
+                .Include(s => s.Problem.ProblemGroup.Contest)
+                .ToList();
+
             using (var scope = TransactionsHelper.CreateTransactionScope())
             {
+                newSubmissionsForProcessing.ForEach(sfp =>
+                    this.AssignWorkerType(sfp, submissionsToGet.First(s => s.Id == sfp.SubmissionId)));
+
                 submissionIds
                     .ChunkBy(GlobalConstants.BatchOperationsChunkSize)
                     .ForEach(chunk => this.submissionsForProcessing
                         .Delete(sfp => chunk.Contains(sfp.SubmissionId)));
+
 
                 this.submissionsForProcessing.Add(newSubmissionsForProcessing);
 
@@ -64,24 +79,22 @@ namespace OJS.Services.Data.SubmissionsForProcessing
             }
         }
 
-        public void AddOrUpdateBySubmission(int submissionId)
+        public void AddOrUpdateBySubmission(Submission submission)
         {
-            var submissionForProcessing = this.GetBySubmission(submissionId);
-
+            var submissionForProcessing = this.GetBySubmission(submission.Id);
             if (submissionForProcessing != null)
             {
                 submissionForProcessing.Processing = false;
                 submissionForProcessing.Processed = false;
+                this.AssignWorkerType(submissionForProcessing, submission);
             }
             else
             {
-                var submission = this.submissions.GetById(submissionId);
                 submissionForProcessing = new SubmissionForProcessing
                 {
-                    SubmissionId = submissionId,
-                    WorkerType = submission.WorkerType,
+                    SubmissionId = submission.Id,
                 };
-
+                this.AssignWorkerType(submissionForProcessing, submission);
                 this.submissionsForProcessing.Add(submissionForProcessing);
                 this.submissionsForProcessing.SaveChanges();
             }
@@ -116,6 +129,32 @@ namespace OJS.Services.Data.SubmissionsForProcessing
         {
             this.submissionsForProcessing.Update(submissionForProcessing);
             this.submissionsForProcessing.SaveChanges();
+        }
+
+        private void AssignWorkerType(SubmissionForProcessing submissionForProcessing, Submission submission)
+        {
+            submissionForProcessing.WorkerType = submission.WorkerType;
+            if (submissionForProcessing.WorkerType != WorkerType.Default)
+            {
+                return;
+            }
+
+            var problem = submission.Problem;
+            var strategyDetailsWorkerType = problem
+                .ProblemSubmissionTypeExecutionDetails
+                .Where(x => x.SubmissionTypeId == submission.SubmissionTypeId)
+                .Select(x => x.WorkerType)
+                .DefaultIfEmpty(WorkerType.Default)
+                .FirstOrDefault();
+
+            if (submissionForProcessing.WorkerType != WorkerType.Default)
+            {
+                submissionForProcessing.WorkerType = strategyDetailsWorkerType;
+                return;
+            }
+            
+            var contestWorkerType = problem.ProblemGroup.Contest.DefaultWorkerType;
+            submissionForProcessing.WorkerType = contestWorkerType;
         }
     }
 }

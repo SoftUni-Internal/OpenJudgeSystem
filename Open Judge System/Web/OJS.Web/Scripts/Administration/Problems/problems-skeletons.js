@@ -42,6 +42,12 @@
         <div class="editor-field col-xs-1">
             <input class = "pull-right" id="SubmissionTypes_${index}__MemoryLimit" name="SubmissionTypes[${index}].MemoryLimit" type = 'number' min=1></input>
         </div>
+         <div class="editor-field col-xs-3">
+             <label for="SubmissionTypes_${index}__WorkerType">Worker Type</label>
+        </div>
+        <div class="editor-field col-xs-1">
+                <select id="SubmissionTypes_${index}__WorkerType" class="pull-right" name="SubmissionTypes[${index}].WorkerType"></select>
+        </div>
         <div class="editor-field col-xs-5">
             <span class="glyphicon glyphicon-question-sign text-primary" title="Enter solution details" data-tooltip="true"></span>
             <span class="field-validation-valid" data-valmsg-for="SubmissionTypes[${index}].SolutionSkeleton" data-valmsg-replace="true"></span>
@@ -76,15 +82,20 @@
     function isChecked(elements) {
         return elements.is(':checked');
     }
-
     const insertSkeleton = (index, ev) => {
         $(getSolutionSkeletonElement(index))
             .insertAfter($(ev.currentTarget)
                 .parent()
                 .parent());
+        $("#SubmissionTypes_" + index + "__WorkerType").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: window.workerTypesData
+        });
     };
 
     const removeSkeleton = (index) => {
         $(`#SubmissionTypes_${index}__SolutionSkeleton`).parent().parent().remove();
     };
 })();
+

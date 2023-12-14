@@ -1,4 +1,6 @@
-﻿namespace OJS.Web.Areas.Administration.Controllers
+﻿using OJS.Workers.Common.Models;
+
+namespace OJS.Web.Areas.Administration.Controllers
 {
     using System;
     using System.Collections;
@@ -149,6 +151,7 @@
             }
 
             var problem = this.PrepareProblemViewModelForCreate(contest);
+            this.ViewBag.WorkerTypes = WorkerTypesHelper.GetWorkerTypes();
             return this.View(problem);
         }
 
@@ -218,7 +221,7 @@
                 var submission = this.submissionTypesData.GetById(s.Id.Value);
                 newProblem.SubmissionTypes.Add(submission);
 
-                if (s.SolutionSkeletonData.IsNullOrEmpty() && (s.TimeLimit is null || s.TimeLimit.Value <= 0))
+                if (!s.ShouldCreateDbRecord())
                 {
                     return;
                 }
@@ -228,6 +231,7 @@
                     SubmissionTypeId = submission.Id,
                     TimeLimit = s.TimeLimit,
                     MemoryLimit = s.MemoryLimit,
+                    WorkerType = s.WorkerType,
                 };
 
                 if (!s.SolutionSkeletonData.IsNullOrEmpty())
@@ -318,7 +322,17 @@
                 .GetAll()
                 .Select(SubmissionTypeViewModel.ViewModel)
                 .ForEach(SubmissionTypeViewModel.ApplySelectedTo(selectedProblem));
-
+            
+            selectedProblem.SubmissionTypes
+                .Where(st => st.IsChecked)
+                .ForEach(st => 
+                    st.WorkerType = selectedProblem.ProblemSubmissionTypesSkeletons
+                        .Where(x => x.SubmissionTypeId == st.Id)
+                        .Select(x => x.WorkerType)
+                        .DefaultIfEmpty(WorkerType.Default)
+                        .FirstOrDefault());
+            
+            this.ViewBag.WorkerTypes = WorkerTypesHelper.GetWorkerTypes();
             return this.View(selectedProblem);
         }
 
@@ -365,6 +379,15 @@
                     .Select(SubmissionTypeViewModel.ViewModel)
                     .ForEach(SubmissionTypeViewModel.ApplySelectedTo(problem));
 
+                problem.SubmissionTypes
+                    .Where(st => st.IsChecked)
+                    .ForEach(st => 
+                        st.WorkerType = problem.ProblemSubmissionTypesSkeletons
+                            .Where(x => x.SubmissionTypeId == st.Id)
+                            .Select(x => x.WorkerType)
+                            .DefaultIfEmpty(WorkerType.Default)
+                            .FirstOrDefault());
+                
                 return this.View(problem);
             }
 
@@ -905,7 +928,6 @@
                 problem,
                 contest.ProblemGroups.Count,
                 contest.IsOnline);
-
             return problem;
         }
 
@@ -1017,6 +1039,7 @@
                             currentSubmissionDetails.TimeLimit = s.TimeLimit;
                             currentSubmissionDetails.SolutionSkeleton = solutionSekeltonData;
                             currentSubmissionDetails.MemoryLimit = s.MemoryLimit;
+                            currentSubmissionDetails.WorkerType = s.WorkerType;
                         }
                         else
                         {
@@ -1028,6 +1051,7 @@
                                     SolutionSkeleton = solutionSekeltonData,
                                     TimeLimit = s.TimeLimit,
                                     MemoryLimit = s.MemoryLimit,
+                                    WorkerType = s.WorkerType,
                                 });
                         }
                     });

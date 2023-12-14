@@ -1,4 +1,6 @@
-﻿namespace OJS.Data.Models
+﻿using OJS.Workers.Common.Models;
+
+namespace OJS.Data.Models
 {
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -27,5 +29,10 @@
         /// Gets or sets a memory limit for the task and strategy
         /// </summary>
         public int? MemoryLimit { get; set; }
+        
+        /// <summary>
+        /// Gets or sets a worker type for the submission type.
+        /// </summary>
+        public WorkerType WorkerType { get; set; }
     }
 }

@@ -43,7 +43,17 @@
         <div class="editor-field col-xs-1">
             @Html.TextBoxFor(m => m.MemoryLimit, new { @class = "pull-right" })
         </div>
-
+        <div class="editor-field col-xs-3">
+            @Html.LabelFor(m => m.WorkerType)
+        </div>
+        <div class="editor-field col-xs-1">
+            @(Html.Kendo()
+                .DropDownListFor(m => m.WorkerType)
+                .HtmlAttributes(new { id = "workerTypeDropdown_" + Model.Id, @class = "pull-right"})
+                .SelectedIndex((int)Model.WorkerType)
+                .BindTo(ViewBag.WorkerTypes))
+               
+        </div>
         <div class="editor-field col-xs-5">
             <span class="glyphicon glyphicon-question-sign text-primary" title="@SharedResource.Enter_solution_details" data-tooltip="true"></span>
             @Html.ValidationMessageFor(m => m.SolutionSkeleton)
@@ -56,3 +66,7 @@
         </div>
     </div>
 }
+
+<script>
+    window.workerTypesData = @Html.Raw(Json.Encode(ViewBag.WorkerTypes));
+</script>

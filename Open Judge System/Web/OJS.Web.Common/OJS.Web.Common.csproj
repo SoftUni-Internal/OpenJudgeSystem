@@ -137,6 +137,7 @@
     <Compile Include="Extensions\UrlHelpers.cs" />
     <Compile Include="Extensions\ZipFileExtensions.cs" />
     <Compile Include="Helpers\MySqlStrategiesHelper.cs" />
+    <Compile Include="Helpers\WorkerTypesHelper.cs" />
     <Compile Include="Interfaces\IKendoGridAdministrationController.cs" />
     <Compile Include="Interfaces\IAdministrationViewModel.cs" />
     <Compile Include="Extensions\PrincipalExtensions.cs" />

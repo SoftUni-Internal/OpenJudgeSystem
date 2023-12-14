@@ -1,4 +1,7 @@
-﻿namespace OJS.LocalWorker
+﻿using System.Collections.Generic;
+using OJS.Workers.Common.Helpers;
+
+namespace OJS.LocalWorker
 {
     using System;
     using System.Linq;
@@ -23,7 +26,7 @@
         private readonly IParticipantsDataService participantsData;
         private readonly IParticipantScoresDataService participantScoresData;
         private readonly ISubmissionsForProcessingDataService submissionsForProcessingData;
-
+        
         private Submission submission;
         private SubmissionForProcessing submissionForProcessing;
 
@@ -41,7 +44,7 @@
             this.submissionsForProcessingData = submissionsForProcessingData;
         }
 
-        public override IOjsSubmission RetrieveSubmission(WorkerType workerType)
+        public override IOjsSubmission RetrieveSubmission(List<WorkerType> workerTypes)
         {
             lock (this.SubmissionsForProcessing)
             {
@@ -49,7 +52,7 @@
                 {
                     this.submissionsForProcessingData
                         .GetAllUnprocessed()
-                        .Where(s => s.WorkerType == workerType)
+                        .Where(s => workerTypes.Contains(s.WorkerType))
                         .OrderBy(x => x.Id)
                         .Select(x => x.SubmissionId)
                         .ToList()
