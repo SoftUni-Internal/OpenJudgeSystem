@@ -26,7 +26,6 @@
                 IsPublic = submission.IsPublic,
                 TestRunsCache = submission.TestRunsCache,
                 Processed = submission.Processed,
-                ProcessingComment = submission.ProcessingComment,
                 Points = submission.Points,
                 IsDeleted = submission.IsDeleted,
                 DeletedOn = submission.DeletedOn,
@@ -63,8 +62,6 @@
         public string TestRunsCache { get; set; }
 
         public bool Processed { get; set; }
-
-        public string ProcessingComment { get; set; }
 
         public int Points { get; set; }
 

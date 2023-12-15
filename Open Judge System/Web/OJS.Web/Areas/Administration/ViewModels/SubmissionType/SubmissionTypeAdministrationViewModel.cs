@@ -33,7 +33,8 @@
                     AdditionalCompilerArguments = st.AdditionalCompilerArguments,
                     Description = st.Description,
                     AllowBinaryFilesUpload = st.AllowBinaryFilesUpload,
-                    AllowedFileExtensions = st.AllowedFileExtensions
+                    AllowedFileExtensions = st.AllowedFileExtensions,
+                    WorkerType = st.WorkerType,
                 };
             }
         }
@@ -91,6 +92,10 @@
         [UIHint(SingleLineText)]
         public string AllowedFileExtensions { get; set; }
 
+        [DatabaseProperty]
+        [UIHint(EnumDropDown)]
+        public WorkerType WorkerType { get; set; }
+
         public SubmissionType GetEntityModel(SubmissionType model = null)
         {
             model = model ?? new SubmissionType();
@@ -103,6 +108,7 @@
             model.Description = this.Description;
             model.AllowBinaryFilesUpload = this.AllowBinaryFilesUpload;
             model.AllowedFileExtensions = this.AllowedFileExtensions;
+            model.WorkerType = this.WorkerType;
             return model;
         }
     }
