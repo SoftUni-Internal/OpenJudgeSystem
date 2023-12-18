@@ -83,21 +83,19 @@
 }
 else
 {
-    if (Model.UserHasAdminPermission)
+    <div class="clearfix"></div>
+    if (!string.IsNullOrWhiteSpace(Model.ExecutionComment))
     {
-        <div class="clearfix"></div>
-        if (!string.IsNullOrWhiteSpace(Model.ProcessingComment))
+        <h2>@Resource.Execution_result:</h2>
+        <pre>Unexpected error. Please contanct an Administrator.</pre>
+        if (Model.UserHasAdminPermission)
         {
-            <h2>@Resource.Execution_result:</h2>
-            <pre>@Model.ProcessingComment</pre>
-            if (Model.UserHasAdminPermission)
-            {
-                <pre>@Resource.Exception_type: @Model.ExceptionType  
-                     @Model.ExecutionComment
-                </pre>
-            }
+            <pre>@Resource.Exception_type: @Model.ExceptionType  
+             @Model.ExecutionComment
+        </pre>
         }
     }
+
     if (!Model.IsCompiledSuccessfully)
     {
         <div class="alert alert-danger top-buffer">@Resource.Compile_time_error_occured</div>
@@ -118,7 +116,7 @@ else
         <h2 class="text-success top-buffer">@Resource.Compiled_successfully</h2>
     }
 
-    if (!Model.HasTestRuns && Model.IsCompiledSuccessfully && string.IsNullOrEmpty(Model.ProcessingComment) && Model.TotalTests > 0)
+    if (!Model.HasTestRuns && Model.IsCompiledSuccessfully && string.IsNullOrEmpty(Model.ExecutionComment) && Model.TotalTests > 0)
     {
         var message = @Html.Raw(string.Format(@Resource.User_retest_prompt, Model.Points, Model.MaxPoints));
 

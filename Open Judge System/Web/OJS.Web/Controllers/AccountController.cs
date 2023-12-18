@@ -3,12 +3,11 @@
     using System.Threading.Tasks;
     using System.Web;
     using System.Web.Mvc;
-
     using Microsoft.AspNet.Identity;
     using Microsoft.AspNet.Identity.EntityFramework;
     using Microsoft.Owin.Security;
-
     using OJS.Common;
+    using OJS.Common.Models;
     using OJS.Data;
     using OJS.Data.Models;
     using OJS.Services.Common.HttpRequester;
@@ -75,6 +74,14 @@
             }
             else
             {
+                var user = await this.UserManager.FindAsync(model.UserName, model.Password);
+                if (user != null && await this.UserManager.IsInRoleAsync(user.Id, SystemRole.Administrator.ToString()))
+                {
+                    await this.SignInAsync(user, model.RememberMe);
+                    this.TempData.AddWarningMessage(Resources.Account.AccountControllers.Suls_login_issue);
+                    return this.RedirectToLocal(returnUrl);
+                }
+                
                 this.TempData.AddInfoMessage(Resources.Account.AccountControllers.Inactive_login_system);
                 return this.RedirectToHome();
             }

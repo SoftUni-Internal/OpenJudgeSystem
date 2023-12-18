@@ -40,13 +40,14 @@
     using OJS.Web.Common.Exceptions;
     using OJS.Web.Common.Extensions;
     using OJS.Web.Controllers;
-    using OJS.Web.Infrastructure.Filters.Attributes;
     using Resource = Resources.Areas.Contests;
 
     public class CompeteController : BaseController
     {
         public const string CompeteActionName = "Compete";
         public const string PracticeActionName = "Practice";
+
+        private const double MemoryCacheExpirationInMinutes = 5;
 
         private readonly IParticipantsBusinessService participantsBusiness;
         private readonly IContestsBusinessService contestsBusiness;
@@ -220,7 +221,8 @@
 
             var contestViewModel = this.cacheService.GetOrSet<ContestViewModel>(
                 string.Format(CacheConstants.ContestView, participant.ContestId),
-                () => { return ContestViewModel.FromContest.Compile()(participant.Contest); });
+                () => { return ContestViewModel.FromContest.Compile()(participant.Contest); },
+                TimeSpan.FromMinutes(MemoryCacheExpirationInMinutes));
 
             var participantViewModel = new ParticipantViewModel(
                 participant,

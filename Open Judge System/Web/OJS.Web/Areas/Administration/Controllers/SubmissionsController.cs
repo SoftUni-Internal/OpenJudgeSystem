@@ -196,7 +196,7 @@ namespace OJS.Web.Areas.Administration.Controllers
                 }
 
                 var submission = this.Data.Submissions.GetById(model.Id.Value);
-                submission.WorkerType = model.WorkerType;
+                submission.WorkerTypeToExecuteOn = model.WorkerType;
                 
                 if (model.SubmissionTypeId.HasValue)
                 {

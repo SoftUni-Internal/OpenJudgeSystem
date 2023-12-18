@@ -184,7 +184,7 @@ namespace OJS.Services.Data.ParticipantScores
                 participantScore.Points, 
                 submissionPoints,
                 shouldUpdateTotalScoreDate);
-
+            
             participantScore.SubmissionId = submissionId;
             participantScore.Points = submissionPoints;
         }

@@ -15,5 +15,10 @@
         {
             tempData.Add(GlobalConstants.InfoMessage, message);
         }
+        
+        public static void AddWarningMessage(this TempDataDictionary tempData, string message)
+        {
+            tempData.Add(GlobalConstants.WarningMessage, message);
+        }
     }
 }

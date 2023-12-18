@@ -52,7 +52,7 @@ namespace OJS.Services.Data.SubmissionsForProcessing
                 .Select(sId => new SubmissionForProcessing
                 {
                     SubmissionId = sId
-                });
+                }).ToList();
 
             var submissionsToGet = this.submissions
                 .All()
@@ -67,6 +67,7 @@ namespace OJS.Services.Data.SubmissionsForProcessing
                 newSubmissionsForProcessing.ForEach(sfp =>
                     this.AssignWorkerType(sfp, submissionsToGet.First(s => s.Id == sfp.SubmissionId)));
 
+                
                 submissionIds
                     .ChunkBy(GlobalConstants.BatchOperationsChunkSize)
                     .ForEach(chunk => this.submissionsForProcessing
@@ -96,8 +97,9 @@ namespace OJS.Services.Data.SubmissionsForProcessing
                 };
                 this.AssignWorkerType(submissionForProcessing, submission);
                 this.submissionsForProcessing.Add(submissionForProcessing);
-                this.submissionsForProcessing.SaveChanges();
             }
+
+            this.submissionsForProcessing.SaveChanges();
         }
 
         public void RemoveBySubmission(int submissionId)
@@ -133,9 +135,10 @@ namespace OJS.Services.Data.SubmissionsForProcessing
 
         private void AssignWorkerType(SubmissionForProcessing submissionForProcessing, Submission submission)
         {
-            submissionForProcessing.WorkerType = submission.WorkerType;
-            if (submissionForProcessing.WorkerType != WorkerType.Default)
+            var submissionWorkerType = submission.WorkerTypeToExecuteOn;
+            if (submissionWorkerType != WorkerType.Default)
             {
+                submissionForProcessing.WorkerType = submissionWorkerType;
                 return;
             }
 
@@ -147,14 +150,20 @@ namespace OJS.Services.Data.SubmissionsForProcessing
                 .DefaultIfEmpty(WorkerType.Default)
                 .FirstOrDefault();
 
-            if (submissionForProcessing.WorkerType != WorkerType.Default)
+            if (strategyDetailsWorkerType != WorkerType.Default)
             {
                 submissionForProcessing.WorkerType = strategyDetailsWorkerType;
                 return;
             }
-            
+
             var contestWorkerType = problem.ProblemGroup.Contest.DefaultWorkerType;
-            submissionForProcessing.WorkerType = contestWorkerType;
+            if (contestWorkerType != WorkerType.Default)
+            {
+                submissionForProcessing.WorkerType = contestWorkerType;
+                return;
+            }
+
+            submissionForProcessing.WorkerType = submission.SubmissionType.WorkerType;
         }
     }
 }

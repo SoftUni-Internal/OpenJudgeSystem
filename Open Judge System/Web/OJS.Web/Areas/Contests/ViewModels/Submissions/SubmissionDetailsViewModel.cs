@@ -30,7 +30,6 @@
                 IsCompiledSuccessfully = submission.IsCompiledSuccessfully,
                 IsDeleted = submission.IsDeleted,
                 Processed = submission.Processed,
-                ProcessingComment = submission.ProcessingComment,
                 ShowResults = submission.Problem.ShowResults,
                 ShowDetailedFeedback = submission.Problem.ShowDetailedFeedback,
                 TotalTests = submission.Problem.Tests.Count,
@@ -40,7 +39,7 @@
                 StartedExecutionOn = submission.StartedExecutionOn,
                 CompletedExecutionOn = submission.CompletedExecutionOn,
                 WorkerEndpoint = submission.WorkerEndpoint,
-                WorkerType = submission.WorkerType
+                WorkerType = submission.WorkerTypeLastExecutedOn,
             };
 
         public int Id { get; set; }
@@ -77,8 +76,6 @@
 
         public bool Processed { get; set; }
 
-        public string ProcessingComment { get; set; }
-
         public bool ShowResults { get; set; }
 
         public bool ShowDetailedFeedback { get; set; }
@@ -109,6 +106,6 @@
 
         public string WorkerEndpoint { get; set; }
         
-        public WorkerType WorkerType { get; set; }
+        public WorkerType? WorkerType { get; set; }
     }
 }

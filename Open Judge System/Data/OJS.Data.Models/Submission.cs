@@ -103,6 +103,8 @@
 
         public DateTime? CompletedExecutionOn { get; set; }
 
+        // Left intentionally to preserve history for old submissions.
+        // Can be deleted once there are no more submissions with processing comments left.
         public string ProcessingComment { get; set; }
 
         /// <summary>
@@ -114,7 +116,9 @@
 
         public ExceptionType ExceptionType { get; set; }
 
-        public WorkerType WorkerType { get; set; }
+        public WorkerType? WorkerTypeLastExecutedOn { get; set; }
+
+        public WorkerType WorkerTypeToExecuteOn { get; set; }
         
         public string WorkerEndpoint { get; set; }
         

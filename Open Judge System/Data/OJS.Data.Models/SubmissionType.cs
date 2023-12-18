@@ -37,6 +37,8 @@
         [DefaultValue(false)]
         public bool AllowBinaryFilesUpload { get; set; }
 
+        public WorkerType WorkerType { get; set; }
+        
         /// <summary>
         /// Comma-separated list of allowed file extensions.
         /// If the value is null or whitespace then only text values are allowed.

@@ -40,7 +40,7 @@ namespace OJS.Web.Areas.Administration.ViewModels.Submission
                     FileExtension = sub.FileExtension,
                     CreatedOn = sub.CreatedOn,
                     ModifiedOn = sub.ModifiedOn,
-                    WorkerType = sub.WorkerType
+                    WorkerType = sub.WorkerTypeToExecuteOn
                 };
             }
         }
@@ -64,7 +64,7 @@ namespace OJS.Web.Areas.Administration.ViewModels.Submission
         [Required(
             ErrorMessageResourceName = nameof(Resource.Participant_required),
             ErrorMessageResourceType = typeof(Resource))]
-        [UIHint(ParticipantDropDownList)]
+        // [UIHint(ParticipantDropDownList)]
         public int? ParticipantId { get; set; }
 
         [DatabaseProperty]
