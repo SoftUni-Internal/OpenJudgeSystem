@@ -29,6 +29,7 @@
         // TempData dictionary keys
         public const string InfoMessage = "InfoMessage";
         public const string DangerMessage = "DangerMessage";
+        public const string WarningMessage = "WarningMessage";
 
         // ModelState dictionary keys
         public const string DateTimeError = "DateTimeError";

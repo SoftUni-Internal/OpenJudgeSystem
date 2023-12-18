@@ -120,4 +120,7 @@
   <data name="Inactive_login_system" xml:space="preserve">
     <value>Съжаляваме, но в момента системата за вход не е активна.</value>
   </data>
+  <data name="Suls_login_issue" xml:space="preserve">
+    <value>Не успяхме да ви логнем през SULS Platform. Ако имате промени по профила, няма да се отразят докато не се разлогнете.</value>
+  </data>
 </root>

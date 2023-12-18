@@ -120,4 +120,7 @@
   <data name="Inactive_login_system" xml:space="preserve">
     <value>We are sorry for the inconvenience, but the login system is currently unavailable.</value>
   </data>
+  <data name="Suls_login_issue" xml:space="preserve">
+    <value>We were unable to log you in through the SULS Platform. If you have profile changes, they won't take effect until you log out.</value>
+  </data>
 </root>

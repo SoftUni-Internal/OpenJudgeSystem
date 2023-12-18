@@ -167,6 +167,11 @@
             {
                 messages.Add(this.TempData[GlobalConstants.DangerMessage].ToString(), SystemMessageType.Error, 1000);
             }
+            
+            if (this.TempData.ContainsKey(GlobalConstants.WarningMessage))
+            {
+                messages.Add(this.TempData[GlobalConstants.WarningMessage].ToString(), SystemMessageType.Warning, 1000);
+            }
 
             if (this.UserProfile != null)
             {
