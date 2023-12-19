@@ -13,7 +13,7 @@ namespace OJS.Services
     public class RedisCacheService : IRedisCacheService
     {
         private readonly IDatabase redisCache;
-        private readonly double memoryCacheExpirationInMinutes = 5;
+        private readonly double memoryCacheExpirationInMinutes = 60;
         private readonly IEmailSenderService emailSenderService;
         private readonly string devEmail;
         private readonly IMemoryCacheService memoryCacheService;
@@ -232,10 +232,6 @@ namespace OJS.Services
             {
                 return false;
             }
-            else
-            {
-                this.memoryCacheService.Set(key, value);
-            }
 
             this.memoryCacheService.Set(key, value, TimeSpan.FromMinutes(memoryCacheExpirationInMinutes));
             return true;
@@ -243,7 +239,7 @@ namespace OJS.Services
 
         private void SendEmail(string exTypeAsString, string exMessage)
         {
-            if (!this.ShouldSendEmail(exTypeAsString, exMessage))
+            if (this.ShouldSendEmail(exTypeAsString, exMessage))
             {
                 this.emailSenderService.SendEmail(this.devEmail, exTypeAsString, exMessage);
             }
@@ -251,7 +247,7 @@ namespace OJS.Services
 
         private async Task SendEmailAsync(string exTypeAsString, string exMessage)
         {
-            if (!this.ShouldSendEmail(exTypeAsString, exMessage))
+            if (this.ShouldSendEmail(exTypeAsString, exMessage))
             {
                 await this.emailSenderService.SendEmailAsync(this.devEmail, exTypeAsString, exMessage);
             }
