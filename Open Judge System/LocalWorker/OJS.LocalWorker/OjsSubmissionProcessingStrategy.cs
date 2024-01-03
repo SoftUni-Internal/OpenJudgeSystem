@@ -121,12 +121,16 @@
             }
         }
 
+        public override int GetSubmissionForProcessingFailureCount()
+            => this.submissionForProcessing.ExecutionFailuresCount;
+
         public override void ReleaseSubmission()
         {
             try
             {
                 this.submissionForProcessing.Processed = false;
                 this.submissionForProcessing.Processing = false;
+                this.submissionForProcessing.ExecutionFailuresCount += 1;
                 this.submissionsForProcessingData.Update(this.submissionForProcessing);
             }
             catch (Exception ex)

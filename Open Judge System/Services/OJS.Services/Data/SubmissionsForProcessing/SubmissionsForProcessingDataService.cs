@@ -87,6 +87,7 @@ namespace OJS.Services.Data.SubmissionsForProcessing
             {
                 submissionForProcessing.Processing = false;
                 submissionForProcessing.Processed = false;
+                submissionForProcessing.ExecutionFailuresCount = 0;
                 this.AssignWorkerType(submissionForProcessing, submission);
             }
             else
@@ -142,6 +143,12 @@ namespace OJS.Services.Data.SubmissionsForProcessing
                 return;
             }
 
+            if (submission.SubmissionType.WorkerType != WorkerType.Default)
+            {
+                submissionForProcessing.WorkerType = submission.SubmissionType.WorkerType;
+                return;
+            }
+            
             var problem = submission.Problem;
             var strategyDetailsWorkerType = problem
                 .ProblemSubmissionTypeExecutionDetails
@@ -156,14 +163,7 @@ namespace OJS.Services.Data.SubmissionsForProcessing
                 return;
             }
 
-            var contestWorkerType = problem.ProblemGroup.Contest.DefaultWorkerType;
-            if (contestWorkerType != WorkerType.Default)
-            {
-                submissionForProcessing.WorkerType = contestWorkerType;
-                return;
-            }
-
-            submissionForProcessing.WorkerType = submission.SubmissionType.WorkerType;
+            submissionForProcessing.WorkerType = problem.ProblemGroup.Contest.DefaultWorkerType;
         }
     }
 }

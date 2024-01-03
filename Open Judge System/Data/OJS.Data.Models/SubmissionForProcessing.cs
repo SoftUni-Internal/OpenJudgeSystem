@@ -17,5 +17,7 @@ namespace OJS.Data.Models
         public bool Processed { get; set; }
         
         public WorkerType WorkerType { get; set; }
+        
+        public int ExecutionFailuresCount { get; set; }
     }
 }
