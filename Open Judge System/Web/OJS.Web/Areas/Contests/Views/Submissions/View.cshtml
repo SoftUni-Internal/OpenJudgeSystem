@@ -88,7 +88,16 @@ else
     if (!string.IsNullOrWhiteSpace(Model.ExecutionComment))
     {
         <h2>@Resource.Execution_result:</h2>
-        <pre>Unexpected error. Please contanct an Administrator.</pre>
+        if (Model.ExceptionType == ExceptionType.UnprocessableSubmission)
+        {
+            <pre>The submission cannot be processed at the moment.</pre>
+        }
+        else
+        {
+            <pre>Unexpected error.</pre>
+        }
+        <pre>Please contact an Administrator.</pre>
+        
         if (Model.UserHasAdminPermission)
         {
             <pre>@Resource.Exception_type: @Model.ExceptionType  
@@ -276,7 +285,7 @@ else
 
         if (displayCheckerComment)
         {
-            if (displayShowInputButton)
+            if (displayShowInputButton && testResult.ResultType != TestRunResultType.CorrectAnswer)
             {
                 <div class="diff">
                     @if (!string.IsNullOrWhiteSpace(testResult.CheckerComment))

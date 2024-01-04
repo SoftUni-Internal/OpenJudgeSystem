@@ -91,7 +91,7 @@
             this.testRunsData.DeleteBySubmission(this.submission.Id);
         }
 
-        public override void OnError(IOjsSubmission submissionModel, Exception ex)
+        public override void OnProcessingSubmissionError(IOjsSubmission submissionModel, Exception ex)
         {
             this.submission.ExecutionComment = $"{ex.GetAllMessages()}{Environment.NewLine}{ex.StackTrace}";
             this.submission.StartedExecutionOn = submissionModel.StartedExecutionOn;
@@ -103,6 +103,13 @@
             this.UpdateResults();
         }
 
+        public override void OnRetrieveSubmissionError(IOjsSubmission submissionModel, string message)
+        {
+            this.submission.ExecutionComment = message;
+            this.submission.ExceptionType = ExceptionType.UnprocessableSubmission;
+            this.SetSubmissionToProcessed();
+        }
+        
         public override void SetSubmissionToProcessing()
         {
             try
@@ -142,6 +149,27 @@
             }
         }
 
+        public override void SetSubmissionToProcessed()
+        {
+            try
+            {
+                this.submission.WorkerTypeLastExecutedOn = this.submissionForProcessing.WorkerType;
+                this.submission.Processed = true;
+                this.submissionForProcessing.Processed = true;
+                this.submissionForProcessing.Processing = false;
+
+                this.submissionsData.Update(this.submission);
+                this.submissionsForProcessingData.Update(this.submissionForProcessing);
+            }
+            catch (Exception ex)
+            {
+                this.Logger.ErrorFormat(
+                    "Unable to save changes to the submission #{0}! Exception: {1}",
+                    this.submission.Id,
+                    ex);
+            }
+        }
+        
         protected override void ProcessTestsExecutionResult(IExecutionResult<TestResult> executionResult)
         {
             this.submission.IsCompiledSuccessfully = executionResult.IsCompiledSuccessfully;
@@ -281,27 +309,6 @@
 
                 this.submission.ExecutionComment = $"Exception in SaveParticipantScore: {ex.Message}{Environment.NewLine}"
                     + this.submission.ExecutionComment;
-            }
-        }
-
-        private void SetSubmissionToProcessed()
-        {
-            try
-            {
-                this.submission.WorkerTypeLastExecutedOn = this.submissionForProcessing.WorkerType;
-                this.submission.Processed = true;
-                this.submissionForProcessing.Processed = true;
-                this.submissionForProcessing.Processing = false;
-
-                this.submissionsData.Update(this.submission);
-                this.submissionsForProcessingData.Update(this.submissionForProcessing);
-            }
-            catch (Exception ex)
-            {
-                this.Logger.ErrorFormat(
-                    "Unable to save changes to the submission #{0}! Exception: {1}",
-                    this.submission.Id,
-                    ex);
             }
         }
 
