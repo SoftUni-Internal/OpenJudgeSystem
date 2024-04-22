@@ -7,7 +7,6 @@
     <ItemGroup>
       <ProjectReference Include="..\..\Common\OJS.Common\OJS.Common.csproj" />
       <ProjectReference Include="..\..\Services\Common\OJS.Workers\OJS.Workers.Common\OJS.Workers.Common.csproj" />
-      <ProjectReference Include="..\..\Services\Common\OJS.Workers\OJS.Workers.ExecutionStrategies\OJS.Workers.ExecutionStrategies.csproj" />
       <ProjectReference Include="..\OJS.Data.Validation\OJS.Data.Validation.csproj" />
     </ItemGroup>
 

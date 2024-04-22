@@ -6,7 +6,9 @@ import CheckerForm from '../../components/administration/checkers/checker-form/C
 import CreateButton from '../../components/administration/common/create/CreateButton';
 import AdministrationModal from '../../components/administration/common/modals/administration-modal/AdministrationModal';
 import SpinningLoader from '../../components/guidelines/spinning-loader/SpinningLoader';
+import { getColors } from '../../hooks/use-administration-theme-provider';
 import { useDeleteCheckerMutation, useGetAllCheckersQuery, useLazyExportCheckersToExcelQuery } from '../../redux/services/admin/checkersAdminService';
+import { useAppSelector } from '../../redux/store';
 import { applyDefaultFilterToQueryString } from '../administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../administration-new/AdministrationGridView';
 
@@ -17,7 +19,7 @@ const AdministrationCheckersPage = () => {
 
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ openEditModal, setOpenEditModal ] = useState(false);
     const [ checkerId, setCheckerId ] = useState<number | null>(null);
     const [ openCreateModal, setOpenCreateModal ] = useState<boolean>(false);
@@ -60,7 +62,7 @@ const AdministrationCheckersPage = () => {
         <CreateButton
           showModal={openCreateModal}
           showModalFunc={setOpenCreateModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
         />
     );
 
@@ -81,7 +83,7 @@ const AdministrationCheckersPage = () => {
               { showModal: openEditModal, modal: (i) => renderModal(i, true) },
               { showModal: openCreateModal, modal: (i) => renderModal(i, false) },
           ]}
-          legendProps={[ { color: '#FFA1A1', message: 'Checker is deleted.' } ]}
+          legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Checker is deleted.' } ]}
           excelMutation={useLazyExportCheckersToExcelQuery}
         />
     );

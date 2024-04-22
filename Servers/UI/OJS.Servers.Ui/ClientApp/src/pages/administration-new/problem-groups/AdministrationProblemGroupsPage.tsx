@@ -7,7 +7,9 @@ import CreateButton from '../../../components/administration/common/create/Creat
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
 import ProblemGroupForm from '../../../components/administration/problem-groups/problem-group-form/ProblemGroupForm';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
+import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useGetAllAdminProblemGroupsQuery, useLazyExportProblemGroupsToExcelQuery } from '../../../redux/services/admin/problemGroupsAdminService';
+import { useAppSelector } from '../../../redux/store';
 import { getAndSetExceptionMessage } from '../../../utils/messages-utils';
 import { flexCenterObjectStyles } from '../../../utils/object-utils';
 import { renderErrorMessagesAlert } from '../../../utils/render-utils';
@@ -18,7 +20,7 @@ import filterableColumns, { returnNonFilterableColumns } from './problemGroupGri
 
 const AdministrationProblemGroupsPage = () => {
     const [ searchParams ] = useSearchParams();
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
     const [ openCreateModal, setOpenCreateModal ] = useState<boolean>(false);
     const [ problemGroupId, setProblemGroupId ] = useState<number | undefined>(undefined);
@@ -53,7 +55,7 @@ const AdministrationProblemGroupsPage = () => {
             <CreateButton
               showModal={openCreateModal}
               showModalFunc={setOpenCreateModal}
-              styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+              styles={{ width: '40px', height: '40px' }}
             />
         </div>
     );
@@ -95,7 +97,7 @@ const AdministrationProblemGroupsPage = () => {
                   { showModal: openEditModal, modal: (i) => renderProblemModal(i, false) },
                   { showModal: openCreateModal, modal: (i) => renderProblemModal(i, true) },
               ]}
-              legendProps={[ { color: '#FFA1A1', message: 'Problem Group is deleted.' } ]}
+              legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Problem Group is deleted.' } ]}
               excelMutation={useLazyExportProblemGroupsToExcelQuery}
             />
         </>

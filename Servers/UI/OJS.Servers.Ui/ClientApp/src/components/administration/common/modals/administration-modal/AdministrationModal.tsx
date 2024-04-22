@@ -3,6 +3,8 @@ import React, { ReactNode } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { Box, IconButton, Modal } from '@mui/material';
 
+import concatClassNames from '../../../../../utils/class-names';
+
 import styles from './AdministrationModal.module.scss';
 
 interface IAdministrationModalProps {
@@ -35,10 +37,12 @@ const AdministrationModal = (props: IAdministrationModalProps) => {
           open={open}
           onClose={(event, reason) => onModalClose(event, reason)}
         >
-            <Box className={styles.wrapper}>
-                <IconButton className={styles.closeIcon} onClick={(event) => onModalClose(event, ModalReasonsToClose.EscapeKeyDown)}>
-                    <IoMdClose />
-                </IconButton>
+            <Box className={concatClassNames(styles.wrapper, 'box-wrapper')}>
+                <Box className={styles.closeIcon}>
+                    <IconButton onClick={(event) => onModalClose(event, ModalReasonsToClose.EscapeKeyDown)}>
+                        <IoMdClose />
+                    </IconButton>
+                </Box>
                 {children}
             </Box>
         </Modal>

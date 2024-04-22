@@ -1,6 +1,7 @@
 ﻿namespace OJS.Services.Administration.Models.ProblemGroups;
 
 using AutoMapper;
+using OJS.Common.Enumerations;
 using OJS.Data.Models.Problems;
 using SoftUni.AutoMapper.Infrastructure.Models;
 using System;
@@ -15,7 +16,7 @@ public class ProblemGroupInListModel : IMapExplicitly
 
     public double OrderBy { get; set; }
 
-    public string? Type { get; set; }
+    public ProblemGroupType Type { get; set; }
 
     public DateTime CreatedOn { get; set; }
 

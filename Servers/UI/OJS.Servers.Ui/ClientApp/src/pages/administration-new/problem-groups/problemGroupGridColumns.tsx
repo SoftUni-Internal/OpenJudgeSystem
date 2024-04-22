@@ -67,12 +67,7 @@ const filterableColumns: GridColDef[] = [
         align: 'center',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemGroupTypes),
-        valueFormatter: (params) => {
-            if (params.value === '') {
-                return 'None';
-            }
-            return params.value.toString();
-        },
+        valueFormatter: (params) => ProblemGroupTypes[params.value],
     } as GridColDef & IEnumType,
     {
         field: 'createdOn',

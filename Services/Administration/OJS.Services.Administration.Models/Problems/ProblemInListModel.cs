@@ -1,6 +1,7 @@
 ﻿namespace OJS.Services.Administration.Models.Problems;
 
 using AutoMapper;
+using OJS.Common.Enumerations;
 using OJS.Data.Models.Problems;
 using SoftUni.AutoMapper.Infrastructure.Models;
 using System;
@@ -12,7 +13,7 @@ public class ProblemInListModel : IMapExplicitly
 
     public string? Name { get; set; }
 
-    public string? ProblemGroup { get; set; }
+    public ProblemGroupType ProblemGroupType { get; set; }
 
     public double ProblemGroupOrderBy { get; set; }
 
@@ -39,8 +40,6 @@ public class ProblemInListModel : IMapExplicitly
                 => opt.MapFrom(p => p.Id))
             .ForMember(x => x.Name, opt
                 => opt.MapFrom(p => p.Name))
-            .ForMember(x => x.ProblemGroup, opt
-                => opt.MapFrom(p => p.ProblemGroup.Type))
             .ForMember(x => x.ProblemGroupId, opt
                 => opt.MapFrom(p => p.ProblemGroup.Id))
             .ForMember(x => x.Contest, opt

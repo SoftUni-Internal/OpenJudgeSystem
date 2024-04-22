@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 
+import { getColors } from '../../../../hooks/use-administration-theme-provider';
 import AdministrationGridView from '../../../../pages/administration-new/AdministrationGridView';
 import problemResourceFilterableColumns, { returnProblemResourceNonFilterableColumns } from '../../../../pages/administration-new/problem-resources/problemResourcesGridColumns';
 import { useGetResourcesQuery } from '../../../../redux/services/admin/problemsAdminService';
+import { useAppSelector } from '../../../../redux/store';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import CreateButton from '../../common/create/CreateButton';
 import AdministrationModal from '../../common/modals/administration-modal/AdministrationModal';
@@ -11,11 +13,12 @@ import ProblemResourceForm from '../../problem-resources/problem-resource-form/P
 interface IResourceInproblemViewProps {
 problemId: number;
 }
+
 const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
     const { problemId } = props;
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
     const [ showCreateModal, setShowCreateModal ] = useState<boolean>(false);
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ problemResourceId, setProblemResourceId ] = useState<number>(0);
     const {
         refetch: retakeData,
@@ -52,7 +55,7 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
         />
 
     );
@@ -68,7 +71,7 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
           error={resourcesError}
           showFiltersAndSorters={false}
           renderActionButtons={renderGridSettings}
-          legendProps={[ { color: '#FFA1A1', message: 'Problem Resource is deleted.' } ]}
+          legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Problem Resource is deleted.' } ]}
           modals={[
               { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i, false) },
               { showModal: showCreateModal, modal: (i) => renderProblemResourceModal(i, true) },

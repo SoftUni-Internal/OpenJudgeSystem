@@ -5,6 +5,7 @@ namespace OJS.Workers.ExecutionStrategies.Models
 
     using OJS.Workers.Checkers;
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Models;
     using static OJS.Workers.Common.Constants;
 
     public class TestsInputModel

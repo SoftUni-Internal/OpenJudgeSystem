@@ -1,6 +1,7 @@
 ﻿namespace OJS.Services.Administration.Models.SubmissionTypes;
 
 using OJS.Data.Models.Submissions;
+using OJS.Workers.Common.Models;
 using SoftUni.AutoMapper.Infrastructure.Models;
 
 public class SubmissionTypeInListModel : IMapFrom<SubmissionType>
@@ -9,9 +10,9 @@ public class SubmissionTypeInListModel : IMapFrom<SubmissionType>
 
     public string? Name { get; set; }
 
-    public string? ExecutionStrategyType { get; set; }
+    public ExecutionStrategyType ExecutionStrategyType { get; set; }
 
-    public string? CompilerType { get; set; }
+    public CompilerType CompilerType { get; set; }
 
     public bool AllowBinaryFilesUpload { get; set; }
 

@@ -61,7 +61,7 @@ const AdministrationSubmissionTypesPage = () => {
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
         />
     );
 

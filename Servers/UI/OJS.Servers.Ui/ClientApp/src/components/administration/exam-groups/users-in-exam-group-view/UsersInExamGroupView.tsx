@@ -6,12 +6,14 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { DISABLED_USER_TO_EXAM_GROUP_BUTTON } from '../../../../common/messages';
 import { IGetAllAdminParams } from '../../../../common/types';
+import { getColors } from '../../../../hooks/use-administration-theme-provider';
 import {
     applyDefaultFilterToQueryString,
 } from '../../../../pages/administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import { useDeleteUserFromExamGroupMutation } from '../../../../redux/services/admin/examGroupsAdminService';
 import { useGetByExamGroupIdQuery } from '../../../../redux/services/admin/usersAdminService';
+import { useAppSelector } from '../../../../redux/store';
 import { flexCenterObjectStyles } from '../../../../utils/object-utils';
 import CreateButton from '../../common/create/CreateButton';
 import AdministrationModal from '../../common/modals/administration-modal/AdministrationModal';
@@ -28,7 +30,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
     const { examGroupId, isAllowedToAddUsers } = props;
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd));
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const { refetch, data, error } = useGetByExamGroupIdQuery({ examGroupId: Number(examGroupId), ...queryParams });
     const [ openShowAddUserModal, setOpenShowAddUserModal ] = useState<boolean>(false);
     const [ openShowAddBulkUsersModal, setOpenShowAddBulkUsersModal ] = useState<boolean>(false);
@@ -148,7 +150,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
                   height: '40px',
                   color: !isAllowedToAddUsers
                       ? 'grey'
-                      : 'rgb(25,118,210)',
+                      : getColors(themeMode).palette.primary.main,
               }}
               disabled={!isAllowedToAddUsers}
               disabledMessage={DISABLED_USER_TO_EXAM_GROUP_BUTTON}

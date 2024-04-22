@@ -1,5 +1,5 @@
 ﻿#nullable disable
-namespace OJS.Workers.ExecutionStrategies.Models
+namespace OJS.Workers.Common.Models
 {
     public class TestContext
     {

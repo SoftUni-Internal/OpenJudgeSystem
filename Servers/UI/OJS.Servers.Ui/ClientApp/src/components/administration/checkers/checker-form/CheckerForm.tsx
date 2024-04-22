@@ -151,6 +151,7 @@ const CheckerForm = (props: ICheckerFormProps) => {
                             <FormLabel>{DESCRIPTION}</FormLabel>
                             <TextareaAutosize
                               minRows={15}
+                              maxRows={15}
                               value={checker.description ?? undefined}
                               name="description"
                               onChange={(e) => onChange(e)}
@@ -160,6 +161,7 @@ const CheckerForm = (props: ICheckerFormProps) => {
                             <FormLabel>{PARAMETER}</FormLabel>
                             <TextareaAutosize
                               minRows={15}
+                              maxRows={15}
                               value={checker.parameter ?? undefined}
                               name="parameter"
                               onChange={(e) => onChange(e)}

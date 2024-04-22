@@ -34,7 +34,7 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
         <CreateButton
           showModal={openCreateModal}
           showModalFunc={setOpenCreateModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
         />
     );
 
@@ -63,8 +63,6 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
               ]}
               setQueryParams={setQueryParams}
               withSearchParams={false}
-              legendProps={[ { color: '#FFA1A1', message: 'Participant is deleted.' } ]}
-
             />
         </div>
     );

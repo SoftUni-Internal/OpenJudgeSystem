@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 import { SiMicrosoftexcel } from 'react-icons/si';
+import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { ALLOW_PARALLEL_SUBMISSIONS_IN_TASKS, CATEGORY, CATEGORY_ID, COMPETE_END_TIME, COMPETE_PASSWORD, COMPETE_START_TIME, CREATED_ON, EDIT, ID, IS_DELETED, IS_VISIBLE, LIMIT_BETWEEN_SUBMISSIONS, MODIFIED_ON, NAME } from '../../../common/labels';
@@ -23,7 +24,11 @@ const contestFilterableColumns: GridColDef[] = [
         align: 'center',
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => params.value.toString(),
+        renderCell: (params) => (
+            <Link to={`/${CONTESTS_PATH}/${params.row.id}`} target="_blank">
+                {params.value.toString()}
+            </Link>
+        ),
     },
     {
         field: 'name',

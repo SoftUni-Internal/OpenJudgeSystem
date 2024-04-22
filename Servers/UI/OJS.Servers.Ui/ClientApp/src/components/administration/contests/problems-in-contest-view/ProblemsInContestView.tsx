@@ -4,10 +4,12 @@ import { IconButton, Tooltip } from '@mui/material';
 
 import { ContestVariation } from '../../../../common/contest-types';
 import { IGetAllAdminParams } from '../../../../common/types';
+import { getColors } from '../../../../hooks/use-administration-theme-provider';
 import { applyDefaultFilterToQueryString } from '../../../../pages/administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import problemFilterableColums, { returnProblemsNonFilterableColumns } from '../../../../pages/administration-new/problems/problemGridColumns';
 import { useDeleteByContestMutation, useGetContestProblemsQuery } from '../../../../redux/services/admin/problemsAdminService';
+import { useAppSelector } from '../../../../redux/store';
 import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import ConfirmDialog from '../../../guidelines/dialog/ConfirmDialog';
@@ -32,7 +34,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
     const [ problemId, setProblemId ] = useState<number>(-1);
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd));
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ errorMessages, setErrorMessages ] = useState <Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState <string | null>(null);
 
@@ -168,14 +170,14 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
             <CreateButton
               showModal={openShowCreateProblemModal}
               showModalFunc={setOpenShowCreateProblemModal}
-              styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+              styles={{ width: '40px', height: '40px' }}
             />
             <Tooltip title="Copy All">
                 <IconButton onClick={() => {
                     setShowCopyAllModal(!showCopyAllModal);
                 }}
                 >
-                    <MdCopyAll style={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }} color="primary" />
+                    <MdCopyAll style={{ width: '40px', height: '40px' }} />
                 </IconButton>
             </Tooltip>
             <Tooltip title="Delete All">
@@ -245,7 +247,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
                       ]}
                       renderActionButtons={renderGridSettings}
                       withSearchParams={false}
-                      legendProps={[ { color: '#FFA1A1', message: 'Problem is deleted.' } ]}
+                      legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Problem is deleted.' } ]}
                     />
                 )}
         </div>

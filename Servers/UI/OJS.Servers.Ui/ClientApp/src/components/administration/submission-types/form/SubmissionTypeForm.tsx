@@ -219,6 +219,7 @@ const SubmissionTypesForm = (props : ISubmissionTypesFormProps) => {
                     <FormLabel>{DESCRIPTION}</FormLabel>
                     <TextareaAutosize
                       minRows={10}
+                      maxRows={10}
                       name="description"
                       onChange={(e) => onChange(e)}
                       value={currentSubmissionType.description === null

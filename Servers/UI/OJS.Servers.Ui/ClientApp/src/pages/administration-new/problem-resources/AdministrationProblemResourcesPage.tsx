@@ -4,7 +4,9 @@ import { useSearchParams } from 'react-router-dom';
 import { IGetAllAdminParams } from '../../../common/types';
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
 import ProblemResourceForm from '../../../components/administration/problem-resources/problem-resource-form/ProblemResourceForm';
+import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useGetAllAdminProblemResourcesQuery, useLazyExportProblemResourcesToExcelQuery } from '../../../redux/services/admin/problemResourcesAdminService';
+import { useAppSelector } from '../../../redux/store';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -12,7 +14,7 @@ import problemResourceFilterableColumns, { returnProblemResourceNonFilterableCol
 
 const AdministrationProblemResourcesPage = () => {
     const [ searchParams ] = useSearchParams();
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
     const [ problemResourceId, setProblemResourceId ] = useState<number>(0);
 
@@ -46,7 +48,7 @@ const AdministrationProblemResourcesPage = () => {
           error={error}
           queryParams={queryParams}
           setQueryParams={setQueryParams}
-          legendProps={[ { color: '#FFA1A1', message: 'Resource is deleted.' } ]}
+          legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Resource is deleted.' } ]}
           modals={[
               { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i) },
           ]}

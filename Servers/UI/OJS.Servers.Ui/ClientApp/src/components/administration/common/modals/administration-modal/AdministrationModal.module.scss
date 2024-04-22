@@ -4,8 +4,15 @@
 @use 'src/styles/shadows';
 
 .closeIcon {
+  position: sticky;
+  top: 0;
   left: 95%;
-  position: relative;
+  z-index: 9999999;
+  width: 100%;
+  height: auto;
+  background-color: transparent; 
+  display: flex;
+  justify-content: flex-end;
 }
 
 .wrapper {
@@ -18,7 +25,7 @@
   left: 50%;
   overflow: auto;
   padding: variables.$f-size-18;
-  position: absolute;
+  position: relative;
   top: 50%;
   transform: translate(-50%, -50%);
   width: 50%;

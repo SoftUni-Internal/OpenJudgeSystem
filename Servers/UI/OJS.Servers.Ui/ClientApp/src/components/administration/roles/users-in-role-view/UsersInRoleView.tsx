@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import { Autocomplete, FormControl, MenuItem, TextField, Typography } from '@mui/material';
 
 import { IGetAllAdminParams, IUserAutocompleteData } from '../../../../common/types';
+import { getColors } from '../../../../hooks/use-administration-theme-provider';
 import { applyDefaultFilterToQueryString } from '../../../../pages/administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import usersFilterableColumns, { returnUsersNonFilterableColumns } from '../../../../pages/administration-new/users/usersGridColumns';
 import { useAddUserToRoleMutation, useRemoveUserFromRoleMutation } from '../../../../redux/services/admin/rolesAdminService';
 import { useGetUsersAutocompleteQuery, useGetUsersByRoleQuery } from '../../../../redux/services/admin/usersAdminService';
+import { useAppSelector } from '../../../../redux/store';
 import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import ConfirmDialog from '../../../guidelines/dialog/ConfirmDialog';
@@ -27,7 +29,7 @@ interface IUsersInRoleViewProps {
 
 const UsersInRoleView = (props: IUsersInRoleViewProps) => {
     const { roleId, roleName } = props;
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ errorMessages, setErrorMessages ] = useState <Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState <string | null>(null);
 
@@ -138,7 +140,7 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
           tooltipLabel="Add user to role"
         />
     );
@@ -231,7 +233,7 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
                   setQueryParams={setQueryParams}
                   withSearchParams={false}
                   renderActionButtons={renderGridSettings}
-                  legendProps={[ { color: '#FFA1A1', message: 'User is deleted.' } ]}
+                  legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'User is deleted.' } ]}
                   modals={[
                       { showModal: showCreateModal, modal: (i) => renderCreateModal(i) },
                       { showModal: showUserEditModal, modal: (i) => renderUserEditModal(i) },

@@ -7,7 +7,9 @@ import CreateButton from '../../../components/administration/common/create/Creat
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
 import CategoryEdit from '../../../components/administration/contest-categories/CategoryEdit';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
+import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useGetAllAdminContestCategoriesQuery, useLazyExportContestCategoriesToExcelQuery } from '../../../redux/services/admin/contestCategoriesAdminService';
+import { useAppSelector } from '../../../redux/store';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -15,6 +17,7 @@ import categoriesFilterableColumns, { returnCategoriesNonFilterableColumns } fro
 
 const AdministrationContestCategoriesPage = () => {
     const [ searchParams ] = useSearchParams();
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
@@ -64,7 +67,7 @@ const AdministrationContestCategoriesPage = () => {
         <CreateButton
           showModal={openShowCreateContestCategoryModal}
           showModalFunc={setOpenShowCreateContestCategoryModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
         />
     );
 
@@ -85,7 +88,9 @@ const AdministrationContestCategoriesPage = () => {
               { showModal: openShowCreateContestCategoryModal, modal: (i) => renderCategoryModal(i, false) },
               { showModal: openEditContestCategoryModal, modal: (i) => renderCategoryModal(i, true) },
           ]}
-          legendProps={[ { color: '#FFA1A1', message: 'Category is deleted.' }, { color: '#C0C0C0', message: 'Category is not visible' } ]}
+          legendProps={[
+              { color: getColors(themeMode).palette.deleted, message: 'Category is deleted.' },
+              { color: getColors(themeMode).palette.visible, message: 'Category is not visible' } ]}
           excelMutation={useLazyExportContestCategoriesToExcelQuery}
         />
     );

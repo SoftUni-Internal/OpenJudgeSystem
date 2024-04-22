@@ -36,7 +36,11 @@ public class FilteringService : IFilteringService
         var property = Expression.Property(parameter, filter.Property);
 
         Expression? expression = null;
-        if (filter.Property.PropertyType == typeof(string))
+        if (filter.Property.PropertyType.IsEnum)
+        {
+            expression = BuildEnumExpression(filter.Value, filter.Property.PropertyType, property);
+        }
+        else if (filter.Property.PropertyType == typeof(string))
         {
             expression = BuildStringExpression(filter.OperatorType, filter.Value, property);
         }
@@ -64,6 +68,17 @@ public class FilteringService : IFilteringService
         }
 
         return Expression.Lambda<Func<T, bool>>(expression, parameter);
+    }
+
+    private static Expression BuildEnumExpression(string filterValue, Type propertyType, MemberExpression property)
+    {
+        if (!Enum.TryParse(propertyType, filterValue, ignoreCase: true, out object? enumValue))
+        {
+            throw new ArgumentException($"Invalid enum value '{filterValue}' for enum type {propertyType.Name}");
+        }
+
+        var constant = Expression.Constant(enumValue, propertyType);
+        return Expression.Equal(property, constant);
     }
 
     private static Expression? BuildNumberExpression(OperatorType operatorType, string? value, MemberExpression property, Type? propertyType)

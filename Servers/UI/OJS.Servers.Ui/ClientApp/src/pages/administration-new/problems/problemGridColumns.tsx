@@ -72,7 +72,7 @@ const problemFilterableColums: GridColDef[] = [
         valueFormatter: (params) => params.value.toString(),
     },
     {
-        field: 'problemGroup',
+        field: 'problemGroupType',
         headerName: 'Problem Group Type',
         flex: 1,
         type: 'enum',
@@ -81,12 +81,7 @@ const problemFilterableColums: GridColDef[] = [
         sortable: false,
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemGroupTypes),
-        valueFormatter: (params) => {
-            if (params.value === '') {
-                return 'None';
-            }
-            return params.value.toString();
-        },
+        valueFormatter: (params) => ProblemGroupTypes[params.value],
     } as GridColDef & IEnumType,
     {
         field: 'practiceTestsCount',

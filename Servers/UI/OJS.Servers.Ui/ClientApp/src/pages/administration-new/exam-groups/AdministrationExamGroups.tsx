@@ -63,7 +63,7 @@ const AdministrationExamGroupsPage = () => {
         <CreateButton
           showModal={openShowCreateExamGroupModal}
           showModalFunc={setOpenShowCreateExamGroupModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
         />
     );
 

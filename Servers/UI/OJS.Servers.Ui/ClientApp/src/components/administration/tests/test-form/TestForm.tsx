@@ -116,6 +116,7 @@ const TestForm = (props: ITestFormProps) => {
                             <FormLabel>{INPUT}</FormLabel>
                             <TextareaAutosize
                               minRows={15}
+                              maxRows={15}
                               value={test.input}
                               name="input"
                               onChange={(e) => onChange(e)}
@@ -125,6 +126,7 @@ const TestForm = (props: ITestFormProps) => {
                             <FormLabel>{OUTPUT}</FormLabel>
                             <TextareaAutosize
                               minRows={15}
+                              maxRows={15}
                               value={test.output}
                               name="output"
                               onChange={(e) => onChange(e)}

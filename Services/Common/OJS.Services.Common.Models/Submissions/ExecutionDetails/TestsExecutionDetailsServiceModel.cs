@@ -6,7 +6,7 @@
     using OJS.Data.Models.Problems;
     using OJS.Services.Common.Models.Mappings;
     using OJS.Services.Common.Models.Submissions.ExecutionContext.Mapping;
-    using OJS.Workers.Common.Extensions;
+    using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using SoftUni.AutoMapper.Infrastructure.Models;
 

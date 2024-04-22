@@ -1,5 +1,6 @@
 ﻿namespace OJS.Services.Administration.Models.ProblemResources;
 
+using OJS.Common.Enumerations;
 using OJS.Data.Models.Problems;
 using SoftUni.AutoMapper.Infrastructure.Models;
 using System;
@@ -10,7 +11,7 @@ public class ProblemResourceInListModel : IMapFrom<ProblemResource>
 
     public string Name { get; set; } = string.Empty;
 
-    public string? Type { get; set; }
+    public ProblemResourceType Type { get; set; }
 
     public int ProblemId { get; set; }
 

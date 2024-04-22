@@ -13,11 +13,11 @@
 }
 
 .activeAdminNavLink {
-  color: #42abf8 !important;
+  color: #2196f3 !important;
 }
 
 .arrowCommon {
-  background-color: colors.$white-color !important;
+  // background-color: colors.$white-color !important;
   box-shadow: 6px 0 7px -4px rgb(22 0 0 / 75%);
   height: 35px;
   margin: 0;
@@ -40,6 +40,11 @@
 .selectedSection {
   background-color: #2196f3 !important;
   color: colors.$white-color !important;
+}
+
+.list {
+  overflow-x: hidden;
+  overflow-y:  scroll;
 }
 
 .listItemIcon {
@@ -69,12 +74,6 @@
   color: #2196f3 !important;
   height: 3rem;
   width: 3rem;
-}
-
-.drawer {
-  border-bottom-right-radius: 70px !important;
-  border-top-right-radius: 50px !important;
-  box-shadow: 3px 0 22px -4px rgb(22 0 0 / 75%);
 }
 
 .userName {

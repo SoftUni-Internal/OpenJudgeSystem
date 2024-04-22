@@ -18,7 +18,7 @@ enum CONTEST_LISTED_DATA {
 }
 
 const AdministrationContestPage = () => {
-    const { pathname } = useLocation();
+    const { pathname, hash } = useLocation();
     const [ , , , contestId ] = pathname.split('/');
     const [ tabName, setTabName ] = useState(CONTEST_LISTED_DATA.PROBLEMS);
 
@@ -34,24 +34,49 @@ const AdministrationContestPage = () => {
     useGetContestActivityQuery(Number(contestId));
 
     useEffect(() => {
+        const updateTabBasedOnHash = () => {
+            const cleanHash = hash.replace('#', '').toUpperCase();
+            const sectionToDisplay = Object.keys(CONTEST_LISTED_DATA).find((x: string) => x === cleanHash);
+
+            if (sectionToDisplay) {
+                setTabName(CONTEST_LISTED_DATA[sectionToDisplay as keyof typeof CONTEST_LISTED_DATA]);
+            }
+        };
+
+        updateTabBasedOnHash();
+    }, [ hash ]);
+
+    useEffect(() => {
         getAndSetExceptionMessage([ activityError, error ], setErrorMessages);
     }, [ activityError, error ]);
+
+    useEffect(() => {
+        const element = document.getElementById(tabName.toLowerCase());
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [ tabName ]);
 
     const renderContestEdit = () => (
         <ContestEdit contestId={Number(contestId)} currentContest={data} onSuccess={retake} skipGettingContest />
     );
 
     const renderProblemsInContestView = (key:string) => (
-        <ProblemsInContestView
-          key={key}
-          contestId={Number(contestId)}
-          contestType={ContestVariation[data?.type as keyof typeof ContestVariation]}
-          canContestBeCompeted={activityData?.canBeCompeted || false}
-        />
+        <span key={key} id={CONTEST_LISTED_DATA.PROBLEMS}>
+            <ProblemsInContestView
+              key={key}
+              contestId={Number(contestId)}
+              contestType={ContestVariation[data?.type as keyof typeof ContestVariation]}
+              canContestBeCompeted={activityData?.canBeCompeted || false}
+            />
+        </span>
+
     );
 
     const renderParticipantsInContestView = (key: string) => (
-        <ParticipantsInContestView key={key} contestId={Number(contestId)} contestName={data!.name} />
+        <span key={key} id={CONTEST_LISTED_DATA.PARTICIPANTS}>
+            <ParticipantsInContestView key={key} contestId={Number(contestId)} contestName={data!.name} />
+        </span>
     );
 
     if (isFetching || isLoading || isLoadingActivity || isFetchingActivity) {

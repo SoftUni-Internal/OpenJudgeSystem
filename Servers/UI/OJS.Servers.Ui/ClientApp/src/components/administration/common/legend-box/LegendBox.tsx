@@ -14,8 +14,7 @@ const LegendBox = (props: ILegendBoxProps) => {
     return (
         <Box className={styles.legendBox}>
             <Tooltip
-              sx={{ background: 'red' }}
-              color="warning"
+              color="info"
               title={(
                   <List sx={{ p: 0 }}>
                       {renders.map((x) => (
@@ -23,7 +22,7 @@ const LegendBox = (props: ILegendBoxProps) => {
                               <Box className={styles.legendBox}>
                                   <Box className={styles.rowColorBox}>
                                       <Box
-                                        sx={{ backgroundColor: `${x.color} !important` }}
+                                        sx={{ backgroundColor: `${x.color}` }}
                                         className={`${styles.colorBox}`}
                                       />
                                       <p className={styles.colorSeparator}>-</p>

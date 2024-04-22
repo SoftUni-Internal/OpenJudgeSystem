@@ -1,25 +1,5 @@
 @use 'src/styles/colors';
 
-.redGridRow {
-  background-color: #ffd6d6;
-  border-bottom: 1px solid #fc6e6e;
-  transition: background-color 0.1s ease-in-out;
-
-  &:hover {
-    background-color: #ffa1a1 !important;
-  }
-}
-
-.grayGridRow {
-  background-color: #dcdcdc;
-  border-bottom: 1px solid #8a8a8a;
-  transition: background-color 0.1s ease-in-out;
-
-  &:hover {
-    background-color: #c0c0c0 !important;
-  }
-}
-
 .errorText {
   color: colors.$primary-red;
   font-family: Roboto, Helvetica, Arial, sans-serif;

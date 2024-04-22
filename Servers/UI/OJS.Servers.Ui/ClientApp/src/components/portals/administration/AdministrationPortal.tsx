@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 
-import { useEffect, useRef, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { FaCheckDouble, FaLayerGroup, FaUserCircle, FaUsers } from 'react-icons/fa';
 import { GiFiles } from 'react-icons/gi';
 import { IoSettingsSharp } from 'react-icons/io5';
@@ -16,14 +16,16 @@ import NotListedLocationIcon from '@mui/icons-material/NotListedLocation';
 import PlaylistAddCheckCircleIcon from '@mui/icons-material/PlaylistAddCheckCircle';
 import ScienceIcon from '@mui/icons-material/Science';
 import TableViewIcon from '@mui/icons-material/TableView';
-import { Box, CSSObject, Divider, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Theme, Tooltip, Typography } from '@mui/material';
+import { Box, CssBaseline, CSSObject, Divider, FormControlLabel, IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, styled, Switch, Theme, Tooltip, Typography } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import 'dayjs/locale/bg';
 
+import { ThemeMode } from '../../../common/enums';
 import { CHECKERS_PATH, CONTEST_CATEGORIES_PATH, CONTESTS_PATH, EXAM_GROUPS_PATH, NEW_ADMINISTRATION_PATH, PARTICIPANTS_PATH, PROBLEM_GROUPS_PATH, PROBLEM_RESOURCES_PATH, PROBLEMS_PATH, ROLES_PATH, SETTINGS_PATH, SUBMISSION_TYPES_PATH, SUBMISSIONS_FOR_PROCESSING_PATH, SUBMISSIONS_PATH, TESTS_PATH, USERS_PATH } from '../../../common/urls/administration-urls';
+import AdministrationThemeProvider, { getColors } from '../../../hooks/use-administration-theme-provider';
 import AdministrationPage from '../../../pages/administration/AdministrationPage';
 import AdministrationContestCategories from '../../../pages/administration-new/contest-categories/AdministrationContestCategories';
 import AdministrationContestsPage from '../../../pages/administration-new/contests/AdministrationContests';
@@ -43,7 +45,8 @@ import AdministrationTestsPage from '../../../pages/administration-new/tests/Adm
 import AdministrationUsersPage from '../../../pages/administration-new/users/AdministrationUsersPage';
 import AdministrationCheckersPage from '../../../pages/checkers/AdministrationCheckersPage';
 import NotFoundPage from '../../../pages/not-found/NotFoundPage';
-import { useAppSelector } from '../../../redux/store';
+import { toggleAdministrationThemeMode } from '../../../redux/features/themeSlice';
+import { useAppDispatch, useAppSelector } from '../../../redux/store';
 import AdministrationContestPage from '../../administration/contests/AdministrationContestPage';
 import AdministrationExamGroupPage from '../../administration/exam-groups/AdministrationExamGroupPage';
 import AdministrationProblemGroup from '../../administration/problem-groups/AdministrationProblemGroup';
@@ -56,6 +59,53 @@ import AdministrationUser from '../../administration/users/AdministrationUser';
 import styles from './AdministrationPortal.module.scss';
 
 const drawerWidth = 240;
+
+const MaterialUISwitch = styled(Switch)(({ theme }) => ({
+    width: 52,
+    height: 26,
+    padding: 7,
+    '& .MuiSwitch-switchBase': {
+        margin: 1,
+        padding: 0,
+        transform: 'translateX(6px)',
+        '&.Mui-checked': {
+            color: '#fff',
+            transform: 'translateX(22px)',
+            '& .MuiSwitch-thumb:before': { backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent('#fff')}" d="M4.2 2.5l-.7 1.8-1.8.7 1.8.7.7 1.8.6-1.8L6.7 5l-1.9-.7-.6-1.8zm15 8.3a6.7 6.7 0 11-6.6-6.6 5.8 5.8 0 006.6 6.6z"/></svg>')` },
+            '& + .MuiSwitch-track': {
+                opacity: 1,
+                backgroundColor: theme.palette.mode === 'dark'
+                    ? '#8796A5'
+                    : '#aab4be',
+            },
+        },
+    },
+    '& .MuiSwitch-thumb': {
+        backgroundColor: theme.palette.mode === 'dark'
+            ? '#003892'
+            : '#001e3c',
+        width: 24,
+        height: 24,
+        '&::before': {
+            content: '\'\'',
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            left: 0,
+            top: 0,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
+            backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" width="20" viewBox="0 0 20 20"><path fill="${encodeURIComponent('#fff')}" d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"/></svg>')`,
+        },
+    },
+    '& .MuiSwitch-track': {
+        opacity: 1,
+        backgroundColor: theme.palette.mode === 'dark'
+            ? '#8796A5'
+            : '#aab4be',
+        borderRadius: 20 / 2,
+    },
+}));
 
 const administrationItems = [
     {
@@ -197,10 +247,12 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     boxSizing: 'border-box',
     ...open && {
         ...openedMixin(theme),
+        '& .MuiDrawer-docked': openedMixin(theme),
         '& .MuiDrawer-paper': openedMixin(theme),
     },
     ...!open && {
         ...closedMixin(theme),
+        '& .MuiDrawer-docked': closedMixin(theme),
         '& .MuiDrawer-paper': closedMixin(theme),
     },
 }));
@@ -209,8 +261,11 @@ const mobileBreak = 1300;
 
 const AdministrationPortal = () => {
     const location = useLocation();
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
 
+    const dispatch = useAppDispatch();
     const user = useAppSelector((x) => x.authorization.internalUser);
+    const currentThemeMode = useAppSelector((x) => x.theme.administrationMode);
 
     const [ open, setOpen ] = useState(true);
     const [ showMenu, setShowMenu ] = useState<boolean>(false);
@@ -262,6 +317,15 @@ const AdministrationPortal = () => {
         setOpen(false);
     };
 
+    const handleThemeChange = (event: ChangeEvent<HTMLInputElement>) => {
+        const isChecked = event.target.checked;
+
+        if (isChecked) {
+            dispatch(toggleAdministrationThemeMode(ThemeMode.Light));
+        } else {
+            dispatch(toggleAdministrationThemeMode(ThemeMode.Dark));
+        }
+    };
     const adminRoutes = [
         {
             path: `${CONTESTS_PATH}`,
@@ -403,50 +467,71 @@ const AdministrationPortal = () => {
     };
 
     return (
-        <Box sx={{ zIndex: 0 }}>
-            <Box sx={{ display: 'flex', zIndex: 0 }}>
-                <Drawer
-                  variant="permanent"
-                  open={open}
-                  sx={{ '& .MuiDrawer-paper': { borderTopRightRadius: '16px', borderBottomRightRadius: '16px' } }}
-                  className={styles.drawer}
-                >
-                    {!open
-                        ? (
-                            <IconButton className={`${styles.arrowRight} ${styles.arrowCommon}`} color="primary" onClick={handleDrawerOpen}>
-                                <ChevronRightIcon />
+        <AdministrationThemeProvider mode={currentThemeMode}>
+            <CssBaseline />
+            <Box>
+                <Box sx={{ display: 'flex' }}>
+                    <Drawer
+                      variant="permanent"
+                      open={open}
+                    >
+                        {!open
+                            ? (
+                                <IconButton
+                                  sx={{ backgroundColor: getColors(themeMode).palette.secondary.main }}
+                                  className={`${styles.arrowRight} ${styles.arrowCommon}`}
+                                  color="primary"
+                                  onClick={handleDrawerOpen}
+                                >
+                                    <ChevronRightIcon />
+                                </IconButton>
+                            )
+                            : (
+                                <IconButton
+                                  className={`${styles.arrow} ${styles.arrowCommon}`}
+                                  sx={{ backgroundColor: getColors(themeMode).palette.secondary.main }}
+                                  color="primary"
+                                  onClick={handleDrawerClose}
+                                >
+                                    <ChevronLeftIcon />
+                                </IconButton>
+                            )}
+                        <DrawerHeader className={styles.drawerHeader}>
+                            <IconButton ref={iconButtonRef} onClick={() => setShowMenu(!showMenu)}>
+                                <FaUserCircle className={styles.profileIcon} />
                             </IconButton>
-                        )
-                        : (
-                            <IconButton className={`${styles.arrow} ${styles.arrowCommon}`} color="primary" onClick={handleDrawerClose}>
-                                <ChevronLeftIcon />
-                            </IconButton>
-                        )}
-                    <DrawerHeader className={styles.drawerHeader}>
-                        <IconButton ref={iconButtonRef} onClick={() => setShowMenu(!showMenu)}>
-                            <FaUserCircle className={styles.profileIcon} />
-                        </IconButton>
-                        {open && (
-                            <>
-                                <Typography variant="subtitle1" className={styles.userName}>
-                                    {user.userName}
-                                </Typography>
-                                <Divider sx={{ color: 'red', width: '90%' }} />
-                            </>
-                        )}
-                        <Menu
-                          anchorEl={iconButtonRef.current}
-                          open={showMenu}
-                          onClose={() => setShowMenu(false)}
-                        >
-                            <MenuItem>
-                                <Link to="/logout" className={styles.adminHeaderLink}>Sign out</Link>
-                            </MenuItem>
-                        </Menu>
-                    </DrawerHeader>
-                    <List sx={{ overflow: 'hidden' }}>
-                        <Divider />
-                        {administrationItems.map((item) => (user.isAdmin || !item.visibleOnlyForAdmin) && (
+                            {open && (
+                                <>
+                                    <Typography variant="subtitle1" className={styles.userName}>
+                                        {user.userName}
+                                    </Typography>
+                                    <Divider sx={{ color: 'red', width: '90%' }} />
+                                </>
+                            )}
+                            <Menu
+                              anchorEl={iconButtonRef.current}
+                              open={showMenu}
+                              onClose={() => setShowMenu(false)}
+                            >
+                                <MenuItem>
+                                    <Link to="/logout" className={styles.adminHeaderLink}>Sign out</Link>
+                                </MenuItem>
+                                <MenuItem>
+                                    <FormControlLabel
+                                      control={(
+                                          <MaterialUISwitch
+                                            onChange={handleThemeChange}
+                                            checked={currentThemeMode === ThemeMode.Light}
+                                          />
+                                    )}
+                                      label="Switch Theme"
+                                    />
+                                </MenuItem>
+                            </Menu>
+                        </DrawerHeader>
+                        <List className={styles.list}>
+                            <Divider />
+                            {administrationItems.map((item) => (user.isAdmin || !item.visibleOnlyForAdmin) && (
                             <Box key={item.path}>
                                 <ListItem key={item.name} disablePadding>
                                     <Link
@@ -471,25 +556,26 @@ const AdministrationPortal = () => {
                                 </ListItem>
                                 <Divider />
                             </Box>
-                        ))}
-                    </List>
-                </Drawer>
-                <Box className={styles.main} component="main" sx={{ flexGrow: 1 }}>
-                    <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
-                        <Routes>
-                            {adminRoutes.map(({ path, Element, visibleOnlyForAdmin }) => {
-                                if (user.isAdmin || !visibleOnlyForAdmin) {
-                                    return <Route key={path} path={path} element={<Element />} />;
-                                }
-                                return null;
-                            })}
-                            <Route path="/" element={<Navigate to={`/${NEW_ADMINISTRATION_PATH}/${CONTESTS_PATH}`} replace />} />
-                            <Route path="*" element={<NotFoundPage />} />
-                        </Routes>
-                    </LocalizationProvider>
+                            ))}
+                        </List>
+                    </Drawer>
+                    <Box className={styles.main} component="main" sx={{ flexGrow: 1 }}>
+                        <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="bg">
+                            <Routes>
+                                {adminRoutes.map(({ path, Element, visibleOnlyForAdmin }) => {
+                                    if (user.isAdmin || !visibleOnlyForAdmin) {
+                                        return <Route key={path} path={path} element={<Element />} />;
+                                    }
+                                    return null;
+                                })}
+                                <Route path="/" element={<Navigate to={`/${NEW_ADMINISTRATION_PATH}/${CONTESTS_PATH}`} replace />} />
+                                <Route path="*" element={<NotFoundPage />} />
+                            </Routes>
+                        </LocalizationProvider>
+                    </Box>
                 </Box>
             </Box>
-        </Box>
+        </AdministrationThemeProvider>
     );
 };
 export default AdministrationPortal;

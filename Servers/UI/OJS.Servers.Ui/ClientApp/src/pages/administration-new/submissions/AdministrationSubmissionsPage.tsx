@@ -3,10 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
+import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useDownloadFileSubmissionQuery,
     useGetAllSubmissionsQuery,
     useLazyExportSubmissionsToExcelQuery,
     useRetestMutation } from '../../../redux/services/admin/submissionsAdminService';
+import { useAppSelector } from '../../../redux/store';
 import downloadFile from '../../../utils/file-download-utils';
 import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../utils/render-utils';
@@ -19,7 +21,7 @@ const AdministrationSubmissionsPage = () => {
     const [ searchParams ] = useSearchParams();
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
     const [ successfullMessage, setSuccessfullMessage ] = useState<string | null>(null);
-
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ submissionToDownload, setSubmissionToDownload ] = useState<number | null>(null);
     const [ shouldSkipDownloadOfSubmission, setShouldSkipDownloadOfSubmission ] = useState<boolean>(true);
 
@@ -85,7 +87,7 @@ const AdministrationSubmissionsPage = () => {
             }
               queryParams={queryParams}
               setQueryParams={setQueryParams}
-              legendProps={[ { color: '#FFA1A1', message: 'Submission is deleted.' } ]}
+              legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Submission is deleted.' } ]}
               excelMutation={useLazyExportSubmissionsToExcelQuery}
 
             />

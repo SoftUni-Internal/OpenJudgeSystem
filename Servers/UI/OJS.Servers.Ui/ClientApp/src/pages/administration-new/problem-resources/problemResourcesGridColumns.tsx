@@ -47,6 +47,7 @@ const problemResourceFilterableColumns: GridColDef[] = [
         type: 'enum',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemResourceType),
+        valueFormatter: (params) => ProblemResourceType[params.value],
     } as GridColDef & IEnumType,
     {
         field: 'fileExtension',

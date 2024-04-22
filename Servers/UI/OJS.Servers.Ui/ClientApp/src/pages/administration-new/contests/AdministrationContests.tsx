@@ -12,7 +12,9 @@ import ContestDownloadSubmissions from '../../../components/administration/conte
 import ContestEdit from '../../../components/administration/contests/contest-edit/ContestEdit';
 import FormActionButton from '../../../components/administration/form-action-button/FormActionButton';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
+import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useDownloadResultsMutation, useGetAllAdminContestsQuery, useLazyExportContestsToExcelQuery } from '../../../redux/services/admin/contestsAdminService';
+import { useAppSelector } from '../../../redux/store';
 import downloadFile from '../../../utils/file-download-utils';
 import { getAndSetExceptionMessage } from '../../../utils/messages-utils';
 import { flexCenterObjectStyles } from '../../../utils/object-utils';
@@ -27,6 +29,7 @@ import formStyles from '../../../components/administration/common/styles/FormSty
 
 const AdministrationContestsPage = () => {
     const [ searchParams ] = useSearchParams();
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ openEditContestModal, setOpenEditContestModal ] = useState(false);
     const [ openShowCreateContestModal, setOpenShowCreateContestModal ] = useState<boolean>(false);
     const [ contestId, setContestId ] = useState<number>();
@@ -153,7 +156,7 @@ const AdministrationContestsPage = () => {
         <CreateButton
           showModal={openShowCreateContestModal}
           showModalFunc={setOpenShowCreateContestModal}
-          styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
+          styles={{ width: '40px', height: '40px' }}
         />
     );
 
@@ -183,7 +186,9 @@ const AdministrationContestsPage = () => {
                   { showModal: showDownloadSubsModal, modal: (i) => renderDownloadSubsModal(i) },
                   { showModal: showExportExcelModal, modal: (i) => renderExcelExportModal(i) },
               ]}
-              legendProps={[ { color: '#FFA1A1', message: CONTEST_IS_DELETED }, { color: '#C0C0C0', message: CONTEST_IS_NOT_VISIBLE } ]}
+              legendProps={[
+                  { color: getColors(themeMode).palette.deleted, message: CONTEST_IS_DELETED },
+                  { color: getColors(themeMode).palette.visible, message: CONTEST_IS_NOT_VISIBLE } ]}
               excelMutation={useLazyExportContestsToExcelQuery}
             />
         </>

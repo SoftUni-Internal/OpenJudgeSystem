@@ -10,6 +10,7 @@ import { ACTION_NOT_ALLOWED_MESSAGE } from '../../common/messages';
 import { ExceptionData, IGetAllAdminParams, IPagedResultType } from '../../common/types';
 import ExportExcel from '../../components/administration/common/export-excel/ExportExcel';
 import LegendBox from '../../components/administration/common/legend-box/LegendBox';
+import { isDeletedClassName, isVisibleClassName } from '../../hooks/use-administration-theme-provider';
 import { DEFAULT_ITEMS_PER_PAGE, DEFAULT_ROWS_PER_PAGE } from '../../utils/constants';
 import { flexCenterObjectStyles } from '../../utils/object-utils';
 
@@ -31,11 +32,9 @@ interface IAdministrationGridViewProps<T> {
     withSearchParams?: boolean;
     legendProps?: Array<{color: string; message:string}>;
     specificRowIdName?: string | null;
-   excelMutation?: any;
-
-   defaultFilter?: string;
-
-   defaultSorter?: string;
+    excelMutation?: any;
+    defaultFilter?: string;
+    defaultSorter?: string;
 
 }
 
@@ -73,9 +72,9 @@ const AdministrationGridView = <T extends object >(props: IAdministrationGridVie
 
     const getRowClassName = (isDeleted: boolean, isVisible: boolean) => {
         if (isDeleted) {
-            return styles.redGridRow;
+            return isDeletedClassName;
         } if (isVisible === false) {
-            return styles.grayGridRow;
+            return isVisibleClassName;
         }
         return '';
     };
@@ -120,9 +119,7 @@ const AdministrationGridView = <T extends object >(props: IAdministrationGridVie
                     />
                 </div>
                 )}
-                {legendProps
-                    ? <LegendBox renders={legendProps} />
-                    : <div style={{ ...flexCenterObjectStyles, justifyContent: 'space-between' }} />}
+                <LegendBox renders={legendProps ?? []} />
             </div>
         );
     };

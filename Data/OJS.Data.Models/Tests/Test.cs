@@ -5,7 +5,7 @@ namespace OJS.Data.Models.Tests
     using System.ComponentModel.DataAnnotations.Schema;
     using AutoMapper;
     using OJS.Data.Models.Problems;
-    using OJS.Workers.ExecutionStrategies.Models;
+    using OJS.Workers.Common.Models;
     using SoftUni.AutoMapper.Infrastructure.Models;
     using OJS.Data.Models.Common;
     using OJS.Workers.Common.Extensions;

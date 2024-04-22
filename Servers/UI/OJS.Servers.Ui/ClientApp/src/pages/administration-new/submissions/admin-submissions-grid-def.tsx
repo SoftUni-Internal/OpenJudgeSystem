@@ -83,13 +83,17 @@ const dataColumns: GridColDef[] = [
         headerName: 'Processed',
         align: 'center',
         headerAlign: 'center',
-        type: 'string',
+        type: 'boolean',
         flex: 2,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => params.value
-            ? 'Processed'
-            : 'Pending',
+        renderCell: (params: GridRenderCellParams) => (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                {params.value === true
+                    ? 'Processed'
+                    : 'Pending'}
+            </div>
+        ),
     },
     {
         field: 'points',

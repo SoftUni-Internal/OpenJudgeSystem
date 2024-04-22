@@ -1,12 +1,13 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ThemeMode } from '../../common/enums';
 
 interface IThemeState {
     mode: ThemeMode;
+    administrationMode: ThemeMode;
 }
 
-const initialState: IThemeState = { mode: ThemeMode.Dark };
+const initialState: IThemeState = { mode: ThemeMode.Dark, administrationMode: ThemeMode.Light };
 
 // eslint-disable-next-line import/group-exports
 export const themeSlice = createSlice({
@@ -21,10 +22,13 @@ export const themeSlice = createSlice({
                 // eslint-disable-next-line no-param-reassign,prefer-destructuring
                 : state.mode = ThemeMode.Light;
         },
+        toggleAdministrationThemeMode: (state, action: PayloadAction<ThemeMode>) => {
+            state.administrationMode = action.payload;
+        },
     },
 });
 
 // eslint-disable-next-line prefer-destructuring,import/group-exports
-export const { toggleTheme } = themeSlice.actions;
+export const { toggleTheme, toggleAdministrationThemeMode } = themeSlice.actions;
 
 export default themeSlice.reducer;

@@ -5,11 +5,13 @@ import { IconButton, Tooltip } from '@mui/material';
 
 import { CREATE_NEW_RECORD } from '../../../../common/labels';
 import { ACTION_NOT_ALLOWED_MESSAGE } from '../../../../common/messages';
+import { getColors } from '../../../../hooks/use-administration-theme-provider';
+import { useAppSelector } from '../../../../redux/store';
 
 interface ICreateButtonProps {
     showModal: boolean;
     showModalFunc: Function;
-    styles: object;
+    styles: any;
     Icon? : IconType;
     tooltipLabel?: string;
     disabled? :boolean;
@@ -25,6 +27,8 @@ const CreateButton = (props: ICreateButtonProps) => {
         disabled = false,
         disabledMessage = ACTION_NOT_ALLOWED_MESSAGE,
     } = props;
+
+    const themeMode = useAppSelector((x) => x.theme.administrationMode);
     return (
         <Tooltip title={disabled
             ? disabledMessage
@@ -40,7 +44,12 @@ const CreateButton = (props: ICreateButtonProps) => {
                         ? <Icon style={styles} />
                         : (
                             <RiAddBoxFill
-                              style={styles}
+                              style={{
+                                  ...styles,
+                                  color: Object.keys(styles).find((x) => x === 'color')
+                                      ? styles.color
+                                      : getColors(themeMode).palette.primary.main,
+                              }}
                             />
                         )}
                 </IconButton>
