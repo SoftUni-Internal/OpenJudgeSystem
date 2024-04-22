@@ -24,14 +24,14 @@ namespace OJS.Services.Infrastructure.BackgroundJobs.Implementations
             Expression<Action> methodCall,
             string cronExpression,
             string queue)
-            => RecurringJob.AddOrUpdate((string)recurringJobId, methodCall, cronExpression, queue: queue.ToLowerInvariant());
+            => RecurringJob.AddOrUpdate((string)recurringJobId, queue.ToLowerInvariant(), methodCall, cronExpression);
 
         public void AddOrUpdateRecurringJob<T>(
             object recurringJobId,
             Expression<Action<T>> methodCall,
             string cronExpression,
             string queue)
-            => RecurringJob.AddOrUpdate((string)recurringJobId, methodCall, cronExpression, queue: queue.ToLowerInvariant());
+            => RecurringJob.AddOrUpdate((string)recurringJobId, queue.ToLowerInvariant(), methodCall, cronExpression);
 
         public void OnSucceededStateContinueWith<T>(
             string parentJobId,

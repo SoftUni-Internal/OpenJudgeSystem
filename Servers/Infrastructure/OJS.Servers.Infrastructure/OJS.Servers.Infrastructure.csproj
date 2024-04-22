@@ -14,8 +14,8 @@
 
     <ItemGroup>
       <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.0" />
-      <PackageReference Include="Hangfire.AspNetCore" Version="1.7.26" />
-      <PackageReference Include="Hangfire.SqlServer" Version="1.7.26" />
+      <PackageReference Include="Hangfire.AspNetCore" Version="1.8.12" />
+      <PackageReference Include="Hangfire.PostgreSql" Version="1.20.8" />
       <PackageReference Include="MassTransit.RabbitMQ" Version="8.0.16" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
       <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.2.0" />

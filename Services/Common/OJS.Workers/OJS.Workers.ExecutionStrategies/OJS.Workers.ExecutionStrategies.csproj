@@ -18,7 +18,7 @@
       <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
       <PackageReference Include="MySql.Data" Version="8.0.33" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-      <PackageReference Include="Npgsql" Version="8.0.0-preview.4" />
+      <PackageReference Include="Npgsql" Version="6.0.10" />
       <PackageReference Include="System.CodeDom" Version="4.5.0" />
     </ItemGroup>
 

@@ -1,7 +1,7 @@
 namespace OJS.Servers.Infrastructure.Extensions
 {
     using Hangfire;
-    using Hangfire.SqlServer;
+    using Hangfire.PostgreSql;
     using MassTransit;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.Cookies;
@@ -91,7 +91,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .AddDbContext<TDbContext>(options =>
                 {
                     var connectionString = configuration.GetConnectionString(DefaultDbConnectionName);
-                    options.UseSqlServer(connectionString);
+                    options.UseNpgsql(connectionString);
                 })
                 .AddTransient<ITransactionsProvider, TransactionsProvider<TDbContext>>();
 
@@ -146,13 +146,9 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
                 .UseSimpleAssemblyNameTypeSerializer()
                 .UseRecommendedSerializerSettings()
-                .UseSqlServerStorage(connectionString, new SqlServerStorageOptions
+                .UsePostgreSqlStorage(opt =>
                 {
-                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
-                    QueuePollInterval = TimeSpan.Zero,
-                    UseRecommendedIsolationLevel = true,
-                    DisableGlobalLocks = true,
+                    opt.UseNpgsqlConnection(connectionString);
                 }));
 
             services.AddHangfireServer(options =>
