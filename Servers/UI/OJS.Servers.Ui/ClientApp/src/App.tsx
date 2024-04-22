@@ -6,7 +6,6 @@ import InitProviders, { ProviderType } from './components/common/InitProviders';
 import HashUrlParamProvider from './hooks/common/use-hash-url-params';
 import RouteUrlParamsProvider from './hooks/common/use-route-url-params';
 import UrlParamsProvider from './hooks/common/use-url-params';
-import CurrentContestResultsProvider from './hooks/contests/use-current-contest-results';
 import ProblemSubmissionsProvider from './hooks/submissions/use-problem-submissions';
 import ProfileSubmissionsProvider from './hooks/submissions/use-profile-submissions';
 import SubmissionsProvider from './hooks/submissions/use-submissions';
@@ -40,7 +39,6 @@ const App = () => {
         CategoriesBreadcrumbProvider,
         ParticipationsProvider,
         CurrentContestsProvider,
-        CurrentContestResultsProvider,
         ProblemSubmissionsProvider,
         ProblemsProvider,
         SubmissionsProvider,

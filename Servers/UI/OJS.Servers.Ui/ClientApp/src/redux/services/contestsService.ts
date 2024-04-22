@@ -10,7 +10,8 @@ import {
     IIndexContestsType,
     IPagedResultType,
 } from '../../common/types';
-import { IContestDetailsUrlParams } from '../../common/url-types';
+import { IContestDetailsUrlParams, IGetContestResultsParams } from '../../common/url-types';
+import { IContestResultsType } from '../../hooks/contests/types';
 
 // eslint-disable-next-line import/group-exports
 export const contestsService = createApi({
@@ -62,6 +63,17 @@ export const contestsService = createApi({
                     },
                 }),
             }),
+        getContestResults: builder.query<
+            IContestResultsType,
+            IGetContestResultsParams>({
+                query: ({ id, official, full }) => ({
+                    url: `/ContestResults/GetResults/${id}`,
+                    params: {
+                        official,
+                        full,
+                    },
+                }),
+            }),
     }),
 });
 
@@ -73,4 +85,5 @@ export const {
     useGetContestByIdQuery,
     useLazyGetContestByIdQuery,
     useLazyGetContestsParticipationsForUserQuery,
+    useGetContestResultsQuery,
 } = contestsService;

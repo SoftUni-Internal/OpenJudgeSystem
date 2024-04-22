@@ -33,6 +33,7 @@ public class ContestResultsAggregatorCommonService : IContestResultsAggregatorCo
             .GetContestActivity(contestResultsModel.Contest.Map<ContestForActivityServiceModel>());
 
         var contestResults = contestResultsModel.Map<ContestResultsViewModel>();
+        contestResults.Id = contestResultsModel.Contest.Id;
 
         contestResults.ContestCanBeCompeted = contestActivityEntity.CanBeCompeted;
         contestResults.ContestCanBePracticed = contestActivityEntity.CanBePracticed;

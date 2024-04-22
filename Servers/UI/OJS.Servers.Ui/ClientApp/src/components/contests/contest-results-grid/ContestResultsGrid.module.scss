@@ -1,0 +1,62 @@
+@use 'src/styles/colors';
+@use 'src/styles/variables';
+@use 'src/styles/fonts';
+@use 'src/styles/shadows';
+@use 'src/styles/spacings';
+
+.tableContainer {
+  overflow-x: auto;
+}
+
+.contestResultsGrid {
+  border-collapse: collapse;
+  color: colors.$white-color;
+  max-width: 1680px;
+  min-width: 100%;
+  overflow-x: auto;
+  table-layout: auto;
+
+  th,
+  td {
+    min-width: 80px;
+    overflow: hidden;
+    padding: spacings.$sp-16;
+    text-align: center;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+
+  .contestResultsGridHeader {
+    @extend %font-family-normal;
+  }
+
+  .lightContestResultsGridHeader {
+    background: colors.$wrappers-border-color;
+    box-shadow: shadows.$dp-shadow-1;
+  }
+
+  .darkContestResultsGridHeader {
+    background: #1c1c17;
+    box-shadow: shadows.$dp-shadow-4;
+  }
+}
+
+.row {
+  @extend %font-family-normal;
+
+  height: 100%;
+}
+
+.lightRow {
+  // TODO: Fix this color
+  background: colors.$horizontal-line-gray;
+  border-bottom: 1px solid colors.$wrappers-border-color;
+}
+
+.darkRow {
+  background: colors.$primary-dark-grey-color;
+}
+
+.pointsResult {
+  color: colors.$primary-blue;
+}

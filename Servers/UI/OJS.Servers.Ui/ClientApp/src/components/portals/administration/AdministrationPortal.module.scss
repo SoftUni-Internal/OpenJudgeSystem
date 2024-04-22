@@ -56,24 +56,24 @@
 }
 
 .drawerHeader {
-  display: 'flex';
   align-items: flex-start;
+  color: inherit !important;
+  display: 'flex';
   flex-direction: column;
   justify-content: space-between;
-  color: inherit !important;
   margin-bottom: 1rem;
   overflow: hidden;
 }
 
 .profileIcon {
-  width: 3rem;
-  height: 3rem;
   color: #2196f3 !important;
+  height: 3rem;
+  width: 3rem;
 }
 
 .drawer {
-  border-top-right-radius: 50px !important;
   border-bottom-right-radius: 70px !important;
+  border-top-right-radius: 50px !important;
   box-shadow: 3px 0 22px -4px rgb(22 0 0 / 75%);
 }
 

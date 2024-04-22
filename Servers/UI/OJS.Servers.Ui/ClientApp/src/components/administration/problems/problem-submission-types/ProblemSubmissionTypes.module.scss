@@ -1,21 +1,21 @@
 .limitsWrapper {
-    display: 'flex';
-    flex-direction: 'column';
-    width: '20%';
-    height: '100%';
-    align-items: 'flex-start';
-    justify-content: 'space-between';
+  align-items: 'flex-start';
+  display: 'flex';
+  flex-direction: 'column';
+  height: '100%';
+  justify-content: 'space-between';
+  width: '20%';
 }
 
 .limitField {
-    margin: 8px !important;
+  margin: 8px !important;
 }
 
 .submissionTypeName {
-    width: 30%;
+  width: 30%;
 }
 
 .solutionSkeleton {
-    width: 35%;
-    overflow-x: scroll;
+  overflow-x: scroll;
+  width: 35%;
 }

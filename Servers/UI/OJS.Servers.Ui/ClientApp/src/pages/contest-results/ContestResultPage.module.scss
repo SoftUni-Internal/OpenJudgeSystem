@@ -3,31 +3,12 @@
 
 .contestResultsHeading {
   margin-bottom: 40px;
+  margin-top: 40px;
   text-align: center;
 }
 
 .headingResults {
   @extend %contentSize;
-}
-
-.headerContent {
-  border-color: colors.$box-shadow-color;
-  border-right: 1px solid;
-}
-
-.columnContent {
-  line-height: 1;
-  text-align: center;
-  white-space: break-spaces;
-  word-wrap: anywhere;
-}
-
-.pointsResult {
-  color: colors.$primary-blue;
-}
-
-.breadcrumbContainer {
-  align-self: center;
 }
 
 .contestName {

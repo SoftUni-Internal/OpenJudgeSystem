@@ -61,3 +61,24 @@ a:link {
 }
 
 /* stylelint-enable */
+
+/* width */
+::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: colors.$primary-dark-grey-color;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: colors.$color-btn-disabled;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: colors.$primary-blue;
+}
