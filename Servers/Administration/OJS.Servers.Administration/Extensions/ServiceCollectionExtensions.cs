@@ -43,6 +43,7 @@ internal static class ServiceCollectionExtensions
             .AddOptionsWithValidation<ApplicationConfig>()
             .AddOptionsWithValidation<ApplicationUrlsConfig>()
             .AddOptionsWithValidation<EmailServiceConfig>()
+            .AddHostedService<AdminSeederService>()
             .AddControllers()
             .ConfigureApiBehaviorOptions(options =>
             {
