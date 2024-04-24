@@ -7,7 +7,7 @@ interface IThemeState {
     administrationMode: ThemeMode;
 }
 
-const initialState: IThemeState = { mode: ThemeMode.Dark, administrationMode: ThemeMode.Light };
+const initialState: IThemeState = { mode: ThemeMode.Dark, administrationMode: ThemeMode.Dark };
 
 // eslint-disable-next-line import/group-exports
 export const themeSlice = createSlice({

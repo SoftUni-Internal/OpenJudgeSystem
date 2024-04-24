@@ -110,11 +110,11 @@ services:
     command: "redis-server --requirepass redisPass123"
 ## Worker dependencies
   sql_server:
-      image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
-      restart: always
-      environment:
-        ACCEPT_EULA: Y
-        SA_PASSWORD: 1123QwER
+    image: mcr.microsoft.com/mssql/server:2017-CU8-ubuntu
+    restart: always
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: 1123QwER
   mysql:
     image: mysql/mysql-server:8.0.19
     command: --default-authentication-plugin=mysql_native_password

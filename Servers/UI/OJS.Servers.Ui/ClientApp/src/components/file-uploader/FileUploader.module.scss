@@ -1,4 +1,5 @@
 ﻿@use 'src/styles/colors';
+@use 'src/styles/spacings';
 
 .fileName {
   margin-top: auto;
@@ -9,4 +10,13 @@
   display: flex;
   flex-direction: row;
   gap: 10px;
+}
+
+.uploadedFileWrapper {
+  align-items: center;
+  display: flex;
+
+  svg {
+    margin-right: spacings.$sp-8;
+  }
 }

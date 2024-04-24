@@ -63,9 +63,9 @@ public class ContestsActivityService : IContestsActivityService
     // Method is firstly checking if the Contest can be competed based in it's StartTime and EndTime
     // If this check returns false we have to check if the current user is a participant with remaining time
     // in an online contest
-    public bool CanUserCompete(IContestForActivityServiceModel contest) =>
-        this.CanBeCompeted(contest) ||
-        (contest.IsOnline && this.IsActiveParticipantInOnlineContest(contest.Id));
+    public bool CanUserCompete(IContestForActivityServiceModel contest)
+        => this.CanBeCompeted(contest) ||
+           (contest.IsOnline && this.IsActiveParticipantInOnlineContest(contest.Id));
 
     // Usage: assign value to the CanBeCompeted/Practiced properties in the different Contest models sent to the UI
     // method must be called on model/collection after retrieving it from the db

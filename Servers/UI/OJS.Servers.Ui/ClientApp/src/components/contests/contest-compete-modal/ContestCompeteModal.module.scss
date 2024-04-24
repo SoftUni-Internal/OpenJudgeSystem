@@ -1,0 +1,53 @@
+@use 'src/styles/colors';
+@use 'src/styles/variables';
+@use 'src/styles/fonts';
+@use 'src/styles/spacings';
+@use 'src/styles/font-weights';
+@use 'src/styles/border-radiuses';
+
+.modalWrapper {
+  @extend %font-family-normal;
+
+  font-size: variables.$f-size-18;
+  width: 80%;
+  align-self: center;
+  margin-top: spacings.$sp-64;
+
+  .modalTitle {
+    padding: spacings.$sp-24 spacings.$sp-18;
+    background-color: colors.$primary-blue;
+    border-top-left-radius: border-radiuses.$br-14;
+    border-top-right-radius: border-radiuses.$br-14;
+  }
+
+  .modalBody {
+    padding: spacings.$sp-18;
+    border-bottom-left-radius: border-radiuses.$br-14;
+    border-bottom-right-radius: border-radiuses.$br-14;
+
+    div {
+      margin: spacings.$sp-24 0;
+    }
+  }
+
+  .buttonsWrapper {
+    display: flex;
+    align-self: center;
+    justify-content: center;
+    margin-top: spacings.$sp-32 !important;
+
+    button {
+      margin: 0 spacings.$sp-24;
+    }
+
+    .declineBtn {
+      font-size: variables.$f-size-12;
+      background-color: transparent;
+      border: 2px solid colors.$white-color;
+    }
+  }
+
+  b {
+    font-weight: font-weights.$font-weight-bold;
+  }
+}

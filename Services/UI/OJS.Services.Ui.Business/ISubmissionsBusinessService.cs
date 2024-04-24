@@ -4,6 +4,7 @@
     using OJS.Data.Models.Submissions;
     using OJS.Services.Common.Models.Submissions;
     using OJS.Services.Ui.Models.Submissions;
+    using OJS.Services.Ui.Models.Submissions.PublicSubmissions;
     using SoftUni.Common.Models;
     using SoftUni.Services.Infrastructure;
     using System.Linq;
@@ -37,7 +38,7 @@
 
         Task<PagedResult<SubmissionResultsServiceModel>> GetSubmissionResults(int submissionId, int page);
 
-        Task<PagedResult<SubmissionResultsServiceModel>> GetSubmissionResultsByProblem(int problemId, bool isOfficial, int page);
+        Task<PagedResult<PublicSubmissionsServiceModel>> GetUserSubmissionsByProblem(int problemId, bool isOfficial, int page);
 
         Task<int> GetTotalCount();
 

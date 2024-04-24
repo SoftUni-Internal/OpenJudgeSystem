@@ -54,12 +54,6 @@ const submissionsService = createApi({
                 query: ({ status, page }) => (
                     { url: `/${defaultPathIdentifier}/Submissions/GetSubmissionsForUserInRole?status=${status}&page=${page}` }),
             }),
-        getUserSubmissions: builder.query<
-            IPagedResultType<IPublicSubmission>,
-            IGetUserSubmissionsUrlParams>({
-                query: ({ username, page }) => (
-                    { url: `/${defaultPathIdentifier}/Submissions/GetUserSubmissions?username=${username}&page=${page}` }),
-            }),
         getSubmissionResultsByProblem: builder.query<IPagedResultType<IPublicSubmission>, IGetSubmissionsByUserParams>({
             query: ({ id, page, isOfficial }) => ({
                 url: `${defaultPathIdentifier}/Submissions/GetUserSubmissionsByProblem/${id}`,
@@ -69,6 +63,12 @@ const submissionsService = createApi({
                 },
             }),
         }),
+        getUserSubmissions: builder.query<
+            IPagedResultType<IPublicSubmission>,
+            IGetUserSubmissionsUrlParams>({
+                query: ({ username, page }) => (
+                    { url: `/${defaultPathIdentifier}/Submissions/GetUserSubmissions?username=${username}&page=${page}` }),
+            }),
         getSubmissionDetails: builder.query<ISubmissionDetailsResponseType, { id: number }>({
             query: ({ id }) => (
                 { url: `${defaultPathIdentifier}/Submissions/Details/${id}` }),
@@ -90,6 +90,7 @@ const {
     useGetUnprocessedCountQuery,
     useGetLatestSubmissionsQuery,
     useGetLatestSubmissionsInRoleQuery,
+    useLazyGetSubmissionResultsByProblemQuery,
     useLazyGetUserSubmissionsQuery,
     useGetSubmissionDetailsQuery,
     useLazyGetSubmissionUploadedFileQuery,
@@ -101,8 +102,10 @@ export {
     useGetLatestSubmissionsQuery,
     useGetSubmissionDetailsQuery,
     useGetLatestSubmissionsInRoleQuery,
+    useLazyGetSubmissionResultsByProblemQuery,
     useLazyGetUserSubmissionsQuery,
     useLazyGetSubmissionUploadedFileQuery,
     useLazyRetestSubmissionQuery,
 };
+
 export default submissionsService;

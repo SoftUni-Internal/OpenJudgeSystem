@@ -1,0 +1,69 @@
+@use 'src/styles/variables';
+@use 'src/styles/spacings';
+@use 'src/styles/colors';
+@use 'src/styles/shadows';
+@use 'src/styles/font-weights';
+
+.wrapper {
+  display: flex;
+}
+
+.problemsWrapper {
+  font-size: variables.$f-size-18;
+  height: 600px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: spacings.$sp-16 spacings.$sp-24;
+  transition: all 0.5s ease-in-out;
+  width: 350px;
+
+  .problemsHeader {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 spacings.$sp-12 spacings.$sp-8 spacings.$sp-12;
+  }
+
+  .problem {
+    align-items: center;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    padding: spacings.$sp-18;
+    transition: all 0.1s ease-in-out;
+
+    > div {
+      &:nth-child(2) {
+        margin-left: spacings.$sp-24;
+      }
+    }
+  }
+
+  .activeProblem {
+    color: colors.$primary-blue !important;
+    font-weight: font-weights.$font-weight-bold;
+  }
+}
+
+.problemsInfoSection {
+  box-shadow: shadows.$dp-shadow-4;
+  font-weight: font-weights.$font-weight-semi-bold;
+  padding: spacings.$sp-12 spacings.$sp-24;
+  width: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .participantsInfo {
+    color: colors.$primary-blue;
+  }
+
+  .pointsInfo {
+    color: colors.$primary-green;
+  }
+}
+
+.excludedMark {
+  margin-left: spacings.$sp-8;
+  color: colors.$warning-color;
+}

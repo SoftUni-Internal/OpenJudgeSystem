@@ -49,7 +49,7 @@ public class ProblemInListModel : IMapExplicitly
             .ForMember(x => x.PracticeTestsCount, opt
                 => opt.MapFrom(p => p.Tests.Count(test => test.IsTrialTest)))
             .ForMember(x => x.CompeteTestsCount, opt
-                => opt.MapFrom(p => p.Tests.Count(test => test.IsOpenTest)))
+                => opt.MapFrom(p => p.Tests.Count(test => !test.IsTrialTest)))
             .ForMember(x => x.MaximumPoints, opt
                 => opt.MapFrom(p => p.MaximumPoints))
             .ForMember(x => x.IsDeleted, opt

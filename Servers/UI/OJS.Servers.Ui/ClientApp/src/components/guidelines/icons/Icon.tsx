@@ -12,6 +12,7 @@ interface IIconProps extends IHaveOptionalClassName {
     size?: IconSize;
     helperText?: string;
     color?: string;
+    onClick?: () => void;
 }
 
 interface IIconInternalProps extends IIconProps {
@@ -24,6 +25,7 @@ const Icon = ({
     size = IconSize.Medium,
     helperText = '',
     color = '',
+    onClick = () => {},
 }: IIconInternalProps) => {
     const sizeClassName =
         size === IconSize.Small
@@ -56,7 +58,7 @@ const Icon = ({
     );
 
     return (
-        <div className={iconContainerClassName}>
+        <div className={iconContainerClassName} onClick={() => onClick()}>
             <Component className={iconClassName} color={color} />
             {renderHelperText()}
         </div>

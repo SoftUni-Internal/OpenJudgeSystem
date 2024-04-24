@@ -107,4 +107,12 @@
       color: colors.$secondary-green;
     }
   }
+
+  .blueColor {
+    color: inherit;
+
+    &:visited {
+      color: inherit;
+    }
+  }
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import MuiUiThemeProvider from '../../../hooks/use-muiUiTheme';
+import MuiUiThemeProvider from '../../../hooks/use-mui-ui-theme';
 import useTheme from '../../../hooks/use-theme';
 import PageFooter from '../../../layout/footer/PageFooter';
 import PageHeader from '../../../layout/header/PageHeader';
@@ -13,9 +13,10 @@ import TestEditPage from '../../../pages/administration/TestEditPage';
 import LoginPage from '../../../pages/auth/login/LoginPage';
 import LogoutPage from '../../../pages/auth/logout/LogoutPage';
 import RegisterPage from '../../../pages/auth/register/RegisterPage';
-import ContestPage from '../../../pages/contest/ContestPage';
 import ContestResultsPage from '../../../pages/contest-results/ContestResultsPage';
 import ContestDetailsPage from '../../../pages/contests/contest-details/ContestDetailsPage';
+import ContestRegister from '../../../pages/contests/contest-register/ContestRegister';
+import ContestSolutionSubmitPage from '../../../pages/contests/contest-solution-submit/ContestSolutionSubmitPage';
 import ContestsPage from '../../../pages/contests/ContestsPage';
 import HomePage from '../../../pages/home/HomePage';
 import NotFoundPage from '../../../pages/not-found/NotFoundPage';
@@ -29,6 +30,11 @@ import styles from '../../../layout/content/PageContent.module.scss';
 
 const ClientPortal = () => {
     const routes = [
+        // Static Routes
+        {
+            path: '/',
+            Element: HomePage,
+        },
         {
             path: '/login',
             Element: LoginPage,
@@ -43,12 +49,8 @@ const ClientPortal = () => {
             Element: LogoutPage,
         },
         {
-            path: '/',
-            Element: HomePage,
-        },
-        {
-            path: '/profile/:username?',
-            Element: ProfilePage,
+            path: '/search',
+            Element: SearchPage,
         },
         {
             path: '/submissions',
@@ -56,46 +58,54 @@ const ClientPortal = () => {
             title: 'Submissions',
         },
         {
+            title: '/contests',
+            path: 'contests',
+            Element: ContestsPage,
+        },
+        // Profile routes
+        {
+            path: '/profile/:username?',
+            Element: ProfilePage,
+        },
+        // Submissions routes,
+        {
             path: '/submissions/:submissionId/details',
             Element: SubmissionDetailsPage,
         },
         {
-            title: 'Contests',
-            path: 'contests',
-            Element: ContestsPage,
-        },
-        {
-            path: 'contests/:contestId',
-            Element: ContestDetailsPage,
-        },
-        {
-            path: 'contests/:contestId/:participationType',
-            Element: ContestPage,
-        },
-        {
-            path: 'contests/:contestId/:participationType/results/:resultType',
-            Element: ContestResultsPage,
-        },
-        {
-            path: 'Submissions/Retest/:submissionId',
+            path: '/submissions/retest/:submissionId',
             Element: SubmissionRetestPage,
         },
         {
-            path: 'Contest/Problems/:contestId',
+            path: '/tests/edit/:testId',
+            Element: TestEditPage,
+        },
+        // Contest Routes
+        {
+            path: '/contests/:contestId',
+            Element: ContestDetailsPage,
+        },
+        {
+            path: '/contests/register/:contestId/:participationType',
+            Element: ContestRegister,
+        },
+        {
+            path: '/contest/problems/:contestId',
             Element: ContestProblemsPage,
         },
         {
-            path: 'Contest/Edit/:contestId',
+            path: '/contest/edit/:contestId',
             Element: ContestEditPage,
         },
         {
-            path: 'Tests/Edit/:testId',
-            Element: TestEditPage,
+            path: '/contests/:contestId/:participationType',
+            Element: ContestSolutionSubmitPage,
         },
         {
-            path: 'search',
-            Element: SearchPage,
+            path: '/contests/:contestId/:participationType/results/:resultType',
+            Element: ContestResultsPage,
         },
+        // Catch-All Route
         {
             path: '*',
             Element: NotFoundPage,

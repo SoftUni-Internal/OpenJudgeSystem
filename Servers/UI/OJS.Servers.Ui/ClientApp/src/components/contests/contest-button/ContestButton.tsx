@@ -9,21 +9,36 @@ interface IContestButtonProps {
     isCompete: boolean;
     isDisabled: boolean;
     id: number;
+    onClick?: () => void;
 }
 
 const COMPETE_STRING = 'COMPETE';
 const PRACTICE_STRING = 'PRACTICE';
 
 const ContestButton = (props: IContestButtonProps) => {
-    const { isCompete, isDisabled, id } = props;
+    const { isCompete, isDisabled, id, onClick } = props;
+
+    const navigate = useNavigate();
 
     const { isLoggedIn } = useAppSelector((state) => state.authorization);
-    const navigate = useNavigate();
+
+    const onButtonClick = async () => {
+        if (onClick) {
+            onClick();
+            return;
+        }
+
+        if (!isLoggedIn) {
+            navigate(`/${LOGIN_PATH}`);
+            return;
+        }
+
+        navigate(getContestSubmissionPageUrl(isCompete, id));
+    };
 
     const btnText = isCompete
         ? COMPETE_STRING
         : PRACTICE_STRING;
-    const btnNavigateUrl = getContestSubmissionPageUrl(isCompete, id);
 
     return (
         <Button
@@ -33,13 +48,7 @@ const ContestButton = (props: IContestButtonProps) => {
               : ButtonState.enabled}
           size={ButtonSize.small}
           isCompete={isCompete}
-          onClick={() => {
-              if (!isLoggedIn) {
-                  navigate(`/${LOGIN_PATH}`);
-                  return;
-              }
-              navigate(btnNavigateUrl!);
-          }}
+          onClick={onButtonClick}
         />
     );
 };

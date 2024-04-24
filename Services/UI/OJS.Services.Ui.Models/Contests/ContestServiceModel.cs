@@ -53,7 +53,7 @@ public class ContestServiceModel : IMapExplicitly
 
     public IEnumerable<SubmissionTypeServiceModel> AllowedSubmissionTypes { get; set; } = null!;
 
-    public ICollection<ContestProblemServiceModel> Problems { get; set; } = null!;
+    public IEnumerable<ContestProblemServiceModel> Problems { get; set; } = null!;
 
     public ICollection<LecturerInContestServiceModel> LecturersInContests { get; set; } = null!;
 
@@ -62,101 +62,11 @@ public class ContestServiceModel : IMapExplicitly
     public IEnumerable<ContestCategoryListViewModel> ParentCategories { get; set; } =
         Enumerable.Empty<ContestCategoryListViewModel>();
 
-    public bool CanBeCompeted
-    {
-        get
-        {
-            if (!this.IsVisible)
-            {
-                return false;
-            }
-
-            if (this.IsDeleted)
-            {
-                return false;
-            }
-
-            if (!this.StartTime.HasValue)
-            {
-                // Cannot be competed
-                return false;
-            }
-
-            if (!this.EndTime.HasValue)
-            {
-                // Compete forever
-                return this.StartTime <= DateTime.Now;
-            }
-
-            return this.StartTime <= DateTime.Now && DateTime.Now <= this.EndTime;
-        }
-    }
-
-    public bool CanBePracticed
-    {
-        get
-        {
-            if (!this.IsVisible)
-            {
-                return false;
-            }
-
-            if (this.IsDeleted)
-            {
-                return false;
-            }
-
-            if (!this.PracticeStartTime.HasValue)
-            {
-                // Cannot be practiced
-                return false;
-            }
-
-            if (!this.PracticeEndTime.HasValue)
-            {
-                // Practice forever
-                return this.PracticeStartTime <= DateTime.Now;
-            }
-
-            return this.PracticeStartTime <= DateTime.Now && DateTime.Now <= this.PracticeEndTime;
-        }
-    }
-
-    public bool ResultsArePubliclyVisible
-    {
-        get
-        {
-            if (!this.IsVisible)
-            {
-                return false;
-            }
-
-            if (this.IsDeleted)
-            {
-                return false;
-            }
-
-            if (!this.StartTime.HasValue)
-            {
-                // Cannot be competed
-                return false;
-            }
-
-            return this.EndTime.HasValue && this.EndTime.Value <= DateTime.Now;
-        }
-    }
-
     public bool HasContestPassword => this.ContestPassword != null;
 
     public bool HasPracticePassword => this.PracticePassword != null;
 
     public bool UserIsAdminOrLecturerInContest { get; set; }
-
-    public bool UserCanCompete { get; set; }
-
-    public bool UserIsParticipant { get; set; }
-
-    public bool IsActive { get; set; }
 
     public void RegisterMappings(IProfileExpression configuration) =>
         configuration.CreateMap<Contest, ContestServiceModel>()
@@ -187,8 +97,5 @@ public class ContestServiceModel : IMapExplicitly
             .ForMember(d => d.LecturerInContestCategory, opt => opt.MapFrom(s => s.Category!.LecturersInContestCategories))
             .ForMember(d => d.ParentCategories, opt => opt.Ignore())
             .ForMember(d => d.UserIsAdminOrLecturerInContest, opt => opt.Ignore())
-            .ForMember(d => d.UserCanCompete, opt => opt.Ignore())
-            .ForMember(d => d.UserIsParticipant, opt => opt.Ignore())
-            .ForMember(d => d.IsActive, opt => opt.Ignore())
             .ReverseMap();
 }

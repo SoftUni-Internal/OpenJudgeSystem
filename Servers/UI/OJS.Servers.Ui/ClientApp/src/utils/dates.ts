@@ -1,19 +1,20 @@
 import { differenceInDays, intervalToDuration } from 'date-fns';
-import moment, { Duration } from 'moment';
+import moment, { Duration, unitOfTime } from 'moment';
 
 const defaultDateTimeFormat = 'HH:MM, DD/MMM/YYYY';
 const defaultDateTimeFormatPreciseTime = 'HH:MM:ss, DD/MMM/YYYY';
 const defaultDateTimeFormatReverse = 'DD/MMM/YYYY, HH:MM';
 const defaultPreciseDateTimeFormat = 'DD/MMM/YYYY, HH:mm:ss';
 
-const calculateTimeBetweenTwoDates = (startDate: Date, endDate: Date) => moment(startDate).diff(moment(endDate));
+const calculateTimeBetweenTwoDates = (startDate: Date, endDate: Date) => moment(startDate).diff(moment(endDate), 'second');
 
 const calculatedTimeFormatted = (duration: Duration) => `${duration.days()} d, ${duration.hours()} h, ${duration.minutes()} m`;
 
 const convertTimeIntervalToHoursMinutesAndSeconds =
     (duration: Duration) => `${Math.floor(duration.asHours())}:${duration.minutes()}:${duration.seconds()}`;
 
-const calculateTimeUntil = (date: Date) => moment.duration(moment(date).diff(Date.now()));
+const calculateTimeUntil = (date: Date, unit: unitOfTime.Diff = 'milliseconds'):
+    Duration => moment.duration(moment(date).diff(Date.now()), unit);
 
 const preciseFormatDate = (
     date: Date,

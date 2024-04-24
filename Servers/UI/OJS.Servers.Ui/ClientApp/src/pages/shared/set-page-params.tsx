@@ -20,6 +20,7 @@ const routes = [
     '/contests/:id/compete',
     '/contests/:id/practice',
     '/contests/:id',
+    '/contests/register/:id/:participationType',
     '/contests/:id/practice/results/simple',
     '/contests/:id/compete/results/simple',
     '/administration',
@@ -35,7 +36,8 @@ const isPathInAllowedRoutes = (pathname: string) => {
     const matchingRoute = routes.find((route) => {
         const regexPattern = route
             .replace(/:id/g, '([1-9]\\d{0,8}|0|2147483647)')
-            .replace(/:username/g, '([^/]+)');
+            .replace(/:username/g, '([^/]+)')
+            .replace(/:participationType/g, '([a-zA-Z]+)');
         return new RegExp(`^${regexPattern}$`).test(exactPathname);
     });
 

@@ -3,6 +3,6 @@
 public enum TestTypeEnum
 {
     Standard = 0,
-    Practice = 1,
-    Compete = 2,
+    Trial = 1,
+    Open = 2,
 }

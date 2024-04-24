@@ -7,14 +7,6 @@
   align-items: center;
   display: flex;
 
-  .contestStrategiesSelect {
-    font-size: variables.$f-size-16;
-    font-weight: font-weights.$font-weight-regular;
-    height: 40px;
-    margin-left: spacings.$sp-16;
-    width: 350px;
-  }
-
   svg {
     cursor: pointer;
   }

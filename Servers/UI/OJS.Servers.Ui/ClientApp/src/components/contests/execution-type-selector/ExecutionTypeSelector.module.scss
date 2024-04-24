@@ -1,5 +1,6 @@
 @use 'src/styles/colors';
 @use 'src/styles/fonts';
+@use 'src/styles/spacings';
 
 .executionTypeSelector {
   @extend %font-family-normal;
@@ -7,7 +8,7 @@
   border: 2px solid;
   color: colors.$primary-blue;
   font-weight: bold;
-  margin: 10px 5px;
+  margin: spacings.$sp-12 spacings.$sp-8;
   text-transform: none;
 
   &:hover {

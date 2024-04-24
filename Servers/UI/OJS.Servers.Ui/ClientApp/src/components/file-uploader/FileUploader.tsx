@@ -1,9 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { MdAttachFile } from 'react-icons/md';
 import isNil from 'lodash/isNil';
 
 import { FileValidationError } from '../../common/constants';
 import { useSubmissions } from '../../hooks/submissions/use-submissions';
 import { IErrorDataType } from '../../hooks/use-http';
+import useTheme from '../../hooks/use-theme';
 import Button, { ButtonSize, ButtonType } from '../guidelines/buttons/Button';
 
 import styles from './FileUploader.module.scss';
@@ -13,9 +15,11 @@ interface IFileUploaderProps {
     problemId?: number;
     allowedFileExtensions: string[];
     onInvalidFileExtension: (error: IErrorDataType) => void;
+    onFileUpload: (file: File) => void;
 }
 
-const FileUploader = ({ file, problemId, allowedFileExtensions, onInvalidFileExtension }: IFileUploaderProps) => {
+const FileUploader = ({ file, problemId, allowedFileExtensions, onInvalidFileExtension, onFileUpload }: IFileUploaderProps) => {
+    const { isDarkMode } = useTheme();
     const hiddenFileInput = useRef<HTMLInputElement | null>(null);
     const { actions: { updateSubmissionCode } } = useSubmissions();
     const [ internalFile, setInternalFile ] = useState<File | null>(null);
@@ -48,6 +52,7 @@ const FileUploader = ({ file, problemId, allowedFileExtensions, onInvalidFileExt
             }
 
             const uploadedFile = eventTarget[0];
+            onFileUpload(uploadedFile);
             const extension = uploadedFile.name.split('.').pop();
 
             if (allowedFileExtensions && !allowedFileExtensions.includes(extension)) {
@@ -66,7 +71,7 @@ const FileUploader = ({ file, problemId, allowedFileExtensions, onInvalidFileExt
             // eslint-disable-next-line no-param-reassign
             event.target.value = null;
         },
-        [ updateSubmissionCode, problemId, allowedFileExtensions, onInvalidFileExtension, closeErrorMessage ],
+        [ updateSubmissionCode, problemId, allowedFileExtensions, onInvalidFileExtension, closeErrorMessage, onFileUpload ],
     );
 
     return (
@@ -74,16 +79,23 @@ const FileUploader = ({ file, problemId, allowedFileExtensions, onInvalidFileExt
             <div className={styles.fileUploadContainer}>
                 <Button
                   onClick={handleClick}
-                  type={ButtonType.submit}
+                  type={isDarkMode
+                      ? ButtonType.lightNeutral
+                      : ButtonType.darkNeutral}
                   size={ButtonSize.medium}
                 >
-                    Click to select
+                    Upload
                 </Button>
-                <div className={styles.fileName}>
-                    {isNil(internalFile)
-                        ? ''
-                        : internalFile.name}
-                </div>
+            </div>
+            <div className={styles.fileName}>
+                {isNil(internalFile)
+                    ? ''
+                    : (
+                        <div className={styles.uploadedFileWrapper}>
+                            <MdAttachFile />
+                            {internalFile.name}
+                        </div>
+                    )}
             </div>
             <input
               type="file"

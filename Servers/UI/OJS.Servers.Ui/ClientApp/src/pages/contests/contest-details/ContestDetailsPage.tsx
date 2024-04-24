@@ -50,16 +50,15 @@ const ContestDetailsPage = () => {
     }, [ data, contestDetails, dispatch ]);
 
     const renderAllowedLanguages = () => allowedSubmissionTypes?.map((allowedSubmissionType) => (
-        <>
+        <span key={`contest-sub-strategy-btn-${allowedSubmissionType.id}`}>
             <Link
-              key={`contest-sub-strat-btn-${allowedSubmissionType.id}`}
               className={styles.allowedLanguageLink}
               to={getAllContestsUrl(selectedCategory?.id, allowedSubmissionType.id)}
             >
                 {allowedSubmissionType.name}
             </Link>
             {' | '}
-        </>
+        </span>
     ));
 
     const renderProblemsNames = () => {
@@ -67,7 +66,7 @@ const ContestDetailsPage = () => {
             return 'The problems for this contest are not public.';
         }
         return problems.map((problem) => (
-            <div className={styles.problemNameItem}>
+            <div key={`contest-problem-${problem.id}`} className={styles.problemNameItem}>
                 {problem.name}
             </div>
         ));
@@ -98,7 +97,7 @@ const ContestDetailsPage = () => {
                 <Link
                   className={`${isCompete
                       ? styles.greenColor
-                      : ''}`}
+                      : styles.blueColor}`}
                   to={getContestsResultsUrl(id!, isCompete
                       ? 'compete'
                       : 'practice', true)}
@@ -106,8 +105,8 @@ const ContestDetailsPage = () => {
                     <i className="fas fa-user" />
                     <div className={`${styles.underlinedBtnText}`}>
                         { isCompete
-                            ? 'compete'
-                            : 'practice'}
+                            ? 'Compete'
+                            : 'Practice'}
                         {' '}
                         results
                         {' '}

@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -45,6 +44,7 @@ const ContestsPage = () => {
             searchParams.delete('category');
             setSearchParams(searchParams);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const selectedPage = useMemo(() => {
@@ -80,6 +80,10 @@ const ContestsPage = () => {
     ), []);
 
     const renderContests = useCallback(() => {
+        if (areContestsLoading) {
+            return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;
+        }
+
         if (!allContests?.items?.length) {
             return (
                 <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
@@ -106,13 +110,13 @@ const ContestsPage = () => {
                 />
             </div>
         );
-    }, [ allContests ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ allContests, areContestsLoading ]);
 
     if (allContestsError) { return <div className={`${textColorClassName}`}>Error loading contests</div>; }
 
     return (
         <div style={{ padding: '20px 40px' }}>
-            {areContestsLoading && <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>}
             <ContestBreadcrumbs />
             <div className={styles.contestsContainer}>
                 <ContestCetegories />

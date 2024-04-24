@@ -15,7 +15,7 @@ import styles from './SubmissionsGrid.module.scss';
 
 interface ISubmissionsGridProps extends IHaveOptionalClassName {
     isDataLoaded: boolean;
-    submissions: IPagedResultType<IPublicSubmission>;
+    submissions?: IPagedResultType<IPublicSubmission>;
     handlePageChange: (page: number) => void;
     options: ISubmissionsGridOptions;
 }
@@ -59,7 +59,7 @@ const SubmissionsGrid = ({
                 );
             }
 
-            if (isEmpty(submissions.items)) {
+            if (isEmpty(submissions?.items)) {
                 return (
                     // TODO: Make this reusable (centered themed text)
                     <div className={concatClassNames(
@@ -77,34 +77,36 @@ const SubmissionsGrid = ({
                     <thead>
                         <tr className={headerClassName}>
                             <td>ID</td>
-                            {
-                                options.showTaskDetails && <td>Task</td>
-                            }
+                            <td>
+                                {options.showTaskDetails
+                                    ? 'Task'
+                                    : ''}
+                            </td>
                             <td>From</td>
                             {
-                                options.showCompeteMarker && <td />
-                            }
+                            options.showCompeteMarker && <td />
+                        }
                             {
-                                options.showDetailedResults && <td>Time and Memory Used</td>
-                            }
+                            options.showDetailedResults && <td>Time and Memory Used</td>
+                        }
                             <td className={styles.tdRight}>Result</td>
                             {
-                                options.showSubmissionTypeInfo && <td className={styles.tdRight}>Strategy</td>
-                            }
+                            options.showSubmissionTypeInfo && <td className={styles.tdRight}>Strategy</td>
+                        }
                             <td />
                         </tr>
                     </thead>
                     <tbody>
                         {
-                            !isNil(submissions.items) && !isEmpty(submissions.items)
-                                ? submissions.items.map((s) => (
-                                    <SubmissionGridRow
-                                      submission={s}
-                                      options={options}
-                                      key={s.id}
-                                    />
-                                ))
-                                : null
+                        !isNil(submissions?.items) && !isEmpty(submissions?.items)
+                            ? submissions.items.map((s) => (
+                                <SubmissionGridRow
+                                  submission={s}
+                                  options={options}
+                                  key={s.id}
+                                />
+                            ))
+                            : null
                         }
                     </tbody>
                 </table>
@@ -116,7 +118,7 @@ const SubmissionsGrid = ({
     return (
         <>
             {renderSubmissionsGrid()}
-            {submissions.pagesCount !== 0 && (
+            {!isEmpty(submissions) && submissions?.pagesCount !== 0 && (
                 <PaginationControls
                   count={submissions.pagesCount}
                   page={submissions.pageNumber}

@@ -1,6 +1,7 @@
 ﻿namespace OJS.Services.Ui.Models.Contests;
 
 using AutoMapper;
+using OJS.Common.Enumerations;
 using OJS.Data.Models.Contests;
 using SoftUni.AutoMapper.Infrastructure.Models;
 using System;
@@ -13,6 +14,10 @@ public class RegisterUserForContestServiceModel : IMapExplicitly
     public string Name { get; set; } = string.Empty;
 
     public bool RequirePassword { get; set; }
+
+    public bool ShouldConfirmParticipation { get; set; }
+
+    public bool IsRegisteredSuccessfully { get; set; }
 
     public TimeSpan? Duration { get; set; }
 
@@ -27,9 +32,6 @@ public class RegisterUserForContestServiceModel : IMapExplicitly
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<Contest, RegisterUserForContestServiceModel>()
             .ForMember(
-                opt => opt.RequirePassword,
-                src => src.Ignore())
-            .ForMember(
                 d => d.NumberOfProblems,
                 opt => opt.MapFrom(src => src.ProblemGroups.Count(pg => pg.Problems.Count > 0)))
             .ForMember(
@@ -38,6 +40,15 @@ public class RegisterUserForContestServiceModel : IMapExplicitly
                     src.Duration ?? ((src.StartTime.HasValue && src.EndTime.HasValue)
                         ? (src.EndTime - src.StartTime)
                         : null)))
+            .ForMember(
+                opt => opt.RequirePassword,
+                opt => opt.Ignore())
+            .ForMember(
+                opt => opt.ShouldConfirmParticipation,
+                opt => opt.Ignore())
+            .ForMember(
+                opt => opt.IsRegisteredSuccessfully,
+                opt => opt.Ignore())
             .ForMember(
                 opt => opt.ParticipantId,
                 src => src.Ignore());

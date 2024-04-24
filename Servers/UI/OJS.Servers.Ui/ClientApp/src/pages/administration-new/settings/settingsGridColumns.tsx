@@ -50,12 +50,7 @@ const settingsFilterableColumns: GridColDef[] = [
         align: 'center',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(SettingTypeEnums),
-        valueFormatter: (params) => {
-            if (params.value === '') {
-                return 'None';
-            }
-            return params.value.toString();
-        },
+        valueFormatter: (params) => SettingTypeEnums[params.value],
     } as GridColDef & IEnumType,
 ];
 

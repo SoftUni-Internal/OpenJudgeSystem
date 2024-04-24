@@ -22,7 +22,8 @@ namespace OJS.Services.Ui.Data.Implementations
             int contestId,
             string userId,
             bool isOfficial)
-            => this.GetAllByContestByUserAndIsOfficial(contestId, userId, isOfficial)
+            => this
+                .GetAllByContestByUserAndIsOfficial(contestId, userId, isOfficial)
                 .FirstOrDefaultAsync();
 
         public Task<Participant?> GetWithContestAndSubmissionDetailsByContestByUserAndIsOfficial(int contestId, string userId, bool isOfficial)
@@ -128,7 +129,8 @@ namespace OJS.Services.Ui.Data.Implementations
             int contestId,
             string userId,
             bool isOfficial)
-            => this.GetAllByContestAndUser(contestId, userId)
+            => this
+                .GetAllByContestAndUser(contestId, userId)
                 .Where(p => p.IsOfficial == isOfficial);
     }
 }

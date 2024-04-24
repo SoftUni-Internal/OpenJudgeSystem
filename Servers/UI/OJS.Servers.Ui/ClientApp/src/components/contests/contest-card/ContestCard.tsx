@@ -119,7 +119,7 @@ const ContestCard = (props: IContestCardProps) => {
         );
     };
 
-    const renderPointsText = (isCompete: boolean) => userParticipationResult !== null && (
+    const renderPointsText = (isCompete: boolean) => userParticipationResult && (
         <span className={styles.points}>
             {
                     isCompete
@@ -158,8 +158,7 @@ const ContestCard = (props: IContestCardProps) => {
                     isLoggedIn && internalUser.canAccessAdministration && <div className={styles.contestCardSubTitle}>{id}</div>
                 }
                 <div className={styles.contestDetailsFragmentsWrapper}>
-                    {renderContestDetailsFragment(iconNames.time, preciseFormatDate(new Date(contestStartTime), 'HH:MM'))}
-                    {renderContestDetailsFragment(iconNames.date, preciseFormatDate(new Date(contestStartTime), 'D MMM YY'))}
+                    {renderContestDetailsFragment(iconNames.date, preciseFormatDate(new Date(contestStartTime), 'D MMM YY, HH:mm'))}
                     {renderContestDetailsFragment(iconNames.numberOfProblems, numberOfProblems)}
                     {renderContestDetailsFragment(
                         iconNames.practiceResults,
@@ -190,11 +189,11 @@ const ContestCard = (props: IContestCardProps) => {
             <div className={styles.contestBtnsWrapper}>
                 <div className={styles.buttonAndPointsLabelWrapper}>
                     { shouldShowPoints && renderPointsText(false)}
-                    {renderContestButton(false)}
+                    {renderContestButton(true)}
                 </div>
                 <div className={styles.buttonAndPointsLabelWrapper}>
                     { shouldShowPoints && renderPointsText(true)}
-                    {renderContestButton(true)}
+                    {renderContestButton(false)}
                 </div>
             </div>
         </div>

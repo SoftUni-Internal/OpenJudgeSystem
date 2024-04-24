@@ -1,92 +1,67 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import isNil from 'lodash/isNil';
+import { useState } from 'react';
+import { useParams } from 'react-router';
 
-import { useCurrentContest } from '../../../hooks/use-current-contest';
-import { usePageTitles } from '../../../hooks/use-page-titles';
+import { ContestParticipationType } from '../../../common/constants';
+import useTheme from '../../../hooks/use-theme';
+import { useRegisterUserForContestMutation } from '../../../redux/services/contestsService';
 import Form from '../../guidelines/forms/Form';
-import FormControl, { FormControlType, IFormControlOnChangeValueType } from '../../guidelines/forms/FormControl';
+import FormControl, { FormControlType } from '../../guidelines/forms/FormControl';
 import Heading, { HeadingType } from '../../guidelines/headings/Heading';
 
 import styles from './ContestPasswordForm.module.scss';
 
 interface IContestPasswordFormProps {
-    id: number;
-    isOfficial: boolean;
+  contestName: string;
+  onSuccess: () => void;
+  hasConfirmedParticipation: boolean;
 }
 
-const ContestPasswordForm = ({ id, isOfficial }: IContestPasswordFormProps) => {
-    const {
-        state: {
-            contest,
-            contestPasswordError,
-        },
-        actions: { submitPassword },
-    } = useCurrentContest();
-    const [ passwordValue, setPasswordValue ] = useState<string>('');
+const ContestPasswordForm = (props: IContestPasswordFormProps) => {
+    const { contestName, onSuccess, hasConfirmedParticipation } = props;
 
-    const { actions: { setPageTitle } } = usePageTitles();
+    const { themeColors, getColorClassName } = useTheme();
+    const { contestId: id, participationType } = useParams();
 
-    const passwordFieldName = 'contestPassword';
+    const [ password, setPassword ] = useState<string>('');
+    const [ errorMessage, setErrorMessage ] = useState<string>('');
+    const [ isLoading, setIsLoading ] = useState<boolean>(false);
 
-    const handleOnSubmitPassword = useCallback(async () => {
-        await submitPassword({ id, isOfficial, password: passwordValue });
-    }, [ id, isOfficial, passwordValue, submitPassword ]);
+    const [ registerUserForContest ] = useRegisterUserForContestMutation();
 
-    const handleOnChangeUpdatePassword = useCallback(
-        (value?: IFormControlOnChangeValueType) => {
-            setPasswordValue(isNil(value)
-                ? ''
-                : value.toString());
-        },
-        [ setPasswordValue ],
-    );
+    const textColorClassName = getColorClassName(themeColors.textColor);
+    const isOfficial = participationType === ContestParticipationType.Compete;
 
-    const renderErrorSpan = useCallback(
-        (message: string) => (
-            <span className={styles.errorMessage}>{message}</span>
-        ),
-        [],
-    );
-
-    const renderErrorMessage = useCallback(
-        () => {
-            if (!isNil(contestPasswordError)) {
-                const { detail } = contestPasswordError;
-                return renderErrorSpan(detail);
-            }
-
-            return null;
-        },
-        [ contestPasswordError, renderErrorSpan ],
-    );
-
-    useEffect(
-        () => {
-            if (!isNil(contest)) {
-                setPageTitle('Enter Contest Password');
-            }
-        },
-        [ contest, setPageTitle ],
-    );
+    const onPasswordSubmit = async () => {
+        setIsLoading(true);
+        setErrorMessage('');
+        const response = await registerUserForContest({ id: Number(id), isOfficial, password, hasConfirmedParticipation });
+        setPassword('');
+        if ((response as any).error) {
+            const { data } = (response as any).error;
+            setErrorMessage(data);
+        } else {
+            onSuccess();
+        }
+        setIsLoading(false);
+    };
 
     return (
         <Form
-          className={styles.contestPasswordForm}
-          onSubmit={() => handleOnSubmitPassword()}
+          isLoading={isLoading}
+          className={`${styles.contestPasswordForm} ${textColorClassName}`}
+          onSubmit={onPasswordSubmit}
           submitButtonClassName={styles.submitBtn}
         >
             <header className={styles.formHeader}>
                 <Heading type={HeadingType.primary}>Enter contest password</Heading>
-                <Heading type={HeadingType.secondary}>{contest?.name}</Heading>
-                { renderErrorMessage() }
+                <Heading type={HeadingType.secondary} className={styles.contestName}>{contestName}</Heading>
+                { errorMessage && <div className={styles.errorMessage}>{errorMessage}</div>}
             </header>
             <FormControl
-              id={passwordFieldName.toLowerCase()}
-              name={passwordFieldName}
-              labelText="Password"
+              name="contest-password"
               type={FormControlType.password}
-              onChange={handleOnChangeUpdatePassword}
-              value=""
+              onChange={(e) => setPassword(e?.toString() || '')}
+              value={password}
             />
         </Form>
     );

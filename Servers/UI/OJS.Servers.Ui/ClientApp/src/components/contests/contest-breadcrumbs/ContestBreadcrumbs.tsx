@@ -37,7 +37,7 @@ const ContestBreadcrumbs = () => {
             refetch();
         }
         /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, [ ]);
+    }, []);
 
     useEffect(() => {
         dispatch(setContestCategories({ contestCategories: data || [] }));
@@ -60,10 +60,12 @@ const ContestBreadcrumbs = () => {
         }
     }, [ contestCategories, breadcrumbItems.length, contestDetails, pathname, contestId, dispatch ]);
 
-    const renderBreadcrumbItems = (breadcrumbItem: ContestBreadcrumb, isLast: boolean, idx: number) => (
-        <Link to={getAllContestsUrl(breadcrumbItem.id)}>
+    const renderBreadcrumbItems = (breadcrumbItem: ContestBreadcrumb, isLast: boolean) => (
+        <Link
+          key={`contest-breadcrumb-item-${breadcrumbItem.id}`}
+          to={getAllContestsUrl(breadcrumbItem.id)}
+        >
             <div
-              key={`contest-breadcrumb-item-${idx}`}
               onClick={() => {
                   searchParams.set('category', breadcrumbItem.id.toString());
                   setSearchParams(searchParams);
@@ -82,7 +84,7 @@ const ContestBreadcrumbs = () => {
     );
 
     if (isLoading) {
-        return <div>Loading breadcrumbs...</div>;
+        return <div className={getColorClassName(themeColors.textColor)}>Loading breadcrumbs...</div>;
     }
 
     if (breadcrumbItems.length === 0) {
@@ -92,7 +94,7 @@ const ContestBreadcrumbs = () => {
     return (
         <div className={`${styles.breadcrumbsWrapper} ${textColorClassName} ${backgroundColorClassName}`}>
             {breadcrumbItems
-                .map((item: ContestBreadcrumb, idx: number) => renderBreadcrumbItems(item, idx === breadcrumbItems.length - 1, idx))}
+                .map((item: ContestBreadcrumb, idx: number) => renderBreadcrumbItems(item, idx === breadcrumbItems.length - 1))}
         </div>
     );
 };

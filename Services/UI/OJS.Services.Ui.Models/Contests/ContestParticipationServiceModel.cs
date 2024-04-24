@@ -8,7 +8,11 @@ using System.Linq;
 
 public class ContestParticipationServiceModel : IMapExplicitly
 {
-    public ContestServiceModel Contest { get; set; } = null!;
+    public ContestServiceModel? Contest { get; set; } = null!;
+
+    public bool IsRegisteredParticipant { get; set; }
+
+    public bool IsActiveParticipant { get; set; }
 
     public int ParticipantId { get; set; }
 
@@ -19,8 +23,6 @@ public class ContestParticipationServiceModel : IMapExplicitly
     public int? UserSubmissionsTimeLimit { get; set; }
 
     public DateTime? EndDateTimeForParticipantOrContest { get; set; }
-
-    public bool ShouldEnterPassword { get; set; }
 
     /// <summary>
     /// Gets or sets the count of participants in the contest taking into consideration if it is compete or practice.

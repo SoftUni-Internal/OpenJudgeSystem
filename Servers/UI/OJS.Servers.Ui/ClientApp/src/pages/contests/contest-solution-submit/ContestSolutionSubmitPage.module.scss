@@ -1,0 +1,182 @@
+@use 'src/styles/fonts';
+@use 'src/styles/colors';
+@use 'src/styles/variables';
+@use 'src/styles/spacings';
+@use 'src/styles/shadows';
+@use 'src/styles/font-weights';
+
+.contestSolutionSubmitWrapper {
+  @extend %font-family-normal;
+
+  padding: spacings.$sp-16 spacings.$sp-64;
+
+  .title {
+    font-size: variables.$f-size-30;
+    font-weight: font-weights.$font-weight-bold;
+  }
+
+  .nameWrapper {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-top: spacings.$sp-32;
+
+    .allResultsLink {
+      color: colors.$secondary-green;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  }
+
+  .problemsAndEditorWrapper {
+    display: flex;
+    margin-top: spacings.$sp-64;
+  }
+
+  .submissionsWrapper {
+    display: flex;
+    flex-direction: column;
+    margin-top: spacings.$sp-24;
+
+    .submissionsTitleWrapper {
+      align-items: center;
+      display: flex;
+      justify-content: flex-start;
+
+      svg {
+        cursor: pointer;
+        margin-left: spacings.$sp-12;
+      }
+    }
+
+    > div {
+      font-size: variables.$f-size-30;
+      font-weight: font-weights.$font-weight-semi-bold;
+      margin-bottom: spacings.$sp-16;
+    }
+  }
+}
+
+.selectedProblemWrapper {
+  margin-left: spacings.$sp-24;
+  width: 90%;
+
+  .problemNameAndTimeWrapper {
+    align-items: center;
+    color: colors.$primary-blue;
+    display: flex;
+    justify-content: space-between;
+
+    b {
+      font-weight: font-weights.$font-weight-bold;
+      margin-left: spacings.$sp-8;
+    }
+
+    .problemName {
+      font-size: variables.$f-size-30;
+      font-weight: font-weights.$font-weight-bold;
+      display: flex;
+      align-items: center;
+
+      span {
+        font-size: variables.$f-size-16;
+        font-weight: font-weights.$font-weight-light;
+        margin-left: spacings.$sp-12;
+      }
+    }
+  }
+
+  .problemDescriptionsWrapper {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    > svg {
+      color: colors.$primary-blue;
+      cursor: pointer;
+    }
+
+    .problemDescriptions {
+      display: flex;
+      margin: spacings.$sp-24 0;
+
+      > a {
+        align-items: center;
+        color: colors.$secondary-green;
+        cursor: pointer;
+        display: flex;
+        text-decoration: underline;
+
+        svg {
+          margin-right: spacings.$sp-4;
+        }
+
+        &:not(:first-child) {
+          margin-left: spacings.$sp-48;
+        }
+      }
+    }
+  }
+}
+
+.submitSettings {
+  align-items: flex-start;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: spacings.$sp-24;
+}
+
+.fileUpload {
+  div {
+    margin: spacings.$sp-12 0;
+
+    span {
+      font-weight: font-weights.$font-weight-semi-bold;
+    }
+  }
+}
+
+.fileUploadError {
+  color: colors.$primary-red;
+}
+
+.popoverContent {
+  @extend %font-family-normal;
+
+  font-size: variables.$f-size-18;
+  overflow: hidden;
+  padding: 0 spacings.$sp-8;
+
+  div {
+    margin: spacings.$sp-8 0;
+  }
+
+  .title {
+    font-weight: font-weights.$font-weight-semi-bold;
+  }
+}
+
+.fileSubmitButton {
+  bottom: 35px;
+  position: absolute;
+}
+
+.remainingTimeNadSubmitButtonWrapper {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-left: spacings.$sp-24;
+
+  > div {
+    margin-bottom: spacings.$sp-12;
+  }
+
+  button {
+    width: 200px;
+  }
+
+  .solutionSubmitError {
+    color: colors.$primary-red;
+  }
+}

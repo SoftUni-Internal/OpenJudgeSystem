@@ -3,9 +3,8 @@
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable consistent-return */
-
-import React, { useEffect, useMemo, useState } from 'react';
-import { FaAngleDown, FaAngleUp, FaRegFileAlt } from 'react-icons/fa';
+import { useEffect, useMemo } from 'react';
+import { FaAngleDown, FaAngleRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 
@@ -19,6 +18,7 @@ import {
 } from '../../../redux/features/contestsSlice';
 import { useGetContestCategoriesQuery } from '../../../redux/services/contestsService';
 import { useAppDispatch } from '../../../redux/store';
+import concatClassNames from '../../../utils/class-names';
 import SpinningLoader from '../../guidelines/spinning-loader/SpinningLoader';
 
 import styles from './ContestCategories.module.scss';
@@ -42,8 +42,6 @@ const ContestCetegories = (props: IContestCategoriesProps) => {
         isLoading: areCategoriesLoading,
         error: categoriesError,
     } = useGetContestCategoriesQuery();
-
-    const [ isExpanded, setIsExpanded ] = useState<boolean>(true);
 
     const selectedId = useMemo(() => Number(searchParams.get('category')), [ searchParams ]);
 
@@ -75,30 +73,43 @@ const ContestCetegories = (props: IContestCategoriesProps) => {
         dispatch(setContestStrategy(null));
     };
 
-    const renderCategory = (category: IContestCategory) => {
+    const renderCategory = (category: IContestCategory, isChildElement = false) => {
         const isActiveOrHasActiveChild = findActiveChildrenByIdRecursive(category.children, selectedId) || selectedId === category.id;
+        const categoryItemClassNames = concatClassNames(
+            styles.categoryItem,
+            selectedId === category.id
+                ? styles.selectedCategory
+                : '',
+            isChildElement
+                ? styles.childCategoryItem
+                : '',
+        );
+
         return (
             <div
               key={`contest-category-item-${category.id}`}
             >
                 <div
-                  style={{ borderBottom: `1px solid ${themeColors.textColor}` }}
-                  className={`${styles.categoryItem} ${selectedId === category.id
-                      ? styles.selectedCategory
-                      : ''}`}
+                  style={{
+                      borderBottom: `${isChildElement
+                          ? 0
+                          : 1}px solid ${themeColors.textColor}`,
+                  }}
+                  className={categoryItemClassNames}
                   onClick={() => onContestCategoryClick(category.id)}
                 >
-                    <FaRegFileAlt />
+                    { isChildElement && category.children.length > 0 && <FaAngleRight /> }
                     <div>
                         {category.name}
                     </div>
+                    { !isChildElement && category.children.length > 0 && <FaAngleDown />}
                 </div>
                 <div
                   className={`${styles.categoryChildren} ${isActiveOrHasActiveChild
                       ? styles.activeChildren
                       : ''}`}
                 >
-                    {category.children.map((child) => renderCategory(child))}
+                    {category.children.map((child) => renderCategory(child, true))}
                 </div>
             </div>
         );
@@ -116,20 +127,14 @@ const ContestCetegories = (props: IContestCategoriesProps) => {
                       ? 0
                       : 32,
               }}
-              onClick={() => setIsExpanded(!isExpanded)}
             >
                 <div>Contest Categories</div>
-                {isExpanded
-                    ? <FaAngleDown />
-                    : <FaAngleUp />}
             </div>
             { categoriesError
                 ? <div className={textColorClassName}>Error loading categories</div>
                 : (
                     <div
-                      className={`${styles.contestCategoriesInnerWrapper} ${textColorClassName} ${isExpanded
-                          ? styles.show
-                          : ''}`}
+                      className={`${styles.contestCategoriesInnerWrapper} ${textColorClassName}`}
                     >
                         {contestCategories?.map((contestCategory: IContestCategory) => renderCategory(contestCategory))}
                     </div>

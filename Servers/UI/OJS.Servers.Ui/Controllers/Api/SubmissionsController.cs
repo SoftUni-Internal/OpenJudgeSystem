@@ -91,19 +91,20 @@ public class SubmissionsController : BaseApiController
     /// <summary>
     /// Gets a subset of submissions by specific problem.
     /// </summary>
-    /// <param name="id">The id of the problem.</param>
+    /// <param name="problemId">The id of the problem.</param>
     /// <param name="isOfficial">Should the submissions be only from compete mode.</param>
     /// <param name="page">Current submissions page.</param>
     /// <returns>A collection of submissions for a specific problem.</returns>
-    [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(PagedResultResponse<SubmissionResultsResponseModel>), Status200OK)]
-    public async Task<IActionResult> GetSubmissionResultsByProblem(
-        int id,
+    [HttpGet("{problemId:int}")]
+    [Authorize]
+    [ProducesResponseType(typeof(PagedResultResponse<PublicSubmissionsResponseModel>), Status200OK)]
+    public async Task<IActionResult> GetUserSubmissionsByProblem(
+        int problemId,
         [FromQuery] bool isOfficial,
         [FromQuery] int page)
         => await this.submissionsBusiness
-            .GetSubmissionResultsByProblem(id, isOfficial, page)
-            .Map<PagedResultResponse<SubmissionResultsResponseModel>>()
+            .GetUserSubmissionsByProblem(problemId, isOfficial, page)
+            .Map<PagedResultResponse<PublicSubmissionsServiceModel>>()
             .ToOkResult();
 
     /// <summary>

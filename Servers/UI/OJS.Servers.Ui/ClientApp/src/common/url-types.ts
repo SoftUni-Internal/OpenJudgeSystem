@@ -62,6 +62,17 @@ interface IRegisterForContestUrlParams {
     isOfficial: boolean;
 }
 
+interface IStartParticipationParams {
+    id: string;
+    isOfficial: boolean;
+}
+
+interface ISubmitContestPasswordParams {
+    contestId: string;
+    isOfficial: boolean;
+    password: string;
+}
+
 interface IStartContestParticipationUrlParams {
     id: number;
     isOfficial: boolean;
@@ -89,6 +100,12 @@ interface IGetSubmissionsUrlParams {
     page: number;
 }
 
+interface IGetSubmissionsByUserParams {
+    id: number;
+    page: number;
+    isOfficial: boolean;
+}
+
 interface IGetUserSubmissionsUrlParams {
     username: string;
     page: number;
@@ -104,12 +121,6 @@ interface IGetSubmissionResultsByProblemUrlParams {
     problemId: number;
     isOfficial: boolean;
     page: number;
-}
-
-interface IGetSubmissionsByUserParams {
-    id: number;
-    page: number;
-    isOfficial: boolean;
 }
 
 interface IGetContestResultsParams {
@@ -155,6 +166,20 @@ interface IGetSearchResultsParams {
     searchCategory: string;
 }
 
+interface ISubmitContestSolutionParams {
+    content: string | File;
+    official: boolean;
+    problemId: number;
+    submissionTypeId: number;
+}
+
+interface IRegisterUserForContestParams {
+    password: string | null;
+    isOfficial: boolean;
+    id: number;
+    hasConfirmedParticipation: boolean;
+}
+
 export type {
     IUserInfoUrlParams,
     IRegisterForContestUrlParams,
@@ -187,5 +212,9 @@ export type {
     IGetByTestId,
     IGetByRoleId,
     IGetByUserId,
+    IStartParticipationParams,
+    ISubmitContestPasswordParams,
+    ISubmitContestSolutionParams,
     IGetSubmissionsByUserParams,
+    IRegisterUserForContestParams,
 };

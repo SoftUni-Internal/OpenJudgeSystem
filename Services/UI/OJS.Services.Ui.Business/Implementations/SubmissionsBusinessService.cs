@@ -20,7 +20,9 @@ using OJS.Services.Ui.Business.Extensions;
 using OJS.Services.Ui.Business.Validations.Implementations.Contests;
 using OJS.Services.Ui.Business.Validations.Implementations.Submissions;
 using OJS.Services.Ui.Data;
+using OJS.Services.Ui.Models.Participants;
 using OJS.Services.Ui.Models.Submissions;
+using OJS.Services.Ui.Models.Submissions.PublicSubmissions;
 using OJS.Workers.Common.Models;
 using SoftUni.AutoMapper.Infrastructure.Extensions;
 using SoftUni.Common.Extensions;
@@ -49,7 +51,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private readonly IUserProviderService userProviderService;
     private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
     private readonly ISubmissionDetailsValidationService submissionDetailsValidationService;
-    private readonly IContestValidationService contestValidationService;
+    private readonly IContestParticipationValidationService contestParticipationValidationService;
     private readonly ISubmitSubmissionValidationService submitSubmissionValidationService;
     private readonly ISubmissionResultsValidationService submissionResultsValidationService;
     private readonly ISubmissionFileDownloadValidationService submissionFileDownloadValidationService;
@@ -70,7 +72,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         IParticipantScoresBusinessService participantScoresBusinessService,
         ILecturersInContestsBusinessService lecturersInContestsBusiness,
         ISubmissionDetailsValidationService submissionDetailsValidationService,
-        IContestValidationService contestValidationService,
+        IContestParticipationValidationService contestParticipationValidationService,
         ISubmitSubmissionValidationService submitSubmissionValidationService,
         ISubmissionResultsValidationService submissionResultsValidationService,
         ISubmissionFileDownloadValidationService submissionFileDownloadValidationService,
@@ -92,7 +94,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.userProviderService = userProviderService;
         this.participantScoresBusinessService = participantScoresBusinessService;
         this.submissionDetailsValidationService = submissionDetailsValidationService;
-        this.contestValidationService = contestValidationService;
+        this.contestParticipationValidationService = contestParticipationValidationService;
         this.submitSubmissionValidationService = submitSubmissionValidationService;
         this.submissionResultsValidationService = submissionResultsValidationService;
         this.submissionFileDownloadValidationService = submissionFileDownloadValidationService;
@@ -390,7 +392,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             .ToPagedResultAsync(DefaultSubmissionsPerPage, page);
     }
 
-    public async Task<PagedResult<SubmissionResultsServiceModel>> GetSubmissionResultsByProblem(
+    public async Task<PagedResult<PublicSubmissionsServiceModel>> GetUserSubmissionsByProblem(
         int problemId,
         bool isOfficial,
         int page)
@@ -398,12 +400,12 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         var problem =
             await this.problemsDataService.GetWithProblemGroupById(problemId)
                 .Map<ProblemForSubmissionDetailsServiceModel>();
+
         var user = this.userProviderService.GetCurrentUser();
 
-        var participant =
-            await this.participantsDataService.GetByContestByUserAndByIsOfficial(
-                    problem.ProblemGroup.ContestId, user.Id!, isOfficial)
-                .Map<ParticipantSubmissionResultsServiceModel>();
+        var participant = await this.participantsDataService
+                .GetByContestByUserAndByIsOfficial(problem.ProblemGroup.ContestId, user.Id!, isOfficial)
+                .Map<ParticipantServiceModel>();
 
         var validationResult =
             this.submissionResultsValidationService.GetValidationResult((user, problem, participant, isOfficial));
@@ -413,7 +415,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             throw new BusinessServiceException(validationResult.Message);
         }
 
-        return await this.GetUserSubmissions<SubmissionResultsServiceModel>(problem.Id, participant.Id, page);
+        return await this.GetUserSubmissions<PublicSubmissionsServiceModel>(problem.Id, participant.Id, page);
     }
 
     public async Task Submit(SubmitSubmissionServiceModel model)
@@ -432,7 +434,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 currentUser.Id!,
                 model.Official);
 
-        var contestValidationResult = this.contestValidationService.GetValidationResult(
+        var contestValidationResult = this.contestParticipationValidationService.GetValidationResult(
             (participant?.Contest,
                 participant?.ContestId,
                 currentUser,
@@ -706,7 +708,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         }
     }
 
-    private async Task<PagedResult<T>> GetUserSubmissions<T>(
+    private async Task<PagedResult<TServiceModel>> GetUserSubmissions<TServiceModel>(
         int problemId,
         int participantId,
         int page)
@@ -715,7 +717,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             .GetAllByProblemAndParticipant(problemId, participantId);
 
         return await userSubmissions
-            .MapCollection<T>()
+            .MapCollection<TServiceModel>()
             .ToPagedResultAsync(DefaultSubmissionResultsPerPage, page);
     }
 }

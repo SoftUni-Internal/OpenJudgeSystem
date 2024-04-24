@@ -227,7 +227,7 @@ public class ExamGroupBusinessService : AdministrationOperationService<ExamGroup
 
             examGroup.UsersInExamGroups.Add(new UserInExamGroup
             {
-                UserId = user.Id,
+                User = user,
                 ExamGroupId = examGroup.Id,
             });
 

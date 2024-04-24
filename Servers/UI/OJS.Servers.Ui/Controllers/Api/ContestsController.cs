@@ -20,19 +20,6 @@ public class ContestsController : BaseApiController
         => this.contestsBusinessService = contestsBusinessService;
 
     /// <summary>
-    /// Validates if user can participate in contest with or without password.
-    /// </summary>
-    /// <param name="id">ID of the contest.</param>
-    /// <param name="official">Practice or compete mode of the contest.</param>
-    /// <returns>Model containing information about the id and name of the contest and if it requires password to enter.</returns>
-    [HttpGet("{id:int}")]
-    [ProducesResponseType(typeof(RegisterUserForContestServiceModel), Status200OK)]
-    public async Task<IActionResult> Register(int id, [FromQuery] bool official)
-        => await this.contestsBusinessService
-            .RegisterUserForContest(id, official)
-            .ToOkResult();
-
-    /// <summary>
     /// Gets details of the current contest.
     /// </summary>
     /// <param name="id">ID of the contest.</param>

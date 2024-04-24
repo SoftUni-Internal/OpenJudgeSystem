@@ -1,17 +1,26 @@
+/* eslint-disable simple-import-sort/imports */
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { defaultPathIdentifier } from '../../common/constants';
 import { IContestStrategyFilter } from '../../common/contest-types';
 import {
+    ICompeteContestResponseType,
     IContestCategory,
     IContestDetailsResponseType,
     IContestsSortAndFilterOptions,
     IGetContestParticipationsForUserQueryParams,
     IIndexContestsType,
     IPagedResultType,
+    IRegisterUserForContestResponseType,
 } from '../../common/types';
-import { IContestDetailsUrlParams, IGetContestResultsParams } from '../../common/url-types';
 import { IContestResultsType } from '../../hooks/contests/types';
+import {
+    IContestDetailsUrlParams,
+    IGetContestResultsParams,
+    ISubmitContestPasswordParams,
+    ISubmitContestSolutionParams,
+    IRegisterUserForContestParams,
+} from '../../common/url-types';
 
 // eslint-disable-next-line import/group-exports
 export const contestsService = createApi({
@@ -62,6 +71,46 @@ export const contestsService = createApi({
                         strategy,
                     },
                 }),
+                keepUnusedDataFor: 0,
+            }),
+        getContestUserParticipation: builder.query<ICompeteContestResponseType, { id: number; isOfficial: boolean }>({
+            query: ({ id, isOfficial }) => ({
+                url: `/compete/${id}`,
+                params: { isOfficial },
+            }),
+            keepUnusedDataFor: 0,
+        }),
+        submitContestSolution: builder.mutation<void, ISubmitContestSolutionParams>({
+            query: ({ content, official, problemId, submissionTypeId }) => ({
+                url: '/Compete/Submit',
+                method: 'POST',
+                body: { content, official, problemId, submissionTypeId },
+            }),
+        }),
+        submitContestSolutionFile: builder.mutation<void, ISubmitContestSolutionParams>({
+            query: ({ content, official, submissionTypeId, problemId }) => ({
+                url: '/Compete/SubmitFileSubmission',
+                method: 'POST',
+                body: { content, official, problemId, submissionTypeId },
+            }),
+        }),
+        submitContestPassword: builder.mutation<void, ISubmitContestPasswordParams>({
+            query: ({ contestId, isOfficial, password }) => ({
+                url: `/contests/SubmitContestPassword/${contestId}`,
+                method: 'POST',
+                params: { isOfficial },
+                body: { password },
+            }),
+        }),
+        registerUserForContest: builder.mutation<
+            IRegisterUserForContestResponseType,
+            IRegisterUserForContestParams>({
+                query: ({ password, isOfficial, id, hasConfirmedParticipation }) => ({
+                    url: `/compete/${id}/register`,
+                    method: 'POST',
+                    params: { isOfficial },
+                    body: { password, hasConfirmedParticipation },
+                }),
             }),
         getContestResults: builder.query<
             IContestResultsType,
@@ -85,5 +134,9 @@ export const {
     useGetContestByIdQuery,
     useLazyGetContestByIdQuery,
     useLazyGetContestsParticipationsForUserQuery,
+    useSubmitContestSolutionMutation,
+    useRegisterUserForContestMutation,
+    useSubmitContestSolutionFileMutation,
+    useGetContestUserParticipationQuery,
     useGetContestResultsQuery,
 } = contestsService;

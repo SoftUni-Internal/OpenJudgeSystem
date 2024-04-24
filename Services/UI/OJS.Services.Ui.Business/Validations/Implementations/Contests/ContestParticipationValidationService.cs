@@ -1,27 +1,34 @@
 ﻿namespace OJS.Services.Ui.Business.Validations.Implementations.Contests;
 
-using SoftUni.AutoMapper.Infrastructure.Extensions;
 using OJS.Data.Models.Contests;
-using OJS.Services.Common.Models.Contests;
 using OJS.Services.Common;
 using OJS.Services.Common.Models;
+using OJS.Services.Common.Models.Contests;
 using OJS.Services.Common.Models.Users;
 using OJS.Services.Infrastructure;
+using OJS.Services.Ui.Data;
+using SoftUni.AutoMapper.Infrastructure.Extensions;
 
-public class ContestValidationService : IContestValidationService
+public class ContestParticipationValidationService : IContestParticipationValidationService
 {
     private readonly IDatesService datesService;
     private readonly IContestsActivityService activityService;
     private readonly IContestCategoriesBusinessService categoriesService;
+    private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
+    private readonly IContestsDataService contestsData;
 
-    public ContestValidationService(
+    public ContestParticipationValidationService(
         IDatesService datesService,
         IContestsActivityService activityService,
-        IContestCategoriesBusinessService categoriesService)
+        IContestCategoriesBusinessService categoriesService,
+        ILecturersInContestsBusinessService lecturersInContestsBusiness,
+        IContestsDataService contestsData)
     {
         this.datesService = datesService;
         this.activityService = activityService;
         this.categoriesService = categoriesService;
+        this.lecturersInContestsBusiness = lecturersInContestsBusiness;
+        this.contestsData = contestsData;
     }
 
     public ValidationResult GetValidationResult((Contest?, int?, UserInfoModel?, bool) item)
@@ -29,25 +36,26 @@ public class ContestValidationService : IContestValidationService
         var (contest, contestId, user, official) = item;
 
         // TODO: Fix so it uses lecturers in contests business service
-        var isUserLecturerInContest = contest != null && user != null && user.IsLecturer;
+        var userIsAdminOrLecturerInContest = user != null && (user.IsAdmin || this.lecturersInContestsBusiness
+            .IsCurrentUserAdminOrLecturerInContest(contest?.Id)
+            .GetAwaiter()
+            .GetResult());
 
         if (contest == null ||
             user == null ||
             contest.IsDeleted ||
             ((!contest.IsVisible || !contest.Category!.IsVisible || this.categoriesService.IsCategoryChildOfInvisibleParentRecursive(contest.CategoryId)) &&
-            !isUserLecturerInContest &&
-            !user.IsAdmin))
+            !userIsAdminOrLecturerInContest))
         {
             return ValidationResult.Invalid(string.Format(ValidationMessages.Contest.NotFound, contestId));
         }
 
-        if (user.IsAdmin || isUserLecturerInContest)
+        if (userIsAdminOrLecturerInContest)
         {
             return ValidationResult.Valid();
         }
 
-        var contestActivityEntity = this.activityService
-            .GetContestActivity(contest.Map<ContestForActivityServiceModel>());
+        var contestActivityEntity = this.activityService.GetContestActivity(contest.Map<ContestForActivityServiceModel>());
 
         if (official && !contestActivityEntity.CanBeCompeted)
         {
@@ -57,6 +65,14 @@ public class ContestValidationService : IContestValidationService
         if (!official && !contestActivityEntity.CanBePracticed)
         {
             return ValidationResult.Invalid(string.Format(ValidationMessages.Contest.CanBePracticed, contest.Name));
+        }
+
+        if (contest.IsOnlineExam &&
+            official &&
+            !userIsAdminOrLecturerInContest &&
+            !this.contestsData.IsUserInExamGroupByContestAndUser(contest.Id, user.Id).GetAwaiter().GetResult())
+        {
+            return ValidationResult.Invalid(ValidationMessages.Participant.NotRegisteredForExam);
         }
 
         return ValidationResult.Valid();

@@ -119,16 +119,6 @@ const ContestEdit = (props:IContestEditProps) => {
     );
 
     useEffect(() => {
-        if (contestCategories) {
-            setContest((prevState) => ({
-                ...prevState,
-                categoryId: contestCategories[0].id,
-                categoryName: contestCategories[0].name,
-            }));
-        }
-    }, [ contestCategories ]);
-
-    useEffect(() => {
         if (data) {
             setContest(data);
         }

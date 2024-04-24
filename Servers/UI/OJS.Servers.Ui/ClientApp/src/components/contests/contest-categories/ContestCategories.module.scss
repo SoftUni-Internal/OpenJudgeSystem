@@ -25,21 +25,18 @@
   }
 
   .contestCategoriesInnerWrapper {
-    opacity: 0;
-    pointer-events: none;
+    opacity: 1;
+    pointer-events: auto;
     transition: opacity 0.2s ease-in-out;
   }
 
-  .show {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
   .categoryItem {
+    align-items: center;
     cursor: pointer;
     display: flex;
     font-size: variables.$f-size-16;
     font-weight: font-weights.$font-weight-regular;
+    justify-content: space-between;
     padding: spacings.$sp-12 spacings.$sp-4;
     transition: background-color 0.2s ease-in-out;
 
@@ -62,10 +59,10 @@
       max-height: 1000px;
       transition: all 0.25s ease-in-out;
     }
+  }
 
-    .categoryItem {
-      border-bottom-width: 0 !important;
-    }
+  .childCategoryItem {
+    justify-content: flex-start;
   }
 
   .selectedCategory {

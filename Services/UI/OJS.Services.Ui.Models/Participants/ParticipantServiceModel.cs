@@ -6,7 +6,7 @@ using OJS.Data.Models.Participants;
 
 public class ParticipantServiceModel : IMapFrom<Participant>
 {
-    public int? Id { get; set; }
+    public int Id { get; set; }
 
     public DateTime? ParticipationEndTime { get; set; }
 }

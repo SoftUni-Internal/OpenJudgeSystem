@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV TZ=Etc/UTC
 ENV LANG=en_US.UTF-8
@@ -21,11 +21,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     locale-gen && \
     rm -rf /var/lib/apt/lists/*
 
-# Setup for installing .NET Core SDK
-RUN curl -o packages-microsoft-prod.deb https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb && \
-    dpkg -i packages-microsoft-prod.deb && \
-    rm packages-microsoft-prod.deb
-
 # Install node.js 12 and 20 via nvm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && \
     export NVM_DIR="$HOME/.nvm" && \
@@ -38,11 +33,9 @@ RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | ba
 # Install supported languages and frameworks
 RUN apt-get update && apt-get install -y \
       dotnet-sdk-6.0 \
-      dotnet-sdk-3.1 \
-      dotnet-sdk-5.0 \
       openjdk-11-jdk \
       openjdk-21-jdk \
-      python3.8 \
+      python3.9 \
       python3-pip \
       golang-go \
       libgtk-3-0 \

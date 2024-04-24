@@ -73,18 +73,15 @@ public class ProblemResourceBusinessService : AdministrationOperationService<Pro
             throw new BusinessServiceException("Resource not found.");
         }
 
-        var file = await this.problemResourcesDataService.GetByIdQuery(id).Select(p => new { p.File, p.FileExtension, p.Name })
-            .FirstOrDefaultAsync();
-        if (file == null)
-        {
-            throw new BusinessServiceException("File not found.");
-        }
+        var resource = await this.problemResourcesDataService.GetByIdQuery(id)
+            .Include(x => x.Problem)
+            .FirstAsync();
 
         return new ResourceServiceModel
         {
-            Content = file.File!,
+            Content = resource.File!,
             MimeType = GlobalConstants.MimeTypes.ApplicationOctetStream,
-            FileName = string.Format($"{file.Name}.{file.FileExtension}"),
+            FileName = string.Format($"Resource-{resource.Id}-{resource.Problem.Name}.{resource.FileExtension}"),
         };
     }
 

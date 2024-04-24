@@ -11,15 +11,12 @@ import ProfileSubmissionsProvider from './hooks/submissions/use-profile-submissi
 import SubmissionsProvider from './hooks/submissions/use-submissions';
 import ContestCategoriesProvider from './hooks/use-contest-categories';
 import CategoriesBreadcrumbProvider from './hooks/use-contest-categories-breadcrumb';
-import ContestStrategyFiltersProvider from './hooks/use-contest-strategy-filters';
 import CurrentContestsProvider from './hooks/use-current-contest';
-import NotificationsProvider from './hooks/use-notifications';
 import PageWithTitleProvider from './hooks/use-page-titles';
 import PageProvider from './hooks/use-pages';
 import ParticipationsProvider from './hooks/use-participations';
 import ProblemsProvider from './hooks/use-problems';
 import SearchProvider from './hooks/use-search';
-import ServicesProvider from './hooks/use-services';
 import PageContent from './layout/content/PageContent';
 import store, { persistor } from './redux/store';
 
@@ -30,12 +27,9 @@ const App = () => {
         HashUrlParamProvider,
         UrlParamsProvider,
         RouteUrlParamsProvider,
-        ServicesProvider,
         PageProvider,
-        NotificationsProvider,
         PageWithTitleProvider,
         ContestCategoriesProvider,
-        ContestStrategyFiltersProvider,
         CategoriesBreadcrumbProvider,
         ParticipationsProvider,
         CurrentContestsProvider,
