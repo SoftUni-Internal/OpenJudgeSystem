@@ -61,7 +61,11 @@ public class ContestsActivityService : IContestsActivityService
     public async Task SetCanBeCompetedAndPracticed<T>(ICollection<T> contestModels)
         where T : class, ICanBeCompetedAndPracticed, IContestForActivityServiceModel
     {
-        var contests = contestModels.Cast<IContestForActivityServiceModel>().ToList();
+        var contests = contestModels
+            .Cast<IContestForActivityServiceModel>()
+            .DistinctBy(c => c.Id)
+            .ToList();
+
         var contestActivities = await this.GetContestActivities(contests).ToListAsync();
 
         foreach (var contestModel in contestModels)
