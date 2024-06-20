@@ -111,7 +111,7 @@ const ContestDetailsPage = () => {
 
         return (
             <div className={styles.actionBtnWrapper}>
-                <ContestButton isCompete={isCompete} isDisabled={isDisabled} id={id!} />
+                <ContestButton isCompete={isCompete} isDisabled={isDisabled} id={id!} skipRedirectHistory={false} />
                 <Link
                   className={`${isCompete
                       ? styles.greenColor
