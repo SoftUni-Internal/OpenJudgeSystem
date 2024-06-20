@@ -59,7 +59,7 @@ const ContestRegister = () => {
                 hasConfirmedParticipation: true,
                 // eslint-disable-next-line promise/prefer-await-to-then,promise/always-return
             }).then(() => {
-                navigate(`/contests/${contestId}/${participationType}`);
+                navigate(`/contests/${contestId}/${participationType}`, { replace: true });
             });
         }
     }, [
