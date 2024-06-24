@@ -89,7 +89,6 @@ const AdministrationSubmissionsPage = () => {
               setQueryParams={setQueryParams}
               legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Submission is deleted.' } ]}
               excelMutation={useLazyExportSubmissionsToExcelQuery}
-
             />
         </>
     );

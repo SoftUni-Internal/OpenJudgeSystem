@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Popover } from '@mui/material';
 
 import { IProblemType } from '../../../common/types';
-import usePreserveScrollPosition from '../../../hooks/common/use-preserve-scroll-position';
 import useTheme from '../../../hooks/use-theme';
 import { setSelectedContestDetailsProblem } from '../../../redux/features/contestsSlice';
 import { useAppDispatch, useAppSelector } from '../../../redux/store';
@@ -24,7 +23,6 @@ const ContestProblems = (props: IContestProblemsProps) => {
     const { hash } = useLocation();
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
-    const saveScrollPosition = usePreserveScrollPosition();
     const { themeColors, getColorClassName } = useTheme();
     const { selectedContestDetailsProblem } = useAppSelector((state) => state.contests);
 
@@ -51,7 +49,6 @@ const ContestProblems = (props: IContestProblemsProps) => {
     }, []);
 
     const onProblemClick = (problem: IProblemType) => {
-        saveScrollPosition();
         navigate(`#${problem.orderBy}`);
         onContestProblemChange();
         dispatch(setSelectedContestDetailsProblem({ selectedProblem: problem }));

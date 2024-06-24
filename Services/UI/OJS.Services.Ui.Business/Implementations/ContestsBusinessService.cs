@@ -38,6 +38,7 @@ namespace OJS.Services.Ui.Business.Implementations
         private readonly IUserProviderService userProviderService;
         private readonly IContestParticipationValidationService contestParticipationValidationService;
         private readonly IContestParticipantsCacheService contestParticipantsCacheService;
+        private readonly IContestsCacheService contestsCacheService;
         private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
         private readonly IContestDetailsValidationService contestDetailsValidationService;
 
@@ -53,6 +54,7 @@ namespace OJS.Services.Ui.Business.Implementations
             IContestCategoriesCacheService contestCategoriesCache,
             IContestParticipationValidationService contestParticipationValidationService,
             IContestParticipantsCacheService contestParticipantsCacheService,
+            IContestsCacheService contestsCacheService,
             ILecturersInContestsBusinessService lecturersInContestsBusiness,
             IContestDetailsValidationService contestDetailsValidationService)
         {
@@ -67,6 +69,7 @@ namespace OJS.Services.Ui.Business.Implementations
             this.contestCategoriesCache = contestCategoriesCache;
             this.contestParticipationValidationService = contestParticipationValidationService;
             this.contestParticipantsCacheService = contestParticipantsCacheService;
+            this.contestsCacheService = contestsCacheService;
             this.lecturersInContestsBusiness = lecturersInContestsBusiness;
             this.contestDetailsValidationService = contestDetailsValidationService;
         }
@@ -74,11 +77,11 @@ namespace OJS.Services.Ui.Business.Implementations
         public async Task<ContestDetailsServiceModel> GetContestDetails(int id)
         {
             var user = this.userProviderService.GetCurrentUser();
-            var contest = await this.contestsData.GetByIdWithCategoryAndProblemsAndSubmissionTypes(id);
-            var isLecturerOrAdmin = await this.lecturersInContestsBusiness.IsCurrentUserAdminOrLecturerInContest(contest?.Id);
+            var contestDetailsServiceModel = await this.contestsCacheService.GetContestDetailsServiceModel(id);
+            var isLecturerOrAdmin = await this.lecturersInContestsBusiness.IsCurrentUserAdminOrLecturerInContest(contestDetailsServiceModel?.Id);
 
             var validationResult = this.contestDetailsValidationService.GetValidationResult((
-                contest,
+                contestDetailsServiceModel,
                 isLecturerOrAdmin));
 
             if (!validationResult.IsValid)
@@ -87,7 +90,7 @@ namespace OJS.Services.Ui.Business.Implementations
             }
 
             var contestActivityEntity = await this.activityService
-                .GetContestActivity(contest!.Map<ContestForActivityServiceModel>());
+                .GetContestActivity(contestDetailsServiceModel!.Map<ContestForActivityServiceModel>());
 
             var participant = await this.participantsData
                 .GetWithProblemsForParticipantsByContestByUserAndIsOfficial(
@@ -95,9 +98,7 @@ namespace OJS.Services.Ui.Business.Implementations
                     user.Id,
                     contestActivityEntity.CanBeCompeted);
 
-            var contestDetailsServiceModel = contest!.Map<ContestDetailsServiceModel>();
-
-            contestDetailsServiceModel.CanBeCompeted = contestActivityEntity.CanBeCompeted;
+            contestDetailsServiceModel!.CanBeCompeted = contestActivityEntity.CanBeCompeted;
             contestDetailsServiceModel.CanBePracticed = contestActivityEntity.CanBePracticed;
             contestDetailsServiceModel.IsAdminOrLecturerInContest = isLecturerOrAdmin;
 
@@ -107,8 +108,8 @@ namespace OJS.Services.Ui.Business.Implementations
                 contestDetailsServiceModel.Problems = problemsForParticipant.Map<ICollection<ContestProblemServiceModel>>();
             }
 
-            var canShowProblemsInCompete = (!contest!.HasContestPassword && !contest.IsOnlineExam && contestActivityEntity.CanBeCompeted && participant != null) || isLecturerOrAdmin;
-            var canShowProblemsInPractice = (!contest.HasPracticePassword && contestActivityEntity.CanBePracticed) || isLecturerOrAdmin;
+            var canShowProblemsInCompete = (!contestDetailsServiceModel!.HasContestPassword && !contestDetailsServiceModel!.IsOnlineExam && contestActivityEntity.CanBeCompeted && participant != null) || isLecturerOrAdmin;
+            var canShowProblemsInPractice = (!contestDetailsServiceModel.HasPracticePassword && contestActivityEntity.CanBePracticed) || isLecturerOrAdmin;
             var canShowProblemsForAnonymous = user.IsAuthenticated || !contestActivityEntity.CanBeCompeted;
 
             if ((!canShowProblemsInPractice && !canShowProblemsInCompete) || !canShowProblemsForAnonymous)
@@ -120,15 +121,6 @@ namespace OJS.Services.Ui.Business.Implementations
             {
                 contestDetailsServiceModel.CanViewResults = true;
             }
-
-            contestDetailsServiceModel.AllowedSubmissionTypes = contest.ProblemGroups
-                .SelectMany(pg => pg.Problems)
-                .AsQueryable()
-                .SelectMany(p => p.SubmissionTypesInProblems)
-                .GroupBy(st => st.SubmissionTypeId)
-                .Select(g => g.First())
-                .Select(x => new ContestDetailsSubmissionTypeServiceModel { Id = x.SubmissionTypeId, Name = x.SubmissionType.Name })
-                .ToList();
 
             var participantsCount = await this.contestParticipantsCacheService.GetParticipantsCountForContest(id);
 

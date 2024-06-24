@@ -379,6 +379,7 @@ interface IRegisterUserForContestResponseType {
 
 interface ICompeteContestResponseType {
     isRegisteredParticipant: boolean; // if user has participant,
+    isInvalidated: boolean;
     isActiveParticipant: boolean; // if participant is valid,
     participantId: number;
     lastSubmissionTime: Date;

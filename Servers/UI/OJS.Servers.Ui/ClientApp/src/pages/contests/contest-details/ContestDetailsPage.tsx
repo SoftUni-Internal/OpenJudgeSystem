@@ -103,11 +103,9 @@ const ContestDetailsPage = () => {
     );
 
     const renderContestActionButton = (isCompete: boolean) => {
-        const isDisabled = !user.isAdmin
-            ? isCompete
-                ? !canBeCompeted
-                : !canBePracticed
-            : false;
+        const isDisabled = isCompete
+            ? !canBeCompeted
+            : !canBePracticed;
 
         return (
             <div className={styles.actionBtnWrapper}>

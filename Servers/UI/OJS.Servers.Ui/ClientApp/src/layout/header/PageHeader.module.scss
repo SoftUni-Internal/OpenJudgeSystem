@@ -43,7 +43,11 @@
   .authButtons {
     align-items: center;
     display: flex;
-    margin-right: spacings.$sp-192;
+    margin-right: spacings.$sp-64;
+
+    &.themeSwitchVisible {
+      margin-right: spacings.$sp-192;
+    }
   }
 }
 

@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react';
 import { FaFlagCheckered } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { Popover } from '@mui/material';
 import isNil from 'lodash/isNil';
 
-import { contestParticipationType } from '../../../common/contest-helpers';
 import { IPublicSubmission } from '../../../common/types';
 import { useUserProfileSubmissions } from '../../../hooks/submissions/use-profile-submissions';
 import { useProblems } from '../../../hooks/use-problems';
@@ -17,7 +17,7 @@ import { defaultDateTimeFormatReverse, formatDate } from '../../../utils/dates';
 import { fullStrategyNameToStrategyType, strategyTypeToIcon } from '../../../utils/strategy-type-utils';
 import {
     encodeAsUrlParam,
-    getParticipateInContestUrl,
+    getContestDetailsAppUrl,
     getSubmissionDetailsRedirectionUrl,
     getUserProfileInfoUrlByUsername,
 } from '../../../utils/urls';
@@ -39,6 +39,7 @@ const SubmissionGridRow = ({
     submission,
     options,
 }: ISubmissionGridRowProps) => {
+    const navigate = useNavigate();
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
     const {
         id: submissionId,
@@ -77,8 +78,6 @@ const SubmissionGridRow = ({
         ? getDecodedUsernameFromProfile()
         : user;
 
-    const participationType = contestParticipationType(isOfficial);
-
     const handleDetailsButtonSubmit = useCallback(
         () => {
             const submissionDetailsUrl = getSubmissionDetailsRedirectionUrl({ submissionId });
@@ -88,16 +87,11 @@ const SubmissionGridRow = ({
         [ initiateRedirectionToProblem, problemId, submissionId ],
     );
 
-    const handleParticipateInContestSubmit = useCallback(
+    const handleContestDetailsButtonSubmit = useCallback(
         () => {
-            const participateInContestUrl = getParticipateInContestUrl({
-                id: contestId,
-                participationType,
-            });
-
-            initiateRedirectionToProblem(problemId, participateInContestUrl);
+            navigate(getContestDetailsAppUrl(contestId));
         },
-        [ contestId, participationType, problemId, initiateRedirectionToProblem ],
+        [ navigate, contestId ],
     );
 
     const onPopoverOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -198,7 +192,7 @@ const SubmissionGridRow = ({
                                   size={ButtonSize.small}
                                   className={styles.link}
                                   internalClassName={styles.redirectButton}
-                                  onClick={handleParticipateInContestSubmit}
+                                  onClick={handleContestDetailsButtonSubmit}
                                   text={contestName}
                                 />
                             </>

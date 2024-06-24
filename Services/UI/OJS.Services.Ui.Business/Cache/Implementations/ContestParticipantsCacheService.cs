@@ -61,7 +61,7 @@ public class ContestParticipantsCacheService : IContestParticipantsCacheService
         StartContestParticipationServiceModel model,
         int cacheSeconds = CacheConstants.FiveMinutesInSeconds)
         => await this.cache.Get(
-            string.Format(CacheConstants.ContestServiceModelByContestId, contestId),
+            string.Format(CacheConstants.ContestDetailsForSubmit, contestId),
             async () => (await this.GetContestServiceModel(model)),
             cacheSeconds);
 

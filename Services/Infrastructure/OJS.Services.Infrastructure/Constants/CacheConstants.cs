@@ -8,18 +8,16 @@
         public const int FiveMinutesInSeconds = 300;
 
         public const string MainContestCategoriesDropDown = "MainContestCategoriesDropDown";
-        public const string ContestResults = "Contest:{0}:official:{1}:full:{2}";
         public const string ParticipantsCountByContest = "ParticipantsCountByContest:{0}";
         public const string ParticipantsCountByContestsPage = "ParticipantsCountByContestsPage:{0}:{1}";
-        public const string ContestServiceModelByContestId = "ContestServiceModelByContestId:{0}";
+        public const string ContestDetails = "ContestDetails:{0}";
+        public const string ContestDetailsForSubmit = "ContestDetailsForSubmit:{0}";
         public const string ContestCategoriesTree = "ContestCategoriesTree";
 
         public const string ContestSubCategoriesFormat = "ContestSubCategories:{0}";
         public const string ContestParentCategoriesFormat = "ContestParentCategories:{0}";
         public const string ContestCategoryNameFormat = "ContestCategoryName:{0}";
 
-        public const string SubmissionsCountByMonthsForPastElevenMonthsKey = "Submissions_count_by_month_for_past_eleven_months";
-        public const string SubmissionsCountForLastMonthKey = "Submissions_count_by_month_for_last_month";
         public const string TotalSubmissionsCount = "TotalSubmissionsCount";
 
         public const string SubmissionTypesByUsage = "SubmissionTypesByUsage";

@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 import { SiMicrosoftexcel } from 'react-icons/si';
-import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import {
@@ -27,6 +26,7 @@ import AdministrationGridDropdown from '../../../components/administration/commo
 import DeleteButton from '../../../components/administration/common/delete/DeleteButton';
 import QuickEditButton from '../../../components/administration/common/edit/QuickEditButton';
 import RedirectButton from '../../../components/administration/common/edit/RedirectButton';
+import ExternalLink from '../../../components/guidelines/buttons/ExternalLink';
 import { useDeleteContestMutation } from '../../../redux/services/admin/contestsAdminService';
 import { adminFormatDate } from '../../../utils/administration/administration-dates';
 
@@ -41,9 +41,7 @@ const contestFilterableColumns: GridColDef[] = [
         filterable: false,
         sortable: false,
         renderCell: (params) => (
-            <Link to={`/${CONTESTS_PATH}/${params.row.id}`} target="_blank">
-                {params.value.toString()}
-            </Link>
+            <ExternalLink to={`/${CONTESTS_PATH}/${params.row.id}`} text={params.value.toString()} />
         ),
     },
     {

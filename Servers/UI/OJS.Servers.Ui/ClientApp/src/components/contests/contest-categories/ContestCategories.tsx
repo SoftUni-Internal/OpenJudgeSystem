@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router';
 import { useSearchParams } from 'react-router-dom';
 
 import { IContestCategory } from '../../../common/types';
-import usePreserveScrollPosition from '../../../hooks/common/use-preserve-scroll-position';
 import useTheme from '../../../hooks/use-theme';
 import {
     setContestCategories,
@@ -35,7 +34,6 @@ const ContestCategories = (props: IContestCategoriesProps) => {
     const dispatch = useAppDispatch();
     const [ searchParams, setSearchParams ] = useSearchParams();
     const { themeColors, getColorClassName } = useTheme();
-    const saveScrollPosition = usePreserveScrollPosition();
 
     const textColorClassName = getColorClassName(themeColors.textColor);
 
@@ -61,7 +59,6 @@ const ContestCategories = (props: IContestCategoriesProps) => {
     }, [ selectedId, contestCategories ]);
 
     const onContestCategoryClick = (id: number) => {
-        saveScrollPosition();
         if (isRenderedOnHomePage) {
             navigate(`/contests?category=${id}`);
             return;

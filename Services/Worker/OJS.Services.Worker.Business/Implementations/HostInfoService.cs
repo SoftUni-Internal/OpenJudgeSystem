@@ -36,7 +36,7 @@ public class HostInfoService : IHostInfoService
         }
         catch (Exception)
         {
-            this.logger.LogWarning("Failed to get host entry for host name: {HostName}", hostName);
+            this.logger.LogError("Failed to get host entry for host name: {HostName}", hostName);
             return null;
         }
 

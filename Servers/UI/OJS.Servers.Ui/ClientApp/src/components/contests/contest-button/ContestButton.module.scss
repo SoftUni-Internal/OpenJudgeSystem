@@ -1,0 +1,8 @@
+﻿@use 'src/styles/colors.scss';
+
+.adminDisabled {
+  background-color: transparent !important;
+  border-color: colors.$color-btn-disabled !important;
+  box-shadow: none;
+  color: colors.$color-btn-disabled;
+}

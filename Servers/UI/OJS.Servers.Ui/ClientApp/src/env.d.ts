@@ -7,4 +7,5 @@ interface ImportMetaEnv {
   readonly VITE_ADMINISTRATION_URL: string;
   readonly VITE_PLATFORM_URL: string;
   readonly VITE_YOUTUBE_VIDEO_ID: string;
+  readonly VITE_IS_THEME_SWITCH_VISIBLE: string;
 }

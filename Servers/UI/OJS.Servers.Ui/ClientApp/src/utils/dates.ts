@@ -17,7 +17,8 @@ const dateTimeFormatWithSpacing = 'D MMM YY, HH:mm';
 
 const calculateTimeBetweenTwoDates = (startDate: Date, endDate: Date) => moment(startDate).diff(moment(endDate), 'second');
 
-const calculatedTimeFormatted = (duration: Duration) => `${duration.days()} d, ${duration.hours()} h, ${duration.minutes()} m`;
+const calculatedTimeFormatted =
+    (duration: Duration) => `${Math.floor(duration.asDays())} d, ${duration.hours()} h, ${duration.minutes()} m`;
 
 const convertTimeIntervalToHoursMinutesAndSeconds =
     (duration: Duration) => `${Math.floor(duration.asHours())}:${duration.minutes()}:${duration.seconds()}`;

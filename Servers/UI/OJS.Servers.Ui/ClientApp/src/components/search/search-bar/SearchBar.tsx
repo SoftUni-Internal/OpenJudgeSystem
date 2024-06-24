@@ -39,11 +39,11 @@ const SearchBar = () => {
     };
 
     useEffect(() => {
-        const textInputElement = document.getElementById('search-for-text-input');
-        if (textInputElement) {
-            textInputElement.focus();
+        if (isVisible) {
+            const textInputElement = document.getElementById('search-for-text-input');
+            textInputElement?.focus();
         }
-    });
+    }, [ isVisible ]);
 
     useEffect(() => {
         if (!isVisible) {

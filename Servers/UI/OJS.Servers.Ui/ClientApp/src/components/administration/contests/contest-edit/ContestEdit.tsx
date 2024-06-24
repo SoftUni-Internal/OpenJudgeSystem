@@ -37,6 +37,7 @@ import { convertToUtc, getDateAsLocal } from '../../../../utils/administration/a
 import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import { getEnumMemberName } from '../../../../utils/string-utils';
+import ExternalLink from '../../../guidelines/buttons/ExternalLink';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
 import DeleteButton from '../../common/delete/DeleteButton';
@@ -411,7 +412,7 @@ const ContestEdit = (props:IContestEditProps) => {
             {renderErrorMessagesAlert(errorMessages)}
             {renderSuccessfullAlert(successMessage)}
             <Typography className={formStyles.centralize} variant="h4">
-                {contest.name || 'Contest form'}
+                {(contest.name && <ExternalLink to={`/contests/${contest.id}`} text={contest.name} />) || 'Contest form'}
             </Typography>
             <form className={`${formStyles.form}`}>
                 <Box className={`${styles.fieldBox}`}>

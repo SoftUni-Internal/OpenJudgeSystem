@@ -1,6 +1,6 @@
 ﻿namespace OJS.Services.Ui.Business.Validations.Implementations.Contests;
 
-using OJS.Data.Models.Contests;
+using OJS.Services.Ui.Models.Contests;
 using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Models;
 
@@ -17,7 +17,7 @@ public class ContestDetailsValidationService : IContestDetailsValidationService
         this.dates = dates;
     }
 
-    public ValidationResult GetValidationResult((Contest?, bool) item)
+    public ValidationResult GetValidationResult((ContestDetailsServiceModel?, bool) item)
     {
         var (contest, isUserAdminOrLecturerInContest) = item;
 

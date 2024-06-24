@@ -133,7 +133,7 @@ public class ContestsActivityService : IContestsActivityService
         }
 
         return participant != null
-            ? this.GetParticipantActivity(participant).IsActive
+            ? this.GetParticipantActivity(participant).HasParticipationTimeLeft
             : this.TimeRangeAllowsParticipation(contest.StartTime, contest.EndTime);
     }
 
@@ -147,7 +147,7 @@ public class ContestsActivityService : IContestsActivityService
         }
 
         return participant != null
-            ? this.GetParticipantActivity(participant).IsActive
+            ? this.GetParticipantActivity(participant).HasParticipationTimeLeft
             : this.TimeRangeAllowsParticipation(contest.PracticeStartTime, contest.PracticeEndTime);
     }
 

@@ -104,6 +104,7 @@ const ContestSolutionSubmitPage = () => {
     const {
         contest,
         isRegisteredParticipant,
+        isInvalidated,
         isActiveParticipant,
         participantsCount,
         lastSubmissionTime,
@@ -162,7 +163,9 @@ const ContestSolutionSubmitPage = () => {
             const newRemainingTime = userSubmissionsTimeLimit - elapsedTimeInSeconds;
 
             if (newRemainingTime <= 0) {
-                setIsSubmitButtonDisabled(false);
+                setTimeout(() => {
+                    setIsSubmitButtonDisabled(false);
+                }, 1000);
                 setRemainingTime(0);
                 clearInterval(intervalId);
             } else {
@@ -211,10 +214,10 @@ const ContestSolutionSubmitPage = () => {
         if (isLoading) {
             return;
         }
-        if ((!isRegisteredParticipant && !isActiveParticipant) && !isError) {
+        if (((!isRegisteredParticipant && !isActiveParticipant) && !isError) || isInvalidated) {
             navigate(`/contests/register/${contestId}/${participationType}`, { replace: true });
         }
-    }, [ isLoading, isError, isRegisteredParticipant, isActiveParticipant, contestId, participationType, navigate ]);
+    }, [ isLoading, isError, isRegisteredParticipant, isActiveParticipant, contestId, participationType, navigate, isInvalidated ]);
 
     useEffect(() => {
         setSubmissionCode('');

@@ -1,0 +1,13 @@
+.externalLink {
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  .externalIcon {
+    font-size: 0.7em;
+    margin-left: 0.4em;
+    margin-bottom: 0.4em;
+  }
+}
