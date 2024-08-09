@@ -11,11 +11,15 @@
     {
         public Task<UserProfileServiceModel?> GetUserProfileByUsername(string? username);
 
+        public Task<string?> GetUserIdByUsername(string? username);
+
         public Task<UserProfileServiceModel?> GetUserProfileById(string userId);
 
         Task<UserSearchServiceResultModel> GetSearchUsersByUsername(SearchServiceModel model);
 
         Task<bool> IsLoggedInUserAdmin(ClaimsPrincipal userPrincipal);
+
+        bool IsUserAdminLecturerOrProfileOwner(string? profileUsername);
 
         Task AddOrUpdateUser(UserProfile userEntity);
 

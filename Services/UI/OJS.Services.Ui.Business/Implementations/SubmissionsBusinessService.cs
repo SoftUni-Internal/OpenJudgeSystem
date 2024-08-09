@@ -358,17 +358,15 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         int page,
         int itemsInPage = DefaultSubmissionsPerPage)
     {
-        var user = await this.usersBusiness.GetUserProfileByUsername(username);
-        var loggedInUser = this.userProviderService.GetCurrentUser();
-        var loggedInUserProfile = await this.usersBusiness.GetUserProfileById(loggedInUser.Id);
-
-        if (!loggedInUser.IsAdminOrLecturer && loggedInUserProfile!.UserName != username)
+        if (!this.usersBusiness.IsUserAdminLecturerOrProfileOwner(username))
         {
             throw new UnauthorizedAccessException("You are not authorized for this action");
         }
 
+        var userId = await this.usersBusiness.GetUserIdByUsername(username);
+
         var userParticipantsIds = await this.participantsDataService
-            .GetAllByUser(user!.Id)
+            .GetAllByUser(userId)
             .Select(p => p.Id)
                 .ToEnumerableAsync();
 

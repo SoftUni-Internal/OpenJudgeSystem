@@ -63,6 +63,34 @@
             return profile;
         }
 
+        public async Task<string?> GetUserIdByUsername(string? username)
+        {
+            var currentUser = this.userProvider.GetCurrentUser();
+
+            if (currentUser.Id == null && (username.IsNull() || username!.IsEmpty()))
+            {
+                throw new BusinessServiceException("Empty username is not valid");
+            }
+
+            var userWithUsernameExists = await this.usersProfileData.Exists(p => p.UserName == username);
+
+            if (!userWithUsernameExists)
+            {
+                throw new BusinessServiceException("User with this username does not exist");
+            }
+
+            bool isLoggedInUserAdminLecturerOrProfileOwner = this.IsUserAdminLecturerOrProfileOwner(username);
+
+            if (!isLoggedInUserAdminLecturerOrProfileOwner)
+            {
+                throw new BusinessServiceException("You are not authorized to view this information");
+            }
+
+            var profile = await this.GetByUsernameAsShortProfile(username);
+
+            return profile!.Id;
+        }
+
         public async Task<UserProfileServiceModel?> GetUserProfileById(string userId) =>
             await this.usersProfileData
                 .GetByIdQuery(userId)
@@ -112,17 +140,30 @@
             return profile?.Map<UserAuthInfoServiceModel>();
         }
 
-        private bool IsUserAdminOrProfileOwner(string? username)
+        public bool IsUserAdminLecturerOrProfileOwner(string? profileUsername)
         {
             var currentUser = this.userProvider.GetCurrentUser();
 
-            if (currentUser.IsNull() || string.IsNullOrEmpty(username))
+            if (currentUser == null || string.IsNullOrEmpty(profileUsername))
+            {
+                return false;
+            }
+
+            return currentUser.IsAdminOrLecturer ||
+                   this.usersProfileData.GetByIdQuery(currentUser.Id).Any(u => u.UserName == profileUsername);
+        }
+
+        private bool IsUserAdminOrProfileOwner(string? profileUsername)
+        {
+            var currentUser = this.userProvider.GetCurrentUser();
+
+            if (currentUser.IsNull() || string.IsNullOrEmpty(profileUsername))
             {
                 return false;
             }
 
             return currentUser.IsAdmin ||
-                   this.usersProfileData.GetByIdQuery(currentUser.Id).Any(u => u.UserName == username);
+                   this.usersProfileData.GetByIdQuery(currentUser.Id).Any(u => u.UserName == profileUsername);
         }
 
         //AsNoTracking() Method is added to prevent ''tracking query'' error.
