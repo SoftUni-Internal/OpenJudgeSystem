@@ -5,6 +5,7 @@ using OJS.Services.Infrastructure.Emails;
 using OJS.Services.Infrastructure.Exceptions;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
+using OJS.Services.Infrastructure.Models;
 using Polly;
 using Polly.CircuitBreaker;
 using StackExchange.Redis;
@@ -41,10 +42,7 @@ public class RedisResilienceStrategiesService : IRedisResilienceStrategiesServic
 
         if (outcome.Exception is RedisConnectionException or RedisCommandException)
         {
-            if (this.ShouldSendExceptionEmail(outcome.Exception.GetType().Name, outcome.Exception.Message))
-            {
-                await this.SendEmailAsync(outcome.Exception);
-            }
+            await this.SendEmailAsync(outcome.Exception);
 
             // If the circuit is not yet open, we want to display an error message to the user. For example: the contest's compete / practice page.
             throw new CircuitBreakerNotOpenException("Temporary connectivity issue with the data server. The system is attempting to recover. Please try again in a few moments.");
@@ -61,6 +59,7 @@ public class RedisResilienceStrategiesService : IRedisResilienceStrategiesServic
     private async Task SendEmailAsync(Exception exception)
     {
         var exceptionName = exception.GetType().Name;
+
         if (this.ShouldSendExceptionEmail(exceptionName, exception.Message))
         {
             await this.emailService.SendEmailAsync(
@@ -72,16 +71,35 @@ public class RedisResilienceStrategiesService : IRedisResilienceStrategiesServic
 
     private bool ShouldSendExceptionEmail(string exceptionName, string exceptionValue)
     {
-        if (this.memoryCache.TryGetValue(exceptionName, out string? cacheValue))
+        var cacheKey = $"Exception_{exceptionName}";
+        if (!this.memoryCache.TryGetValue(cacheKey, out ExceptionCacheEntry? cacheEntry))
         {
-            return false;
+            cacheEntry = new ExceptionCacheEntry
+            {
+                Value = exceptionValue,
+                LastEmailSentTime = DateTime.UtcNow,
+            };
+
+            this.memoryCache.Set(
+                cacheKey,
+                cacheEntry,
+                this.datesService.GetAbsoluteExpirationBySeconds(this.memoryCacheExpirationInSeconds));
+
+            return true;
         }
 
-        this.memoryCache.Set(
-            exceptionName,
-            exceptionValue,
-            this.datesService.GetAbsoluteExpirationBySeconds(this.memoryCacheExpirationInSeconds));
+        if (DateTime.UtcNow - cacheEntry!.LastEmailSentTime >= TimeSpan.FromHours(1))
+        {
+            cacheEntry.LastEmailSentTime = DateTime.UtcNow;
 
-        return true;
+            this.memoryCache.Set(
+                cacheKey,
+                cacheEntry,
+                this.datesService.GetAbsoluteExpirationBySeconds(this.memoryCacheExpirationInSeconds));
+
+            return true;
+        }
+
+        return false;
     }
 }
