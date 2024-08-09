@@ -1,15 +1,19 @@
 ﻿namespace OJS.Servers.Administration.Controllers;
 
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OJS.Data.Models.Submissions;
+using OJS.Servers.Administration.Attributes;
 using OJS.Services.Administration.Business.SubmissionTypes;
 using OJS.Services.Administration.Business.SubmissionTypes.Validators;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.SubmissionTypes;
 using OJS.Workers.Common.Models;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
+using static OJS.Common.GlobalConstants.Roles;
 
 public class SubmissionTypesController : BaseAdminApiController<SubmissionType, int, SubmissionTypeInListModel, SubmissionTypeAdministrationModel>
 {
@@ -28,6 +32,17 @@ public class SubmissionTypesController : BaseAdminApiController<SubmissionType, 
     [HttpGet]
     public async Task<IActionResult> GetForProblem()
         => this.Ok(await this.submissionTypesBusinessService.GetForProblem());
+
+    [HttpPost]
+    [Authorize(Roles = Administrator)]
+    [Authorize(Roles = Developer)]
+    [ProtectedEntityAction(isRestricted: false)]
+    public async Task<IActionResult> ReplaceSubmissionTypes(ReplaceSubmissionTypeServiceModel model)
+    {
+        var stringResult = await this.submissionTypesBusinessService.ReplaceSubmissionType(model);
+
+        return this.Ok(stringResult);
+    }
 
     [HttpGet]
     public IActionResult GetCompilers()

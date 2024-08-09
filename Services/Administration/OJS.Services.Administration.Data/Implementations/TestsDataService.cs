@@ -1,9 +1,11 @@
 ﻿namespace OJS.Services.Administration.Data.Implementations
 {
     using OJS.Data;
+    using OJS.Data.Models.Submissions;
     using OJS.Data.Models.Tests;
     using OJS.Services.Common.Models.Users;
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
@@ -30,6 +32,8 @@
             this.Delete(t => t.ProblemId == problemId);
             await this.SaveChanges();
         }
+
+        public Task DeleteBySubmissions(IEnumerable<Submission> submissions) => throw new NotImplementedException();
 
         protected override Expression<Func<Test, bool>> GetUserFilter(UserInfoModel user)
             => test => user.IsAdmin ||

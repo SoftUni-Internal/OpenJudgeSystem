@@ -5,6 +5,7 @@ import isFunction from 'lodash/isFunction';
 import isNil from 'lodash/isNil';
 
 import { IDictionary, UrlType } from '../common/common-types';
+import { ExceptionData } from '../common/types';
 import { IErrorDataType } from '../hooks/use-http';
 
 const getUrl = <P>(url: UrlType<P>, params?: IDictionary<P> | null) => (
@@ -14,11 +15,15 @@ const getUrl = <P>(url: UrlType<P>, params?: IDictionary<P> | null) => (
 );
 
 const getErrorMessage = (
-    err: FetchBaseQueryError | SerializedError | undefined,
+    err: FetchBaseQueryError | SerializedError | ExceptionData[] | undefined,
     defaultErrorMessage = 'Something went wrong, please try again!',
 ): string => {
     if (isNil(err) || !err) {
         return defaultErrorMessage;
+    }
+
+    if (Array.isArray(err) && err.length === 1) {
+        return getErrorMessage(err[0]);
     }
 
     // we should unify the return object from BE on error
@@ -33,15 +38,17 @@ const getErrorMessage = (
 
         return defaultErrorMessage;
     }
+
     if ('status' in err) {
         return 'error' in err
             ? err.error.replace(/"/g, '')
             : ((err as any).data as IErrorDataType).detail.replace(/"/g, '');
     }
 
-    if (err.message) {
-        return err.message.replace(/"/g, '');
+    if ((err as SerializedError).message) {
+        return (err as SerializedError).message!.replace(/"/g, '');
     }
+
     if ((err as any).detail) {
         return (err as any).detail.replace(/"/g, '');
     }

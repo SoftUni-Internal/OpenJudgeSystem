@@ -17,6 +17,8 @@ public class UserInfoModel : IMapExplicitly
 
     public bool IsLecturer { get; set; }
 
+    public bool IsDeveloper { get; set; }
+
     public bool IsAdminOrLecturer => this.IsAdmin || this.IsLecturer;
 
     public void RegisterMappings(IProfileExpression configuration)
@@ -31,6 +33,9 @@ public class UserInfoModel : IMapExplicitly
             .ForMember(
                 m => m.IsAdmin,
                 opt => opt.MapFrom(src => src.IsAdmin()))
+            .ForMember(
+                m => m.IsDeveloper,
+                opt => opt.MapFrom(src => src.IsDeveloper()))
             .ForMember(
                 m => m.IsLecturer,
                 opt => opt.MapFrom(src => src.IsLecturer()));

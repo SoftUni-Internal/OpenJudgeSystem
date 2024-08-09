@@ -12,6 +12,7 @@ interface IAdministrationModalProps {
     open: boolean;
     onClose: Function;
     children: ReactNode;
+    className?: string;
 }
 
 enum ModalReasonsToClose {
@@ -20,7 +21,7 @@ BackDropClick = 'backdropClick'
 }
 
 const AdministrationModal = (props: IAdministrationModalProps) => {
-    const { index, children, open, onClose } = props;
+    const { index, children, open, onClose, className } = props;
 
     const onModalClose = (event: object, reason: string) => {
         if (reason === ModalReasonsToClose.BackDropClick) {
@@ -37,7 +38,7 @@ const AdministrationModal = (props: IAdministrationModalProps) => {
           open={open}
           onClose={(event, reason) => onModalClose(event, reason)}
         >
-            <Box className={concatClassNames(styles.wrapper, 'box-wrapper')}>
+            <Box className={concatClassNames(styles.wrapper, 'box-wrapper', className)}>
                 <Box className={styles.closeIcon}>
                     <IconButton onClick={(event) => onModalClose(event, ModalReasonsToClose.EscapeKeyDown)}>
                         <IoMdClose />

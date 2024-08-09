@@ -13,32 +13,42 @@ namespace OJS.Servers.Infrastructure.Extensions
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<Role>>();
             var userManager = serviceProvider.GetRequiredService<UserManager<UserProfile>>();
-            string[] roleNames = { Administrator, Lecturer };
+            string[] roleNames = { Administrator, Lecturer, Developer };
+            bool shouldCreateAdminUser = false;
 
             foreach (var roleName in roleNames)
             {
                 var roleExist = await roleManager.RoleExistsAsync(roleName);
+
                 if (!roleExist)
                 {
                     await roleManager.CreateAsync(new Role(roleName));
                 }
+
+                if (roleName == Administrator && !roleExist)
+                {
+                    shouldCreateAdminUser = true;
+                }
             }
 
-            var userProfile = new UserProfile
+            if (shouldCreateAdminUser)
             {
-                UserName = "judge.admin",
-                Email = "judge.admin@softuni.org",
-            };
-
-            var userPassword = "1234QwERt)";
-            var user = await userManager.FindByEmailAsync(userProfile.Email);
-
-            if (user == null)
-            {
-                var createPowerUser = await userManager.CreateAsync(userProfile, userPassword);
-                if (createPowerUser.Succeeded)
+                var userProfile = new UserProfile
                 {
-                    await userManager.AddToRoleAsync(userProfile, Administrator);
+                    UserName = "judge.admin",
+                    Email = "judge.admin@softuni.org",
+                };
+
+                var userPassword = "1234QwERt)";
+                var user = await userManager.FindByEmailAsync(userProfile.Email);
+
+                if (user == null)
+                {
+                    var createPowerUser = await userManager.CreateAsync(userProfile, userPassword);
+                    if (createPowerUser.Succeeded)
+                    {
+                        await userManager.AddToRoleAsync(userProfile, Administrator);
+                    }
                 }
             }
         }

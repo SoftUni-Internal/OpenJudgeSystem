@@ -8,7 +8,6 @@ interface IAdministrationFormButtons{
     isEditMode: boolean;
     onEditClick?: () => void;
     onCreateClick?: () => void;
-
     disabled?: boolean;
 }
 

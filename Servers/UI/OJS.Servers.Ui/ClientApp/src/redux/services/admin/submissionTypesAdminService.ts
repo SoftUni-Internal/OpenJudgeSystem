@@ -1,6 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { IFileModel, IGetAllAdminParams, IPagedResultType, ISubmissionTypeAdministrationModel, ISubmissionTypeInProblem, ISubmissionTypesInListModel } from '../../../common/types';
+import {
+    IFileModel,
+    IGetAllAdminParams,
+    IPagedResultType,
+    IReplaceSubmissionTypeModel,
+    ISubmissionTypeAdministrationModel,
+    ISubmissionTypeInProblem,
+    ISubmissionTypesInListModel,
+} from '../../../common/types';
 import { CREATE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
@@ -27,6 +35,13 @@ export const submissionTypesAdminService = createApi({
         getById: builder.query<ISubmissionTypeAdministrationModel, number>({
             query: (id) => ({ url: `/Get/${id}` }),
             keepUnusedDataFor: 0,
+        }),
+        replaceSubmissionType: builder.mutation<string, IReplaceSubmissionTypeModel>({
+            query: (replaceData) => ({
+                url: '/ReplaceSubmissionTypes',
+                method: 'POST',
+                body: replaceData,
+            }),
         }),
         updateSubmissionType: builder.mutation<string, ISubmissionTypeAdministrationModel >({
             query: (problemGroup) => ({
@@ -64,6 +79,7 @@ export const {
     useGetCompilersQuery,
     useGetExecutionStrategiesQuery,
     useGetByIdQuery,
+    useReplaceSubmissionTypeMutation,
     useUpdateSubmissionTypeMutation,
     useCreateSubmissionTypeMutation,
     useLazyExportSubmissionTypesToExcelQuery,

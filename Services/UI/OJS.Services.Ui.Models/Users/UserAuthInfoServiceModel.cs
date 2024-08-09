@@ -19,6 +19,8 @@ public class UserAuthInfoServiceModel : IMapExplicitly
 
     public bool IsLecturer { get; set; }
 
+    public bool IsDeveloper { get; set; }
+
     public bool CanAccessAdministration { get; set; }
     public IEnumerable<RoleServiceModel> Roles { get; set; } = Enumerable.Empty<RoleServiceModel>();
 
@@ -39,5 +41,8 @@ public class UserAuthInfoServiceModel : IMapExplicitly
                 => s.UsersInRoles.Any(r => r.Role.Name == GlobalConstants.Roles.Administrator)))
         .ForMember(d => d.IsLecturer, opts
             => opts.MapFrom(s
-                => s.UsersInRoles.Any(r => r.Role.Name == GlobalConstants.Roles.Lecturer)));
+                => s.UsersInRoles.Any(r => r.Role.Name == GlobalConstants.Roles.Lecturer)))
+        .ForMember(d => d.IsDeveloper, opts
+            => opts.MapFrom(s
+                => s.UsersInRoles.Any(r => r.Role.Name == GlobalConstants.Roles.Developer)));
 }

@@ -17,6 +17,8 @@
 
         IQueryable<Submission> GetAllByProblem(int problemId);
 
+        IQueryable<Submission> GetAllByProblems(IEnumerable<int> problemIds);
+
         IQueryable<Submission> GetByIds(IEnumerable<int> ids);
 
         IQueryable<Submission> GetAllByProblemAndParticipant(int problemId, int participantId);

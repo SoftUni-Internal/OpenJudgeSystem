@@ -38,6 +38,9 @@
         public IQueryable<Submission> GetAllByProblem(int problemId)
             => this.GetQuery(s => s.ProblemId == problemId);
 
+        public IQueryable<Submission> GetAllByProblems(IEnumerable<int> problemIds)
+            => this.GetQuery(s => problemIds.Contains(s.ProblemId));
+
         public IQueryable<Submission> GetByIds(IEnumerable<int> ids)
             => this.GetQuery(s => ids.Contains(s.Id));
 

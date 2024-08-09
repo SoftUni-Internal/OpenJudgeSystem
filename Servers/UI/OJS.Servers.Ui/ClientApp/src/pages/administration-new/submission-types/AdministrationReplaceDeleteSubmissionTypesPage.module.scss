@@ -1,0 +1,48 @@
+@use 'src/styles/fonts';
+@use 'src/styles/colors';
+
+.pageContentContainer {
+  background: #333;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.replaceSubmissionTypesForm {
+  border: 1px solid rgb(81 81 81 / 100%);
+  border-radius: 10px;
+}
+
+.resultContainer {
+  border: 1px solid rgb(81 81 81 / 100%);
+  border-radius: 10px;
+  padding: 20px;
+  white-space: pre;
+}
+
+.clearBtn {
+  align-self: end;
+  width: 50px;
+}
+
+.confirmModal {
+  @extend %font-family-normal;
+
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  justify-content: center;
+
+  .confirmModalBtn {
+    margin-top: 20px;
+  }
+}
+
+.blueText {
+  color: colors.$primary-blue;
+}
+
+.redText {
+  color: colors.$primary-red;
+}

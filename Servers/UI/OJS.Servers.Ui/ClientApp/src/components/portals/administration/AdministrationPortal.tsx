@@ -77,6 +77,8 @@ import AdministrationProblemResourcesPage
 import AdministrationProblemsPage from '../../../pages/administration-new/problems/AdministrationProblemsPage';
 import AdministrationRolesPage from '../../../pages/administration-new/roles/AdministrationRolesPage';
 import AdministrationSettingsPage from '../../../pages/administration-new/settings/SettingsAdministrationPage';
+import AdministrationReplaceDeleteSubmissionTypesPage
+    from '../../../pages/administration-new/submission-types/AdministrationReplaceDeleteSubmissionTypesPage';
 import AdministrationSubmissionTypesPage
     from '../../../pages/administration-new/submission-types/AdministrationSubmissionTypesPage';
 import AdministrationSubmissionsPage from '../../../pages/administration-new/submissions/AdministrationSubmissionsPage';
@@ -451,6 +453,11 @@ const AdministrationPortal = () => {
         {
             path: `${SUBMISSION_TYPES_PATH}`,
             Element: AdministrationSubmissionTypesPage,
+            visibleOnlyForAdmin: true,
+        },
+        {
+            path: `${SUBMISSION_TYPES_PATH}/deleteReplaceSubmissionTypes`,
+            Element: AdministrationReplaceDeleteSubmissionTypesPage,
             visibleOnlyForAdmin: true,
         },
         {

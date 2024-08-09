@@ -8,4 +8,6 @@ using System.Threading.Tasks;
 public interface ISubmissionTypesBusinessService : IAdministrationOperationService<SubmissionType, int, SubmissionTypeAdministrationModel>
 {
     Task<List<SubmissionTypesInProblemView>> GetForProblem();
+
+    Task<string> ReplaceSubmissionType(ReplaceSubmissionTypeServiceModel model);
 }

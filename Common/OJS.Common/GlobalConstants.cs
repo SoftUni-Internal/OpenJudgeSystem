@@ -53,6 +53,7 @@ namespace OJS.Common
         {
             public const string Administrator = "Administrator";
             public const string Lecturer = "Lecturer";
+            public const string Developer = "Developer";
 
             public const string AdministratorOrLecturer = Administrator + ", " + Lecturer;
         }
