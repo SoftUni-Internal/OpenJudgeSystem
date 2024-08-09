@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, Typography } from '@mui/material';
@@ -9,10 +10,12 @@ import { CREATE, EDIT, ID, NAME, RECORD, TYPE, VALUE } from '../../../../common/
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../../common/messages';
 import { ISettingAdministrationModel } from '../../../../common/types';
 import { NEW_ADMINISTRATION_PATH, SETTINGS_PATH } from '../../../../common/urls/administration-urls';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
 import useDisableMouseWheelOnNumberInputs from '../../../../hooks/common/use-disable-mouse-wheel-on-number-inputs';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useCreateSettingMutation, useDeleteSettingMutation, useGetSettingByIdQuery, useUpdateSettingMutation } from '../../../../redux/services/admin/settingsAdminService';
 import { getDateAsLocal } from '../../../../utils/administration/administration-dates';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import { getEnumMemberName } from '../../../../utils/string-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
@@ -24,18 +27,19 @@ import { handleDateTimePickerChange } from '../../utils/mui-utils';
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface ISettingFormProps {
-isEditMode: boolean;
-id?: number;
-
+    isEditMode: boolean;
+    id?: number;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 
 const SettingForm = (props: ISettingFormProps) => {
-    const { id = 0, isEditMode = true } = props;
+    const { id = 0, isEditMode = true, onSuccess, setParentSuccessMessage } = props;
 
     const navigate = useNavigate();
 
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
-    const [ successfullMessage, setSuccessfullMessage ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const [ setting, setSetting ] = useState<ISettingAdministrationModel>({
         id,
@@ -72,6 +76,17 @@ const SettingForm = (props: ISettingFormProps) => {
 
     useDisableMouseWheelOnNumberInputs();
 
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyCreated, onSuccess });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
+
     useEffect(() => {
         if (settingData) {
             setSetting(settingData);
@@ -81,15 +96,6 @@ const SettingForm = (props: ISettingFormProps) => {
     useEffect(() => {
         getAndSetExceptionMessage([ getError, updateError, createError ], setExceptionMessages);
     }, [ getError, updateError, createError ]);
-
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: createData, shouldGet: isSuccessfullyCreated },
-            { message: updateData, shouldGet: isSuccessfullyUpdated },
-        ]);
-
-        setSuccessfullMessage(message);
-    }, [ createData, isSuccessfullyCreated, isSuccessfullyUpdated, updateData ]);
 
     const onChange = (e: any) => {
         const { target } = e;
@@ -227,7 +233,7 @@ const SettingForm = (props: ISettingFormProps) => {
 
     return (
         <>
-            {renderSuccessfullAlert(successfullMessage)}
+            {renderSuccessfullAlert(successMessage)}
             {renderErrorMessagesAlert(exceptionMessages)}
             <Typography className={formStyles.centralize} variant="h4">Setting administration form</Typography>
             <form className={formStyles.form}>

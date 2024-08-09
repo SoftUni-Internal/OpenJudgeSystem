@@ -9,8 +9,8 @@ const getAndSetExceptionMessage = (exceptions: Array<unknown>, setState: React.D
     setState(messages);
 };
 
-const getAndSetSuccesfullMessages = (data: Array<{message:string | undefined; shouldGet: boolean}>) => {
-    const filteredData = data.filter((x) => x.message !== undefined && x.shouldGet === true);
+const getAndSetSuccessfulMessages = (data: Array<{message:string | undefined; shouldGet: boolean}>) => {
+    const filteredData = data.filter((x) => x.message !== undefined && x.shouldGet);
 
     let message: string | null = null;
     if (filteredData.length > 0) {
@@ -37,5 +37,5 @@ const extractMessages = (error: Array<unknown>): Array<string> => {
 
 export {
     getAndSetExceptionMessage,
-    getAndSetSuccesfullMessages,
+    getAndSetSuccessfulMessages,
 };

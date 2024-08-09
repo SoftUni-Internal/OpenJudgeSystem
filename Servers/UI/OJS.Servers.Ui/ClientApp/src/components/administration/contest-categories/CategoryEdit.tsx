@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, Box, Checkbox, FormControl, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material';
 
@@ -5,14 +6,16 @@ import {
     IContestCategories,
     IContestCategoryAdministration,
 } from '../../../common/types';
+import useDelayedSuccessEffect from '../../../hooks/common/use-delayed-success-effect';
 import useDisableMouseWheelOnNumberInputs from '../../../hooks/common/use-disable-mouse-wheel-on-number-inputs';
+import useSuccessMessageEffect from '../../../hooks/common/use-success-message-effect';
 import {
     useCreateContestCategoryMutation,
     useGetCategoriesQuery,
     useGetContestCategoryByIdQuery, useUpdateContestCategoryByIdMutation,
 } from '../../../redux/services/admin/contestCategoriesAdminService';
 import { getAndSetExceptionMessage } from '../../../utils/messages-utils';
-import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../utils/render-utils';
+import { renderErrorMessagesAlert } from '../../../utils/render-utils';
 import SpinningLoader from '../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../common/administration-form-buttons/AdministrationFormButtons';
 
@@ -21,6 +24,8 @@ import styles from './CategoryEdit.module.scss';
 interface IContestCategoryEditProps {
     contestCategoryId: number | null;
     isEditMode?: boolean;
+    setParentSuccessMessage: Function;
+    onSuccess: Function;
 }
 
 const initialState : IContestCategoryAdministration = {
@@ -36,10 +41,9 @@ const initialState : IContestCategoryAdministration = {
 };
 
 const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
-    const { contestCategoryId, isEditMode = true } = props;
+    const { contestCategoryId, isEditMode = true, onSuccess, setParentSuccessMessage } = props;
 
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
-    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ isValidForm, setIsValidForm ] = useState<boolean>(!!isEditMode);
 
     const [ contestCategory, setContestCategory ] = useState<IContestCategoryAdministration>(initialState);
@@ -58,20 +62,29 @@ const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
         updateContestCategory, {
             data: updateData,
             isLoading: isUpdating,
-            isSuccess:
-                isSuccesfullyUpdated,
+            isSuccess: isSuccessfullyUpdated,
             error: updateError,
         } ] = useUpdateContestCategoryByIdMutation();
 
     const [
         createContestCategory, {
             data: createData,
-            isSuccess: isSuccesfullyCreated,
+            isSuccess: isSuccessfullyCreated,
             error: createError,
             isLoading: isCreating,
         } ] = useCreateContestCategoryMutation();
 
     useDisableMouseWheelOnNumberInputs();
+
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyUpdated || isSuccessfullyCreated, onSuccess });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+    });
 
     useEffect(
         () => {
@@ -83,19 +96,18 @@ const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
     );
 
     useEffect(() => {
-        if (isSuccesfullyUpdated) {
-            setSuccessMessage(updateData as string);
+        if (isSuccessfullyUpdated) {
             setErrorMessages([]);
         }
-        if (isSuccesfullyCreated) {
-            setSuccessMessage(createData as string);
+
+        if (isSuccessfullyCreated) {
             setErrorMessages([]);
         }
-    }, [ createData, isSuccesfullyCreated, isSuccesfullyUpdated, updateData ]);
+    }, [ isSuccessfullyCreated, isSuccessfullyUpdated ]);
 
     useEffect(() => {
         getAndSetExceptionMessage([ createError, updateError ], setErrorMessages);
-    }, [ createError, isSuccesfullyCreated, isSuccesfullyUpdated, updateError ]);
+    }, [ createError, updateError ]);
 
     useEffect(() => () => {
         setContestCategory(initialState);
@@ -191,7 +203,6 @@ const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
             : (
                 <div className={`${styles.flex}`}>
                     {renderErrorMessagesAlert(errorMessages)}
-                    {renderSuccessfullAlert(successMessage)}
                     <Typography className={styles.centralize} variant="h4">
                         {isEditMode
                             ? contestCategory.name

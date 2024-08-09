@@ -7,9 +7,10 @@ import isNaN from 'lodash/isNaN';
 import { AGE, CITY, COMPANY, DATE_OF_BIRTH, EDIT, EDUCATIONAL_INSTITUTE, EMAIL, FACULTY_NUMBER, FIRSTNAME, ID, JOB_TITLE, LASTNAME, USERNAME } from '../../../../common/labels';
 import { IUserAdministrationModel } from '../../../../common/types';
 import useDisableMouseWheelOnNumberInputs from '../../../../hooks/common/use-disable-mouse-wheel-on-number-inputs';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useGetUserByIdQuery, useUpdateUserMutation } from '../../../../redux/services/admin/usersAdminService';
 import { convertToUtc, getDateAsLocal } from '../../../../utils/administration/administration-dates';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import FormActionButton from '../../form-action-button/FormActionButton';
@@ -22,13 +23,13 @@ interface IUserFormProps {
     id: string;
 
     providedUser?: IUserAdministrationModel;
-    onSuccessfullyEdited?: Function;
+    onSuccessfullyUpdated?: Function;
 }
 
 const UserForm = (props: IUserFormProps) => {
-    const { id, providedUser, onSuccessfullyEdited } = props;
+    const { id, providedUser, onSuccessfullyUpdated } = props;
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
-    const [ successfullMessage, setSuccessfullMessage ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const [ user, setUser ] = useState<IUserAdministrationModel>({
         id,
@@ -57,14 +58,21 @@ const UserForm = (props: IUserFormProps) => {
 
     const [
         update, {
-            data: editData,
-            isSuccess: isSuccessfullyEdited,
-            error: editError,
+            data: updateData,
+            isSuccess: isSuccessfullyUpdated,
+            error: updateError,
             isLoading: isUpdating,
         },
     ] = useUpdateUserMutation();
 
     useDisableMouseWheelOnNumberInputs();
+
+    useSuccessMessageEffect({
+        data: [
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setSuccessMessage,
+    });
 
     useEffect(() => {
         if (providedUser) {
@@ -79,24 +87,18 @@ const UserForm = (props: IUserFormProps) => {
     }, [ getData ]);
 
     useEffect(() => {
-        getAndSetExceptionMessage([ getError, editError ], setExceptionMessages);
-    }, [ editError, getError ]);
+        getAndSetExceptionMessage([ getError, updateError ], setExceptionMessages);
+    }, [ updateError, getError ]);
 
     useEffect(() => {
-        if (isSuccessfullyEdited) {
-            if (onSuccessfullyEdited) {
-                onSuccessfullyEdited();
+        if (isSuccessfullyUpdated) {
+            if (onSuccessfullyUpdated) {
+                onSuccessfullyUpdated();
             } else {
                 refetch();
             }
         }
-
-        const message = getAndSetSuccesfullMessages([
-            { message: editData, shouldGet: isSuccessfullyEdited },
-        ]);
-
-        setSuccessfullMessage(message);
-    }, [ editData, isSuccessfullyEdited, onSuccessfullyEdited, refetch ]);
+    }, [ updateData, isSuccessfullyUpdated, onSuccessfullyUpdated, refetch ]);
 
     const onChange = (event: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = event.target;
@@ -128,7 +130,7 @@ const UserForm = (props: IUserFormProps) => {
 
     return (
         <>
-            {renderSuccessfullAlert(successfullMessage)}
+            {renderSuccessfullAlert(successMessage)}
             {renderErrorMessagesAlert(exceptionMessages)}
             <Typography className={formStyles.centralize} variant="h4">
                 {user.userName}

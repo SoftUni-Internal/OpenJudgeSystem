@@ -5,12 +5,13 @@ import { TextField, Typography } from '@mui/material';
 import {
     IExamGroupAdministration,
 } from '../../../../common/types';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import {
     useAddBulkUsersInExamGroupByIdMutation,
     useGetExamGroupByIdQuery,
 } from '../../../../redux/services/admin/examGroupsAdminService';
 import isNilOrEmpty from '../../../../utils/check-utils';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import FormActionButton from '../../form-action-button/FormActionButton';
@@ -56,6 +57,13 @@ const AddBulkUsersInGroupModal = (props:IAddUsersInExamGroupProps) => {
             isLoading: isAdding,
         } ] = useAddBulkUsersInExamGroupByIdMutation();
 
+    useSuccessMessageEffect({
+        data: [
+            { message: addingData, shouldGet: isSuccessfullyAdded },
+        ],
+        setSuccessMessage,
+    });
+
     useEffect(
         () => {
             if (data) {
@@ -68,13 +76,6 @@ const AddBulkUsersInGroupModal = (props:IAddUsersInExamGroupProps) => {
     useEffect(() => {
         getAndSetExceptionMessage([ addingError ], setErrorMessages);
     }, [ addingError ]);
-
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: addingData, shouldGet: isSuccessfullyAdded },
-        ]);
-        setSuccessMessage(message);
-    }, [ addingData, isSuccessfullyAdded ]);
 
     const add = () => {
         if (isValidForm) {

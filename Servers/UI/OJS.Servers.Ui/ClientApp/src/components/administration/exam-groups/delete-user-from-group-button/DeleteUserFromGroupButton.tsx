@@ -4,7 +4,8 @@ import { IoMdTrash } from 'react-icons/io';
 import { IconButton, Tooltip } from '@mui/material';
 
 import { DELETE } from '../../../../common/labels';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import ConfirmDialog from '../../../guidelines/dialog/ConfirmDialog';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
@@ -30,19 +31,22 @@ const DeleteUserFromGroupButton = (props: IDeleteUserFromGroupButtonProps) => {
         setShowConfirmDelete(!showConfirmDelete);
     };
 
+    useSuccessMessageEffect({
+        data: [
+            { message: data, shouldGet: isSuccess },
+        ],
+        setSuccessMessage,
+    });
+
     useEffect(() => {
         getAndSetExceptionMessage([ error ], setErrorMessages);
     }, [ error ]);
 
     useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: data, shouldGet: isSuccess },
-        ]);
-        setSuccessMessage(message);
         if (isSuccess && onSuccess) {
             onSuccess();
         }
-    }, [ data, isSuccess, onSuccess ]);
+    }, [ isSuccess, onSuccess ]);
 
     if (isLoading) {
         return <SpinningLoader />;

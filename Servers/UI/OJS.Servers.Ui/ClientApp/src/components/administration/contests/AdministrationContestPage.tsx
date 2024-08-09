@@ -63,7 +63,7 @@ const AdministrationContestPage = () => {
           contestId={Number(contestId)}
           currentContest={data}
           onSuccess={retake}
-          setSuccessMessage={setSuccessMessage}
+          setParentSuccessMessage={setSuccessMessage}
           skipGettingContest
         />
     );

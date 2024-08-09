@@ -10,6 +10,7 @@ import SpinningLoader from '../../../components/guidelines/spinning-loader/Spinn
 import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useGetAllAdminContestCategoriesQuery, useLazyExportContestCategoriesToExcelQuery } from '../../../redux/services/admin/contestCategoriesAdminService';
 import { useAppSelector } from '../../../redux/store';
+import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -21,6 +22,7 @@ const AdministrationContestCategoriesPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditContestCategoryModal, setOpenEditContestCategoryModal ] = useState(false);
     const [ openShowCreateContestCategoryModal, setOpenShowCreateContestCategoryModal ] = useState<boolean>(false);
     const [ contestCategoryId, setContestCategoryId ] = useState<number>();
@@ -59,6 +61,8 @@ const AdministrationContestCategoriesPage = () => {
                   ? Number(contestCategoryId)
                   : null}
               isEditMode={isEditMode}
+              onSuccess={() => onCloseModal(isEditMode)}
+              setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
     );
@@ -76,23 +80,26 @@ const AdministrationContestCategoriesPage = () => {
     }
 
     return (
-        <AdministrationGridView
-          data={data}
-          error={error}
-          filterableGridColumnDef={categoriesFilterableColumns}
-          notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick)}
-          renderActionButtons={renderGridActions}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
-          modals={[
-              { showModal: openShowCreateContestCategoryModal, modal: (i) => renderCategoryModal(i, false) },
-              { showModal: openEditContestCategoryModal, modal: (i) => renderCategoryModal(i, true) },
-          ]}
-          legendProps={[
-              { color: getColors(themeMode).palette.deleted, message: 'Category is deleted.' },
-              { color: getColors(themeMode).palette.visible, message: 'Category is not visible' } ]}
-          excelMutation={useLazyExportContestCategoriesToExcelQuery}
-        />
+        <>
+            {renderSuccessfullAlert(successMessage)}
+            <AdministrationGridView
+              data={data}
+              error={error}
+              filterableGridColumnDef={categoriesFilterableColumns}
+              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick)}
+              renderActionButtons={renderGridActions}
+              queryParams={queryParams}
+              setQueryParams={setQueryParams}
+              modals={[
+                  { showModal: openShowCreateContestCategoryModal, modal: (i) => renderCategoryModal(i, false) },
+                  { showModal: openEditContestCategoryModal, modal: (i) => renderCategoryModal(i, true) },
+              ]}
+              legendProps={[
+                  { color: getColors(themeMode).palette.deleted, message: 'Category is deleted.' },
+                  { color: getColors(themeMode).palette.visible, message: 'Category is not visible' } ]}
+              excelMutation={useLazyExportContestCategoriesToExcelQuery}
+            />
+        </>
     );
 };
 

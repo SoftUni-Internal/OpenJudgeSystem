@@ -8,6 +8,7 @@ import RoleForm from '../../../components/administration/roles/form/RoleForm';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
 import { useGetAllRolesQuery, useLazyExportRolesToExcelQuery } from '../../../redux/services/admin/rolesAdminService';
 import { DEFAULT_ITEMS_PER_PAGE } from '../../../utils/constants';
+import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import AdministrationGridView from '../AdministrationGridView';
 
 import rolesFilterableColumns, { returnRolesNonFilterableColumns } from './rolesGridColumns';
@@ -16,6 +17,7 @@ const AdministrationRolesPage = () => {
     const [ searchParams ] = useSearchParams();
 
     const [ roleId, setRoleId ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ showEditModal, setShowEditModal ] = useState<boolean>(false);
     const [ showCreateModal, setShowCreateModal ] = useState<boolean>(false);
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>({
@@ -63,6 +65,8 @@ const AdministrationRolesPage = () => {
               id={isEditMode
                   ? roleId
                   : null}
+              onSuccess={() => onModalClose(isEditMode)}
+              setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
     );
@@ -76,22 +80,25 @@ const AdministrationRolesPage = () => {
     );
 
     return (
-        <AdministrationGridView
-          filterableGridColumnDef={rolesFilterableColumns}
-          notFilterableGridColumnDef={returnRolesNonFilterableColumns(onEditClick, onDeleteSuccess)}
-          data={data}
-          error={error}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
-          renderActionButtons={renderGridActions}
-          withSearchParams={false}
-          showFiltersAndSorters={false}
-          modals={[
-              { showModal: showEditModal, modal: (i) => renderRoleModal(i, true) },
-              { showModal: showCreateModal, modal: (i) => renderRoleModal(i, false) },
-          ]}
-          excelMutation={useLazyExportRolesToExcelQuery}
-        />
+        <>
+            {renderSuccessfullAlert(successMessage)}
+            <AdministrationGridView
+              filterableGridColumnDef={rolesFilterableColumns}
+              notFilterableGridColumnDef={returnRolesNonFilterableColumns(onEditClick, onDeleteSuccess)}
+              data={data}
+              error={error}
+              queryParams={queryParams}
+              setQueryParams={setQueryParams}
+              renderActionButtons={renderGridActions}
+              withSearchParams={false}
+              showFiltersAndSorters={false}
+              modals={[
+                  { showModal: showEditModal, modal: (i) => renderRoleModal(i, true) },
+                  { showModal: showCreateModal, modal: (i) => renderRoleModal(i, false) },
+              ]}
+              excelMutation={useLazyExportRolesToExcelQuery}
+            />
+        </>
     );
 };
 export default AdministrationRolesPage;

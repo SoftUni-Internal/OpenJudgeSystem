@@ -1,12 +1,15 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect, useState } from 'react';
 import { Autocomplete, Checkbox, debounce, FormControl, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material';
 
 import { IS_OFFICIAL } from '../../../../common/labels';
 import { IContestAutocomplete, IParticipantAdministrationModel, IUserAutocompleteData } from '../../../../common/types';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useGetContestAutocompleteQuery } from '../../../../redux/services/admin/contestsAdminService';
 import { useCreateParticipantMutation } from '../../../../redux/services/admin/participantsAdminService';
 import { useGetUsersAutocompleteQuery } from '../../../../redux/services/admin/usersAdminService';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
@@ -17,12 +20,14 @@ import formStyles from '../../common/styles/FormStyles.module.scss';
 interface IParticipantFormProps {
     contestName?: string;
     contestId?: number;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 
 const ParticipantForm = (props: IParticipantFormProps) => {
-    const { contestName = '', contestId = 0 } = props;
+    const { contestName = '', contestId = 0, onSuccess, setParentSuccessMessage } = props;
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
-    const [ successMessages, setSuccessMessages ] = useState<string>('');
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ participant, setParticipant ] = useState<IParticipantAdministrationModel>({
         contestId,
         id: 0,
@@ -66,18 +71,15 @@ const ParticipantForm = (props: IParticipantFormProps) => {
             isSuccess: isSuccessfullyCreated,
         } ] = useCreateParticipantMutation();
 
-    useEffect(() => {
-        const successMessage = getAndSetSuccesfullMessages([
-            {
-                message: createData,
-                shouldGet: isSuccessfullyCreated,
-            },
-        ]);
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyCreated, onSuccess });
 
-        if (successMessage) {
-            setSuccessMessages(successMessage);
-        }
-    }, [ createData, isSuccessfullyCreated ]);
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
 
     useEffect(() => {
         if (contestsAutocompleteData) {
@@ -90,7 +92,7 @@ const ParticipantForm = (props: IParticipantFormProps) => {
 
     useEffect(() => {
         getAndSetExceptionMessage([ createError, getContestDataError, getUsersDataError ], setErrorMessages);
-        setSuccessMessages('');
+        setSuccessMessage(null);
     }, [ createError, getContestDataError, getUsersDataError ]);
 
     const onInputChange = debounce((e: any) => {
@@ -151,7 +153,7 @@ const ParticipantForm = (props: IParticipantFormProps) => {
     return (
         <>
             {renderErrorMessagesAlert(errorMessages)}
-            {renderSuccessfullAlert(successMessages)}
+            {renderSuccessfullAlert(successMessage)}
             <form className={formStyles.form}>
                 <Typography variant="h4" className="centralize">
                     Participant Administration Form

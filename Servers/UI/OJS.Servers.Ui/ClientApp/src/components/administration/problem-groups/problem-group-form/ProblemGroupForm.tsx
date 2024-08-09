@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect, useState } from 'react';
 import { Autocomplete, debounce, FormControl, FormGroup, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import isNaN from 'lodash/isNaN';
@@ -5,10 +6,12 @@ import isNaN from 'lodash/isNaN';
 import { ProblemGroupTypes } from '../../../../common/enums';
 import { ID, ORDER_BY, TYPE } from '../../../../common/labels';
 import { IContestAutocomplete } from '../../../../common/types';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
 import useDisableMouseWheelOnNumberInputs from '../../../../hooks/common/use-disable-mouse-wheel-on-number-inputs';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useGetContestAutocompleteQuery } from '../../../../redux/services/admin/contestsAdminService';
 import { useCreateProblemGroupMutation, useGetProblemGroupByIdQuery, useUpdateProblemGroupMutation } from '../../../../redux/services/admin/problemGroupsAdminService';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
@@ -21,10 +24,12 @@ import formStyles from '../../common/styles/FormStyles.module.scss';
 interface IProblemFormProps {
     id?:number;
     isEditMode?: boolean;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 
 const ProblemGroupForm = (props: IProblemFormProps) => {
-    const { id = null, isEditMode = true } = props;
+    const { id = null, isEditMode = true, onSuccess, setParentSuccessMessage } = props;
     const [ currentProblemGroup, setCurrentProblemGroup ] = useState<IProblemGroupAdministrationModel>({
         id: 0,
         orderBy: 0,
@@ -37,7 +42,7 @@ const ProblemGroupForm = (props: IProblemFormProps) => {
     const [ contestsData, setContestsData ] = useState <Array<IContestAutocomplete>>([]);
     const [ contestSearchString, setContestSearchString ] = useState<string>('');
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
-    const [ successMessages, setSuccessMessages ] = useState<string>('');
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const { data: contestsAutocompleteData, error: getContestDataError } = useGetContestAutocompleteQuery(contestSearchString);
     const {
@@ -65,6 +70,17 @@ const ProblemGroupForm = (props: IProblemFormProps) => {
 
     useDisableMouseWheelOnNumberInputs();
 
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyUpdated || isSuccessfullyCreated, onSuccess });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
+
     useEffect(() => {
         if (contestsAutocompleteData) {
             if (problemGroupData) {
@@ -82,25 +98,8 @@ const ProblemGroupForm = (props: IProblemFormProps) => {
     }, [ problemGroupData ]);
 
     useEffect(() => {
-        const successMessage = getAndSetSuccesfullMessages([
-            {
-                message: updateData,
-                shouldGet: isSuccessfullyUpdated,
-            },
-            {
-                message: createData,
-                shouldGet: isSuccessfullyCreated,
-            },
-        ]);
-
-        if (successMessage) {
-            setSuccessMessages(successMessage);
-        }
-    }, [ updateData, createData, isSuccessfullyUpdated, isSuccessfullyCreated ]);
-
-    useEffect(() => {
         getAndSetExceptionMessage([ getContestDataError, createError, updateError, getProblemGroupError ], setErrorMessages);
-        setSuccessMessages('');
+        setSuccessMessage(null);
     }, [ updateError, createError, getContestDataError, getProblemGroupError ]);
 
     const onAutocompleteChange = debounce((e: any) => {
@@ -139,7 +138,7 @@ const ProblemGroupForm = (props: IProblemFormProps) => {
     return (
         <>
             {renderErrorMessagesAlert(errorMessages)}
-            {renderSuccessfullAlert(successMessages)}
+            {renderSuccessfullAlert(successMessage)}
             <form className={formStyles.form}>
                 <Typography variant="h4" className="centralize">
                     Problem Group Administration Form

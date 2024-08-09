@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
+import useSuccessMessageEffect from '../../../hooks/common/use-success-message-effect';
 import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useDownloadFileSubmissionQuery,
     useGetAllSubmissionsQuery,
@@ -10,7 +11,7 @@ import { useDownloadFileSubmissionQuery,
     useRetestMutation } from '../../../redux/services/admin/submissionsAdminService';
 import { useAppSelector } from '../../../redux/store';
 import downloadFile from '../../../utils/file-download-utils';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
@@ -20,7 +21,7 @@ import dataColumns, { returnSubmissionsNonFilterableColumns } from './admin-subm
 const AdministrationSubmissionsPage = () => {
     const [ searchParams ] = useSearchParams();
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
-    const [ successfullMessage, setSuccessfullMessage ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const themeMode = useAppSelector((x) => x.theme.administrationMode);
     const [ submissionToDownload, setSubmissionToDownload ] = useState<number | null>(null);
     const [ shouldSkipDownloadOfSubmission, setShouldSkipDownloadOfSubmission ] = useState<boolean>(true);
@@ -48,21 +49,21 @@ const AdministrationSubmissionsPage = () => {
         { skip: shouldSkipDownloadOfSubmission },
     );
 
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: retestData, shouldGet: isSuccessFullyRetested },
-        ]);
-        setSuccessfullMessage(message);
-    }, [ isSuccessFullyRetested, retestData ]);
-
-    useEffect(() => {
-        getAndSetExceptionMessage([ retestError, downloadError ], setExceptionMessages);
-    }, [ downloadError, retestError ]);
-
     const startDownload = useCallback((id: number) => {
         setSubmissionToDownload(id);
         setShouldSkipDownloadOfSubmission(false);
     }, []);
+
+    useSuccessMessageEffect({
+        data: [
+            { message: retestData, shouldGet: isSuccessFullyRetested },
+        ],
+        setSuccessMessage,
+    });
+
+    useEffect(() => {
+        getAndSetExceptionMessage([ retestError, downloadError ], setExceptionMessages);
+    }, [ downloadError, retestError ]);
 
     useEffect(() => {
         if (fileSubmission?.blob) {
@@ -76,7 +77,7 @@ const AdministrationSubmissionsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successfullMessage)}
+            {renderSuccessfullAlert(successMessage)}
             {renderErrorMessagesAlert(exceptionMessages)}
             <AdministrationGridView
               data={data}

@@ -12,7 +12,7 @@ import { useGetAllAdminProblemGroupsQuery, useLazyExportProblemGroupsToExcelQuer
 import { useAppSelector } from '../../../redux/store';
 import { getAndSetExceptionMessage } from '../../../utils/messages-utils';
 import { flexCenterObjectStyles } from '../../../utils/object-utils';
-import { renderErrorMessagesAlert } from '../../../utils/render-utils';
+import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -21,6 +21,7 @@ import filterableColumns, { returnNonFilterableColumns } from './problemGroupGri
 const AdministrationProblemGroupsPage = () => {
     const [ searchParams ] = useSearchParams();
     const themeMode = useAppSelector((x) => x.theme.administrationMode);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
     const [ openCreateModal, setOpenCreateModal ] = useState<boolean>(false);
     const [ problemGroupId, setProblemGroupId ] = useState<number | undefined>(undefined);
@@ -78,12 +79,15 @@ const AdministrationProblemGroupsPage = () => {
                   ? 0
                   : problemGroupId}
               isEditMode={!isCreate}
+              onSuccess={() => onFormModalClose(isCreate)}
+              setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
     );
 
     return (
         <>
+            {renderSuccessfullAlert(successMessage)}
             {renderErrorMessagesAlert(errorMessages)}
             <AdministrationGridView
               filterableGridColumnDef={filterableColumns}

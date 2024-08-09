@@ -6,6 +6,7 @@ import CreateButton from '../../../components/administration/common/create/Creat
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
 import SettingForm from '../../../components/administration/settings/form/SettingForm';
 import { useDeleteSettingMutation, useGetAllSettingsQuery, useLazyExportSettingsToExcelQuery } from '../../../redux/services/admin/settingsAdminService';
+import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -17,6 +18,7 @@ const AdministrationSettingsPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', defaultSorterToAdd, searchParams));
 
+    const [ sucessMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ showEditModal, setShowEditModal ] = useState<boolean>(false);
     const [ settingId, setSettingId ] = useState<number | undefined>(undefined);
 
@@ -52,6 +54,8 @@ const AdministrationSettingsPage = () => {
               id={isEditMode
                   ? settingId
                   : undefined}
+              onSuccess={() => onModalClose(isEditMode)}
+              setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
     );
@@ -65,24 +69,27 @@ const AdministrationSettingsPage = () => {
     );
 
     return (
-        <AdministrationGridView
-          filterableGridColumnDef={settingsFilterableColumns}
-          notFilterableGridColumnDef={returnSettingsNonFilterableColumns(
-              onEditClick,
-              useDeleteSettingMutation,
-              () => refetch(),
-          )}
-          data={settingsData}
-          error={error}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
-          excelMutation={useLazyExportSettingsToExcelQuery}
-          renderActionButtons={renderGridActions}
-          modals={[
-              { showModal: showEditModal, modal: (i) => renderSettingModal(i, true) },
-              { showModal: showCreateModal, modal: (i) => renderSettingModal(i, false) },
-          ]}
-        />
+        <>
+            {renderSuccessfullAlert(sucessMessage)}
+            <AdministrationGridView
+              filterableGridColumnDef={settingsFilterableColumns}
+              notFilterableGridColumnDef={returnSettingsNonFilterableColumns(
+                  onEditClick,
+                  useDeleteSettingMutation,
+                  () => refetch(),
+              )}
+              data={settingsData}
+              error={error}
+              queryParams={queryParams}
+              setQueryParams={setQueryParams}
+              excelMutation={useLazyExportSettingsToExcelQuery}
+              renderActionButtons={renderGridActions}
+              modals={[
+                  { showModal: showEditModal, modal: (i) => renderSettingModal(i, true) },
+                  { showModal: showCreateModal, modal: (i) => renderSettingModal(i, false) },
+              ]}
+            />
+        </>
     );
 };
 

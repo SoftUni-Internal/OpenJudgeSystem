@@ -7,6 +7,7 @@ import ProblemResourceForm from '../../../components/administration/problem-reso
 import { getColors } from '../../../hooks/use-administration-theme-provider';
 import { useGetAllAdminProblemResourcesQuery, useLazyExportProblemResourcesToExcelQuery } from '../../../redux/services/admin/problemResourcesAdminService';
 import { useAppSelector } from '../../../redux/store';
+import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -15,6 +16,7 @@ import problemResourceFilterableColumns, { returnProblemResourceNonFilterableCol
 const AdministrationProblemResourcesPage = () => {
     const [ searchParams ] = useSearchParams();
     const themeMode = useAppSelector((x) => x.theme.administrationMode);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
     const [ problemResourceId, setProblemResourceId ] = useState<number>(0);
 
@@ -22,6 +24,11 @@ const AdministrationProblemResourcesPage = () => {
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
     const { refetch: retakeData, data, error } = useGetAllAdminProblemResourcesQuery(queryParams);
+
+    const onClose = () => {
+        retakeData();
+        setOpenEditModal(false);
+    };
 
     const onEditClick = (id: number) => {
         setOpenEditModal(true);
@@ -33,27 +40,32 @@ const AdministrationProblemResourcesPage = () => {
           key={index}
           index={index}
           open={openEditModal}
-          onClose={() => setOpenEditModal(false)}
+          onClose={onClose}
         >
             <ProblemResourceForm
               id={problemResourceId}
+              onSuccess={onClose}
+              setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
     );
     return (
-        <AdministrationGridView
-          filterableGridColumnDef={problemResourceFilterableColumns}
-          notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, retakeData)}
-          data={data}
-          error={error}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
-          legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Resource is deleted.' } ]}
-          modals={[
-              { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i) },
-          ]}
-          excelMutation={useLazyExportProblemResourcesToExcelQuery}
-        />
+        <>
+            {renderSuccessfullAlert(successMessage)}
+            <AdministrationGridView
+              filterableGridColumnDef={problemResourceFilterableColumns}
+              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, retakeData)}
+              data={data}
+              error={error}
+              queryParams={queryParams}
+              setQueryParams={setQueryParams}
+              legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Resource is deleted.' } ]}
+              modals={[
+                  { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i) },
+              ]}
+              excelMutation={useLazyExportProblemResourcesToExcelQuery}
+            />
+        </>
     );
 };
 export default AdministrationProblemResourcesPage;

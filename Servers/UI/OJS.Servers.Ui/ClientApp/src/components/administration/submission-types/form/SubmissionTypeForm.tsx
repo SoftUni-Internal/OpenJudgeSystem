@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect, useState } from 'react';
 import {
     Box,
@@ -27,9 +28,11 @@ import {
 } from '../../../../common/labels';
 import { SUBMISSION_TYPE_FILE_EXTENSION_PLACEHOLDER, SUBMISSION_TYPE_FORM_NAME } from '../../../../common/messages';
 import { ISubmissionTypeAdministrationModel } from '../../../../common/types';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
 import useDisableMouseWheelOnNumberInputs from '../../../../hooks/common/use-disable-mouse-wheel-on-number-inputs';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useCreateSubmissionTypeMutation, useGetByIdQuery, useGetCompilersQuery, useGetExecutionStrategiesQuery, useUpdateSubmissionTypeMutation } from '../../../../redux/services/admin/submissionTypesAdminService';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
@@ -40,9 +43,11 @@ import formStyles from '../../common/styles/FormStyles.module.scss';
 interface ISubmissionTypesFormProps {
     id: number | null;
     isEditMode: boolean;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 const SubmissionTypesForm = (props : ISubmissionTypesFormProps) => {
-    const { id, isEditMode } = props;
+    const { id, isEditMode, setParentSuccessMessage, onSuccess } = props;
     const [ compilersData, setCompilersData ] = useState<Array<string>>([]);
     const [ strategiesData, setStrategiesData ] = useState<Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
@@ -100,22 +105,16 @@ const SubmissionTypesForm = (props : ISubmissionTypesFormProps) => {
 
     useDisableMouseWheelOnNumberInputs();
 
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            {
-                message: updateData,
-                shouldGet: isSuccessfullyUpdated,
-            },
-            {
-                message: createData,
-                shouldGet: isSuccessfullyCreated,
-            },
-        ]);
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyCreated, onSuccess });
 
-        if (message) {
-            setSuccessMessage(message);
-        }
-    }, [ createData, isSuccessfullyCreated, isSuccessfullyUpdated, updateData ]);
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
 
     useEffect(() => {
         getAndSetExceptionMessage([

@@ -4,8 +4,10 @@ import { FormControl, TextField, Typography } from '@mui/material';
 
 import { ID, NAME } from '../../../../common/labels';
 import { IRoleAdministrationModel } from '../../../../common/types';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useCreateRoleMutation, useGetRoleByIdQuery, useUpdateRoleMutation } from '../../../../redux/services/admin/rolesAdminService';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
@@ -17,12 +19,14 @@ interface IRoleFormProps {
     id?: string | null;
     isEditMode?: boolean;
     getRoleName?: Function;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 
 const RoleForm = (props: IRoleFormProps) => {
-    const { id, isEditMode = true, getRoleName } = props;
+    const { id, isEditMode = true, getRoleName, onSuccess, setParentSuccessMessage } = props;
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
-    const [ successfullMessage, setSuccessfullMessage ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const [ role, setRole ] = useState<IRoleAdministrationModel>({
         id: null,
@@ -55,6 +59,17 @@ const RoleForm = (props: IRoleFormProps) => {
         },
     ] = useUpdateRoleMutation();
 
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyCreated, onSuccess });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
+
     useEffect(() => {
         if (roleData) {
             setRole(roleData);
@@ -67,15 +82,6 @@ const RoleForm = (props: IRoleFormProps) => {
     useEffect(() => {
         getAndSetExceptionMessage([ getError, updateError, createError ], setExceptionMessages);
     }, [ getError, updateError, createError ]);
-
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: createData, shouldGet: isSuccessfullyCreated },
-            { message: updateData, shouldGet: isSuccessfullyUpdated },
-        ]);
-
-        setSuccessfullMessage(message);
-    }, [ createData, isSuccessfullyCreated, isSuccessfullyUpdated, updateData ]);
 
     const onChange = (e: any) => {
         const { target } = e;
@@ -92,7 +98,7 @@ const RoleForm = (props: IRoleFormProps) => {
 
     return (
         <>
-            {renderSuccessfullAlert(successfullMessage)}
+            {renderSuccessfullAlert(successMessage)}
             {renderErrorMessagesAlert(exceptionMessages)}
             <Typography className={formStyles.centralize} variant="h4">Role administration form</Typography>
             <form className={formStyles.form}>

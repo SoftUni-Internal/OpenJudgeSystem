@@ -7,6 +7,7 @@ import {
 import AdministrationGridView, { defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import participantsFilteringColumns, { returnparticipantsNonFilterableColumns } from '../../../../pages/administration-new/participants/participantsGridColumns';
 import { useGetByContestIdQuery } from '../../../../redux/services/admin/participantsAdminService';
+import { renderSuccessfullAlert } from '../../../../utils/render-utils';
 import CreateButton from '../../common/create/CreateButton';
 import AdministrationModal from '../../common/modals/administration-modal/AdministrationModal';
 import ParticipantForm from '../../participants/form/ParticipantForm';
@@ -19,6 +20,7 @@ interface IParticipantsInContestView {
 const ParticipantsInContestView = (props: IParticipantsInContestView) => {
     const { contestId, contestName } = props;
 
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openCreateModal, setOpenCreateModal ] = useState<boolean>(false);
 
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', defaultSorterToAdd));
@@ -45,26 +47,34 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
           open={openCreateModal}
           onClose={() => onModalClose()}
         >
-            <ParticipantForm contestId={contestId} contestName={contestName} />
+            <ParticipantForm
+              contestId={contestId}
+              contestName={contestName}
+              onSuccess={onModalClose}
+              setParentSuccessMessage={setSuccessMessage}
+            />
         </AdministrationModal>
     );
 
     return (
-        <div style={{ marginTop: '2rem' }}>
-            <AdministrationGridView
-              data={data}
-              error={error}
-              filterableGridColumnDef={participantsFilteringColumns}
-              notFilterableGridColumnDef={returnparticipantsNonFilterableColumns(refetch)}
-              queryParams={queryParams}
-              renderActionButtons={renderActions}
-              modals={[
-                  { showModal: openCreateModal, modal: (i) => renderParticipantModal(i) },
-              ]}
-              setQueryParams={setQueryParams}
-              withSearchParams={false}
-            />
-        </div>
+        <>
+            {renderSuccessfullAlert(successMessage)}
+            <div style={{ marginTop: '2rem' }}>
+                <AdministrationGridView
+                  data={data}
+                  error={error}
+                  filterableGridColumnDef={participantsFilteringColumns}
+                  notFilterableGridColumnDef={returnparticipantsNonFilterableColumns(refetch)}
+                  queryParams={queryParams}
+                  renderActionButtons={renderActions}
+                  modals={[
+                      { showModal: openCreateModal, modal: (i) => renderParticipantModal(i) },
+                  ]}
+                  setQueryParams={setQueryParams}
+                  withSearchParams={false}
+                />
+            </div>
+        </>
     );
 };
 

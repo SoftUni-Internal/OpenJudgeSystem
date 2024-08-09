@@ -3,7 +3,8 @@ import { BiTransfer } from 'react-icons/bi';
 import { IconButton, Tooltip } from '@mui/material';
 
 import { TRANSFER } from '../../../../common/labels';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import ConfirmDialog from '../../../guidelines/dialog/ConfirmDialog';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
@@ -24,17 +25,19 @@ const TransferParticipantsButton = (props: ITransferParticipantsButtonProps) => 
     const [ transfer, { data, isLoading, isSuccess, isFetching, error, reset } ] = mutation();
 
     const [ showConfirmTransfer, setShowConfirmTransfer ] = useState<boolean>(false);
-    const [ message, setMessage ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
 
     const confirmTransfer = () => {
         setShowConfirmTransfer(!showConfirmTransfer);
     };
 
-    useEffect(() => {
-        const successMessage = getAndSetSuccesfullMessages([ { message: data as string, shouldGet: isSuccess } ]);
-        setMessage(successMessage);
-    }, [ data, isSuccess ]);
+    useSuccessMessageEffect({
+        data: [
+            { message: data as string, shouldGet: isSuccess },
+        ],
+        setSuccessMessage,
+    });
 
     useEffect(() => {
         getAndSetExceptionMessage([ error ], setErrorMessages);
@@ -55,7 +58,7 @@ const TransferParticipantsButton = (props: ITransferParticipantsButtonProps) => 
                     ? { ...style }
                     : {}}
                 >
-                    {renderSuccessfullAlert(message)}
+                    {renderSuccessfullAlert(successMessage)}
                     {renderErrorMessagesAlert(errorMessages) }
                     <Tooltip title={TRANSFER}>
                         <IconButton onClick={confirmTransfer}>

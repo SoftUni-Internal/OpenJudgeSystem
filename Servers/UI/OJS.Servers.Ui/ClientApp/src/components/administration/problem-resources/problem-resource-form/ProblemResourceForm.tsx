@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect, useState } from 'react';
 import { Divider, FormControl, FormGroup, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import isNaN from 'lodash/isNaN';
@@ -5,9 +6,11 @@ import isNaN from 'lodash/isNaN';
 import { ProblemResourceType } from '../../../../common/enums';
 import { ID, LINK, NAME, ORDER_BY, TYPE } from '../../../../common/labels';
 import { IProblemResourceAdministrationModel } from '../../../../common/types';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useCreateProblemResourceMutation, useDownloadResourceQuery, useGetProblemResourceByIdQuery, useUpdateProblemResourceMutation } from '../../../../redux/services/admin/problemResourcesAdminService';
 import downloadFile from '../../../../utils/file-download-utils';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
@@ -23,11 +26,12 @@ import formStyles from '../../common/styles/FormStyles.module.scss';
 interface IProblemResourceFormProps {
     id: number;
     isEditMode?: boolean;
-
     problemId? : number;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 const ProblemResourceForm = (props :IProblemResourceFormProps) => {
-    const { id, isEditMode = true, problemId = 0 } = props;
+    const { id, isEditMode = true, problemId = 0, onSuccess, setParentSuccessMessage } = props;
 
     const [ currentResource, setCurrentResource ] = useState<IProblemResourceAdministrationModel>({
         id: 0,
@@ -41,7 +45,7 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
     });
     const [ skipDownload, setSkipDownload ] = useState<boolean>(true);
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
-    const [ successMessage, setSuccessMessages ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const { data: resourceData, error: resourceError, isLoading: isGetting } = useGetProblemResourceByIdQuery(id, { skip: !isEditMode });
     const [
@@ -69,6 +73,17 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
         error: downloadError,
     } = useDownloadResourceQuery(Number(id), { skip: skipDownload });
 
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyCreated, onSuccess });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
+
     useEffect(() => {
         if (resourceData) {
             setCurrentResource(resourceData);
@@ -78,15 +93,6 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
     useEffect(() => {
         getAndSetExceptionMessage([ downloadError, createErrorData, updateErrorData, resourceError ], setExceptionMessages);
     }, [ createErrorData, downloadError, resourceError, updateErrorData ]);
-
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: createData, shouldGet: isSuccessfullyCreated },
-            { message: updateData, shouldGet: isSuccessfullyUpdated },
-        ]);
-
-        setSuccessMessages(message);
-    }, [ createData, isSuccessfullyCreated, isSuccessfullyUpdated, updateData ]);
 
     useEffect(() => {
         if (downloadData?.blob) {

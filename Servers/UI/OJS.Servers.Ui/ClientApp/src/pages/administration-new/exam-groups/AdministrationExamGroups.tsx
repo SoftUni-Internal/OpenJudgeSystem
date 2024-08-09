@@ -12,6 +12,7 @@ import {
     useLazyExportExamGroupsToExcelQuery,
 } from '../../../redux/services/admin/examGroupsAdminService';
 import { flexCenterObjectStyles } from '../../../utils/object-utils';
+import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -23,39 +24,46 @@ const AdministrationExamGroupsPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', defaultSorterToAdd, searchParams));
 
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditExamGroupModal, setOpenEditExamGroupModal ] = useState(false);
     const [ openShowCreateExamGroupModal, setOpenShowCreateExamGroupModal ] = useState<boolean>(false);
     const [ examGroupId, setExamGroupId ] = useState<number>();
     const {
+        refetch,
         data,
         error,
         isLoading,
     } = useGetAllAdminExamGroupsQuery(queryParams);
+
+    const onCloseModal = (isEditMode: boolean) => {
+        if (isEditMode) {
+            setOpenEditExamGroupModal(false);
+        } else {
+            setOpenShowCreateExamGroupModal(!openShowCreateExamGroupModal);
+        }
+        refetch();
+    };
 
     const onEditClick = (id: number) => {
         setOpenEditExamGroupModal(true);
         setExamGroupId(id);
     };
 
-    const renderEditExamGroupModal = (index: number) => (
-        <AdministrationModal
-          key={index}
-          index={index}
-          open={openEditExamGroupModal}
-          onClose={() => setOpenEditExamGroupModal(false)}
-        >
-            <ExamGroupEdit examGroupId={Number(examGroupId)} />
-        </AdministrationModal>
-    );
-
-    const renderCreateExamGroupModal = (index: number) => (
+    const renderExamGroupModal = (index: number, isEditMode: boolean, id: number | null) => (
         <AdministrationModal
           index={index}
           key={index}
-          open={openShowCreateExamGroupModal}
-          onClose={() => setOpenShowCreateExamGroupModal(!openShowCreateExamGroupModal)}
+          open={isEditMode
+              ? openEditExamGroupModal
+              : openShowCreateExamGroupModal}
+          onClose={() => onCloseModal(isEditMode)}
         >
-            <ExamGroupEdit examGroupId={null} isEditMode={false} />
+            <ExamGroupEdit
+              examGroupId={id}
+              isEditMode={isEditMode}
+              onSuccess={() => onCloseModal(isEditMode)}
+              setParentSuccessMessage={setSuccessMessage}
+            />
         </AdministrationModal>
     );
 
@@ -72,20 +80,23 @@ const AdministrationExamGroupsPage = () => {
     }
 
     return (
-        <AdministrationGridView
-          data={data}
-          error={error}
-          filterableGridColumnDef={examGroupsFilterableColumns}
-          notFilterableGridColumnDef={returnExamGroupsNonFilterableColumns(onEditClick)}
-          renderActionButtons={renderGridActions}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
-          modals={[
-              { showModal: openShowCreateExamGroupModal, modal: (i) => renderCreateExamGroupModal(i) },
-              { showModal: openEditExamGroupModal, modal: (i) => renderEditExamGroupModal(i) },
-          ]}
-          excelMutation={useLazyExportExamGroupsToExcelQuery}
-        />
+        <>
+            {renderSuccessfullAlert(successMessage)}
+            <AdministrationGridView
+              data={data}
+              error={error}
+              filterableGridColumnDef={examGroupsFilterableColumns}
+              notFilterableGridColumnDef={returnExamGroupsNonFilterableColumns(onEditClick)}
+              renderActionButtons={renderGridActions}
+              queryParams={queryParams}
+              setQueryParams={setQueryParams}
+              modals={[
+                  { showModal: openShowCreateExamGroupModal, modal: (i) => renderExamGroupModal(i, false, null) },
+                  { showModal: openEditExamGroupModal, modal: (i) => renderExamGroupModal(i, true, Number(examGroupId)) },
+              ]}
+              excelMutation={useLazyExportExamGroupsToExcelQuery}
+            />
+        </>
     );
 };
 

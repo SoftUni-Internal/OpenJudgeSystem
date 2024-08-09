@@ -6,6 +6,7 @@ import AdministrationModal from '../../../components/administration/common/modal
 import TestForm from '../../../components/administration/tests/test-form/TestForm';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
 import { useGetAllAdminTestsQuery, useLazyExportTestsToExcelQuery } from '../../../redux/services/admin/testsAdminService';
+import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultSorterToAdd } from '../AdministrationGridView';
 
@@ -13,6 +14,7 @@ import testsFilterableColums, { returnTestsNonFilterableColumns } from './testsG
 
 const AdministrationTestsPage = () => {
     const [ searchParams ] = useSearchParams();
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditTestModal, setOpenEditTestModal ] = useState(false);
     const [ testId, setTestId ] = useState<number | null>(null);
 
@@ -20,6 +22,11 @@ const AdministrationTestsPage = () => {
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', defaultSorterToAdd, searchParams));
 
     const { refetch: retakeTests, data: testsData, isLoading: isLoadingTests, error } = useGetAllAdminTestsQuery(queryParams);
+
+    const onClose = () => {
+        retakeTests();
+        setOpenEditTestModal(true);
+    };
 
     const onEditClick = (id: number) => {
         setTestId(id);
@@ -35,9 +42,13 @@ const AdministrationTestsPage = () => {
           key={index}
           index={index}
           open={openEditTestModal}
-          onClose={() => setOpenEditTestModal(false)}
+          onClose={onClose}
         >
-            <TestForm id={testId!} />
+            <TestForm
+              id={testId!}
+              onSuccess={onClose}
+              setParentSuccessMessage={setSuccessMessage}
+            />
         </AdministrationModal>
     );
 
@@ -46,23 +57,26 @@ const AdministrationTestsPage = () => {
     }
 
     return (
-        <AdministrationGridView
-          filterableGridColumnDef={testsFilterableColums}
-          notFilterableGridColumnDef={
-                returnTestsNonFilterableColumns(
-                    onEditClick,
-                    onSuccessDelete,
-                )
-}
-          data={testsData}
-          error={error}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
-          modals={[
-              { showModal: openEditTestModal, modal: (i) => renderTestEditModal(i) },
-          ]}
-          excelMutation={useLazyExportTestsToExcelQuery}
-        />
+        <>
+            {renderSuccessfullAlert(successMessage)}
+            <AdministrationGridView
+              filterableGridColumnDef={testsFilterableColums}
+              notFilterableGridColumnDef={
+                    returnTestsNonFilterableColumns(
+                        onEditClick,
+                        onSuccessDelete,
+                    )
+                }
+              data={testsData}
+              error={error}
+              queryParams={queryParams}
+              setQueryParams={setQueryParams}
+              modals={[
+                  { showModal: openEditTestModal, modal: (i) => renderTestEditModal(i) },
+              ]}
+              excelMutation={useLazyExportTestsToExcelQuery}
+            />
+        </>
     );
 };
 export default AdministrationTestsPage;

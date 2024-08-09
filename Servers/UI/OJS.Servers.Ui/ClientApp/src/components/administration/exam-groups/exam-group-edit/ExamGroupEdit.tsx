@@ -9,12 +9,14 @@ import {
     IContestCategories,
     IExamGroupAdministration,
 } from '../../../../common/types';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useGetContestAutocompleteQuery } from '../../../../redux/services/admin/contestsAdminService';
 import {
     useCreateExamGroupMutation, useGetExamGroupByIdQuery,
     useUpdateExamGroupMutation,
 } from '../../../../redux/services/admin/examGroupsAdminService';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
@@ -26,10 +28,12 @@ interface IExamGroupEditProps {
     examGroupId: number | null;
     isEditMode?: boolean;
     getContestId?: Function;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 
 const ExamGroupEdit = (props:IExamGroupEditProps) => {
-    const { examGroupId, isEditMode = true, getContestId } = props;
+    const { examGroupId, isEditMode = true, getContestId, onSuccess, setParentSuccessMessage } = props;
 
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
@@ -60,17 +64,28 @@ const ExamGroupEdit = (props:IExamGroupEditProps) => {
             data: updateData,
             isLoading: isUpdating,
             isSuccess:
-                isSuccesfullyUpdated,
+                isSuccessfullyUpdated,
             error: updateError,
         } ] = useUpdateExamGroupMutation();
 
     const [
         createExamGroup, {
             data: createData,
-            isSuccess: isSuccesfullyCreated,
+            isSuccess: isSuccessfullyCreated,
             error: createError,
             isLoading: isCreating,
         } ] = useCreateExamGroupMutation();
+
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyCreated, onSuccess });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
 
     useEffect(
         () => {
@@ -99,25 +114,17 @@ const ExamGroupEdit = (props:IExamGroupEditProps) => {
 
     useEffect(() => {
         setErrorMessages([]);
-        if (isSuccesfullyUpdated) {
-            setSuccessMessage(updateData as string);
-            setErrorMessages([]);
-        } if (isSuccesfullyCreated) {
-            setSuccessMessage(createData as string);
+        if (isSuccessfullyUpdated) {
             setErrorMessages([]);
         }
-    }, [ isSuccesfullyUpdated, updateData, createData, isSuccesfullyCreated ]);
+        if (isSuccessfullyCreated) {
+            setErrorMessages([]);
+        }
+    }, [ isSuccessfullyUpdated, updateData, createData, isSuccessfullyCreated ]);
 
     useEffect(() => {
         getAndSetExceptionMessage([ updateError, createError ], setErrorMessages);
     }, [ createError, updateError ]);
-
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: updateData, shouldGet: isSuccesfullyUpdated },
-            { message: createData, shouldGet: isSuccesfullyCreated } ]);
-        setSuccessMessage(message);
-    }, [ updateData, createData, isSuccesfullyUpdated, isSuccesfullyCreated ]);
 
     const validateForm = () => {
         const isValid = examGroupValidations.isNameValid;

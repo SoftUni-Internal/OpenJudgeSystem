@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Autocomplete, FormControl, MenuItem, TextField, Typography } from '@mui/material';
 
 import { IGetAllAdminParams, IUserAutocompleteData } from '../../../../common/types';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { getColors } from '../../../../hooks/use-administration-theme-provider';
 import { applyDefaultFilterToQueryString } from '../../../../pages/administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
@@ -9,7 +10,7 @@ import usersFilterableColumns, { returnUsersNonFilterableColumns } from '../../.
 import { useAddUserToRoleMutation, useRemoveUserFromRoleMutation } from '../../../../redux/services/admin/rolesAdminService';
 import { useGetUsersAutocompleteQuery, useGetUsersByRoleQuery } from '../../../../redux/services/admin/usersAdminService';
 import { useAppSelector } from '../../../../redux/store';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import ConfirmDialog from '../../../guidelines/dialog/ConfirmDialog';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
@@ -86,6 +87,14 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
         error: getUsersDataError,
     } = useGetUsersAutocompleteQuery(usersSearchString);
 
+    useSuccessMessageEffect({
+        data: [
+            { message: addData, shouldGet: isSuccessfullyAddedToRole },
+            { message: removeData, shouldGet: isSuccessfullyRemoved },
+        ],
+        setSuccessMessage,
+    });
+
     useEffect(() => {
         if (usersAutocompleteData) {
             setUsersAutocomplete(usersAutocompleteData);
@@ -96,20 +105,6 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
         getAndSetExceptionMessage([ getUsersDataError, addError, removeError ], setErrorMessages);
         setSuccessMessage(null);
     }, [ addError, getUsersDataError, removeError ]);
-
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            {
-                message: addData,
-                shouldGet: isSuccessfullyAddedToRole,
-            },
-            {
-                message: removeData,
-                shouldGet: isSuccessfullyRemoved,
-            } ]);
-
-        setSuccessMessage(message);
-    }, [ addData, isSuccessfullyAddedToRole, isSuccessfullyRemoved, removeData ]);
 
     useEffect(() => {
         if (isSuccessfullyRemoved || isSuccessfullyAddedToRole) {

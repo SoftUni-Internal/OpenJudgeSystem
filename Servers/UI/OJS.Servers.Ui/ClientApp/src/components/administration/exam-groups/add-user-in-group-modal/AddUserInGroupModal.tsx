@@ -8,13 +8,14 @@ import {
     IExamGroupAdministration,
     IUserAutocomplete,
 } from '../../../../common/types';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import {
     useAddUserInExamGroupByIdMutation,
     useGetExamGroupByIdQuery,
 } from '../../../../redux/services/admin/examGroupsAdminService';
 import { useGetUsersAutocompleteQuery } from '../../../../redux/services/admin/usersAdminService';
 import isNilOrEmpty from '../../../../utils/check-utils';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import FormActionButton from '../../form-action-button/FormActionButton';
@@ -58,10 +59,17 @@ const AddUserInGroupModal = (props:IAddUserInExamGroupProps) => {
     const [
         addUserToExamGroup, {
             data: createData,
-            isSuccess: isSuccessfullyAdded,
+            isSuccess: isSuccessfullyCreated,
             error: createError,
             isLoading: isCreating,
         } ] = useAddUserInExamGroupByIdMutation();
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+        ],
+        setSuccessMessage,
+    });
 
     useEffect(
         () => {
@@ -75,13 +83,6 @@ const AddUserInGroupModal = (props:IAddUserInExamGroupProps) => {
     useEffect(() => {
         getAndSetExceptionMessage([ createError ], setErrorMessages);
     }, [ createError ]);
-
-    useEffect(() => {
-        const message = getAndSetSuccesfullMessages([
-            { message: createData, shouldGet: isSuccessfullyAdded },
-        ]);
-        setSuccessMessage(message);
-    }, [ createData, isSuccessfullyAdded ]);
 
     const handleAutocompleteChange = (user: IUserAutocomplete) => {
         const selectedUser = usersForDropdown?.find((u) => u.id === user.id);

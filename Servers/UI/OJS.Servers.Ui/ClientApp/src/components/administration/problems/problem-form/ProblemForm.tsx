@@ -5,10 +5,12 @@ import { Autocomplete, Divider, FormControl, FormGroup, MenuItem, TextField, Typ
 import { ContestVariation } from '../../../../common/contest-types';
 import { SUBMISSION_TYPES, TESTS } from '../../../../common/labels';
 import { IProblemAdministration, IProblemGroupDropdownModel, IProblemSubmissionType, ISubmissionTypeInProblem } from '../../../../common/types';
+import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { useGetIdsByContestIdQuery } from '../../../../redux/services/admin/problemGroupsAdminService';
 import { useCreateProblemMutation, useGetProblemByIdQuery, useUpdateProblemMutation } from '../../../../redux/services/admin/problemsAdminService';
 import { useGetForProblemQuery } from '../../../../redux/services/admin/submissionTypesAdminService';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
@@ -30,6 +32,8 @@ interface IProblemFormCreateProps extends IProblemFormProps{
     contestName: string | undefined;
     contestType: ContestVariation;
     problemId: null;
+    onSuccess: Function;
+    setParentSuccessMessage: Function;
 }
 
 interface IProblemFormEditProps extends IProblemFormProps{
@@ -37,6 +41,8 @@ interface IProblemFormEditProps extends IProblemFormProps{
     contestName?: null;
     contestType?: null;
     problemId: number;
+    onSuccess?: Function;
+    setParentSuccessMessage?: Function;
 }
 
 const defaultMaxPoints = 100;
@@ -45,7 +51,17 @@ const defaultTimeLimit = 100;
 const defaultSourceCodeSizeLimit = 16384;
 
 const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => {
-    const { problemId, isEditMode = true, contestId, contestName, contestType, getName, getContestId } = props;
+    const {
+        problemId,
+        isEditMode = true,
+        contestId,
+        contestName,
+        contestType,
+        getName,
+        getContestId,
+        onSuccess,
+        setParentSuccessMessage,
+    } = props;
 
     const [ filteredSubmissionTypes, setFilteredSubmissionTypes ] = useState<Array<ISubmissionTypeInProblem>>([]);
     const [ problemGroupIds, setProblemGroupsIds ] = useState<Array<IProblemGroupDropdownModel>>([]);
@@ -71,7 +87,7 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
     });
 
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
-    const [ successMessages, setSuccessMessages ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const {
         data: problemData,
@@ -85,6 +101,17 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
     const [ createProblem, { data: createData, error: createError, isSuccess: isSuccessfullyCreated } ] = useCreateProblemMutation();
 
     const { data: problemGroupData } = useGetIdsByContestIdQuery(currentProblem.contestId, { skip: currentProblem.contestId <= 0 });
+
+    useDelayedSuccessEffect({ isSuccess: isSuccessfullyCreated, onSuccess });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: createData, shouldGet: isSuccessfullyCreated },
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setParentSuccessMessage,
+        setSuccessMessage,
+    });
 
     useEffect(() => {
         if (problemGroupData) {
@@ -112,23 +139,8 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
 
     useEffect(() => {
         getAndSetExceptionMessage([ gettingDataError, createError, updateError ], setErrorMessages);
-        setSuccessMessages('');
+        setSuccessMessage(null);
     }, [ updateError, createError, gettingDataError ]);
-
-    useEffect(() => {
-        let successMessage: string | null = '';
-        successMessage = getAndSetSuccesfullMessages([
-            {
-                message: updateData,
-                shouldGet: isSuccessfullyUpdated,
-            },
-            {
-                message: createData,
-                shouldGet: isSuccessfullyCreated,
-            },
-        ]);
-        setSuccessMessages(successMessage);
-    }, [ updateData, createData, isSuccessfullyUpdated, isSuccessfullyCreated ]);
 
     const onChange = (e: any) => {
         const { target } = e;
@@ -303,7 +315,7 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
     return (
         <>
             {renderErrorMessagesAlert(errorMessages)}
-            {renderSuccessfullAlert(successMessages)}
+            {renderSuccessfullAlert(successMessage)}
 
             <Typography className={formStyles.centralize} variant="h3">{currentProblem?.name}</Typography>
             <form className={formStyles.form}>

@@ -3,7 +3,8 @@ import { IoMdTrash } from 'react-icons/io';
 import { IconButton, Tooltip } from '@mui/material';
 
 import { DELETE } from '../../../../common/labels';
-import { getAndSetExceptionMessage, getAndSetSuccesfullMessages } from '../../../../utils/messages-utils';
+import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
+import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import ConfirmDialog from '../../../guidelines/dialog/ConfirmDialog';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
@@ -26,7 +27,7 @@ const DeleteButton = (props: IDeleteButtonProps) => {
         text, mutation,
     } = props;
     const [ showConfirmDelete, setShowConfirmDelete ] = useState<boolean>(false);
-    const [ message, setMessage ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
 
     const [ deleteRequest, { data, isLoading, isSuccess, error, reset } ] = mutation();
@@ -34,10 +35,12 @@ const DeleteButton = (props: IDeleteButtonProps) => {
         setShowConfirmDelete(!showConfirmDelete);
     };
 
-    useEffect(() => {
-        const successMessage = getAndSetSuccesfullMessages([ { message: data as string, shouldGet: isSuccess } ]);
-        setMessage(successMessage);
-    }, [ data, isSuccess ]);
+    useSuccessMessageEffect({
+        data: [
+            { message: data as string, shouldGet: isSuccess },
+        ],
+        setSuccessMessage,
+    });
 
     useEffect(() => {
         getAndSetExceptionMessage([ error ], setErrorMessages);
@@ -58,7 +61,7 @@ const DeleteButton = (props: IDeleteButtonProps) => {
                     ? { ...style }
                     : {}}
                 >
-                    {renderSuccessfullAlert(message)}
+                    {renderSuccessfullAlert(successMessage)}
                     {renderErrorMessagesAlert(errorMessages) }
                     <Tooltip title={DELETE}>
                         <IconButton onClick={confirmDelete}>
