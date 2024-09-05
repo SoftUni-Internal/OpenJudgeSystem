@@ -391,15 +391,11 @@ const ContestSolutionSubmitPage = () => {
         <div className={styles.adminButtonsContainer}>
             <AdministrationLink
               text="Problem"
-              to={`/problems?filter=id~equals~${
-                    selectedContestDetailsProblem!.id
-              }%26%26%3Bisdeleted~equals~false&sorting=id%3DDESC`}
+              to={`/problems/${selectedContestDetailsProblem.id}`}
             />
             <AdministrationLink
               text="Tests"
-              to={`/tests?filter=problemid~equals~${
-                  selectedContestDetailsProblem!.id
-              }`}
+              to={`/problems/${selectedContestDetailsProblem.id}/#tab-tests`}
             />
             {user.isAdmin && (
             <AdministrationLink
@@ -697,7 +693,7 @@ const ContestSolutionSubmitPage = () => {
             { user.canAccessAdministration && (
                 <div className={styles.administrationButtonWrapper}>
                     <AdministrationLink
-                      text="Contest"
+                      text="Edit Contest"
                       to={`/contests/${contestId}`}
                     />
                     {user.isAdmin && (
