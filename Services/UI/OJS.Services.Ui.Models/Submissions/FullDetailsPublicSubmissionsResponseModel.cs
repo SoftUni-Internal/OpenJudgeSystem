@@ -29,5 +29,5 @@ public class FullDetailsPublicSubmissionsResponseModel : IMapFrom<FullDetailsPub
 
     public int? MaxTimeUsed { get; set; }
 
-    public IEnumerable<TestRunServiceModel> TestRuns { get; set; } = Enumerable.Empty<TestRunServiceModel>();
+    public string? TestRunsCache { get; set; }
 }

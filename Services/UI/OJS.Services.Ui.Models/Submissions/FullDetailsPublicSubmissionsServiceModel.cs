@@ -32,7 +32,7 @@ public class FullDetailsPublicSubmissionsServiceModel : IMapExplicitly
 
     public int? MaxTimeUsed { get; set; }
 
-    public IEnumerable<TestRunServiceModel> TestRuns { get; set; } = Enumerable.Empty<TestRunServiceModel>();
+    public string? TestRunsCache { get; set; }
 
     public int PageNumber { get; set; }
 

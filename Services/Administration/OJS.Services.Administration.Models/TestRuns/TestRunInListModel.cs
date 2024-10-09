@@ -2,6 +2,7 @@
 
 using OJS.Data.Models.Tests;
 using OJS.Services.Infrastructure.Models.Mapping;
+using OJS.Workers.Common.Models;
 
 public class TestRunInListModel : IMapFrom<TestRun>
 {
@@ -17,5 +18,5 @@ public class TestRunInListModel : IMapFrom<TestRun>
 
     public int SubmissionId { get; set; }
 
-    public string? ResultType { get; set; }
+    public TestRunResultType ResultType { get; set; }
 }

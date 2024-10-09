@@ -1,7 +1,6 @@
 import React, { useCallback } from 'react';
 
-import { sortTestRunsByTrialTest } from '../../../common/submissions-utils';
-import { ITestRunType } from '../../../hooks/submissions/types';
+import { ITestRunIcon, ITestRunType } from '../../../hooks/submissions/types';
 import useTheme from '../../../hooks/use-theme';
 import concatClassNames from '../../../utils/class-names';
 
@@ -13,7 +12,7 @@ import styles from './ExecutionResult.module.scss';
 interface IExecutionResultDetailsProps {
     points: number;
     maxPoints: number;
-    testRuns: ITestRunType[];
+    testRuns: ITestRunType[] | ITestRunIcon[];
     isCompiledSuccessfully: boolean;
     isProcessed: boolean;
     showDetailedResults: boolean;
@@ -28,11 +27,9 @@ const ExecutionResult = ({
     showDetailedResults,
 }: IExecutionResultDetailsProps) => {
     const { getColorClassName, themeColors } = useTheme();
-
     const renderTestRunIcons = useCallback(
-        (runs: ITestRunType[]) => runs
+        (runs: ITestRunType[] | ITestRunIcon[]) => runs
             .slice()
-            .sort(sortTestRunsByTrialTest)
             .map((testRun) => <TestRunIcon key={`t-r-i-${testRun.id}`} testRun={testRun} />),
         [],
     );

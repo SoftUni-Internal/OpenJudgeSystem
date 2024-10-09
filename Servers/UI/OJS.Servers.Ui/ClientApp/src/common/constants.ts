@@ -12,11 +12,11 @@ const LECTURER = 'Lecturer';
 const defaultPathIdentifier = 'api';
 
 enum TestRunResultType {
-    CorrectAnswer = 'CorrectAnswer',
-    WrongAnswer = 'WrongAnswer',
-    TimeLimit = 'TimeLimit',
-    MemoryLimit = 'MemoryLimit',
-    RunTimeError = 'RunTimeError',
+    CorrectAnswer = 0,
+    WrongAnswer = 1,
+    TimeLimit = 2,
+    MemoryLimit = 3,
+    RunTimeError = 4,
 }
 
 enum ContestParticipationType {

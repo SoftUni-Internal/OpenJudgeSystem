@@ -2,6 +2,7 @@
 {
     using OJS.Services.Ui.Models.Submissions;
     using OJS.Services.Infrastructure.Models.Mapping;
+    using OJS.Workers.Common.Models;
 
     public class TestRunDetailsResponseModel : IMapFrom<TestRunDetailsServiceModel>
     {
@@ -17,7 +18,7 @@
 
         public string CheckerComment { get; set; } = null!;
 
-        public string ResultType { get; set; } = null!;
+        public TestRunResultType ResultType { get; set; }
 
         public string? ExpectedOutputFragment { get; set; }
 

@@ -14,7 +14,7 @@ interface ITestRunType {
     memoryUsed: number;
     executionComment: string;
     checkerComment: string;
-    resultType: string;
+    resultType: number;
     expectedOutputFragment: string;
     userOutputFragment: string;
     orderBy: number;
@@ -22,6 +22,12 @@ interface ITestRunType {
     isTrialTest: boolean;
     showInput: boolean;
     testId: number;
+}
+
+interface ITestRunIcon {
+    id: number;
+    isTrialTest: boolean;
+    resultType: number;
 }
 
 interface ISubmissionDetailsResponseType {
@@ -60,7 +66,7 @@ interface ITestRun {
     submissionId: number;
     executionComment: string;
     checkerComment: string;
-    resultType: string;
+    resultType: number;
     expectedOutputFragment: string;
     userOutputFragment: string;
     isTrialTest: boolean;
@@ -72,6 +78,7 @@ interface ITestRun {
 
 export type {
     ITestRunType,
+    ITestRunIcon,
     ISubmissionDetailsResponseType,
     ITestRun,
 };

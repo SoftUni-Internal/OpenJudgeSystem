@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Popover } from '@mui/material';
 import isNil from 'lodash/isNil';
+import { ITestRunIcon } from 'src/hooks/submissions/types';
 
 import { IPublicSubmission } from '../../../common/types';
 import { getContestsDetailsPageUrl } from '../../../common/urls/compose-client-urls';
@@ -59,6 +60,7 @@ const SubmissionGridRow = ({
         maxTimeUsed,
         processed,
         testRuns,
+        testRunsCache,
     } = submission;
 
     const { internalUser } =
@@ -90,6 +92,24 @@ const SubmissionGridRow = ({
             : styles.lightRow,
         getColorClassName(themeColors.textColor),
     );
+
+    const getTestRuns = useCallback(() => {
+        if (testRunsCache) {
+            const trialTestsCount = Number.parseInt(testRunsCache[0], 10);
+
+            const cachedTestRuns: ITestRunIcon[] = Array.from(testRunsCache)
+                .slice(1)
+                .map((resultType, index) => ({
+                    resultType: Number.parseInt(resultType, 10),
+                    id: index + 1,
+                    isTrialTest: index < trialTestsCount,
+                }));
+
+            return cachedTestRuns;
+        }
+
+        return testRuns;
+    }, [ testRuns, testRunsCache ]);
 
     const renderUsername = useCallback(
         () => (
@@ -269,7 +289,7 @@ const SubmissionGridRow = ({
                     <ExecutionResult
                       points={points}
                       maxPoints={maxPoints}
-                      testRuns={testRuns}
+                      testRuns={getTestRuns()}
                       isCompiledSuccessfully={isCompiledSuccessfully}
                       isProcessed={processed}
                       showDetailedResults={options.showDetailedResults}

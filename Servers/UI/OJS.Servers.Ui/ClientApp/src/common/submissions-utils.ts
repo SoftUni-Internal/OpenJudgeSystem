@@ -2,13 +2,13 @@ import { ITestRunType } from '../hooks/submissions/types';
 
 import { TestRunResultType } from './constants';
 
-const getTestResultColorId = (resultType: string) => {
-    switch (resultType.toLowerCase()) {
-    case TestRunResultType.CorrectAnswer.toLowerCase():
+const getTestResultColorId = (resultType: number) => {
+    switch (resultType) {
+    case TestRunResultType.CorrectAnswer:
         // primary-green
         return '#23be5e';
-    case TestRunResultType.TimeLimit.toLowerCase():
-    case TestRunResultType.MemoryLimit.toLowerCase():
+    case TestRunResultType.TimeLimit:
+    case TestRunResultType.MemoryLimit:
         // warning
         return '#fec112';
     default:
@@ -17,18 +17,17 @@ const getTestResultColorId = (resultType: string) => {
     }
 };
 
-const getResultTypeText = (resType: string) => {
-    switch (resType.toLowerCase()) {
-    // TODO: https://github.com/SoftUni-Internal/exam-systems-issues/issues/1287
-    case TestRunResultType.CorrectAnswer.toLowerCase():
+const getResultTypeText = (resultType: number) => {
+    switch (resultType) {
+    case TestRunResultType.CorrectAnswer:
         return 'Correct Answer';
-    case TestRunResultType.WrongAnswer.toLowerCase():
+    case TestRunResultType.WrongAnswer:
         return 'Wrong Answer';
-    case TestRunResultType.MemoryLimit.toLowerCase():
+    case TestRunResultType.MemoryLimit:
         return 'Memory Limit';
-    case TestRunResultType.TimeLimit.toLowerCase():
+    case TestRunResultType.TimeLimit:
         return 'Time Limit';
-    case TestRunResultType.RunTimeError.toLowerCase():
+    case TestRunResultType.RunTimeError:
         return 'Runtime Error';
     default:
         return '';

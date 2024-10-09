@@ -70,6 +70,7 @@ interface IPublicSubmission {
     maxMemoryUsed: number;
     maxTimeUsed: number;
     testRuns: ITestRun[];
+    testRunsCache?: string;
     processed: boolean;
 }
 
@@ -80,7 +81,7 @@ interface ITestRunInListModel {
     submissionId: number;
     executionComment: string;
     checkerComment: string;
-    resultType: string;
+    resultType: number;
 }
 
 interface IGetAllAdminParams {

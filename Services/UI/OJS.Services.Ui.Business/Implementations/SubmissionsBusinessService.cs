@@ -280,7 +280,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                     s.Id,
                     s.ParticipantId,
                     CorrectTestRuns = s.TestRuns.Count(t =>
-                        t.ResultType == TestRunResultType.CorrectAnswer &&
+                        t.ResultType == (int)TestRunResultType.CorrectAnswer &&
                         !t.Test.IsTrialTest),
                     AllTestRuns = s.TestRuns.Count(t => !t.Test.IsTrialTest),
                     MaxPoints = s.Problem!.MaximumPoints,
@@ -419,9 +419,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 .GetByContestByUserAndByIsOfficial(problem.ProblemGroup.ContestId, user.Id!, isOfficial)
                 .Map<ParticipantServiceModel>();
 
-        var isUserAdminOrLecturerInContest = await this.lecturersInContestsBusiness
-            .IsCurrentUserAdminOrLecturerInContest(problem.ProblemGroup.ContestId);
-
         var validationResult =
             this.submissionResultsValidationService.GetValidationResult((user, problem, participant, isOfficial));
 
@@ -430,7 +427,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             throw new BusinessServiceException(validationResult.Message);
         }
 
-        return await this.GetUserSubmissions<TServiceModel>(problem.Id, participant.Id, isUserAdminOrLecturerInContest, page);
+        return await this.GetUserSubmissions<TServiceModel>(problem.Id, participant.Id, page);
     }
 
     public async Task Submit(SubmitSubmissionServiceModel model)
@@ -588,8 +585,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             return new PagedResult<SubmissionResultsServiceModel>();
         }
 
-        // TODO: Fix userisadminorlecturer = false
-        return await this.GetUserSubmissions<SubmissionResultsServiceModel>(problemId, participantId, false, page);
+        return await this.GetUserSubmissions<SubmissionResultsServiceModel>(problemId, participantId, page);
     }
 
     public Task<int> GetTotalCount()
@@ -673,7 +669,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             submission.TestRuns.Add(
                 new TestRun
                 {
-                    ResultType = (TestRunResultType)Enum.Parse(typeof(TestRunResultType), testResult.ResultType),
+                    ResultType = testResult.ResultType,
                     CheckerComment = testResult.CheckerDetails?.Comment,
                     ExecutionComment = testResult.ExecutionComment,
                     ExpectedOutputFragment = testResult.CheckerDetails?.ExpectedOutputFragment,
@@ -734,19 +730,9 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private async Task<PagedResult<TServiceModel>> GetUserSubmissions<TServiceModel>(
         int problemId,
         int participantId,
-        bool userIsAdminOrLecturerInContest,
         int page)
-    {
-        var userSubmissions = this.submissionsData
-            .GetAllByProblemAndParticipant(problemId, participantId);
-
-        if (userIsAdminOrLecturerInContest)
-        {
-            userSubmissions = userSubmissions.Include(s => s.TestRuns);
-        }
-
-        return await userSubmissions
+        => await this.submissionsData
+            .GetAllByProblemAndParticipant(problemId, participantId)
             .MapCollection<TServiceModel>()
             .ToPagedResultAsync(DefaultSubmissionResultsPerPage, page);
-    }
 }

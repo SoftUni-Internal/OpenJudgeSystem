@@ -111,15 +111,15 @@ namespace OJS.Data.Models.Submissions
 
         [NotMapped]
         public int CorrectTestRunsCount
-            => this.TestRuns.Count(x => x.ResultType == TestRunResultType.CorrectAnswer);
+            => this.TestRuns.Count(x => x.ResultType == (int)TestRunResultType.CorrectAnswer);
 
         [NotMapped]
         public int CorrectTestRunsWithoutTrialTestsCount
-            => this.TestRuns.Count(x => x.ResultType == TestRunResultType.CorrectAnswer && !x.Test.IsTrialTest);
+            => this.TestRuns.Count(x => x.ResultType == (int)TestRunResultType.CorrectAnswer && !x.Test.IsTrialTest);
 
         [NotMapped]
         public int IncorrectTestRunsWithoutTrialTestsCount
-            => this.TestRuns.Count(x => x.ResultType != TestRunResultType.CorrectAnswer && !x.Test.IsTrialTest);
+            => this.TestRuns.Count(x => x.ResultType != (int)TestRunResultType.CorrectAnswer && !x.Test.IsTrialTest);
 
         [NotMapped]
         public int TestsWithoutTrialTestsCount

@@ -79,8 +79,7 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
         enumValues: getStringObjectKeys(TestRunResultType),
         renderCell: (params: GridRenderCellParams) => {
-            switch (params.row.resultType.toString().toLowerCase()) {
-            // TODO: https://github.com/SoftUni-Internal/exam-systems-issues/issues/1287
+            switch (params.row.resultType) {
             case TestRunResultType.CorrectAnswer: return <TickIcon size={IconSize.Large} />;
             case TestRunResultType.WrongAnswer: return <WrongAnswerIcon size={IconSize.Large} />;
             case TestRunResultType.MemoryLimit: return <MemoryIcon size={IconSize.Large} />;
