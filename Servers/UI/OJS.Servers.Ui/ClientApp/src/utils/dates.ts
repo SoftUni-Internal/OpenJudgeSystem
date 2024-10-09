@@ -4,6 +4,9 @@ const defaultDateTimeFormat = 'HH:MM, DD/MMM/YYYY';
 const defaultDateTimeFormatReverse = 'DD/MMM/YYYY, HH:MM';
 const defaultPreciseDateTimeFormat = 'DD/MMM/YYYY, HH:mm:ss';
 
+const submissionsGridDateFormat = 'DD.MM.YYYY';
+const submissionsGridTimeFormat = 'HH:mm:ss';
+
 const dateTimeFormatWithSpacing = 'D MMM YY, HH:mm';
 
 const calculatedTimeFormatted =
@@ -84,6 +87,8 @@ const transformSecondsToTimeSpan = (seconds: number) => {
 export {
     defaultDateTimeFormatReverse,
     dateTimeFormatWithSpacing,
+    submissionsGridDateFormat,
+    submissionsGridTimeFormat,
     formatDate,
     preciseFormatDate,
     isCurrentTimeAfterOrEqualTo,

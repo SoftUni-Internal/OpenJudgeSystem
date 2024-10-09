@@ -100,3 +100,21 @@
     margin-left: spacings.$sp-12;
   }
 }
+
+.fromDate {
+    display: flex;
+    justify-content: start;
+    align-items: start;
+    flex-direction: column;
+
+    .fromDateRow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+
+        .icon {
+            font-size: 17px !important;
+        }
+    }
+}

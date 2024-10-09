@@ -2,6 +2,8 @@ import React, { useCallback, useState } from 'react';
 import { FaFlagCheckered } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Popover } from '@mui/material';
 import isNil from 'lodash/isNil';
 
@@ -12,7 +14,12 @@ import { IAuthorizationReduxState } from '../../../redux/features/authorizationS
 import { setProfile } from '../../../redux/features/usersSlice';
 import { useAppDispatch } from '../../../redux/store';
 import concatClassNames from '../../../utils/class-names';
-import { defaultDateTimeFormatReverse, formatDate } from '../../../utils/dates';
+import {
+    defaultDateTimeFormatReverse,
+    formatDate,
+    preciseFormatDate,
+    submissionsGridDateFormat, submissionsGridTimeFormat,
+} from '../../../utils/dates';
 import { fullStrategyNameToStrategyType, strategyTypeToIcon } from '../../../utils/strategy-type-utils';
 import {
     encodeAsUrlParam,
@@ -185,9 +192,24 @@ const SubmissionGridRow = ({
                 }
             </td>
             <td>
-                <div>
-                    {formatDate(createdOn, defaultDateTimeFormatReverse)}
-                </div>
+                {internalUser.isAdmin
+                    ? (
+                        <div className={styles.fromDate}>
+                            <span className={styles.fromDateRow}>
+                                <CalendarMonthIcon className={styles.icon} />
+                                {preciseFormatDate(createdOn, submissionsGridDateFormat)}
+                            </span>
+                            <span className={styles.fromDateRow}>
+                                <AccessAlarmIcon className={styles.icon} />
+                                {preciseFormatDate(createdOn, submissionsGridTimeFormat)}
+                            </span>
+                        </div>
+                    )
+                    : (
+                        <div>
+                            {formatDate(createdOn, defaultDateTimeFormatReverse)}
+                        </div>
+                    )}
                 {
                     options.showParticipantUsername
                         ? (
