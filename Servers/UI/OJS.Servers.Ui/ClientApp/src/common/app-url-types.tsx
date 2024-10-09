@@ -22,6 +22,7 @@ interface IContestsSolutionSubmitPageUrlParams {
     contestId?: number | string;
     contestName?: string | null;
     problemId?: number;
+    orderBy?: number;
 }
 
 interface IContestsDetailsPageUrlParams {

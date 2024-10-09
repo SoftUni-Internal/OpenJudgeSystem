@@ -49,10 +49,11 @@ const getContestsSolutionSubmitPageUrl = ({
     contestId,
     contestName,
     problemId,
+    orderBy,
 }: IContestsSolutionSubmitPageUrlParams) => `/${CONTESTS_PATH}${createUrlFriendlyPath(contestName)}/${contestId}/${isCompete
     ? ContestParticipationType.Compete
     : ContestParticipationType.Practice}${problemId
-    ? `#${problemId}`
+    ? `#${orderBy}`
     : ''}`;
 
 const getContestsDetailsPageUrl = ({

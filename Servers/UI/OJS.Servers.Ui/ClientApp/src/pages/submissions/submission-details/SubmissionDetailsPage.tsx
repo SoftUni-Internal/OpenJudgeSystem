@@ -124,11 +124,18 @@ const SubmissionDetailsPage = () => {
             {' '}
             for problem
             {' '}
-            <Link to={getContestsSolutionSubmitPageUrl({ isCompete: isOfficial, contestId, contestName, problemId: problem?.id })}>
+            <Link to={getContestsSolutionSubmitPageUrl({
+                isCompete: isOfficial,
+                contestId,
+                contestName,
+                problemId: problem?.id,
+                orderBy: problem?.orderBy,
+            })}
+            >
                 {problem?.name}
             </Link>
         </div>
-    ), [ solutionId, contestUser?.userName, contestName, contestId, isOfficial, problem?.id, problem?.name ]);
+    ), [ solutionId, contestUser?.userName, contestName, contestId, isOfficial, problem?.id, problem?.name, problem?.orderBy ]);
 
     const renderAdminButtons = useCallback(() => {
         const onViewCodeClick = () => {
