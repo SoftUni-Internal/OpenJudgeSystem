@@ -143,6 +143,7 @@ const LoginForm = () => {
         }
 
         setHasPressedLoginBtn(true);
+        setLoginErrorMessage('');
 
         if (isEmpty(userName)) {
             handleOnChangeUpdateUsername('');
