@@ -52,9 +52,11 @@ const ContestsPage = () => {
             sortType: SortType.OrderBy,
             page: selectedPage,
         };
+
         if (selectedCategory) {
             params.category = selectedCategory.id;
         }
+
         if (selectedStrategy) {
             params.strategy = selectedStrategy.id;
         }

@@ -17,7 +17,6 @@ const ContestStrategies = () => {
     const [ selectValue, setSelectValue ] = useState<string>('');
 
     const selectedId = useMemo(() => searchParams.get('strategy'), [ searchParams ]);
-
     const {
         data: contestStrategies,
         isLoading: areStrategiesLoading,
@@ -25,20 +24,29 @@ const ContestStrategies = () => {
     } = useGetContestStrategiesQuery();
 
     useEffect(() => {
-        if (!selectedStrategy) {
+        if (selectedId && contestStrategies) {
+            const selected = contestStrategies.find((s) => s.id.toString() === selectedId);
+
+            if (selected) {
+                dispatch(setContestStrategy(selected));
+            } else {
+                dispatch(setContestStrategy(null));
+            }
+        }
+    }, [ selectedId, contestStrategies, dispatch ]);
+
+    useEffect(() => {
+        if (selectedStrategy) {
+            setSelectValue(selectedStrategy.id.toString());
+        } else {
             setSelectValue('');
         }
     }, [ selectedStrategy ]);
 
-    useEffect(() => {
-        if (selectedId) {
-            setSelectValue(selectedId);
-        } else {
-            setSelectValue('');
-        }
-    }, [ selectedId ]);
-
-    const mapDataToDropdownItem = (el: IContestStrategyFilter) => ({ id: el.id, name: el.name });
+    const mapDataToDropdownItem = (el: IContestStrategyFilter) => ({
+        id: el.id,
+        name: el.name,
+    });
 
     const dropdownItems = useMemo(
         () => !selectedCategory || selectedCategory?.allowedStrategyTypes?.length === 0
@@ -56,13 +64,17 @@ const ContestStrategies = () => {
         setSelectValue(s.id.toString());
     };
 
-    if (strategiesError) { return <div>Error loading strategies...</div>; }
+    if (strategiesError) {
+        return <div>Error loading strategies...</div>;
+    }
 
-    if (areStrategiesLoading) { return <div>Loading strategies...</div>; }
+    if (areStrategiesLoading) {
+        return <div>Loading strategies...</div>;
+    }
 
     return (
         <div className={styles.selectWrapper}>
-            { selectedStrategy && <IoMdClose onClick={removeSelectedStrategy} />}
+            {selectedStrategy && <IoMdClose onClick={removeSelectedStrategy} />}
             <Dropdown
               dropdownItems={dropdownItems || []}
               value={selectValue}
