@@ -3,6 +3,7 @@
 import React, { useCallback } from 'react';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
 import Prism from 'prismjs';
+import concatClassNames from 'src/utils/class-names';
 
 import 'prismjs/components/prism-javascript';
 
@@ -49,7 +50,13 @@ const Diff = ({ expectedStr, actualStr } : ITestsRunDiffProps) => {
                     </div>
                 </>
             )}
-            <div className={styles.diffWrapper}>
+            <div className={concatClassNames(
+                styles.diffWrapper,
+                isDarkMode
+                    ? styles.darkDiff
+                    : styles.lightDiff,
+            )}
+            >
                 <ReactDiffViewer
                   oldValue={expectedStr}
                   newValue={actualStr}

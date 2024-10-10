@@ -1,4 +1,7 @@
+/* stylelint-disable selector-no-qualifying-type */
+
 @use 'src/styles/variables';
+@use 'src/styles/colors';
 
 .diffDetailsText {
   display: inline-block;
@@ -7,15 +10,93 @@
   width: 50%;
 
   > h4 {
-    font-size: variables.$f-size-20;
+    font-size: variables.$f-size-14;
   }
 }
 
 .diffWrapper {
+  font-family: Consolas, monospace;
   height: 100px;
   overflow: auto;
 
   > table {
     height: inherit;
+  }
+}
+
+// Removes + and - signs in the beginning of each line
+td[class*='marker'] {
+  display: none;
+}
+
+pre[class*='content-text'] {
+  padding-left: 5px;
+}
+
+.lightDiff {
+  pre[class*='content-text'] {
+    pre {
+      color: colors.$light-text-color;
+    }
+  }
+
+  // Expected output
+  td[class*='gutter'][class*='removed'] {
+    background: #cdffd8;
+  }
+
+  td[class*='diff-removed'] {
+    background: #fff;
+  }
+
+  span[class*='word-removed'] {
+    // Difference marker background
+    background: #acf2bd;
+  }
+
+  // User output
+  td[class*='gutter'][class*='added'],
+  td[class*='empty-gutter'] {
+    background: #ffdce0;
+  }
+
+  td[class*='diff-added'] {
+    background: #fff;
+  }
+
+  span[class*='word-added'] {
+    // Difference marker background
+    background: #fdb8c0;
+  }
+}
+
+.darkDiff {
+  // Expected output
+  td[class*='gutter'][class*='removed'] {
+    background: #034148;
+  }
+
+  td[class*='diff-removed'] {
+    background: #2e303c;
+  }
+
+  span[class*='word-removed'] {
+    // Difference marker background
+    background: #055d67;
+  }
+
+  // User output
+  td[class*='gutter'][class*='added'],
+  td[class*='empty-gutter'] {
+    background: #632b30;
+  }
+
+  td[class*='diff-added'] {
+    background: #2e303c;
+  }
+
+  span[class*='word-added'] {
+    // Difference marker background
+    background: #7d383f;
   }
 }
