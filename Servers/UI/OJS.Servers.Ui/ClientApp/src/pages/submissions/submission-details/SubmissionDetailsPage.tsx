@@ -59,11 +59,17 @@ const SubmissionDetailsPage = () => {
     // fetch submission details if not present (when opened from url directly)
     // in order to load breadcrumbs and name of contest properly
     useEffect(() => {
-        if (!data?.contestId) {
+        if (!data?.contestId || !data?.contestName) {
             return;
         }
+
+        console.log(data);
         if (!contestDetails || contestDetails?.id !== data?.contestId) {
-            dispatch(setContestDetailsIdAndCategoryId({ id: data.contestId, categoryId: data.contestCategoryId }));
+            dispatch(setContestDetailsIdAndCategoryId({
+                id: data.contestId,
+                name: data.contestName,
+                categoryId: data.contestCategoryId,
+            }));
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ data?.contestId ]);

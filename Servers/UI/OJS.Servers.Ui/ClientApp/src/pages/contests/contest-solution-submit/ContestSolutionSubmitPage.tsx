@@ -296,7 +296,13 @@ const ContestSolutionSubmitPage = () => {
             if (!data?.contest) {
                 return;
             }
-            dispatch(setContestDetailsIdAndCategoryId({ id: data!.contest!.id, categoryId: data!.contest!.categoryId }));
+
+            console.log(data.contest);
+            dispatch(setContestDetailsIdAndCategoryId({
+                id: data!.contest!.id,
+                name: data.contest.name,
+                categoryId: data!.contest!.categoryId,
+            }));
         }
     }, [ contestDetails, contestId, data, dispatch ]);
 

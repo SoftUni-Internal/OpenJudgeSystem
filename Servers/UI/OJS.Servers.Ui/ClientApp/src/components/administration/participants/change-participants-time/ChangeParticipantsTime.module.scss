@@ -1,49 +1,49 @@
-﻿.title {
-    gap: 1rem;
-    display: flex;
-    flex-direction: column;
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 
-    .link {
-        color: #44a9f8;
-    }
+  .link {
+    color: #44a9f8;
+  }
 }
 
 .datesTitle {
-    font-weight: bold !important;
+  font-weight: bold !important;
 }
 
 .dates {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    justify-content: space-between;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
 
-    .date {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-        justify-content: center;
-    }
+  .date {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
 }
 
 .durationWrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 1rem;
-    width: 100%;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+  width: 100%;
 
-    .duration {
-        margin-bottom: 1rem !important;
-        margin-top: 1rem !important;
-        min-width: 70% !important;
-    }
+  .duration {
+    margin-bottom: 1rem !important;
+    margin-top: 1rem !important;
+    min-width: 70% !important;
+  }
 }
 
 .divider {
-    border-top: 1px solid #ccc;
-    margin-bottom: 2rem;
-    width: 100%;
+  border-top: 1px solid #ccc;
+  margin-bottom: 2rem;
+  width: 100%;
 }
 
 .dialogAdd {

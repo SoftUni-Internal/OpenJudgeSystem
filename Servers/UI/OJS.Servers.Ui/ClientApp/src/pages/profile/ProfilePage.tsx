@@ -4,7 +4,7 @@ import isNil from 'lodash/isNil';
 
 import MetaTags from '../../components/common/MetaTags';
 import ErrorWithActionButtons from '../../components/error/ErrorWithActionButtons';
-import PageBreadcrumbs, { IPageBreadcrumbsItem } from '../../components/guidelines/breadcrumb/PageBreadcrumbs';
+import Breadcrumbs, { IPageBreadcrumbsItem } from '../../components/guidelines/breadcrumb/Breadcrumbs';
 import Button, { ButtonType } from '../../components/guidelines/buttons/Button';
 import LegacyInfoMessage from '../../components/guidelines/legacy-info-message/LegacyInfoMessage';
 import SpinningLoader from '../../components/guidelines/spinning-loader/SpinningLoader';
@@ -108,15 +108,14 @@ const ProfilePage = () => {
                     ? renderError()
                     : (
                         <div className={getColorClassName(themeColors.textColor)}>
-                            <PageBreadcrumbs
+                            <Breadcrumbs
                               keyPrefix="profile"
                               items={[
-                            {
-                                text: `${currentUserIsProfileOwner
-                                    ? 'My'
-                                    : ''} Profile`,
-                                to: '/profile',
-                            } as IPageBreadcrumbsItem,
+                                {
+                                    text: `${currentUserIsProfileOwner
+                                        ? 'My'
+                                        : ''} Profile`,
+                                } as IPageBreadcrumbsItem,
                               ]}
                             />
                             <ProfileAboutInfo
