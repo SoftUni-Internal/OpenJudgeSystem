@@ -263,7 +263,7 @@ const ContestSolutionSubmitPage = () => {
                 setRemainingTimeForCompete(calculatedTimeFormatted(moment.duration(0, 'milliseconds')));
                 clearInterval(intervalId);
             }
-        }, 1000);
+        });
 
         return () => {
             clearInterval(intervalId);
