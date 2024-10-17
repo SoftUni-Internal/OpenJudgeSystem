@@ -392,18 +392,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 page);
     }
 
-    public async Task<PagedResult<SubmissionForProfileServiceModel>> GetForProfileByUserAndContest(string? username, int page, int contestId)
-    {
-        var user = await this.usersBusiness.GetUserShortOrFullProfileByLoggedInUserIsAdminOrProfileOwner(username);
-
-        return await this.submissionsData
-            .GetAllForUserByContest(
-                contestId,
-                user!.Id)
-            .MapCollection<SubmissionForProfileServiceModel>()
-            .ToPagedResultAsync(DefaultSubmissionsPerPage, page);
-    }
-
     public async Task<PagedResult<TServiceModel>> GetUserSubmissionsByProblem<TServiceModel>(
         int problemId,
         bool isOfficial,
@@ -571,21 +559,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         });
 
         this.logger.LogSubmissionProcessedSuccessfully(submission.Id, submissionForProcessing);
-    }
-
-    public async Task<PagedResult<SubmissionResultsServiceModel>> GetSubmissionResults(int submissionId, int page)
-    {
-        var problemId = await this.submissionsData.GetProblemIdBySubmission(submissionId);
-
-        var participantId =
-            await this.submissionsData.GetParticipantIdBySubmission(submissionId);
-
-        if (problemId == 0 || participantId == 0)
-        {
-            return new PagedResult<SubmissionResultsServiceModel>();
-        }
-
-        return await this.GetUserSubmissions<SubmissionResultsServiceModel>(problemId, participantId, page);
     }
 
     public Task<int> GetTotalCount()

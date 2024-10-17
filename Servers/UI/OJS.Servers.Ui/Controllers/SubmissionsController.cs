@@ -44,22 +44,6 @@ public class SubmissionsController : BaseApiController
             .ToOkResult();
 
     /// <summary>
-    /// Gets user latest submissions for contest.
-    /// </summary>
-    /// /// <param name="username">Username of the profile's owner.</param>
-    /// <param name="page">The current page number.</param>
-    /// <param name="contestId">Contest for which the submissions will be retrieved.</param>
-    /// <returns>A page with submissions containing information about their score and user.</returns>
-    [HttpGet]
-    [Authorize]
-    [ProducesResponseType(typeof(PagedResultResponse<FullDetailsPublicSubmissionsResponseModel>), Status200OK)]
-    public async Task<IActionResult> GetUserSubmissionsForProfileByContest([FromQuery] string username, [FromQuery] int page, [FromQuery] int contestId)
-        => await this.submissionsBusiness
-            .GetForProfileByUserAndContest(username, page, contestId)
-            .Map<PagedResultResponse<FullDetailsPublicSubmissionsServiceModel>>()
-            .ToOkResult();
-
-    /// <summary>
     /// Gets the submitted file.
     /// </summary>
     /// <param name="id">Id of the submission.</param>
@@ -98,26 +82,6 @@ public class SubmissionsController : BaseApiController
         => await this.submissionsBusiness
             .GetUserSubmissionsByProblem<FullDetailsPublicSubmissionsServiceModel>(problemId, isOfficial, page)
             .Map<PagedResultResponse<FullDetailsPublicSubmissionsServiceModel>>()
-            .ToOkResult();
-
-    /// <summary>
-    /// Gets a subset of submission results for the selected user by specific problem in details page.
-    /// </summary>
-    /// <param name="submissionId">The id of the submission.</param>
-    /// <param name="page">Current submissions page.</param>
-    /// <returns>A collection of submissions for a specific problem.</returns>
-    [HttpGet("{submissionId:int}")]
-    [ProducesResponseType(typeof(PagedResultResponse<SubmissionResultsResponseModel>), Status200OK)]
-    [SuppressMessage(
-        "Usage",
-        "ASP0023:Route conflict detected between controller actions",
-        Justification = "Base API controller Route handles different actions names.")]
-    public async Task<IActionResult> GetSubmissionResults(
-        int submissionId,
-        [FromQuery] int page)
-        => await this.submissionsBusiness
-            .GetSubmissionResults(submissionId, page)
-            .Map<PagedResultResponse<SubmissionResultsResponseModel>>()
             .ToOkResult();
 
     /// <summary>

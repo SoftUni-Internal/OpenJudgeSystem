@@ -30,13 +30,9 @@
             int page,
             int itemsInPage = DefaultSubmissionsPerPage);
 
-        Task<PagedResult<SubmissionForProfileServiceModel>> GetForProfileByUserAndContest(string? username, int page, int contestId);
-
         Task ProcessExecutionResult(SubmissionExecutionResult submissionExecutionResult);
 
         // Task HardDeleteAllArchived();
-
-        Task<PagedResult<SubmissionResultsServiceModel>> GetSubmissionResults(int submissionId, int page);
 
         Task<PagedResult<TServiceModel>> GetUserSubmissionsByProblem<TServiceModel>(int problemId, bool isOfficial, int page);
 
