@@ -233,7 +233,7 @@ const ContestSolutionSubmitPage = () => {
                 setRemainingTime(newRemainingTime);
                 setIsSubmitButtonDisabled(true);
             }
-        }, 1000);
+        });
 
         return () => {
             clearInterval(intervalId);
