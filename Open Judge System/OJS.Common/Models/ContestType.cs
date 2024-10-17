@@ -13,6 +13,6 @@
         OnlinePracticalExam = 2,
 
         [LocalizedDescription("Lab", typeof(Resource))]
-        Lab = 3
+        Lab = 3,
     }
 }

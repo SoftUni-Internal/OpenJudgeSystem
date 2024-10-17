@@ -129,4 +129,10 @@
   <data name="Import_contests_page_title" xml:space="preserve">
     <value>Импортиране на контести в категория</value>
   </data>
+  <data name="Edit_all_contests_page_title" xml:space="preserve">
+    <value>Редактирай всички състезания в категория</value>
+  </data>
+  <data name="Edit_all_contests_type_tooltip" xml:space="preserve">
+    <value>Изберете тип на състезанието. Ако не е избран тип, съществуващата стойност ще бъде запазена всяко състезание.</value>
+  </data>
 </root>

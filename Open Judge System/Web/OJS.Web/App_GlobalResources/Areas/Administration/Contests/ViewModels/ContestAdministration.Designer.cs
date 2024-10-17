@@ -61,6 +61,15 @@ namespace Resources.Areas.Administration.Contests.ViewModels {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Allowed IPs.
+        /// </summary>
+        public static string Allowed_ips {
+            get {
+                return ResourceManager.GetString("Allowed_ips", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Automatically change test detailed feedback visiblity.
         /// </summary>
         public static string Auto_change_tests_feedback_visibility {

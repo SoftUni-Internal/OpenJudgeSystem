@@ -159,4 +159,7 @@
   <data name="Import_contests" xml:space="preserve">
     <value>Импортирай състезания</value>
   </data>
+  <data name="Edit_all_contests" xml:space="preserve">
+    <value>Редактирай състезания</value>
+  </data>
 </root>

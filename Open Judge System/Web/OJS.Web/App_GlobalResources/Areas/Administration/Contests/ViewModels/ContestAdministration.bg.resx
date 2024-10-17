@@ -195,4 +195,7 @@
   <data name="Default_worker_type" xml:space="preserve">
     <value>Тип уъркър по подразбиране</value>
   </data>
+  <data name="Allowed_ips" xml:space="preserve">
+    <value>Позволени IP-та</value>
+  </data>
 </root>

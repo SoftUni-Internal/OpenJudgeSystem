@@ -195,4 +195,7 @@
   <data name="Default_worker_type" xml:space="preserve">
     <value>Default Worker Type</value>
   </data>
+  <data name="Allowed_ips" xml:space="preserve">
+    <value>Allowed IPs</value>
+  </data>
 </root>

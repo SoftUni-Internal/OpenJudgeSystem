@@ -208,7 +208,7 @@ namespace OJS.Web.Areas.Administration.ViewModels.Contest
         [Display(Name = nameof(Resource.Default_worker_type), ResourceType = typeof(Resource))]
         public WorkerType DefaultWorkerType { get; set; }
 
-        [Display(Name = "Allowed IPs")]
+        [Display(Name = nameof(Resource.Allowed_ips), ResourceType = typeof(Resource))]
         public string AllowedIps { get; set; }
 
         public string RawAllowedIps

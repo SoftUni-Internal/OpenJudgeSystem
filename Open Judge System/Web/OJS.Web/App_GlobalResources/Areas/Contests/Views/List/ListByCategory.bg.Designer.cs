@@ -105,6 +105,15 @@ namespace Resources.Areas.Contests.Views {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Редактирай състезания.
+        /// </summary>
+        public static string Edit_all_contests {
+            get {
+                return ResourceManager.GetString("Edit_all_contests", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Има парола.
         /// </summary>
         public static string Has_compete_password {

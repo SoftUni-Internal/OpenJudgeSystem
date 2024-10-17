@@ -1794,6 +1794,7 @@
     <Compile Include="Areas\Administration\Controllers\TestsController.cs" />
     <Compile Include="Areas\Administration\Controllers\UsersController.cs" />
     <Compile Include="Areas\Administration\InputModels\AntiCheat\SubmissionSimilarityFiltersInputModel.cs" />
+    <Compile Include="Areas\Administration\ViewModels\ContestCategory\EditAllContestsAdministrationViewModel.cs" />
     <Compile Include="Areas\Administration\ViewModels\ContestCategory\ImportContestsViewModel.cs" />
     <Compile Include="Areas\Administration\ViewModels\Contest\ChangeParticipationEndTimeByUserViewModel.cs" />
     <Compile Include="Areas\Administration\ViewModels\Contest\ChangeParticipationEndTimeViewModel.cs" />
@@ -1972,6 +1973,7 @@
     <Compile Include="ViewModels\TestRun\TestRunViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\Administration\Views\ContestCategories\EditAllContests.cshtml" />
     <Content Include="Areas\Administration\Views\ContestCategories\ImportContests.cshtml" />
     <Content Include="Content\css\administration\administration-styles.css" />
     <Content Include="Content\bootstrap\bootstrap-amelia.css" />

@@ -70,6 +70,24 @@ namespace Resources.Areas.Administration.ContestCategories.Views {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Редактирай всички състезания в категория.
+        /// </summary>
+        public static string Edit_all_contests_page_title {
+            get {
+                return ResourceManager.GetString("Edit_all_contests_page_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Изберете тип на състезанието. Ако не е избран тип, съществуващата стойност ще бъде запазена всяко състезание..
+        /// </summary>
+        public static string Edit_all_contests_type_tooltip {
+            get {
+                return ResourceManager.GetString("Edit_all_contests_type_tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Йерархия на категориите състезания.
         /// </summary>
         public static string Heirarchy_page_title {

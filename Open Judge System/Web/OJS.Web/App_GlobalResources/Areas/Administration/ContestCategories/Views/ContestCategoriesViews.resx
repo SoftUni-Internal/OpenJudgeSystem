@@ -129,4 +129,10 @@
   <data name="Import_contests_page_title" xml:space="preserve">
     <value>Import contests into category</value>
   </data>
+  <data name="Edit_all_contests_page_title" xml:space="preserve">
+    <value>Edit all contests in category</value>
+  </data>
+  <data name="Edit_all_contests_type_tooltip" xml:space="preserve">
+    <value>Choose contest type. If no type is specified, the existing value will be preserved for every contest.</value>
+  </data>
 </root>

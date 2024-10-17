@@ -5,19 +5,24 @@
     using System.Linq;
     using System.Web;
     using System.Web.Mvc;
+    using EntityFramework.Extensions;
     using Kendo.Mvc.Extensions;
     using Kendo.Mvc.UI;
     using OJS.Common;
     using OJS.Common.Extensions;
+    using OJS.Common.Models;
     using OJS.Data;
+    using OJS.Data.Models;
     using OJS.Services.Business.ContestCategories;
     using OJS.Services.Common.BackgroundJobs;
     using OJS.Services.Common.HttpRequester;
+    using OJS.Services.Data.Contests;
     using OJS.Web.Areas.Administration.Controllers.Common;
     using OJS.Web.Areas.Administration.ViewModels.ContestCategory;
     using OJS.Web.Common.Extensions;
     using OJS.Web.Infrastructure.Filters.Attributes;
-
+    using OJS.Web.ViewModels.Common;
+    using ContestsResource = Resources.Areas.Administration.Contests.ContestsControllers;
     using DatabaseModelType = OJS.Data.Models.ContestCategory;
     using ViewModelType = OJS.Web.Areas.Administration.ViewModels.ContestCategory.ContestCategoryAdministrationViewModel;
 
@@ -25,15 +30,18 @@
     {
         private readonly IHangfireBackgroundJobService backgroundJobs;
         private readonly IHttpRequesterService httpRequester;
+        private readonly IContestsDataService contestsData;
 
         public ContestCategoriesController(
             IOjsData data,
             IHangfireBackgroundJobService backgroundJobs,
-            IHttpRequesterService httpRequester)
+            IHttpRequesterService httpRequester,
+            IContestsDataService contestsData)
             : base(data)
         {
             this.backgroundJobs = backgroundJobs;
             this.httpRequester = httpRequester;
+            this.contestsData = contestsData;
         }
 
         public override IEnumerable GetData()
@@ -115,6 +123,76 @@
         }
 
         [HttpGet]
+        public ActionResult EditAllContests(int categoryId)
+        {
+            if (!this.CheckIfUserHasContestCategoryPermissions(categoryId))
+            {
+                return this.RedirectToContestsAdminPanelWithNoPrivilegesMessage();
+            }
+
+            var category = this.Data.ContestCategories.GetById(categoryId) ?? throw new HttpException(404, "Category not found");
+
+            var model = new EditAllContestsAdministrationViewModel
+            {
+                CategoryId = category.Id,
+                CategoryName = category.Name,
+            };
+
+            this.PrepareEditContestsViewBagData();
+
+            this.ViewBag.ReturnUrl = GetReturnUrlToCategory(model.CategoryId, model.CategoryName);
+            return this.View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditAllContests(EditAllContestsAdministrationViewModel model, string returnUrl)
+        {
+            if (!this.CheckIfUserHasContestCategoryPermissions(model.CategoryId))
+            {
+                return this.RedirectToContestsAdminPanelWithNoPrivilegesMessage();
+            }
+
+            this.ViewBag.ReturnUrl = returnUrl;
+
+            if (model.StartTime >= model.EndTime)
+            {
+                this.ModelState.AddModelError(nameof(EditAllContestsAdministrationViewModel.StartTime), ContestsResource.Contest_start_date_before_end);
+            }
+
+            if (model.PracticeStartTime >= model.PracticeEndTime)
+            {
+                this.ModelState.AddModelError(nameof(EditAllContestsAdministrationViewModel.PracticeStartTime), ContestsResource.Practice_start_date_before_end);
+            }
+
+            if (!this.ModelState.IsValid)
+            {
+                this.PrepareEditContestsViewBagData();
+                return this.View(model);
+            }
+
+            var category = this.Data.ContestCategories.GetById(model.CategoryId) ?? throw new HttpException(404, "Category not found");
+
+            this.contestsData.GetAllNotDeletedByCategory(category.Id, true)
+                .Update(c => new Contest
+                {
+                    // Preserve the original values if a new value is not selected.
+                    Type = model.Type == null || model.Type == 0 ? c.Type : (ContestType)model.Type,
+                    LimitBetweenSubmissions = model.LimitBetweenSubmissions ?? c.LimitBetweenSubmissions,
+
+                    // Overwrite the original values with the new ones, even when they are null, as they are optional for a contest.
+                    StartTime = model.StartTime,
+                    EndTime = model.EndTime,
+                    PracticeStartTime = model.PracticeStartTime,
+                    PracticeEndTime = model.PracticeEndTime,
+                });
+
+            this.TempData.AddInfoMessage($"All contests in category {category.Name} are edited successfully.");
+
+            return this.Redirect(returnUrl);
+        }
+
+        [HttpGet]
         [Authorize(Roles = GlobalConstants.AdministratorRoleName)]
         public ActionResult ImportContests(int categoryId)
         {
@@ -126,7 +204,7 @@
                 CategoryName = category.Name,
             };
 
-            this.ViewBag.ReturnUrl = $"/Contests/#!/List/ByCategory/{model.CategoryId}/{model.CategoryName.ToUrl()}";
+            this.ViewBag.ReturnUrl = GetReturnUrlToCategory(model.CategoryId, model.CategoryName);
             return this.View(model);
         }
 
@@ -191,6 +269,15 @@
                 "You can continue working in the meantime and check the results later.");
 
             return this.Redirect(returnUrl);
+        }
+
+        private static string GetReturnUrlToCategory(int categoryId, string categoryName) =>
+            $"/Contests/#!/List/ByCategory/{categoryId}/{categoryName.ToUrl()}";
+
+        private void PrepareEditContestsViewBagData()
+        {
+            this.ViewBag.TypeData = new[] { new DropdownViewModel { Name = string.Empty } }
+                .Concat(DropdownViewModel.GetEnumValues<ContestType>());
         }
 
         private void CascadeDeleteCategories(DatabaseModelType contest)

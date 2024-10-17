@@ -70,6 +70,24 @@ namespace Resources.Areas.Administration.ContestCategories.Views {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit all contests in category.
+        /// </summary>
+        public static string Edit_all_contests_page_title {
+            get {
+                return ResourceManager.GetString("Edit_all_contests_page_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Choose contest type. If no type is specified, the existing value will be preserved for every contest..
+        /// </summary>
+        public static string Edit_all_contests_type_tooltip {
+            get {
+                return ResourceManager.GetString("Edit_all_contests_type_tooltip", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Contest categories heirarchy.
         /// </summary>
         public static string Heirarchy_page_title {

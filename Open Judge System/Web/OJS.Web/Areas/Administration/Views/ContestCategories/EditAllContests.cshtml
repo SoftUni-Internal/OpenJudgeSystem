@@ -1,0 +1,150 @@
+@model OJS.Web.Areas.Administration.ViewModels.ContestCategory.EditAllContestsAdministrationViewModel
+
+@using Resource = Resources.Areas.Administration.ContestCategories.Views.ContestCategoriesViews
+@using SharedResource = Resources.Areas.Administration.Contests.Views.Partials.ContestEditor
+
+@{
+    ViewBag.Title = $"{Resource.Edit_all_contests_page_title} {Model.CategoryName}";
+}
+
+<h1>@ViewBag.Title</h1>
+<p>
+    Each contest in the category will be updated with the provided values.
+    <b>Note</b> that required fields for a Contest like Type and Time between submissions, are optional here.
+    This means that if no value is provided, the existing values will be preserved.
+    Optional fields for a Contest like Start and End times will be cleared if no value is provided.
+</p>
+<hr/>
+
+<div id="edit-all-contests-form" class="container">
+    @using (Html.BeginForm("EditAllContests", "ContestCategories", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(model => model.CategoryId)
+        @Html.HiddenFor(model => model.CategoryName)
+
+        <fieldset>
+            <legend>@SharedResource.General_info</legend>
+            <div class="row">
+                <div class="editor-label col-xs-3">
+                    <div class="pull-right">
+                        @Html.LabelFor(m => m.Type)
+                    </div>
+                </div>
+                <div class="editor-field col-xs-4">
+                    @Html.EditorFor(m => m.Type)
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="@Resource.Edit_all_contests_type_tooltip" data-tooltip="true"></span>
+                    @Html.ValidationMessageFor(m => m.Type)
+                </div>
+            </div>
+            <br />
+        </fieldset>
+
+        <fieldset>
+            <legend>@SharedResource.Duration_info</legend>
+            <div class="row">
+                <div class="editor-label col-xs-3">
+                    <div class="pull-right">
+                        @Html.LabelFor(m => m.StartTime)
+                    </div>
+                </div>
+                <div class="editor-field col-xs-4">
+                    @Html.EditorFor(m => m.StartTime, new { @class = "form-control pull-left full-editor" })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="@SharedResource.Contest_start" data-tooltip="true"></span>
+                    @Html.ValidationMessageFor(m => m.StartTime)
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="editor-label col-xs-3">
+                    <div class="pull-right">
+                        @Html.LabelFor(m => m.EndTime)
+                    </div>
+                </div>
+                <div class="editor-field col-xs-4">
+                    @Html.EditorFor(m => m.EndTime, new { @class = "form-control pull-left full-editor" })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="@SharedResource.Contest_end" data-tooltip="true"></span>
+                    @Html.ValidationMessageFor(m => m.EndTime)
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="editor-label col-xs-3">
+                    <div class="pull-right">
+                        @Html.LabelFor(m => m.PracticeStartTime)
+                    </div>
+                </div>
+                <div class="editor-field col-xs-4">
+                    @Html.EditorFor(m => m.PracticeStartTime, new { @class = "form-control pull-left full-editor" })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="@SharedResource.Practice_start" data-tooltip="true"></span>
+                    @Html.ValidationMessageFor(m => m.PracticeStartTime)
+                </div>
+            </div>
+            <br />
+            <div class="row">
+                <div class="editor-label col-xs-3">
+                    <div class="pull-right">
+                        @Html.LabelFor(m => m.PracticeEndTime)
+                    </div>
+                </div>
+                <div class="editor-field col-xs-4">
+                    @Html.EditorFor(m => m.PracticeEndTime, new { @class = "form-control pull-left full-editor" })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="@SharedResource.Practice_end" data-tooltip="true"></span>
+                    @Html.ValidationMessageFor(m => m.PracticeEndTime)
+                </div>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>@SharedResource.Options</legend>
+            <div class="row">
+                <div class="editor-label col-xs-3">
+                    <div class="pull-right">
+                        @Html.LabelFor(m => m.LimitBetweenSubmissions)
+                    </div>
+                </div>
+                <div class="editor-field col-xs-4">
+                    @Html.EditorFor(m => m.LimitBetweenSubmissions, new { @class = "form-control pull-left full-editor" })
+                </div>
+                <div class="editor-field col-xs-4">
+                    <span class="glyphicon glyphicon-question-sign text-primary" title="@SharedResource.Submissions_limit (Optional. Preserves existing values if not specified.)" data-tooltip="true"></span>
+                    @Html.ValidationMessageFor(m => m.LimitBetweenSubmissions)
+                </div>
+            </div>
+            <br />
+        </fieldset>
+
+        <hr />
+        <div class="row">
+            <div class="editor-label col-xs-3">
+                <button type="submit" class="btn btn-primary pull-right" id="edit-all-contests-button">Edit</button>
+            </div>
+            <div class="editor-label col-xs-4">
+                <a href="@ViewBag.ReturnUrl" class="btn btn-primary">Back</a>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script type="text/javascript">
+        document.getElementById("edit-all-contests-button").addEventListener("click", function(event) {
+            const confirmation = confirm("Are you sure you want to edit all the contests in the category?");
+            if (!confirmation) {
+                // Prevent form submission if the user cancels
+                event.preventDefault();
+            }
+        });
+    </script>
+}
