@@ -87,16 +87,28 @@ namespace OJS.Data.Models.Submissions
         public virtual ICollection<TestRun> TestRuns { get; set; } = new HashSet<TestRun>();
 
         /// <summary>
-        /// Gets or sets a cache field for submission test runs representing each test run result as an integer equal to <see cref="TestRunResultType"/>.
-        /// The first integer represent the number of trial tests associated with this submissions.
-        /// This field optimized database queries.
+        /// Gets or sets a cache field for submission test runs, which includes:
+        /// - A representation of each test run result as an integer corresponding to the <see cref="TestRunResultType"/> enumeration.
+        /// - The maximum time and memory used for the submission.
         ///
-        /// Example: 300011002 means:
-        /// - Three trial tests runs with 0 result (Correct Answer)
-        /// - Five normal test runs with:
-        ///   - Two 1 results (Wrong Answer)
-        ///   - Two 0 results (Correct Answer)
-        ///   - One 2 result (Time Limit).
+        /// The cache field is a string composed of two parts separated by a pipe character '|', following the format:
+        /// <c>{test runs}|{max time used},{max memory used}</c>.
+        ///
+        /// The first integer in the test runs part represents the number of trial tests associated with this submission!
+        /// This field optimizes database queries by reducing the need to join with the test runs' table.
+        ///
+        /// Example: 300011002|90,1519616
+        /// Breakdown:
+        /// -> First Part (Test Runs):
+        ///   - Three trial test runs with result 0 (Correct Answer).
+        ///   - Five normal test runs with results:
+        ///     - Two results of 1 (Wrong Answer).
+        ///     - Two results of 0 (Correct Answer).
+        ///     - One result of 2 (Time Limit Exceeded).
+        ///
+        /// -> Second Part (Max Time and Memory):
+        ///   - Time used: 90 milliseconds.
+        ///   - Memory used: 1,519,616 bytes.
         /// </summary>
         public string? TestRunsCache { get; set; }
 
@@ -125,10 +137,9 @@ namespace OJS.Data.Models.Submissions
         public int TestsWithoutTrialTestsCount
             => this.Problem?.Tests.Count(x => !x.IsTrialTest) ?? 0;
 
-        // TODO: Should be moved to a data/business service
         public void CacheTestRuns()
         {
-            if (this.TestRuns.Any())
+            if (this.TestRuns.Count != 0)
             {
                 var result = new StringBuilder();
                 var trialTests = 0;
@@ -147,7 +158,10 @@ namespace OJS.Data.Models.Submissions
                     result.Append((int)testRun.ResultType);
                 }
 
-                this.TestRunsCache = $"{trialTests}{result}";
+                var maxTimeUsed = this.TestRuns.Max(tr => tr.TimeUsed);
+                var maxMemoryUsed = this.TestRuns.Max(tr => tr.MemoryUsed);
+
+                this.TestRunsCache = $"{trialTests}{result}|{maxTimeUsed},{maxMemoryUsed}";
             }
         }
     }

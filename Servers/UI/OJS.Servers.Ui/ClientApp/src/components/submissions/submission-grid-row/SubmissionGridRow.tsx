@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { FaFlagCheckered } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +19,8 @@ import {
     defaultDateTimeFormatReverse,
     formatDate,
     preciseFormatDate,
-    submissionsGridDateFormat, submissionsGridTimeFormat,
+    submissionsGridDateFormat,
+    submissionsGridTimeFormat,
 } from '../../../utils/dates';
 import { fullStrategyNameToStrategyType, strategyTypeToIcon } from '../../../utils/strategy-type-utils';
 import {
@@ -63,15 +64,15 @@ const SubmissionGridRow = ({
         },
         isOfficial,
         isCompiledSuccessfully,
-        maxMemoryUsed,
-        maxTimeUsed,
         processed,
         testRuns,
         testRunsCache,
+        maxTimeUsed,
+        maxMemoryUsed,
     } = submission;
 
     const { internalUser } =
-        useSelector((reduxState: {authorization: IAuthorizationReduxState}) => reduxState.authorization);
+        useSelector((reduxState: { authorization: IAuthorizationReduxState }) => reduxState.authorization);
     const dispatch = useAppDispatch();
 
     const [ competeIconAnchorElement, setCompeteIconAnchorElement ] = useState<HTMLElement | null>(null);
@@ -90,7 +91,7 @@ const SubmissionGridRow = ({
         setCompeteIconAnchorElement(event.currentTarget);
     };
 
-    const hasTimeAndMemoryUsed = (s: IPublicSubmission) => (!isNil(s.maxMemoryUsed) && !isNil(s.maxTimeUsed)) ?? false;
+    const hasTimeAndMemoryUsed = useCallback((s: IPublicSubmission) => !isNil(s.maxMemoryUsed) && !isNil(s.maxTimeUsed), []);
 
     const rowClassName = concatClassNames(
         styles.row,
@@ -100,23 +101,69 @@ const SubmissionGridRow = ({
         getColorClassName(themeColors.textColor),
     );
 
-    const getTestRuns = useCallback(() => {
-        if (testRunsCache) {
-            const trialTestsCount = Number.parseInt(testRunsCache[0], 10);
-
-            const cachedTestRuns: ITestRunIcon[] = Array.from(testRunsCache)
-                .slice(1)
-                .map((resultType, index) => ({
-                    resultType: Number.parseInt(resultType, 10),
-                    id: index + 1,
-                    isTrialTest: index < trialTestsCount,
-                }));
-
-            return cachedTestRuns;
+    const parsedTestRunsCache = useMemo(() => {
+        if (!testRunsCache) {
+            return {
+                testRuns,
+                maxTimeUsed: 0,
+                maxMemoryUsed: 0,
+            };
         }
 
-        return testRuns;
-    }, [ testRuns, testRunsCache ]);
+        const [ testRunPart, timeMemoryPart ] = testRunsCache.split('|');
+
+        if (!testRunPart) {
+            return {
+                testRuns,
+                maxTimeUsed: 0,
+                maxMemoryUsed: 0,
+            };
+        }
+
+        const trialTestsCount = Number.parseInt(testRunPart[0], 10);
+        if (Number.isNaN(trialTestsCount)) {
+            return {
+                testRuns,
+                maxTimeUsed: null,
+                maxMemoryUsed: null,
+            };
+        }
+
+        const testRunResults = testRunPart.slice(1);
+        const testRunsParsed: ITestRunIcon[] = Array.from(testRunResults)
+            .map((resultType, index) => ({
+                resultType: Number.parseInt(resultType, 10),
+                id: index + 1,
+                isTrialTest: index < trialTestsCount,
+            }))
+            .filter((run) => !Number.isNaN(run.resultType));
+
+        let maxTimeUsedCache = null;
+        let maxMemoryUsedCache = null;
+        if (timeMemoryPart) {
+            const [ timeString, memoryString ] = timeMemoryPart.split(',');
+            if (timeString) {
+                const parsedTime = parseInt(timeString, 10);
+                if (!Number.isNaN(parsedTime)) {
+                    maxTimeUsedCache = parsedTime;
+                }
+            }
+            if (memoryString) {
+                const parsedMemory = parseInt(memoryString, 10);
+                if (!Number.isNaN(parsedMemory)) {
+                    maxMemoryUsedCache = parsedMemory;
+                }
+            }
+        }
+
+        return {
+            testRuns: testRunsParsed,
+            maxTimeUsedCache,
+            maxMemoryUsedCache,
+        };
+    }, [ testRunsCache, testRuns ]);
+
+    const { testRuns: parsedTestRuns, maxTimeUsedCache, maxMemoryUsedCache } = parsedTestRunsCache;
 
     const renderUsername = useCallback(
         () => (
@@ -275,7 +322,7 @@ const SubmissionGridRow = ({
                 options.showDetailedResults
                     ? (
                         <td>
-                            { hasTimeAndMemoryUsed(submission)
+                            {hasTimeAndMemoryUsed(submission)
                                 ? (
                                     <div className={styles.timeAndMemoryContainer}>
                                         <div className={styles.maxMemoryUsed}>
@@ -284,7 +331,7 @@ const SubmissionGridRow = ({
                                               className={styles.memoryIcon}
                                             />
                                             <span className={styles.timeAndMemoryText}>
-                                                {(maxMemoryUsed / 1000000).toFixed(2)}
+                                                {((maxMemoryUsedCache ?? maxMemoryUsed) / 1000000).toFixed(2)}
                                                 {' '}
                                                 MB
                                             </span>
@@ -295,7 +342,7 @@ const SubmissionGridRow = ({
                                               className={styles.timeIcon}
                                             />
                                             <span className={styles.timeAndMemoryText}>
-                                                {maxTimeUsed / 1000}
+                                                {((maxTimeUsedCache ?? maxTimeUsed) / 1000).toFixed(2)}
                                                 {' '}
                                                 s.
                                             </span>
@@ -312,7 +359,7 @@ const SubmissionGridRow = ({
                     <ExecutionResult
                       points={points}
                       maxPoints={maxPoints}
-                      testRuns={getTestRuns()}
+                      testRuns={parsedTestRuns}
                       isCompiledSuccessfully={isCompiledSuccessfully}
                       isProcessed={processed}
                       showDetailedResults={options.showDetailedResults}
@@ -325,10 +372,10 @@ const SubmissionGridRow = ({
                         <td className={styles.strategy}>
                             <div className={styles.strategyWrapper}>
                                 {
-                                internalUser.isAdmin
-                                    ? renderStrategyIcon()
-                                    : null
-                            }
+                                    internalUser.isAdmin
+                                        ? renderStrategyIcon()
+                                        : null
+                                }
                                 <span>{strategyName}</span>
                             </div>
                         </td>
