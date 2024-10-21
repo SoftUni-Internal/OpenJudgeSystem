@@ -1,7 +1,7 @@
 import React from 'react';
 
 import MetaTags from '../../components/common/MetaTags';
-import PageBreadcrumbs, { IPageBreadcrumbsItem } from '../../components/guidelines/breadcrumb/PageBreadcrumbs';
+import Breadcrumbs, { IPageBreadcrumbsItem } from '../../components/guidelines/breadcrumb/Breadcrumbs';
 import RecentSubmissions from '../../components/submissions/recent-submissions/RecentSubmissions';
 import setLayout from '../shared/set-layout';
 
@@ -14,13 +14,10 @@ const SubmissionsPage = () => (
                 'analyze recent solutions, and improve your programming skills.'
             }
         />
-        <PageBreadcrumbs
+        <Breadcrumbs
           keyPrefix="submissions"
           items={[
-              {
-                  text: 'Submissions',
-                  to: '/submissions',
-              } as IPageBreadcrumbsItem,
+               { text: 'Submissions' } as IPageBreadcrumbsItem,
           ]}
         />
         <RecentSubmissions />
