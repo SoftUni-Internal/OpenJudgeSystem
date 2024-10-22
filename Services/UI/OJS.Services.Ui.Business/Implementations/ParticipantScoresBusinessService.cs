@@ -12,7 +12,6 @@ namespace OJS.Services.Ui.Business.Implementations
     using OJS.Services.Common;
     using OJS.Services.Infrastructure.Exceptions;
     using OJS.Services.Ui.Data;
-    using OJS.Services.Ui.Models.Participations;
     using OJS.Services.Ui.Models.Problems;
     using OJS.Services.Ui.Models.Submissions;
     using OJS.Services.Infrastructure.Extensions;
@@ -139,21 +138,6 @@ namespace OJS.Services.Ui.Business.Implementations
                 .GetByProblemIdAndParticipants(participantIds, problemId)
                 .MapCollection<ParticipantScoreModel>()
                 .ToEnumerableAsync();
-
-        public async Task<IEnumerable<ParticipationForProblemMaxScoreServiceModel>> GetAllForParticipant(
-            int participantId)
-        {
-            var participantScores = await this.participantScoresData.GetWithSubmissionsAndTestsByParticipantId(participantId);
-
-            return participantScores
-                .GroupBy(r => r.ProblemId)
-                .Select(g => new ParticipationForProblemMaxScoreServiceModel
-                {
-                    ProblemId = g.Key,
-                    Points = g.Max(x => x.Points),
-                    TestRunsCount = g.Sum(x => x.Submission!.TestRuns.Count),
-                });
-        }
 
         private async Task NormalizeSubmissionPoints()
             => await (await this.submissionsData

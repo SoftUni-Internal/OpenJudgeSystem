@@ -6,7 +6,6 @@ namespace OJS.Services.Ui.Data.Implementations
     using OJS.Data.Models.Submissions;
     using OJS.Services.Common.Data.Implementations;
     using OJS.Services.Infrastructure.Extensions;
-    using OJS.Services.Ui.Models.Participations;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -22,17 +21,6 @@ namespace OJS.Services.Ui.Data.Implementations
             : base(db)
             => this.participantsData = participantsData;
 
-        public Task<IEnumerable<ParticipantScore>> GetWithSubmissionsAndTestsByParticipantId(int participantId)
-            => this.GetQuery(ps => ps.ParticipantId == participantId)
-                .Include(ps => ps.Submission)
-                    .ThenInclude(s => s!.TestRuns)
-                .ToEnumerableAsync();
-
-        public Task<ParticipantScore?> GetByParticipantIdAndProblemId(int participantId, int problemId) =>
-            this.One(ps =>
-                    ps.ParticipantId == participantId &&
-                    ps.ProblemId == problemId);
-
         public Task<IEnumerable<ParticipantScore>> GetByProblemIdAndParticipants(IEnumerable<int> participantIds, int problemId)
             => this.GetQuery(ps => ps.ProblemId == problemId)
                 .Where(p => participantIds.Contains(p.ParticipantId))
@@ -46,10 +34,6 @@ namespace OJS.Services.Ui.Data.Implementations
 
         public IQueryable<ParticipantScore> GetAll() =>
             this.GetQuery();
-
-        public IQueryable<ParticipantScore> GetAllByProblem(int problemId) =>
-            this.GetAll()
-                .Where(ps => ps.ProblemId == problemId);
 
         public IQueryable<ParticipantScore> GetAllHavingPointsExceedingLimit() =>
             this.GetAll()
@@ -87,10 +71,6 @@ namespace OJS.Services.Ui.Data.Implementations
             }
         }
 
-        public Task DeleteAllByProblem(int problemId) =>
-            this.GetQuery(x => x.ProblemId == problemId)
-                .DeleteFromQueryAsync();
-
         public async Task DeleteForParticipantByProblem(int participantId, int problemId)
         {
             var isOfficial = await this.participantsData.IsOfficialById(participantId);
@@ -102,16 +82,6 @@ namespace OJS.Services.Ui.Data.Implementations
                 this.Delete(existingScore);
                 await this.SaveChanges();
             }
-        }
-
-        public async Task Delete(IEnumerable<ParticipantScore> participantScores)
-        {
-            foreach (var participantScore in participantScores)
-            {
-                this.Delete(participantScore);
-            }
-
-            await this.SaveChanges();
         }
 
         public async Task AddBySubmissionByUsernameAndIsOfficial(Submission submission, string username, bool isOfficial, Participant participant)
@@ -153,29 +123,6 @@ namespace OJS.Services.Ui.Data.Implementations
             this.participantsData.Update(participant);
             await this.SaveChanges();
         }
-
-        public Task RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds) =>
-            this.GetQuery(ps => submissionIds.Cast<int?>().Contains(ps.SubmissionId))
-                .UpdateFromQueryAsync(
-                    ps => new ParticipantScore
-                    {
-                        SubmissionId = null,
-                    });
-
-        public Task<IEnumerable<ParticipationForProblemMaxScoreServiceModel>> GetMaxByProblemIdsAndParticipation(
-            IEnumerable<int> problemIds, IEnumerable<int> participantIds)
-            => this.GetQuery(ps =>
-                    problemIds.Contains(ps.ProblemId)
-                    && participantIds.Contains(ps.ParticipantId))
-                .GroupBy(ps => ps.ProblemId)
-                .Select(ps =>
-                    new ParticipationForProblemMaxScoreServiceModel
-                    {
-                        ProblemId = ps.Key,
-                        Points = ps.Select(ps => ps.Points)
-                            .Max(),
-                    })
-                .ToEnumerableAsync();
 
         private static void UpdateTotalScoreSnapshot(
             Participant participant,

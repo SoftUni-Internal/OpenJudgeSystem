@@ -4,6 +4,7 @@ using AutoMapper;
 using OJS.Data.Models.Participants;
 using OJS.Services.Common.Models.Contests;
 using OJS.Services.Infrastructure.Models.Mapping;
+using OJS.Services.Ui.Models.Participations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,8 @@ public class ContestParticipationServiceModel : IMapExplicitly
     public DateTime? EndDateTimeForParticipantOrContest { get; set; }
 
     public IEnumerable<int> ProblemsForParticipantIds { get; set; } = [];
+
+    public IEnumerable<ParticipationForProblemMaxScoreServiceModel> Scores { get; set; } = [];
 
     /// <summary>
     /// Gets or sets the count of participants in the contest taking into consideration if it is compete or practice.

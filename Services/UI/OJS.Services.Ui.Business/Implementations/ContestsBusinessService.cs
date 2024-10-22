@@ -213,7 +213,7 @@ namespace OJS.Services.Ui.Business.Implementations
             var requiredPasswordIsValid = false;
 
             // Validate password if present
-            if (password != null && !password.IsNullOrEmpty() && shouldRequirePassword)
+            if (!string.IsNullOrEmpty(password) && shouldRequirePassword)
             {
                 var isPasswordValid = isOfficial
                     ? contest.ContestPassword == password
@@ -289,6 +289,7 @@ namespace OJS.Services.Ui.Business.Implementations
 
             var participant = await this.participantsData
                 .GetQuery(p => p.ContestId == model.ContestId && p.UserId == user.Id && p.IsOfficial == model.IsOfficial)
+                .AsNoTracking()
                 .MapCollection<ContestParticipationServiceModel>()
                 .FirstOrDefaultAsync() ?? throw new BusinessServiceException("Participant not found");
 
@@ -323,20 +324,13 @@ namespace OJS.Services.Ui.Business.Implementations
                 .Max();
             participant.LastSubmissionTime = lastSubmissionTime;
 
-            participant.Contest!.AllowedSubmissionTypes = participant.Contest.Problems
+            participant.Contest.AllowedSubmissionTypes = participant.Contest.Problems
                 .SelectMany(p => p.AllowedSubmissionTypes)
                 .DistinctBy(st => st.Id)
                 .ToList();
 
             participant.ParticipantId = participant.Id;
             participant.UserSubmissionsTimeLimit = contest.LimitBetweenSubmissions;
-
-            var participantsList = new List<int> { participant.Id, };
-
-            var maxParticipationScores = await this.participantScoresData
-                .GetMaxByProblemIdsAndParticipation(
-                    participant.Contest.Problems.Select(x => x.Id),
-                    participantsList);
 
             var isOfficialOnlineContest = model.IsOfficial && contest.IsOnlineExam;
 
@@ -349,13 +343,13 @@ namespace OJS.Services.Ui.Business.Implementations
                     .ThenBy(p => p.Name)];
             }
 
-            await participant.Contest.Problems.ForEachAsync(problem =>
+            foreach (var problem in participant.Contest.Problems)
             {
-                problem.Points = maxParticipationScores
+                problem.Points = participant.Scores
                     .Where(ps => ps.ProblemId == problem.Id)
                     .Select(x => x.Points)
                     .FirstOrDefault();
-            });
+            }
 
             var participantsCount =
                 await this.contestParticipantsCacheService.GetParticipantsCountForContest(model.ContestId);
