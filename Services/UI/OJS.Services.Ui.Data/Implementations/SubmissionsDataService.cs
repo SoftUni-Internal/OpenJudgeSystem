@@ -88,8 +88,7 @@ public class SubmissionsDataService : DataService<Submission>, ISubmissionsDataS
     public IQueryable<Submission> GetAllForUserByContest(int contestId, string userId)
         => this.GetQuery(
         filter: s => s.Participant!.UserId == userId
-                     && s.Problem.ProblemGroup.ContestId == contestId
-                     && s.Problem.ShowResults,
+                     && s.Problem.ProblemGroup.ContestId == contestId,
         orderBy: s => s.Id,
         descending: true);
 

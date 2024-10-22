@@ -106,7 +106,7 @@ public class ContestCategoriesBusinessService : AdministrationOperationService<C
         await this.categoriesDataService.Add(contestCategory);
         await this.categoriesDataService.SaveChanges();
 
-        await this.OrderContestCategoriesByOrderBy(contestCategory);
+        await this.ReevaluateContestCategoriesOrder(contestCategory);
         await this.contestCategoriesCache.ClearMainContestCategoriesCache();
         return model;
     }
@@ -131,7 +131,7 @@ public class ContestCategoriesBusinessService : AdministrationOperationService<C
         this.categoriesDataService.Update(contestCategory!);
         await this.categoriesDataService.SaveChanges();
 
-        await this.OrderContestCategoriesByOrderBy(contestCategory);
+        await this.ReevaluateContestCategoriesOrder(contestCategory);
         await this.contestCategoriesCache.ClearMainContestCategoriesCache();
         return model;
     }
@@ -156,7 +156,7 @@ public class ContestCategoriesBusinessService : AdministrationOperationService<C
         await this.categoriesDataService.SaveChanges();
     }
 
-    private async Task OrderContestCategoriesByOrderBy(ContestCategory contestCategory)
+    private async Task ReevaluateContestCategoriesOrder(ContestCategory contestCategory)
     {
         IEnumerable<ContestCategory> contestCategories;
 

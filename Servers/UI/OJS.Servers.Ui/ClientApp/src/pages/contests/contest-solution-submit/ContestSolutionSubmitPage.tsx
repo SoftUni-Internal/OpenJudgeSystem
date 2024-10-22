@@ -226,9 +226,7 @@ const ContestSolutionSubmitPage = () => {
             const newRemainingTime = userSubmissionsTimeLimit - elapsedTimeInSeconds;
 
             if (newRemainingTime <= 0) {
-                setTimeout(() => {
-                    setIsSubmitButtonDisabled(false);
-                }, 1000);
+                setIsSubmitButtonDisabled(false);
                 setRemainingTime(0);
                 clearInterval(intervalId);
             } else {
@@ -265,7 +263,7 @@ const ContestSolutionSubmitPage = () => {
                 setRemainingTimeForCompete(calculatedTimeFormatted(moment.duration(0, 'milliseconds')));
                 clearInterval(intervalId);
             }
-        }, 1000);
+        });
 
         return () => {
             clearInterval(intervalId);
@@ -298,7 +296,12 @@ const ContestSolutionSubmitPage = () => {
             if (!data?.contest) {
                 return;
             }
-            dispatch(setContestDetailsIdAndCategoryId({ id: data!.contest!.id, categoryId: data!.contest!.categoryId }));
+
+            dispatch(setContestDetailsIdAndCategoryId({
+                id: data!.contest!.id,
+                name: data.contest.name,
+                categoryId: data!.contest!.categoryId,
+            }));
         }
     }, [ contestDetails, contestId, data, dispatch ]);
 

@@ -102,19 +102,19 @@
 }
 
 .fromDate {
+  align-items: start;
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+
+  .fromDateRow {
+    align-items: center;
     display: flex;
-    justify-content: start;
-    align-items: start;
-    flex-direction: column;
+    gap: 3px;
+    justify-content: center;
 
-    .fromDateRow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 3px;
-
-        .icon {
-            font-size: 17px !important;
-        }
+    .icon {
+      font-size: 17px !important;
     }
+  }
 }
