@@ -123,8 +123,8 @@ const SubmissionDetailsPage = () => {
             {' '}
             by
             {' '}
-            <Link to={`/profile/${contestUser?.userName}`}>
-                {contestUser?.userName}
+            <Link to={`/profile/${contestUser?.username}`}>
+                {contestUser?.username}
             </Link>
             {' '}
             for problem
@@ -140,7 +140,7 @@ const SubmissionDetailsPage = () => {
                 {problem?.name}
             </Link>
         </div>
-    ), [ solutionId, contestUser?.userName, contestName, contestId, isOfficial, problem?.id, problem?.name, problem?.orderBy ]);
+    ), [ solutionId, contestUser?.username, contestName, contestId, isOfficial, problem?.id, problem?.name, problem?.orderBy ]);
 
     const renderAdminButtons = useCallback(() => {
         const onViewCodeClick = () => {

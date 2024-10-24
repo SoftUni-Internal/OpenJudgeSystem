@@ -32,6 +32,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
+using FluentExtensions.Extensions;
+using OJS.Workers.Common.Extensions;
+using X.PagedList;
 using static OJS.Services.Common.Constants.PaginationConstants.Submissions;
 using static OJS.Services.Ui.Business.Constants.Comments;
 
@@ -62,6 +65,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private readonly ICacheService cache;
     private readonly IContestsDataService contestsData;
     private readonly ISubmissionTypesDataService submissionTypesData;
+    private readonly ITestsDataService testsDataService;
 
     public SubmissionsBusinessService(
         ILogger<SubmissionsBusinessService> logger,
@@ -86,7 +90,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         ITransactionsProvider transactionsProvider,
         ICacheService cache,
         IContestsDataService contestsData,
-        ISubmissionTypesDataService submissionTypesData)
+        ISubmissionTypesDataService submissionTypesData,
+        ITestsDataService testsDataService)
     {
         this.logger = logger;
         this.submissionsData = submissionsData;
@@ -111,6 +116,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.cache = cache;
         this.contestsData = contestsData;
         this.submissionTypesData = submissionTypesData;
+        this.testsDataService = testsDataService;
     }
 
     public async Task Retest(int id)
@@ -144,6 +150,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     public async Task<SubmissionDetailsServiceModel?> GetById(int submissionId)
         => await this.submissionsData
             .GetByIdQuery(submissionId)
+            .AsSplitQuery()
             .MapCollection<SubmissionDetailsServiceModel>()
             .FirstOrDefaultAsync();
 
@@ -151,13 +158,9 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     {
         var currentUser = this.userProviderService.GetCurrentUser();
 
-        //AsNoTracking() Method is added to prevent ''tracking query'' error.
-        //Error is thrown when we map from UserSettings (owned entity) without including the
-        //UserProfile (owner entity) in the query.
         var submissionDetailsServiceModel = await this.submissionsData
             .GetByIdQuery(submissionId)
             .AsSplitQuery()
-            .AsNoTracking()
             .MapCollection<SubmissionDetailsServiceModel>()
             .FirstOrDefaultAsync();
 
@@ -166,10 +169,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             throw new BusinessServiceException(ValidationMessages.Submission.NotFound);
         }
 
-        submissionDetailsServiceModel.TestRuns = submissionDetailsServiceModel
-            .TestRuns
-            .OrderBy(tr => !tr.IsTrialTest)
-            .ThenBy(tr => tr.OrderBy);
+        submissionDetailsServiceModel.User.MapFrom(currentUser);
 
         var userIsAdminOrLecturerInContest =
             await this.lecturersInContestsBusiness.IsCurrentUserAdminOrLecturerInContest(submissionDetailsServiceModel.ContestId);
@@ -186,23 +186,38 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             throw new BusinessServiceException(validationResult.Message);
         }
 
-        if (!userIsAdminOrLecturerInContest)
-        {
-            submissionDetailsServiceModel.TestRuns = submissionDetailsServiceModel.TestRuns.Select(tr =>
+        var tests = await this.testsDataService
+            .GetAllByProblem(submissionDetailsServiceModel.Problem.Id)
+            .MapCollection<TestDetailsServiceModel>()
+            .ToDictionaryAsync(
+                t => t.Id,
+                t => t);
+
+        submissionDetailsServiceModel.TestRuns = [.. submissionDetailsServiceModel
+            .TestRuns
+            .Select(tr =>
             {
-                var currentTestRunTest = submissionDetailsServiceModel.Tests.FirstOrDefault(t => t.Id == tr.TestId);
+                var test = tests.GetValueOrDefault(tr.TestId);
 
-                var displayShowInput = currentTestRunTest != null
-                                       && (!currentTestRunTest.HideInput
-                                           && ((currentTestRunTest.IsTrialTest
-                                                || currentTestRunTest.IsOpenTest)
-                                               || submissionDetailsServiceModel.Problem.ShowDetailedFeedback));
+                tr.Input = test?.InputDataAsString ?? default;
+                tr.IsTrialTest = test?.IsTrialTest ?? default;
+                tr.OrderBy = test?.OrderBy ?? default;
 
-                var showExecutionComment = currentTestRunTest != null
-                                           && (!string.IsNullOrEmpty(tr.ExecutionComment)
-                                               && (currentTestRunTest.IsOpenTest
-                                                   || currentTestRunTest.IsTrialTest
-                                                   || submissionDetailsServiceModel.Problem.ShowDetailedFeedback));
+                if (userIsAdminOrLecturerInContest)
+                {
+                    return tr;
+                }
+
+                var displayShowInput = test is { HideInput: false }
+                                       && (test.IsTrialTest
+                                           || test.IsOpenTest
+                                           || submissionDetailsServiceModel.Problem.ShowDetailedFeedback);
+
+                var showExecutionComment = test != null
+                                           && !string.IsNullOrEmpty(tr.ExecutionComment)
+                                           && (test.IsOpenTest
+                                               || test.IsTrialTest
+                                               || submissionDetailsServiceModel.Problem.ShowDetailedFeedback);
 
                 if (!showExecutionComment)
                 {
@@ -218,8 +233,9 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 }
 
                 return tr;
-            });
-        }
+            })
+            .OrderBy(tr => tr.IsTrialTest)
+            .ThenBy(tr => tr.OrderBy)];
 
         return submissionDetailsServiceModel!;
     }

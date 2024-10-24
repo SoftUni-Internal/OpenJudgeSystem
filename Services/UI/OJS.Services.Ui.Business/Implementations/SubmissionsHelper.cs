@@ -10,7 +10,7 @@ public class SubmissionsHelper : ISubmissionsHelper
     public SubmissionsHelper(ISubmissionsForProcessingBusinessService submissionsForProcessingBusinessService)
         => this.submissionsForProcessingBusinessService = submissionsForProcessingBusinessService;
     public bool IsEligibleForRetest(SubmissionDetailsServiceModel detailsModel)
-        => (detailsModel.Tests.Any() && !detailsModel.TestRuns.Any()) &&
-           detailsModel.IsProcessed && detailsModel.IsCompiledSuccessfully &&
+        => detailsModel.Tests.Any() && !detailsModel.TestRuns.Any() &&
+           detailsModel is { IsProcessed: true, IsCompiledSuccessfully: true } &&
            !this.submissionsForProcessingBusinessService.IsSubmissionProcessing(detailsModel.Id);
 }

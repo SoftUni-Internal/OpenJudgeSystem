@@ -19,7 +19,7 @@
 
         public IEnumerable<TestRunDetailsResponseModel> TestRuns { get; set; } = null!;
 
-        public UserProfileResponseModel User { get; set; } = null!;
+        public UserResponseModel User { get; set; } = null!;
 
         public bool UserIsInRoleForContest { get; set; }
 

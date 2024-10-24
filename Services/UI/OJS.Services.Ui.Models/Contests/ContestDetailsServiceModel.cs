@@ -60,10 +60,9 @@ public class ContestDetailsServiceModel : IMapExplicitly, ICanBeCompetedAndPract
 
     public int PracticeParticipantsCount { get; set; }
 
-    public ICollection<ContestDetailsSubmissionTypeServiceModel> AllowedSubmissionTypes { get; set; } =
-        new HashSet<ContestDetailsSubmissionTypeServiceModel>();
+    public ICollection<ContestDetailsSubmissionTypeServiceModel> AllowedSubmissionTypes { get; set; } = [];
 
-    public ICollection<ContestProblemServiceModel> Problems { get; set; } = new HashSet<ContestProblemServiceModel>();
+    public ICollection<ContestProblemServiceModel> Problems { get; set; } = [];
 
     public void RegisterMappings(IProfileExpression configuration) =>
         configuration

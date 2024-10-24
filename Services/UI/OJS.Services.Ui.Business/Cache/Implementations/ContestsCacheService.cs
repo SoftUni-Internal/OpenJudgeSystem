@@ -8,6 +8,7 @@ using OJS.Services.Infrastructure.Cache;
 using OJS.Services.Ui.Models.Contests;
 using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList;
 
 public class ContestsCacheService : IContestsCacheService
 {
@@ -27,7 +28,7 @@ public class ContestsCacheService : IContestsCacheService
         int cacheSeconds = CacheConstants.FiveMinutesInSeconds)
         => await this.cache.Get(
             string.Format(CacheConstants.ContestDetails, contestId),
-            async () => (await this.GetContestServiceModel(contestId)),
+            async () => await this.GetContestServiceModel(contestId),
             cacheSeconds);
 
     private async Task<ContestDetailsServiceModel?> GetContestServiceModel(int contestId)
@@ -36,12 +37,12 @@ public class ContestsCacheService : IContestsCacheService
 
         if (contestDetailsServiceModel != null)
         {
-            contestDetailsServiceModel.AllowedSubmissionTypes = contestDetailsServiceModel.Problems
+            contestDetailsServiceModel.AllowedSubmissionTypes = await contestDetailsServiceModel.Problems
                 .AsQueryable()
                 .SelectMany(p => p.AllowedSubmissionTypes)
                 .DistinctBy(st => st.Id)
                 .Select(x => new ContestDetailsSubmissionTypeServiceModel { Id = x.Id, Name = x.Name })
-                .ToList();
+                .ToListAsync();
         }
 
         return contestDetailsServiceModel;

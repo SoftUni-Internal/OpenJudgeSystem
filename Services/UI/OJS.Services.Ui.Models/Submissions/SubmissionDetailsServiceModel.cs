@@ -5,7 +5,6 @@
     using System.Linq;
     using AutoMapper;
     using OJS.Data.Models.Submissions;
-    using OJS.Data.Models.Tests;
     using OJS.Services.Ui.Models.Users;
     using OJS.Services.Infrastructure.Models.Mapping;
 
@@ -19,10 +18,9 @@
 
         public string? Content { get; set; }
 
-        public IEnumerable<TestRunDetailsServiceModel> TestRuns { get; set; } =
-            Enumerable.Empty<TestRunDetailsServiceModel>();
+        public IEnumerable<TestRunDetailsServiceModel> TestRuns { get; set; } = [];
 
-        public UserProfileServiceModel User { get; set; } = null!;
+        public UserServiceModel User { get; set; } = null!;
 
         public double MaxUsedTime { get; set; }
 
@@ -48,10 +46,6 @@
 
         public DateTime? ModifiedOn { get; set; }
 
-        public byte[]? ByteContent { get; set; }
-
-        public string? FileExtension { get; set; }
-
         public DateTime? StartedExecutionOn { get; set; }
 
         public DateTime? CompletedExecutionOn { get; set; }
@@ -68,34 +62,59 @@
 
         public int ContestCategoryId { get; set; }
 
-        public IEnumerable<Test> Tests { get; set; } =
-            Enumerable.Empty<Test>();
+        public IEnumerable<TestDetailsServiceModel> Tests { get; set; } = [];
 
         public void RegisterMappings(IProfileExpression configuration)
-            => configuration.CreateMap<Submission, SubmissionDetailsServiceModel>()
-                .ForMember(s => s.User, opt => opt.MapFrom(s => s.Participant.User))
-                .ForMember(d => d.MaxUsedMemory, opt => opt.MapFrom(source =>
-                    source.TestRuns.Any()
-                        ? source.TestRuns.Max(tr => tr.MemoryUsed)
-                        : 0.0))
-                .ForMember(d => d.MaxUsedTime, opt => opt.MapFrom(source =>
-                    source.TestRuns.Any()
-                        ? source.TestRuns.Max(tr => tr.TimeUsed)
-                        : 0.0))
+            => configuration
+                .CreateMap<Submission, SubmissionDetailsServiceModel>()
+                .ForMember(d => d.MaxUsedMemory, opt => opt.MapFrom(s =>
+                    GetMaxMemoryAndTimeUsed(s.TestRunsCache).MaxMemoryUsed))
+                .ForMember(d => d.MaxUsedTime, opt => opt.MapFrom(s =>
+                    GetMaxMemoryAndTimeUsed(s.TestRunsCache).MaxTimeUsed))
                 .ForMember(d => d.Content, opt => opt.MapFrom(s =>
                     s.IsBinaryFile
                         ? null
                         : s.ContentAsString))
                 .ForMember(d => d.IsOfficial, opt => opt.MapFrom(s => s.Participant.IsOfficial))
-                .ForMember(d => d.ByteContent, opt => opt.MapFrom(s => s.Content))
                 .ForMember(s => s.IsProcessed, opt => opt.MapFrom(s => s.Processed))
-                .ForMember(d => d.Tests, opt => opt.MapFrom(s => s.Problem.Tests))
-                .ForMember(d => d.ContestId, opt => opt.MapFrom(s => s.Problem.ProblemGroup.ContestId))
-                .ForMember(d => d.ContestName, opt => opt.MapFrom(s => s.Problem.ProblemGroup.Contest.Name))
-                .ForMember(d => d.ContestCategoryId, opt => opt.MapFrom(s => s.Problem.ProblemGroup.Contest.CategoryId))
+                .ForMember(d => d.ContestId, opt => opt.MapFrom(s => s.Participant.ContestId))
+                .ForMember(d => d.ContestName, opt => opt.MapFrom(s => s.Participant.Contest.Name))
+                .ForMember(d => d.ContestCategoryId, opt => opt.MapFrom(s => s.Participant.Contest.CategoryId))
                 .ForMember(d => d.MaxPoints, opt => opt.MapFrom(s => s.Problem.MaximumPoints))
                 .ForMember(d => d.TotalTests, opt => opt.Ignore())
                 .ForMember(s => s.UserIsInRoleForContest, opt => opt.Ignore())
-                .ForMember(s => s.IsEligibleForRetest, opt => opt.Ignore());
+                .ForMember(s => s.IsEligibleForRetest, opt => opt.Ignore())
+                .ForMember(s => s.User, opt => opt.Ignore())
+                .ForMember(s => s.Tests, opt => opt.Ignore());
+
+        private static (long? MaxMemoryUsed, int? MaxTimeUsed) GetMaxMemoryAndTimeUsed(string? testRunsCache)
+        {
+            if (string.IsNullOrWhiteSpace(testRunsCache))
+            {
+                return (null, null);
+            }
+
+            var cacheParts = testRunsCache.Split('|');
+            if (cacheParts.Length <= 1)
+            {
+                return (null, null);
+            }
+
+            var timeMemoryPart = cacheParts[1];
+            var timeMemoryValues = timeMemoryPart.Split(',');
+
+            if (timeMemoryValues.Length < 2)
+            {
+                return (null, null);
+            }
+
+            if (int.TryParse(timeMemoryValues[0], out var maxTimeUsed) &&
+                long.TryParse(timeMemoryValues[1], out var maxMemoryUsed))
+            {
+                return (maxMemoryUsed, maxTimeUsed);
+            }
+
+            return (null, null);
+        }
     }
 }

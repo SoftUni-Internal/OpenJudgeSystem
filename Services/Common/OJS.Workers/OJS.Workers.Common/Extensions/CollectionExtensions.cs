@@ -4,7 +4,7 @@ public static class CollectionExtensions
 {
     public static void AddRange<T>(this ICollection<T> destination, IEnumerable<T> source)
     {
-        foreach (T obj in source)
+        foreach (var obj in source)
         {
             destination.Add(obj);
         }
