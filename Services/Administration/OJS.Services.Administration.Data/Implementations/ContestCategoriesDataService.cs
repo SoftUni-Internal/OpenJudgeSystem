@@ -64,13 +64,16 @@ namespace OJS.Services.Administration.Data.Implementations
                 .Where(cc => cc.Id == id)
                 .AnyAsync(cc => cc.Contests.Any());
 
-        public void LoadChildrenRecursively(ContestCategory category)
+        public async Task LoadChildrenRecursively(ContestCategory category)
         {
-            this.dbContext.Entry(category).Collection(c => c.Children).Load();
+            await this.dbContext
+                .Entry(category)
+                .Collection(c => c.Children)
+                .LoadAsync();
 
             foreach (var child in category.Children)
             {
-                this.LoadChildrenRecursively(child);
+                await this.LoadChildrenRecursively(child);
             }
         }
 

@@ -2,8 +2,10 @@ namespace OJS.Services.Ui.Business;
 
 using OJS.Services.Common.Models.Cache;
 using OJS.Services.Infrastructure;
+using OJS.Services.Ui.Models.Contests;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ContestCategoryListViewModel = OJS.Services.Common.Models.Cache.ContestCategoryListViewModel;
 
 public interface IContestCategoriesBusinessService : IService
 {
@@ -15,5 +17,5 @@ public interface IContestCategoriesBusinessService : IService
 
     Task<IEnumerable<ContestCategoryListViewModel>> GetAllParentCategories(int categoryId);
 
-    bool IsCategoryChildOfInvisibleParentRecursive(int? categoryId);
+    Task<ContestCategoryServiceModel?> GetById(int categoryId);
 }

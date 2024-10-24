@@ -162,7 +162,7 @@ namespace OJS.Services.Ui.Data.Implementations
                         SubmissionId = null,
                     });
 
-        public Task<IEnumerable<ParticipationForProblemMaxScoreServiceModel>> GetMaxByProblemIdsAndParticipation(
+        public Task<Dictionary<int, int?>> GetMaxByProblemIdsAndParticipation(
             IEnumerable<int> problemIds, IEnumerable<int> participantIds)
             => this.GetQuery(ps =>
                     problemIds.Contains(ps.ProblemId)
@@ -175,7 +175,9 @@ namespace OJS.Services.Ui.Data.Implementations
                         Points = ps.Select(ps => ps.Points)
                             .Max(),
                     })
-                .ToEnumerableAsync();
+                .ToDictionaryAsync(
+                    ps => ps.ProblemId,
+                    ps => ps.Points);
 
         private static void UpdateTotalScoreSnapshot(
             Participant participant,

@@ -6,7 +6,6 @@ using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Cache;
 using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.Cache;
-using OJS.Services.Ui.Business.Validations.Implementations.Contests;
 using OJS.Services.Ui.Models.Contests;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,18 +16,15 @@ public class ContestParticipantsCacheService : IContestParticipantsCacheService
     private readonly ICacheService cache;
     private readonly IParticipantsDataService participantsDataService;
     private readonly IContestsDataService contestsData;
-    private readonly IContestParticipationValidationService contestParticipationValidationService;
 
     public ContestParticipantsCacheService(
         ICacheService cache,
         IParticipantsDataService participantsDataService,
-        IContestsDataService contestsData,
-        IContestParticipationValidationService contestParticipationValidationService)
+        IContestsDataService contestsData)
     {
         this.cache = cache;
         this.participantsDataService = participantsDataService;
         this.contestsData = contestsData;
-        this.contestParticipationValidationService = contestParticipationValidationService;
     }
 
     public async Task<IDictionary<int, ContestParticipantsCountCacheModel>> GetParticipantsCount(

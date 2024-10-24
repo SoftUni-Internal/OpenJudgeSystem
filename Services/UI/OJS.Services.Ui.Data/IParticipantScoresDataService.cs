@@ -42,7 +42,7 @@ namespace OJS.Services.Ui.Data
 
         Task RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds);
 
-        Task<IEnumerable<ParticipationForProblemMaxScoreServiceModel>> GetMaxByProblemIdsAndParticipation(
+        Task<Dictionary<int, int?>> GetMaxByProblemIdsAndParticipation(
             IEnumerable<int> problemIds,
             IEnumerable<int> participantIds);
     }

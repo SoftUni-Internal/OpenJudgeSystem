@@ -28,6 +28,6 @@ namespace OJS.Services.Administration.Data
 
         Task<bool> UserHasContestCategoryPermissions(int categoryId, string? userId, bool isAdmin);
 
-        void LoadChildrenRecursively(ContestCategory category);
+        Task LoadChildrenRecursively(ContestCategory category);
     }
 }

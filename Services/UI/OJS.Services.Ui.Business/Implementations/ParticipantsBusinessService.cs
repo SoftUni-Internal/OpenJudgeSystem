@@ -2,11 +2,12 @@ namespace OJS.Services.Ui.Business.Implementations;
 
 using Microsoft.EntityFrameworkCore;
 using OJS.Data.Models;
-using OJS.Data.Models.Contests;
 using OJS.Data.Models.Participants;
+using OJS.Data.Models.Problems;
 using OJS.Services.Common.Models;
 using OJS.Services.Infrastructure;
 using OJS.Services.Ui.Data;
+using OJS.Services.Ui.Models.Contests;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,24 +20,27 @@ public class ParticipantsBusinessService : IParticipantsBusinessService
     private readonly IParticipantsDataService participantsData;
     private readonly IContestsDataService contestsData;
     private readonly IDatesService datesService;
+    private readonly IProblemGroupsDataService problemGroupsData;
 
     public ParticipantsBusinessService(
         IParticipantsDataService participantsData,
         IContestsDataService contestsData,
-        IDatesService datesService)
+        IDatesService datesService,
+        IProblemGroupsDataService problemGroupsData)
     {
         this.participantsData = participantsData;
         this.contestsData = contestsData;
         this.datesService = datesService;
+        this.problemGroupsData = problemGroupsData;
     }
 
     public async Task<Participant> CreateNewByContestByUserByIsOfficialAndIsAdminOrLecturer(
-        Contest contest,
+        ContestRegistrationDetailsServiceModel contest,
         string userId,
         bool isOfficial,
         bool isAdminOrLecturerInContest)
     {
-        var participant = new Participant(contest.Id, userId, isOfficial) { Contest = contest };
+        var participant = new Participant(contest.Id, userId, isOfficial);
 
         var utcNow = DateTime.SpecifyKind(this.datesService.GetUtcNow(), DateTimeKind.Unspecified);
         if (isOfficial && contest.IsOnlineExam)
@@ -46,7 +50,12 @@ public class ParticipantsBusinessService : IParticipantsBusinessService
 
             if (!isAdminOrLecturerInContest)
             {
-                AssignRandomProblemsToParticipant(participant, contest);
+                var problemGroups = await this.problemGroupsData
+                    .GetAllByContest(contest.Id)
+                    .Include(pg => pg.Problems)
+                    .ToListAsync();
+
+                AssignRandomProblemsToParticipant(participant, problemGroups);
             }
         }
 
@@ -145,23 +154,20 @@ public class ParticipantsBusinessService : IParticipantsBusinessService
         return ServiceResult<ICollection<string>>.Success(invalidForUpdateParticipantUsernames);
     }
 
-    private static void AssignRandomProblemsToParticipant(Participant participant, Contest contest)
+    private static void AssignRandomProblemsToParticipant(Participant participant, List<ProblemGroup> problemGroups)
     {
         var random = new Random();
 
-        var problemGroups = contest
-            .ProblemGroups
-            .Where(pg => !pg.IsDeleted && pg.Problems.Any(p => !p.IsDeleted));
-
-        foreach (var problemGroup in problemGroups)
+        foreach (var problemGroup in problemGroups.Where(pg => pg.Problems.Any(p => !p.IsDeleted)))
         {
             var problemsInGroup = problemGroup.Problems.Where(p => !p.IsDeleted).ToList();
-            if (problemsInGroup.Any())
+            if (problemsInGroup.Count != 0)
             {
                 var randomProblem = problemsInGroup[random.Next(0, problemsInGroup.Count)];
                 participant.ProblemsForParticipants.Add(new ProblemForParticipant
                 {
-                    Participant = participant, Problem = randomProblem,
+                    Participant = participant,
+                    Problem = randomProblem,
                 });
             }
         }

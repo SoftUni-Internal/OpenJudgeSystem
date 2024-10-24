@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
+using OJS.Common.Enumerations;
 using OJS.Data.Models.Contests;
 using OJS.Services.Ui.Models.SubmissionTypes;
 using OJS.Services.Infrastructure.Models.Mapping;
@@ -15,8 +16,6 @@ public class ContestServiceModel : IMapExplicitly
     public string Name { get; set; } = null!;
 
     public int? CategoryId { get; set; }
-
-    public ContestCategoryServiceModel? Category { get; set; }
 
     public int LimitBetweenSubmissions { get; set; }
 
@@ -33,6 +32,16 @@ public class ContestServiceModel : IMapExplicitly
     public IEnumerable<ContestProblemServiceModel> Problems { get; set; } = null!;
 
     public bool UserIsAdminOrLecturerInContest { get; set; }
+
+    public ContestType Type { get; set; }
+
+    public DateTime? StartTime { get; set; }
+
+    public DateTime? EndTime { get; set; }
+
+    public DateTime? PracticeStartTime { get; set; }
+
+    public DateTime? PracticeEndTime { get; set; }
 
     public void RegisterMappings(IProfileExpression configuration) =>
         configuration.CreateMap<Contest, ContestServiceModel>()

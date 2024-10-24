@@ -3,9 +3,11 @@ namespace OJS.Services.Ui.Business.Cache.Implementations;
 using OJS.Services.Common.Models.Cache;
 using OJS.Services.Infrastructure.Cache;
 using OJS.Services.Infrastructure.Constants;
+using OJS.Services.Ui.Models.Contests;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using ContestCategoryListViewModel = OJS.Services.Common.Models.Cache.ContestCategoryListViewModel;
 
 public class ContestCategoriesCacheService : IContestCategoriesCacheService
 {
@@ -47,6 +49,14 @@ public class ContestCategoriesCacheService : IContestCategoriesCacheService
             CacheConstants.ContestCategoriesTree,
             this.contestCategoriesBusiness.GetTree,
             cacheSeconds);
+
+    public Task<ContestCategoryServiceModel?> GetById(int? categoryId, int? cacheSeconds = CacheConstants.OneHourInSeconds)
+        => categoryId == null
+            ? Task.FromResult<ContestCategoryServiceModel?>(null)
+            : this.GetFromCache(
+                string.Format(CacheConstants.ContestCategoryDetails, categoryId),
+                async () => await this.contestCategoriesBusiness.GetById(categoryId.Value),
+                cacheSeconds);
 
     private Task<T> GetFromCache<T>(string cacheId, Func<Task<T>> getValueFunc, int? cacheSeconds)
         => cacheSeconds.HasValue

@@ -29,6 +29,30 @@ public class ContestRegistrationDetailsServiceModel : IMapExplicitly
 
     public int? CategoryId { get; set; }
 
+    public bool IsVisible { get; set; }
+
+    public DateTime? VisibleFrom { get; set; }
+
+    public string? ContestPassword { get; set; }
+
+    public string? PracticePassword { get; set; }
+
+    public ContestType Type { get; set; }
+
+    public bool IsDeleted { get; set; }
+
+    public DateTime? StartTime { get; set; }
+
+    public DateTime? EndTime { get; set; }
+
+    public DateTime? PracticeStartTime { get; set; }
+
+    public DateTime? PracticeEndTime { get; set; }
+
+    public bool HasContestPassword { get; set; }
+
+    public bool HasPracticePassword { get; set; }
+
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<Contest, ContestRegistrationDetailsServiceModel>()
             .ForMember(
@@ -40,6 +64,12 @@ public class ContestRegistrationDetailsServiceModel : IMapExplicitly
                     src.Duration ?? ((src.StartTime.HasValue && src.EndTime.HasValue)
                         ? (src.EndTime - src.StartTime)
                         : null)))
+            .ForMember(
+                opt => opt.HasContestPassword,
+                opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.ContestPassword)))
+            .ForMember(
+                opt => opt.HasPracticePassword,
+                opt => opt.MapFrom(src => !string.IsNullOrEmpty(src.PracticePassword)))
             .ForMember(
                 opt => opt.RequirePassword,
                 opt => opt.Ignore())

@@ -14,30 +14,18 @@ namespace OJS.Services.Ui.Data
 
         Task<Participant?> GetWithContestAndProblemsForParticipantByContestByUserAndIsOfficial(int contestId, string userId, bool isOfficial);
 
-        IQueryable<Participant> GetWithProblemsForParticipantsByContestAndUser(int contestId, string userI);
-
-        Task<Participant?> GetWithProblemsForParticipantsByContestByUserAndIsOfficial(int contestId, string userId, bool isOfficial);
+        IQueryable<Participant> GetWithProblemsForParticipantsByContestAndUser(int contestId, string userId);
 
         IQueryable<Participant> GetAllByUser(string? userId);
 
-        IQueryable<Participant> GetAllByUsername(string username);
-
-        IQueryable<Participant> GetAllByUsernameAndContests(string usernam, IEnumerable<int> contestIds);
-
-        IQueryable<Participant> GetAllByContest(int contestId);
+        IQueryable<Participant> GetAllByUsernameAndContests(string username, IEnumerable<int> contestIds);
 
         IQueryable<Participant> GetAllByContestWithScoresAndProblems(int contestId);
-
-        IQueryable<Participant> GetAllOfficialByContest(int contestId);
 
         IQueryable<Participant> GetAllOfficialInOnlineContestByContestAndParticipationStartTimeRange(
             int contestId,
             DateTime participationStartTimeRangeStart,
             DateTime participationStartTimeRangeEnd);
-
-        Task<bool> ExistsByIdAndContest(int id, int contestId);
-
-        Task<bool> ExistsByContestAndUser(int contestId, string userId);
 
         Task<bool> ExistsByContestByUserAndIsOfficial(int contestId, string userId, bool isOfficial);
 
@@ -48,9 +36,5 @@ namespace OJS.Services.Ui.Data
         Task Update(
             IQueryable<Participant> participantsQuery,
             Expression<Func<Participant, Participant>> updateExpression);
-
-        Task Delete(IEnumerable<Participant> participants);
-
-        Task InvalidateByContestAndIsOfficial(int contestId, bool isOfficial);
     }
 }

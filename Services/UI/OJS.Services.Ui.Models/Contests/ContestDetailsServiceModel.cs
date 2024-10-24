@@ -26,8 +26,6 @@ public class ContestDetailsServiceModel : IMapExplicitly, ICanBeCompetedAndPract
 
     public int? CategoryId { get; set; }
 
-    public ContestDetailsCategoryServiceModel? Category { get; set; }
-
     public ContestType Type { get; set; }
 
     public DateTime? StartTime { get; set; }

@@ -3,18 +3,18 @@ namespace OJS.Services.Ui.Business
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using OJS.Data.Models.Contests;
     using OJS.Data.Models.Participants;
     using OJS.Services.Common.Models;
     using OJS.Services.Infrastructure;
+    using OJS.Services.Ui.Models.Contests;
 
     public interface IParticipantsBusinessService : IService
     {
         Task<Participant> CreateNewByContestByUserByIsOfficialAndIsAdminOrLecturer(
-            Contest contest,
+            ContestRegistrationDetailsServiceModel contest,
             string userId,
             bool isOfficial,
-            bool isAdminOrLecturer);
+            bool isAdminOrLecturerInContest);
 
         Task<ServiceResult<string>> UpdateParticipationEndTimeByIdAndTimeInMinutes(int id, int minutes);
 

@@ -24,8 +24,8 @@
                 .MapCollection<T>()
                 .ToEnumerableAsync();
 
-        public IEnumerable<T> GetAllowedStrategyTypesById<T>(int id)
-            => this.GetQuery(cc => cc.Id == id)
+        public async Task<IEnumerable<T>> GetAllowedStrategyTypesById<T>(int id)
+            => await this.GetQuery(cc => cc.Id == id)
                 .SelectMany(c => c.Contests)
                     .Where(c => !c.IsDeleted && c.IsVisible)
                 .SelectMany(pg => pg.ProblemGroups)
@@ -35,7 +35,7 @@
                 .SelectMany(stp => stp.SubmissionTypesInProblems)
                 .Select(st => st.SubmissionType)
                 .MapCollection<T>()
-                .ToList();
+                .ToListAsync();
 
         public IQueryable<ContestCategory> GetAllVisibleByLecturer(string lecturerId)
             => this.GetAllVisible()

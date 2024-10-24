@@ -116,7 +116,7 @@ public class ContestCategoriesBusinessService : AdministrationOperationService<C
         var contestCategory = await this.categoriesDataService.GetByIdQuery(model.Id).FirstOrDefaultAsync();
         contestCategory.MapFrom(model);
 
-        if (model.ParentId == null || model.ParentId == 0)
+        if (model.ParentId is null or 0)
         {
             contestCategory!.ParentId = null;
             contestCategory!.Parent = null;
@@ -145,7 +145,7 @@ public class ContestCategoriesBusinessService : AdministrationOperationService<C
             throw new BusinessServiceException($"Contest Category with Id:{id} not found.");
         }
 
-        this.categoriesDataService.LoadChildrenRecursively(contestCategory);
+        await this.categoriesDataService.LoadChildrenRecursively(contestCategory);
 
         await Task.WhenAll(
             this.contestCategoriesCache.ClearContestCategoryParentsAndChildren(contestCategory.Id),

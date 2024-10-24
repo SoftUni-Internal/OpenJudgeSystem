@@ -4,34 +4,21 @@ using OJS.Services.Ui.Models.Contests;
 using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Models;
 
-public class ContestDetailsValidationService : IContestDetailsValidationService
+public class ContestDetailsValidationService(IDatesService dates) : IContestDetailsValidationService
 {
-    private readonly IContestCategoriesBusinessService categoriesService;
-    private readonly IDatesService dates;
-
-    public ContestDetailsValidationService(
-        IContestCategoriesBusinessService categoriesService,
-        IDatesService dates)
+    public ValidationResult GetValidationResult((ContestDetailsServiceModel?, ContestCategoryServiceModel?, bool) item)
     {
-        this.categoriesService = categoriesService;
-        this.dates = dates;
-    }
+        var (contest, contestCategory, isUserAdminOrLecturerInContest) = item;
 
-    public ValidationResult GetValidationResult((ContestDetailsServiceModel?, bool) item)
-    {
-        var (contest, isUserAdminOrLecturerInContest) = item;
-
-        var contestIsVisible = contest?.IsVisible == true || contest?.VisibleFrom <= this.dates.GetUtcNow();
-
-        if (contest == null ||
-            contest.IsDeleted ||
-            ((contest.Category == null || !contest.Category!.IsVisible || contest.Category!.IsDeleted ||
-              !contestIsVisible ||
-              this.categoriesService.IsCategoryChildOfInvisibleParentRecursive(contest.CategoryId)) && !isUserAdminOrLecturerInContest))
+        if (isUserAdminOrLecturerInContest)
         {
-            return ValidationResult.Invalid(ValidationMessages.Contest.NotFound);
+            return ValidationResult.Valid();
         }
 
-        return ValidationResult.Valid();
+        var contestIsVisible = contest?.IsVisible == true || contest?.VisibleFrom <= dates.GetUtcNow();
+
+        return contest == null || contest.IsDeleted || !contestIsVisible || contestCategory is not { IsVisible: true }
+            ? ValidationResult.Invalid(ValidationMessages.Contest.NotFound)
+            : ValidationResult.Valid();
     }
 }

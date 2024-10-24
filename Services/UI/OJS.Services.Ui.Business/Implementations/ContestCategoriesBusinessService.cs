@@ -5,44 +5,46 @@ using Microsoft.EntityFrameworkCore;
 using OJS.Services.Common.Models.Cache;
 using OJS.Services.Ui.Data;
 using OJS.Services.Infrastructure.Extensions;
+using OJS.Services.Ui.Models.Contests;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using X.PagedList;
+using ContestCategoryListViewModel = OJS.Services.Common.Models.Cache.ContestCategoryListViewModel;
 
-public class ContestCategoriesBusinessService : IContestCategoriesBusinessService
+public class ContestCategoriesBusinessService(IContestCategoriesDataService contestCategoriesData)
+    : IContestCategoriesBusinessService
 {
-    private readonly IContestCategoriesDataService contestCategoriesData;
-
-    public ContestCategoriesBusinessService(IContestCategoriesDataService contestCategoriesData)
-        => this.contestCategoriesData = contestCategoriesData;
-
     public async Task<IEnumerable<ContestCategoryTreeViewModel>> GetTree()
     {
-        var allCategories =
-            await this.contestCategoriesData.GetAllVisible<ContestCategoryTreeViewModel>()
-                .OrderByAsync(x => x.OrderBy)
-                .ToListAsync();
+        var allCategories = await contestCategoriesData
+            .GetAllVisible<ContestCategoryTreeViewModel>()
+            .OrderByAsync(x => x.OrderBy)
+            .ToListAsync();
 
         var categoriesWithChildren = FillChildren(allCategories);
 
-        var mainCategories = categoriesWithChildren
+        var mainCategories = await categoriesWithChildren
             .Where(c => !c.ParentId.HasValue)
             .OrderBy(c => c.OrderBy)
-            .ToList();
+            .ToListAsync();
 
-        mainCategories.ForEach(this.FillAllowedStrategyTypes);
+        foreach (var category in mainCategories)
+        {
+            await this.FillAllowedStrategyTypes(category);
+        }
 
         return mainCategories;
     }
 
     public async Task<IEnumerable<ContestCategoryListViewModel>> GetAllMain()
-        => await this.contestCategoriesData
+        => await contestCategoriesData
             .GetAllVisibleMainOrdered<ContestCategoryListViewModel>()
             .ToListAsync();
 
     public async Task<IEnumerable<ContestCategoryTreeViewModel>> GetAllSubcategories(int categoryId)
     {
-        var allCategories = await this.contestCategoriesData
+        var allCategories = await contestCategoriesData
             .GetAllVisible<ContestCategoryTreeViewModel>()
             .ToListAsync();
 
@@ -62,7 +64,7 @@ public class ContestCategoriesBusinessService : IContestCategoriesBusinessServic
     public async Task<IEnumerable<ContestCategoryListViewModel>> GetAllParentCategories(int categoryId)
     {
         var categories = new List<ContestCategoryListViewModel>();
-        var category = await this.contestCategoriesData.OneById(categoryId);
+        var category = await contestCategoriesData.OneById(categoryId);
 
         while (category != null)
         {
@@ -76,15 +78,31 @@ public class ContestCategoriesBusinessService : IContestCategoriesBusinessServic
         return categories;
     }
 
-    public bool IsCategoryChildOfInvisibleParentRecursive(int? categoryId)
+    public async Task<ContestCategoryServiceModel?> GetById(int categoryId)
+    {
+        var category = await contestCategoriesData.OneByIdTo<ContestCategoryServiceModel>(categoryId);
+
+        if (category == null)
+        {
+            return null;
+        }
+
+        category.IsVisible = category.IsVisible && !await this.IsCategoryChildOfInvisibleParentRecursive(categoryId);
+
+        return category;
+    }
+
+    private async Task<bool> IsCategoryChildOfInvisibleParentRecursive(int? categoryId)
     {
         if (categoryId == null)
         {
             return false;
         }
 
-        var categoryWithParent = this.contestCategoriesData
-            .GetByIdQuery(categoryId.Value).Include(c => c.Parent).FirstOrDefault();
+        var categoryWithParent = await contestCategoriesData
+            .GetByIdQuery(categoryId.Value)
+            .Include(c => c.Parent)
+            .FirstOrDefaultAsync();
 
         if (categoryWithParent?.Parent != null)
         {
@@ -93,7 +111,7 @@ public class ContestCategoriesBusinessService : IContestCategoriesBusinessServic
                 return true;
             }
 
-            return this.IsCategoryChildOfInvisibleParentRecursive(categoryWithParent.Parent.Id);
+            return await this.IsCategoryChildOfInvisibleParentRecursive(categoryWithParent.Parent.Id);
         }
 
         return false;
@@ -131,15 +149,18 @@ public class ContestCategoriesBusinessService : IContestCategoriesBusinessServic
             });
     }
 
-    private void FillAllowedStrategyTypes(ContestCategoryTreeViewModel category)
+    private async Task FillAllowedStrategyTypes(ContestCategoryTreeViewModel category)
     {
-        category.Children.ForEach(this.FillAllowedStrategyTypes);
+        foreach (var child in category.Children)
+        {
+            await this.FillAllowedStrategyTypes(child);
+        }
 
-        category.AllowedStrategyTypes = this.contestCategoriesData.GetAllowedStrategyTypesById<AllowedContestStrategiesServiceModel>(category.Id);
+        category.AllowedStrategyTypes = await contestCategoriesData.GetAllowedStrategyTypesById<AllowedContestStrategiesServiceModel>(category.Id);
 
-        category.AllowedStrategyTypes = category.AllowedStrategyTypes.Concat(
+        category.AllowedStrategyTypes = await category.AllowedStrategyTypes.Concat(
                 category.Children.SelectMany(c => c.AllowedStrategyTypes))
                     .DistinctBy(x => x.Id)
-                    .ToList();
+                    .ToListAsync();
     }
 }

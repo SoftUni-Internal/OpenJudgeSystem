@@ -21,6 +21,6 @@
 
         Task<IEnumerable<TServiceModel>> GetAllVisibleMainOrdered<TServiceModel>();
 
-        IEnumerable<T> GetAllowedStrategyTypesById<T>(int id);
+        Task<IEnumerable<T>> GetAllowedStrategyTypesById<T>(int id);
     }
 }

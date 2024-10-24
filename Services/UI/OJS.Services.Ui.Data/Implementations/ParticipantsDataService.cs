@@ -11,13 +11,8 @@ namespace OJS.Services.Ui.Data.Implementations
     using System.Linq.Expressions;
     using System.Threading.Tasks;
 
-    public class ParticipantsDataService : DataService<Participant>, IParticipantsDataService
+    public class ParticipantsDataService(OjsDbContext db) : DataService<Participant>(db), IParticipantsDataService
     {
-        private readonly OjsDbContext db;
-
-        public ParticipantsDataService(OjsDbContext db)
-            : base(db) => this.db = db;
-
         public Task<Participant?> GetByContestByUserAndByIsOfficial(
             int contestId,
             string userId,
@@ -39,17 +34,8 @@ namespace OJS.Services.Ui.Data.Implementations
                 .Include(p => p.ProblemsForParticipants)
                 .ThenInclude(pfp => pfp.Problem);
 
-        public Task<Participant?> GetWithProblemsForParticipantsByContestByUserAndIsOfficial(int contestId, string userId, bool isOfficial)
-            => this.GetAllByContestByUserAndIsOfficial(contestId, userId, isOfficial)
-                .Include(p => p.ProblemsForParticipants)
-                    .ThenInclude(pfp => pfp.Problem)
-                .FirstOrDefaultAsync();
-
         public IQueryable<Participant> GetAllByUser(string? userId)
             => this.GetQuery(p => p.UserId == userId);
-
-        public IQueryable<Participant> GetAllByUsername(string username)
-            => this.GetQuery(p => p.User.UserName == username);
 
         public IQueryable<Participant> GetAllByUsernameAndContests(string username, IEnumerable<int> contestIds)
             => this.GetQuery(p => p.User.UserName == username)
@@ -78,18 +64,6 @@ namespace OJS.Services.Ui.Data.Implementations
                         p.ParticipationStartTime <= participationStartTimeRangeEnd &&
                         p.Contest.Type == ContestType.OnlinePracticalExam);
 
-        public Task<bool> ExistsByIdAndContest(int id, int contestId)
-            => this.GetByIdQuery(id)
-                .AnyAsync(p => p.ContestId == contestId);
-
-        public IQueryable<Participant> GetAllByContestAndIsOfficial(int contestId, bool isOfficial)
-            => this.GetAllByContest(contestId)
-                .Where(p => p.IsOfficial == isOfficial);
-
-        public Task<bool> ExistsByContestAndUser(int contestId, string userId)
-            => this.GetAllByContestAndUser(contestId, userId)
-                .AnyAsync();
-
         public Task<bool> ExistsByContestByUserAndIsOfficial(int contestId, string userId, bool isOfficial)
             => this.GetAllByContestByUserAndIsOfficial(contestId, userId, isOfficial)
                 .AnyAsync();
@@ -110,23 +84,6 @@ namespace OJS.Services.Ui.Data.Implementations
             IQueryable<Participant> participantsQuery,
             Expression<Func<Participant, Participant>> updateExpression)
             => participantsQuery.UpdateFromQueryAsync(updateExpression);
-
-        public async Task Delete(IEnumerable<Participant> participantsForDeletion)
-        {
-            foreach (var participant in participantsForDeletion)
-            {
-                this.Delete(participant);
-            }
-
-            await this.SaveChanges();
-        }
-
-        public Task InvalidateByContestAndIsOfficial(int contestId, bool isOfficial)
-            => this.GetAllByContestAndIsOfficial(contestId, isOfficial)
-                .UpdateFromQueryAsync(p => new Participant
-                {
-                    IsInvalidated = true,
-                });
 
         private IQueryable<Participant> GetAllByContestAndUser(int contestId, string userId) =>
             this.GetAllByContest(contestId)

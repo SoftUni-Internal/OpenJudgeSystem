@@ -13,6 +13,7 @@
         public const string ContestDetails = "ContestDetails:{0}";
         public const string ContestDetailsForSubmit = "ContestDetailsForSubmit:{0}";
         public const string ContestCategoriesTree = "ContestCategoriesTree";
+        public const string ContestCategoryDetails = "ContestCategoryDetails:{0}";
 
         public const string ContestSubCategoriesFormat = "ContestSubCategories:{0}";
         public const string ContestParentCategoriesFormat = "ContestParentCategories:{0}";
