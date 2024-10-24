@@ -20,17 +20,28 @@ import { autocompleteNameIdFormatFilterOptions } from '../../utils/mui-utils';
 }
 
 interface ICopyModalProps{
-    index :number;
+    index: number;
     operation: AllowedOperations;
-    sourceId : number;
-    sourceName: string;
-    problemToCopy?: number | null;
+    sourceContestId : number;
+    sourceContestName: string;
+    problemToCopyId?: number | null;
+    problemToCopyName: string | null;
     setShowModal: Function;
     setParentSuccessMessage: Function;
 }
 
 const CopyModal = (props: ICopyModalProps) => {
-    const { index, setShowModal, operation, sourceId, sourceName, problemToCopy = null, setParentSuccessMessage } = props;
+    const {
+        index,
+        setShowModal,
+        operation,
+        sourceContestId,
+        sourceContestName,
+        problemToCopyName,
+        problemToCopyId = null,
+        setParentSuccessMessage,
+    } = props;
+
     const [ contestToCopy, setContestToCopy ] = useState<IContestAutocomplete | null>(null);
     const [ contestSearchString, setContestSearchString ] = useState<string>('');
     const [ problemGroupId, setNewProblemGroup ] = useState<number | undefined>(undefined);
@@ -39,7 +50,7 @@ const CopyModal = (props: ICopyModalProps) => {
 
     const { data, isLoading } = useGetContestAutocompleteQuery(contestSearchString);
 
-    const onSelect = (contest: IContestAutocomplete) => {
+    const onSelectContest = (contest: IContestAutocomplete) => {
         setContestToCopy(contest);
     };
 
@@ -86,19 +97,15 @@ const CopyModal = (props: ICopyModalProps) => {
         }
     }, [ isSuccessfullyCopied, isSuccessfullyCopiedAll, setShowModal ]);
 
-    useEffect(() => {
-        getAndSetExceptionMessage([ copyError ], setErrorMessages);
-    }, [ copyError ]);
-
     const onInputChange = debounce((e: any) => {
         setContestSearchString(e.target.value);
     }, 300);
 
     const onSubmit = () => {
         if (operation === AllowedOperations.Copy) {
-            copy({ destinationContestId: contestToCopy!.id, problemId: problemToCopy!, problemGroupId });
+            copy({ destinationContestId: contestToCopy!.id, problemId: problemToCopyId!, problemGroupId });
         } else {
-            copyAll({ sourceContestId: sourceId, destinationContestId: contestToCopy!.id });
+            copyAll({ sourceContestId, destinationContestId: contestToCopy!.id });
         }
         setContestSearchString('');
     };
@@ -119,15 +126,21 @@ const CopyModal = (props: ICopyModalProps) => {
                     : (
                         <>
                             {renderErrorMessagesAlert(errorMessages)}
-                            <Typography variant="h5" padding="0.5rem">Copy Problems</Typography>
+                            <Typography variant="h5" padding="0.5rem">
+                                Copy
+                                {' '}
+                                {problemToCopyName}
+                            </Typography>
                             <Autocomplete<IContestAutocomplete>
-                              disabled={sourceName === ''}
+                              disabled={sourceContestName === ''}
                               options={contestAutocomplete}
                               filterOptions={autocompleteNameIdFormatFilterOptions}
                               renderInput={(params) => <TextField {...params} label="Select Contest" key={params.id} />}
-                              onChange={(event, newValue) => onSelect(newValue!)}
+                              onChange={(event, newValue) => onSelectContest(newValue!)}
                               onInputChange={(event) => onInputChange(event)}
-                              value={null}
+                              value={contestToCopy !== null
+                                  ? contestToCopy
+                                  : null}
                               isOptionEqualToValue={(option, value) => option.id === value.id}
                               getOptionLabel={(option) => option?.name}
                               renderOption={(properties, option) => (
@@ -140,29 +153,29 @@ const CopyModal = (props: ICopyModalProps) => {
                               )}
                             />
                             {
-                          operation === AllowedOperations.Copy && (
-                          <TextField
-                            sx={{ mt: 2 }}
-                            label="Copy To new Problem Group"
-                            type="number"
-                            onChange={(e) => setNewProblemGroup(Number(e.target.value))}
-                          />
-                          )
-}
-                            {contestToCopy !== null && (
-                            <Box sx={{ padding: '4rem' }}>
+                              operation === AllowedOperations.Copy && (
+                                  <TextField
+                                    sx={{ mt: 2 }}
+                                    label="Copy To new Problem Group"
+                                    type="number"
+                                    onChange={(e) => setNewProblemGroup(Number(e.target.value))}
+                                  />
+                              )
+                            }
+                            <Box sx={{ marginTop: '1rem' }}>
                                 <Typography sx={{ display: 'flex', justifyContent: 'space-around' }}>
-                                    {sourceName}
+                                    {sourceContestName}
                                     {' '}
                                     <FaLongArrowAltRight />
-                                    {contestToCopy?.name}
+                                    {contestToCopy !== null
+                                        ? contestToCopy?.name
+                                        : 'Select contest'}
                                 </Typography>
                             </Box>
-                            )}
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
                                 <Button
                                   variant="contained"
-                                  disabled={contestToCopy === null || sourceName === ''}
+                                  disabled={contestToCopy === null || sourceContestName === ''}
                                   onClick={() => onSubmit()}
                                 >
                                     Copy

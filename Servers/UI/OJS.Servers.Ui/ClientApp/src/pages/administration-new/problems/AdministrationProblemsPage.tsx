@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { IGetAllAdminParams } from '../../../common/types';
@@ -28,7 +28,12 @@ const AdministrationProblemsPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
-    const { refetch: retakeProblems, data: problemsData, isLoading: isLoadingProblems, error } = useGetAllAdminProblemsQuery(queryParams);
+    const {
+        data: problemsData,
+        refetch: retakeProblems,
+        isLoading: isLoadingProblems,
+        error,
+    } = useGetAllAdminProblemsQuery(queryParams);
 
     const onEditClick = (id: number) => {
         setOpenEditProblemModal(true);
@@ -55,15 +60,17 @@ const AdministrationProblemsPage = () => {
         retakeProblems();
     };
 
+    const findProblemInData = useCallback(() => problemsData?.items?.find((x) => x.id === problemId), [ problemId, problemsData ]);
+
     const renderRetestModal = (index: number) => (
         <ProblemRetest
           key={index}
-          contestId={problemsData?.items?.find((x) => x.id === problemId)?.contestId || 0}
+          contestId={findProblemInData()?.contestId || 0}
           declineFunction={() => setShowRetestModal(!showRetestModal)}
           index={index}
           problemData={problemsData}
           problemName={problemsData?.items
-              ? problemsData?.items.find((x) => x.id === problemId)?.name
+              ? findProblemInData()?.name
               : 'problem'}
           problemToRetest={problemId!}
           onSuccess={onSuccessOperation}
@@ -93,11 +100,10 @@ const AdministrationProblemsPage = () => {
           index={index}
           operation={AllowedOperations.Copy}
           setShowModal={setShowCopyModal}
-          sourceId={problemsData?.items?.find((x) => x.id === problemId)?.contestId || 0}
-          sourceName={problemsData?.items
-              ? problemsData?.items[0].contest
-              : ''}
-          problemToCopy={problemId}
+          sourceContestId={findProblemInData()?.contestId || 0}
+          sourceContestName={findProblemInData()?.contest || ''}
+          problemToCopyName={findProblemInData()?.name || ''}
+          problemToCopyId={problemId}
           setParentSuccessMessage={setSuccessMessage}
         />
     );
