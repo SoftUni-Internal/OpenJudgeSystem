@@ -47,10 +47,6 @@ public class FullDetailsPublicSubmissionsServiceModel : IMapExplicitly
             .ForMember(
                 x => x.Result,
                 opt => opt.MapFrom(
-                    y => y))
-            .ForMember(
-                x => x.Result,
-                opt => opt.MapFrom(
                     y => new ResultForPublicSubmissionsServiceModel
                     {
                         Points = y.Points,
@@ -68,16 +64,10 @@ public class FullDetailsPublicSubmissionsServiceModel : IMapExplicitly
                 opt => opt.Ignore())
             .ForMember(
                 x => x.MaxTimeUsed,
-                opt => opt.Ignore())
+                opt => opt.MapFrom(s => GetMaxMemoryAndTimeUsed(s.TestRunsCache).MaxTimeUsed))
             .ForMember(
                 x => x.MaxMemoryUsed,
-                opt => opt.Ignore())
-            .AfterMap((src, dest) =>
-            {
-                var timeAndMemory = GetMaxMemoryAndTimeUsed(src.TestRunsCache);
-                dest.MaxTimeUsed = timeAndMemory.MaxTimeUsed;
-                dest.MaxMemoryUsed = timeAndMemory.MaxMemoryUsed;
-            });
+                opt => opt.MapFrom(s => GetMaxMemoryAndTimeUsed(s.TestRunsCache).MaxMemoryUsed));
 
     private static (long? MaxMemoryUsed, int? MaxTimeUsed) GetMaxMemoryAndTimeUsed(string? testRunsCache)
     {
