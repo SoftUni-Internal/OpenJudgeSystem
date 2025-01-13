@@ -18,6 +18,8 @@ public class SubmissionForProcessingPubSubModel : IMapExplicitly
 
     public byte[]? FileContent { get; set; }
 
+    public byte[]? AdditionalFiles { get; set; }
+
     public string? Code { get; set; }
 
     public int TimeLimit { get; set; }

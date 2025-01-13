@@ -13,6 +13,7 @@
     public class SubmissionServiceModel : IMapExplicitly
     {
         public int Id { get; set; }
+
         public ExecutionType ExecutionType { get; set; }
 
         public ExecutionStrategyType ExecutionStrategy { get; set; }
@@ -20,6 +21,8 @@
         public CompilerType CompilerType { get; set; }
 
         public byte[]? FileContent { get; set; }
+
+        public byte[]? AdditionalFiles { get; set; }
 
         public string? Code { get; set; }
 
@@ -65,6 +68,9 @@
                     nameof(OjsSubmission<object>.FileContent),
                     opt => opt.MapFrom(nameof(SubmissionServiceModel.FileContent)))
                 .ForMember(
+                    nameof(OjsSubmission<object>.AdditionalFiles),
+                    opt => opt.MapFrom(nameof(SubmissionServiceModel.AdditionalFiles)))
+                .ForMember(
                     nameof(OjsSubmission<object>.MemoryLimit),
                     opt => opt.MapFrom(nameof(SubmissionServiceModel.MemoryLimit)))
                 .ForMember(
@@ -90,6 +96,9 @@
                 .ForMember(
                     d => d.FileContent,
                     opt => opt.MapFrom(s => s.IsBinaryFile ? s.Content : null))
+                .ForMember(
+                    d => d.AdditionalFiles,
+                    opt => opt.MapFrom(s => s.IsBinaryFile ? s.Problem.AdditionalFiles : null))
                 .ForMember(
                     d => d.ExecutionStrategy,
                     opt => opt.MapFrom(s =>

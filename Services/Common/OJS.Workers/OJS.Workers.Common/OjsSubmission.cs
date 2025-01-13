@@ -34,6 +34,8 @@ namespace OJS.Workers.Common
 
         public byte[] FileContent { get; set; }
 
+        public byte[] AdditionalFiles { get; set; }
+
         public CompilerType CompilerType { get; set; }
 
         public ExecutionType ExecutionType { get; set; }

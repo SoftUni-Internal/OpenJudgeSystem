@@ -48,6 +48,7 @@
                     AdditionalCompilerArguments = submission.AdditionalCompilerArguments,
                     Code = submission.Code,
                     FileContent = submission.FileContent,
+                    AdditionalFiles = submission.AdditionalFiles,
                     AllowedFileExtensions = submission.AllowedFileExtensions,
                     CompilerType = submission.CompilerType,
                     MemoryLimit = submission.MemoryLimit,

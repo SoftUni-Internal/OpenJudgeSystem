@@ -17,6 +17,8 @@ public class ProblemForSubmitCacheModel : IMapExplicitly
 
     public int MemoryLimit { get; set; }
 
+    public byte[]? AdditionalFiles { get; set; }
+
     public int? SourceCodeSizeLimit { get; set; }
 
     public bool ShowResults { get; set; }
@@ -33,5 +35,6 @@ public class ProblemForSubmitCacheModel : IMapExplicitly
         => configuration
             .CreateMap<Problem, ProblemForSubmitCacheModel>()
             .ForMember(m => m.Tests, opt => opt.Ignore())
+            .ForMember(m => m.AdditionalFiles, opt => opt.Ignore())
             .ReverseMap();
 }

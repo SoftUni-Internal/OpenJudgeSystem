@@ -12,6 +12,8 @@
 
         byte[] FileContent { get; set; }
 
+        public byte[] AdditionalFiles { get; set; }
+
         string? AllowedFileExtensions { get; }
 
         int TimeLimit { get; }

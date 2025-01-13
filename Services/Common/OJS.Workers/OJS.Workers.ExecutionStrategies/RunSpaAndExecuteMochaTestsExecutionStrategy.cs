@@ -368,7 +368,7 @@ finally:
 
             var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
             File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
-            using (ZipFile zip = ZipFile.Read(submissionFilePath))
+            using (var zip = ZipFile.Read(submissionFilePath))
             {
                 zip.RemoveSelectedEntries("node_modules/*");
                 zip.Save();
@@ -376,6 +376,13 @@ finally:
 
             FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
             FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
+
+            if (executionContext.AdditionalFiles.Length != 0)
+            {
+                var additionalFilesPath = FileHelpers.BuildPath(this.WorkingDirectory, "additionalFiles");
+                File.WriteAllBytes(additionalFilesPath, executionContext.AdditionalFiles);
+                FileHelpers.UnzipFile(additionalFilesPath, this.UserApplicationPath);
+            }
 
             Directory.CreateDirectory(this.TestsPath);
             Directory.CreateDirectory(this.NginxConfFileDirectory);

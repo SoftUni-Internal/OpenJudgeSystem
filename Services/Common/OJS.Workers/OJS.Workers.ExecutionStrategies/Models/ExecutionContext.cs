@@ -14,6 +14,8 @@ namespace OJS.Workers.ExecutionStrategies.Models
 
         public byte[] FileContent { get; set; }
 
+        public byte[] AdditionalFiles { get; set; }
+
         public string AllowedFileExtensions { get; set; }
 
         public int TimeLimit { get; set; }

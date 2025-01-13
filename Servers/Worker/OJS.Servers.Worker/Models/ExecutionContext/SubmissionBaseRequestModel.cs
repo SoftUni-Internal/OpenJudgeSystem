@@ -37,6 +37,8 @@
 
         public byte[]? FileContent { get; set; }
 
+        public byte[]? AdditionalFiles { get; set; }
+
         public bool WithExceptionStackTrace { get; set; }
 
         public void RegisterMappings(IProfileExpression configuration)
