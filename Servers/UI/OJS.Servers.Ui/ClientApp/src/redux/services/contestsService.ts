@@ -103,14 +103,14 @@ export const contestsService = createApi({
             keepUnusedDataFor: 0,
         }),
         submitContestSolution: builder.mutation<void, ISubmitContestSolutionParams>({
-            query: ({ content, official, problemId, submissionTypeId, contestId, isOnlineExam }) => ({
+            query: ({ content, official, problemId, submissionTypeId, contestId, isOnlineExam, verbosely }) => ({
                 url: '/Compete/Submit',
                 method: 'POST',
-                body: { content, official, problemId, submissionTypeId, contestId, isOnlineExam },
+                body: { content, official, problemId, submissionTypeId, contestId, isOnlineExam, verbosely },
             }),
         }),
         submitContestSolutionFile: builder.mutation<void, ISubmitContestSolutionParams>({
-            query: ({ content, official, submissionTypeId, problemId, contestId, isOnlineExam }) => {
+            query: ({ content, official, submissionTypeId, problemId, contestId, isOnlineExam, verbosely }) => {
                 const formData = new FormData();
                 formData.append('content', content);
                 formData.append('official', official
@@ -120,6 +120,9 @@ export const contestsService = createApi({
                 formData.append('submissionTypeId', submissionTypeId.toString());
                 formData.append('contestId', contestId.toString());
                 formData.append('isOnlineExam', isOnlineExam
+                    ? 'true'
+                    : 'false');
+                formData.append('verbosely', verbosely
                     ? 'true'
                     : 'false');
 

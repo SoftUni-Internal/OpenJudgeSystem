@@ -23,7 +23,7 @@ public class RetestSubmissionConsumer : IConsumer<RetestSubmissionPubSubModel>
     public async Task Consume(ConsumeContext<RetestSubmissionPubSubModel> context)
     {
         this.logger.LogReceivedRetestSubmission(context.Message.Id);
-        await this.submissionsBusinessService.Retest(context.Message.Id);
+        await this.submissionsBusinessService.Retest(context.Message.Id, context.Message.Verbosely);
         this.logger.LogRetestedSubmission(context.Message.Id);
     }
 }

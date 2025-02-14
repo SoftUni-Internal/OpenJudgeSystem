@@ -8,27 +8,21 @@
     using Microsoft.Extensions.Logging;
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
+    using System.Globalization;
 
+#pragma warning disable CA1848
     // TODO: Implement memory constraints
-    public class StandardProcessExecutor : ProcessExecutor
+    public class StandardProcessExecutor(
+        int baseTimeUsed,
+        int baseMemoryUsed,
+        ITasksService tasksService,
+        ILogger<StandardProcessExecutor> logger,
+        ILogger strategyLogger,
+        bool runAsRestrictedUser = false,
+        IDictionary<string, string>? environmentVariables = null)
+        : ProcessExecutor(baseTimeUsed, baseMemoryUsed, tasksService, environmentVariables)
     {
         private const int TimeBeforeClosingOutputStreams = 100;
-
-        private readonly ILogger<StandardProcessExecutor> logger;
-        private readonly bool runAsRestrictedUser;
-
-        public StandardProcessExecutor(
-            int baseTimeUsed,
-            int baseMemoryUsed,
-            ITasksService tasksService,
-            ILogger<StandardProcessExecutor> logger,
-            bool runAsRestrictedUser = false,
-            IDictionary<string, string>? environmentVariables = null)
-            : base(baseTimeUsed, baseMemoryUsed, tasksService, environmentVariables)
-        {
-            this.logger = logger;
-            this.runAsRestrictedUser = runAsRestrictedUser;
-        }
 
         protected override async Task<ProcessExecutionResult> InternalExecute(
             string fileName,
@@ -55,7 +49,7 @@
                 StandardOutputEncoding = useSystemEncoding ? Encoding.Default : new UTF8Encoding(false),
             };
 
-            if (this.runAsRestrictedUser)
+            if (runAsRestrictedUser)
             {
                 processStartInfo.UserName = Constants.RestrictedUserName;
             }
@@ -71,11 +65,24 @@
                 processStartInfo.EnvironmentVariables.Add(environmentVariable.Key, environmentVariable.Value);
             }
 
-            using var process = Process.Start(processStartInfo);
-            if (process == null)
+            strategyLogger.LogInformation("Starting process: {FileName} as user: {UserName} in directory: {WorkingDirectory}", fileName, processStartInfo.UserName, workingDirectory);
+            strategyLogger.LogInformation("With time limit: {TimeLimit} ms", timeLimit);
+            strategyLogger.LogInformation("With arguments: {Arguments}", processStartInfo.Arguments);
+
+            var envVariablesString = new StringBuilder();
+            foreach (var key in processStartInfo.EnvironmentVariables.Keys)
             {
-                throw new Exception($"Could not start process: {fileName}!");
+                envVariablesString.AppendLine(CultureInfo.InvariantCulture, $"{key}={processStartInfo.EnvironmentVariables[key.ToString() ?? string.Empty]}");
             }
+
+            if (envVariablesString.Length > 0)
+            {
+                strategyLogger.LogInformation("With environment variables: {EnvironmentVariables}", envVariablesString.ToString());
+            }
+
+
+            using var process = Process.Start(processStartInfo)
+                ?? throw new Exception($"Could not start process: {fileName}!");
 
             var processStartTime = process.StartTime;
 
@@ -93,6 +100,8 @@
 
             if (inputData is not null)
             {
+                strategyLogger.LogInformation("Writing the following input data to process: {NewLine}{InputData}", Environment.NewLine, inputData);
+
                 await this.WriteInputToProcess(process, inputData);
             }
 
@@ -107,12 +116,16 @@
                     process.Kill();
                     result.ProcessWasKilled = true;
 
+                    strategyLogger.LogWarning("Process was killed because it exceeded the time limit.");
+
                     // Approach: https://msdn.microsoft.com/en-us/library/system.diagnostics.process.kill(v=vs.110).aspx#Anchor_2
                     process.WaitForExit(Constants.DefaultProcessExitTimeOutMilliseconds);
                 }
 
                 result.Type = ProcessExecutionResultType.TimeLimit;
             }
+
+            strategyLogger.LogInformation("Process exited with code: {ExitCode}", process.ExitCode);
 
             try
             {
@@ -122,7 +135,7 @@
             {
                 if (ex.InnerException is not TaskCanceledException)
                 {
-                    this.logger.LogAggregatedException(ex);
+                    logger.LogAggregatedException(ex);
                 }
             }
 
@@ -136,6 +149,20 @@
             result.ExitCode = process.ExitCode;
             result.TimeWorked = process.ExitTime - processStartTime;
 
+            strategyLogger.LogInformation("Total process working time: {TimeWorked} ms", result.TimeWorked.TotalMilliseconds);
+
+            if (!string.IsNullOrEmpty(result.ErrorOutput))
+            {
+                strategyLogger.LogError("Error output: {NewLine}{ErrorOutput}", Environment.NewLine, result.ErrorOutput);
+            }
+
+            if (!string.IsNullOrEmpty(result.ReceivedOutput))
+            {
+                strategyLogger.LogInformation("Received output: {NewLine}{ReceivedOutput}", Environment.NewLine, result.ReceivedOutput);
+            }
+
+            strategyLogger.LogInformation("================ Finished process execution ================");
+
             return result;
         }
 
@@ -148,7 +175,7 @@
             }
             catch (Exception ex)
             {
-                this.logger.LogErrorWritingToStandardInput(inputData, ex);
+                logger.LogErrorWritingToStandardInput(inputData, ex);
             }
             finally
             {
@@ -163,7 +190,7 @@
                 }
                 catch (Exception ex)
                 {
-                    this.logger.LogErrorClosingStandardInput(ex);
+                    logger.LogErrorClosingStandardInput(ex);
                 }
             }
         }
@@ -185,9 +212,10 @@
             }
             catch (Exception ex)
             {
-                this.logger.LogErrorReadingProcessErrorOutput(ex);
+                logger.LogErrorReadingProcessErrorOutput(ex);
                 return $"Error while reading the {outputName} of the underlying process: {ex.Message}";
             }
         }
     }
+#pragma warning restore CA1848
 }

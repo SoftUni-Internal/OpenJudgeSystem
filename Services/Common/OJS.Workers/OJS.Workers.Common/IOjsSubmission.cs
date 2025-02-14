@@ -35,5 +35,7 @@
         DateTime? StartedExecutionOn { get; set; }
 
         DateTime? CompletedExecutionOn { get; set; }
+
+        bool Verbosely { get; set; }
     }
 }

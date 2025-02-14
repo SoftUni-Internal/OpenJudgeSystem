@@ -69,6 +69,7 @@ interface IGetContestResultsParams {
 
 interface IRetestSubmissionUrlParams {
     id: number;
+    verbosely?: boolean;
 }
 
 interface IProblemUrlById {
@@ -86,6 +87,7 @@ interface ISubmitContestSolutionParams {
     submissionTypeId: number;
     contestId: number;
     isOnlineExam?: boolean;
+    verbosely?: boolean;
 }
 
 interface IRegisterUserForContestParams {

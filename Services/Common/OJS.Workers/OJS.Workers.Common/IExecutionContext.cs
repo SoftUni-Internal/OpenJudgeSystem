@@ -12,13 +12,15 @@
 
         byte[] FileContent { get; set; }
 
-        public byte[] AdditionalFiles { get; set; }
+        byte[] AdditionalFiles { get; set; }
 
         string? AllowedFileExtensions { get; }
 
         int TimeLimit { get; }
 
         int MemoryLimit { get; }
+
+        int VerboseLogFileMaxBytes { get; }
 
         TInput Input { get; set; }
     }

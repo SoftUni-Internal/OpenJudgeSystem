@@ -1,5 +1,7 @@
 ﻿namespace OJS.Services.Worker.Business.Implementations
 {
+    using Microsoft.Extensions.Options;
+    using OJS.Services.Worker.Models.Configuration;
     using System;
 
     using OJS.Workers.Common;
@@ -7,12 +9,12 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using System.Threading.Tasks;
 
-    public class SubmissionExecutor : ISubmissionExecutor
+    public class SubmissionExecutor(
+        IExecutionStrategyFactory executionStrategyFactory,
+        IOptions<SubmissionExecutionConfig> submissionExecutionConfigAccessor)
+        : ISubmissionExecutor
     {
-        private readonly IExecutionStrategyFactory executionStrategyFactory;
-
-        public SubmissionExecutor(IExecutionStrategyFactory executionStrategyFactory)
-            => this.executionStrategyFactory = executionStrategyFactory;
+        private readonly SubmissionExecutionConfig executionConfig = submissionExecutionConfigAccessor.Value;
 
         public Task<IExecutionResult<TResult>> Execute<TInput, TResult>(
             OjsSubmission<TInput> submission)
@@ -29,7 +31,7 @@
         {
             try
             {
-                return this.executionStrategyFactory.CreateExecutionStrategy(submission);
+                return executionStrategyFactory.CreateExecutionStrategy(submission);
             }
             catch (Exception ex)
             {
@@ -54,6 +56,7 @@
                     MemoryLimit = submission.MemoryLimit,
                     TimeLimit = submission.TimeLimit,
                     Input = submission.Input,
+                    VerboseLogFileMaxBytes = this.executionConfig.SubmissionVerboseLogFileMaxBytes,
                 };
             }
             catch (Exception ex)
@@ -72,7 +75,7 @@
         {
             try
             {
-                return executionStrategy.SafeExecute<TInput, TResult>(executionContext, (int)submission.Id);
+                return executionStrategy.SafeExecute<TInput, TResult>(executionContext, submission);
             }
             catch (Exception ex)
             {

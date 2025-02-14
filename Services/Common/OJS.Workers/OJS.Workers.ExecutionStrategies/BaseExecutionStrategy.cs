@@ -36,16 +36,30 @@
 
         public async Task<IExecutionResult<TResult>> SafeExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            int submissionId)
+            IOjsSubmission submission)
             where TResult : ISingleCodeRunResult, new()
         {
+            var submissionId = (int)submission.Id;
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
             this.Logger.LogExecutionStrategyCreatedWorkingDirectory(this.Type.ToString(), this.WorkingDirectory, submissionId);
 
             try
             {
                 executionContext.Code = this.PreprocessCode(executionContext);
-                return await this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+                var result = await this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+
+                if (submission.Verbosely)
+                {
+                    // If the submission is marked as verbose, try read the log file and attach it to the result
+                    var logFilePath = FileHelpers.BuildSubmissionLogFilePath(submissionId);
+                    if (FileHelpers.FileExists(logFilePath))
+                    {
+                        result.VerboseLogFile = await FileHelpers.ReadFileUpToBytes(logFilePath, executionContext.VerboseLogFileMaxBytes);
+                    }
+                }
+
+                return result;
+
                 // Catch logic is handled by the caller
             }
             finally
@@ -57,6 +71,7 @@
                     try
                     {
                         DirectoryHelpers.SafeDeleteDirectory(this.WorkingDirectory, true);
+                        FileHelpers.DeleteFile(FileHelpers.BuildSubmissionLogFilePath(submissionId));
                     }
                     catch (Exception ex)
                     {

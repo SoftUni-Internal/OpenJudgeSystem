@@ -39,7 +39,8 @@ public class SubmissionsCommonBusinessService : ISubmissionsCommonBusinessServic
     public SubmissionServiceModel BuildSubmissionForProcessing(
         Submission submission,
         Problem problem,
-        SubmissionType submissionType)
+        SubmissionType submissionType,
+        bool executeVerbosely = false)
     {
         // We detach the existing entity, in order to avoid tracking exception on Update.
         this.submissionsCommonDataService.Detach(submission);
@@ -49,6 +50,7 @@ public class SubmissionsCommonBusinessService : ISubmissionsCommonBusinessServic
         submission.SubmissionType = submissionType;
 
         var serviceModel = submission.Map<SubmissionServiceModel>();
+        serviceModel.Verbosely = executeVerbosely;
 
         serviceModel.TestsExecutionDetails!.TaskSkeleton = problem.SubmissionTypesInProblems
             .Where(x => x.SubmissionTypeId == submission.SubmissionTypeId)
@@ -58,8 +60,8 @@ public class SubmissionsCommonBusinessService : ISubmissionsCommonBusinessServic
         return serviceModel;
     }
 
-    public SubmissionServiceModel BuildSubmissionForProcessing(Submission submission)
-        => this.BuildSubmissionForProcessing(submission, submission.Problem, submission.SubmissionType!);
+    public SubmissionServiceModel BuildSubmissionForProcessing(Submission submission, bool executeVerbosely = false)
+        => this.BuildSubmissionForProcessing(submission, submission.Problem, submission.SubmissionType!, executeVerbosely);
 
     public async Task PublishSubmissionForProcessing(SubmissionServiceModel submission, SubmissionForProcessing submissionForProcessing)
     {

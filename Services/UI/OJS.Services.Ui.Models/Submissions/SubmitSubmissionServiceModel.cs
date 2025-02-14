@@ -22,14 +22,16 @@ public class SubmitSubmissionServiceModel : IMapExplicitly
 
     public string? FileExtension { get; set; }
 
+    public bool Verbosely { get; set; }
+
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<SubmitSubmissionServiceModel, Submission>()
             .ForMember(
                 d => d.Content,
                 opt => opt.MapFrom(s =>
                     s.ByteContent == null
-                        ? null :
-                        s.ByteContent))
+                        ? null
+                        : s.ByteContent))
             .ForMember(
                 d => d.ProblemId,
                 opt => opt.MapFrom(s => s.ProblemId))

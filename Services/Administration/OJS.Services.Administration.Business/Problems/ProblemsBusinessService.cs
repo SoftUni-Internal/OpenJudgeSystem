@@ -368,7 +368,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
         });
 
         var serviceModels = submissions
-                .Select(this.submissionsCommonBusinessService.BuildSubmissionForProcessing)
+                .Select(s => this.submissionsCommonBusinessService.BuildSubmissionForProcessing(s))
                 .ToList();
 
         await this.submissionsCommonBusinessService.PublishSubmissionsForProcessing(serviceModels);

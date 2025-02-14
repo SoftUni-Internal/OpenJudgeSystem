@@ -1,10 +1,8 @@
 namespace OJS.Services.Administration.Business.Submissions
 {
-    using System.Linq;
     using System.Threading.Tasks;
     using Microsoft.EntityFrameworkCore;
     using OJS.Common;
-    using OJS.Services.Common;
     using OJS.Services.Common.Data;
     using OJS.Services.Common.Models;
     using OJS.Data.Models.Submissions;
@@ -13,7 +11,6 @@ namespace OJS.Services.Administration.Business.Submissions
     using OJS.Services.Infrastructure;
     using OJS.Services.Infrastructure.Exceptions;
     using OJS.Services.Infrastructure.Extensions;
-    using OJS.Data;
 
     public class SubmissionsBusinessService : AdministrationOperationService<Submission, int, SubmissionAdministrationServiceModel>, ISubmissionsBusinessService
     {
@@ -52,7 +49,7 @@ namespace OJS.Services.Administration.Business.Submissions
             this.testRunsData = testRunsData;
         }
 
-        public async Task<ServiceResult> Retest(Submission submission)
+        public async Task<ServiceResult> Retest(Submission submission, bool verbosely)
         {
             var submissionProblemId = submission.ProblemId;
             var submissionParticipantId = submission.ParticipantId;
@@ -84,13 +81,13 @@ namespace OJS.Services.Administration.Business.Submissions
                 return ServiceResult.Success;
             });
 
-            var submissionServiceModel = this.submissionsCommonBusinessService.BuildSubmissionForProcessing(submission);
+            var submissionServiceModel = this.submissionsCommonBusinessService.BuildSubmissionForProcessing(submission, verbosely);
             await this.submissionsCommonBusinessService.PublishSubmissionForProcessing(submissionServiceModel, submissionForProcessing);
 
             return result;
         }
 
-        public async Task<ServiceResult> Retest(int id)
+        public async Task<ServiceResult> Retest(int id, bool verbosely = false)
         {
             var submission = await this.submissionsData.GetNonDeletedWithNonDeletedProblemTestsAndSubmissionTypes(id);
             if (submission == null || submission.Id == 0)
@@ -98,7 +95,7 @@ namespace OJS.Services.Administration.Business.Submissions
                 throw new BusinessServiceException("Submission doesn't exist or either the submission or problem is deleted.");
             }
 
-            return await this.Retest(submission!);
+            return await this.Retest(submission, verbosely);
         }
 
         public override async Task Delete(int id)

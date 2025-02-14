@@ -18,6 +18,8 @@ public class SubmissionRequestModel : IMapExplicitly
 
     public bool Official { get; set; }
 
+    public bool Verbosely { get; set; }
+
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<SubmissionRequestModel, SubmitSubmissionServiceModel>()
             .ForMember(

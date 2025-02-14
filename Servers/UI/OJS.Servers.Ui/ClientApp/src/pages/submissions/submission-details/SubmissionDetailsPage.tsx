@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
+import CheckBox from 'src/components/guidelines/checkbox/CheckBox';
 import Mentor from 'src/components/mentor/Mentor';
 
 import { sortTestRunsByTrialTest } from '../../../common/submissions-utils';
@@ -19,6 +20,7 @@ import useTheme from '../../../hooks/use-theme';
 import { setContestDetailsIdAndCategoryId } from '../../../redux/features/contestsSlice';
 import {
     useGetSubmissionDetailsQuery,
+    useLazyGetSubmissionLogFileQuery,
     useLazyGetSubmissionUploadedFileQuery,
     useLazyRetestSubmissionQuery,
 } from '../../../redux/services/submissionsService';
@@ -39,6 +41,7 @@ const SubmissionDetailsPage = () => {
     const { submissionId } = useParams();
     const { themeColors, getColorClassName, isDarkMode } = useTheme();
     const [ isRetestingStarted, setIsRetestingStarted ] = useState(false);
+    const [ retestVerbosely, setRetestVerbosely ] = useState(false);
 
     const { internalUser: user } = useAppSelector((state) => state.authorization);
     const { contestDetails, breadcrumbItems } = useAppSelector((state) => state.contests);
@@ -47,6 +50,12 @@ const SubmissionDetailsPage = () => {
     const [ downloadSolutionErrorMessage, setDownloadSolutionErrorMessage ] = useState<string>('');
     const { data, isLoading, error } = useGetSubmissionDetailsQuery({ id: Number(submissionId) });
     const [ downloadUploadedFile ] = useLazyGetSubmissionUploadedFileQuery();
+    const [
+        downloadLogFile,
+        {
+            isError: isDownloadLogsError,
+            error: downloadLogsError,
+        } ] = useLazyGetSubmissionLogFileQuery();
     const [
         retestSubmission,
         {
@@ -103,8 +112,8 @@ const SubmissionDetailsPage = () => {
 
     const handleRetestSubmission = useCallback(() => {
         setIsRetestingStarted(true);
-        retestSubmission({ id: solutionId! });
-    }, [ retestSubmission, solutionId ]);
+        retestSubmission({ id: solutionId!, verbosely: retestVerbosely });
+    }, [ retestSubmission, solutionId, retestVerbosely ]);
 
     const handleDownloadFile = useCallback(async () => {
         try {
@@ -118,6 +127,14 @@ const SubmissionDetailsPage = () => {
             setDownloadSolutionErrorMessage('Error download solution submitted file!');
         }
     }, [ downloadUploadedFile, solutionId ]);
+
+    const handleDownloadLogsFile = useCallback(async () => {
+        const response = await downloadLogFile({ id: solutionId! });
+
+        if (response.data) {
+            downloadFile(response.data.blob, `submission-${solutionId}-log.txt`);
+        }
+    }, [ downloadLogFile, solutionId ]);
 
     const renderSolutionTitle = useCallback(() => (
         <div className={styles.solutionTitle}>
@@ -162,6 +179,12 @@ const SubmissionDetailsPage = () => {
                 <Button text="View Code" type={ButtonType.secondary} size={ButtonSize.small} onClick={onViewCodeClick} />
                 { userIsInRoleForContest && (
                     <>
+                        <Button
+                          text="Download logs"
+                          type={ButtonType.secondary}
+                          size={ButtonSize.small}
+                          onClick={handleDownloadLogsFile}
+                        />
                         <AdministrationLink
                           text="Open In Administration"
                           to={`/submissions?filter=id~equals~${solutionId}`}
@@ -178,11 +201,22 @@ const SubmissionDetailsPage = () => {
                           type={ButtonType.secondary}
                           onClick={() => handleRetestSubmission()}
                         />
+                        <CheckBox id="retest-verbosely-checkbox" onChange={setRetestVerbosely} label="Retest verbosely" />
+                        {isDownloadLogsError &&
+                            (<div className={styles.logsDownloadFileErrorWrapper}>{getErrorMessage(downloadLogsError)}</div>)}
                     </>
                 )}
             </div>
         );
-    }, [ handleRetestSubmission, problem, solutionId, userIsInRoleForContest ]);
+    }, [
+        handleRetestSubmission,
+        problem,
+        solutionId,
+        userIsInRoleForContest,
+        handleDownloadLogsFile,
+        isDownloadLogsError,
+        downloadLogsError,
+    ]);
 
     const renderSubmissionExecutionDetails = useCallback(() => {
         if (!isProcessed || isRetestingStarted) {
