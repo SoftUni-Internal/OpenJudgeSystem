@@ -356,7 +356,7 @@ const ContestSolutionSubmitPage = () => {
                 id: data!.contest!.id,
                 name: data.contest.name,
                 categoryId: data!.contest!.categoryId,
-                isOnlineExam: data?.contest?.isOnlineExam,
+                isWithRandomTasks: data?.contest?.isWithRandomTasks,
             }));
         }
     }, [ contestDetails, contestId, data, dispatch ]);
@@ -381,7 +381,7 @@ const ContestSolutionSubmitPage = () => {
             problemId: selectedContestDetailsProblem?.id!,
             submissionTypeId: selectedSubmissionType?.id!,
             contestId: Number(contestId!),
-            isOnlineExam: contestDetails?.isOnlineExam,
+            isWithRandomTasks: contestDetails?.isWithRandomTasks,
         }).then((d) => {
             if (!(d as any).error) {
                 refetch();
@@ -397,7 +397,7 @@ const ContestSolutionSubmitPage = () => {
         submissionCode,
         submitSolution,
         contestId,
-        contestDetails?.isOnlineExam,
+        contestDetails?.isWithRandomTasks,
     ]);
 
     const onSolutionSubmitFile = useCallback(async () => {
@@ -413,7 +413,7 @@ const ContestSolutionSubmitPage = () => {
             problemId: selectedContestDetailsProblem?.id!,
             submissionTypeId: selectedSubmissionType?.id!,
             contestId: Number(contestId!),
-            isOnlineExam: contestDetails?.isOnlineExam,
+            isWithRandomTasks: contestDetails?.isWithRandomTasks,
         });
         refetch();
         getSubmissionsData();
@@ -426,7 +426,7 @@ const ContestSolutionSubmitPage = () => {
         submitSolutionFile,
         uploadedFile,
         contestId,
-        contestDetails?.isOnlineExam,
+        contestDetails?.isWithRandomTasks,
     ]);
 
     const sumMyPoints = useMemo(() => contest

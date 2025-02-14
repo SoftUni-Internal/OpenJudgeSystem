@@ -16,6 +16,8 @@ public class SubmitFileSubmissionRequestModel : IMapExplicitly
 
     public bool IsOnlineExam { get; set; }
 
+    public bool IsWithRandomTasks { get; set; }
+
     public int SubmissionTypeId { get; set; }
 
     public IFormFile? Content { get; set; } = null;

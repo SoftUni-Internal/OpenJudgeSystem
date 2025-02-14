@@ -23,7 +23,6 @@ public class ProblemAdministrationValidator : BaseAdministrationModelValidator<P
     private readonly IContestsActivityService contestsActivityService;
     private readonly ISubmissionTypesDataService submissionTypesDataService;
     private readonly IProblemGroupsDataService problemGroupsDataService;
-    private readonly IContestsDataService contestsDataService;
 
     public ProblemAdministrationValidator(
         IProblemsDataService problemsDataService,
@@ -37,7 +36,6 @@ public class ProblemAdministrationValidator : BaseAdministrationModelValidator<P
         this.contestsActivityService = contestsActivityService;
         this.submissionTypesDataService = submissionTypesDataService;
         this.problemGroupsDataService = problemGroupsDataService;
-        this.contestsDataService = contestsDataService;
 
         this.RuleFor(model => model.Name)
                 .Length(1, ConstraintConstants.Problem.NameMaxLength)
@@ -82,7 +80,7 @@ public class ProblemAdministrationValidator : BaseAdministrationModelValidator<P
             .MustAsync(async (model, _) => await this.MustHaveValidProblemGroupId(model))
             .WithMessage("Invalid value for \"Problem Group Order By\" has been provided.")
             .WhenAsync(async (x, _) => x.OperationType is CrudOperationType.Create or CrudOperationType.Update &&
-                                      await this.IsOnline(x.ContestId));
+                                      await contestsDataService.IsWithRandomTasksById(x.ContestId));
     }
 
     private async Task<bool> ContestMustNotBeActive(int problemId)
@@ -142,7 +140,4 @@ public class ProblemAdministrationValidator : BaseAdministrationModelValidator<P
 
         return new HashSet<int>(problemGroups).Contains(model.ProblemGroupId);
     }
-
-    private async Task<bool> IsOnline(int contestId)
-        => await this.contestsDataService.IsOnlineById(contestId);
 }

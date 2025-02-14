@@ -348,7 +348,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 ContestPracticeEndTime = p.Contest.PracticeEndTime,
                 ContestLimitBetweenSubmissions = p.Contest.LimitBetweenSubmissions,
                 ContestAllowParallelSubmissionsInTasks = p.Contest.AllowParallelSubmissionsInTasks,
-                Problems = model.Official && model.IsOnlineExam
+                Problems = model.Official && model.IsWithRandomTasks
                     ? p.ProblemsForParticipants
                         .Select(pfp => new ProblemForParticipantServiceModel
                         {

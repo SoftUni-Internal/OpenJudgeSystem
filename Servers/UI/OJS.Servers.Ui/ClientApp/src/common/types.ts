@@ -192,6 +192,7 @@ interface IContestDetailsResponseType {
     problems: IProblemType[];
     canViewResults: boolean;
     isOnlineExam: boolean;
+    isWithRandomTasks: boolean;
     isActive: boolean;
     canBeCompeted: boolean;
     canBePracticed: boolean;
@@ -211,6 +212,7 @@ interface IContestDetailsSliceType {
     canViewCompeteResults?: boolean;
     canViewPracticeResults?: boolean;
     isOnlineExam?: boolean;
+    isWithRandomTasks?: boolean;
     canBeCompeted?: boolean;
     canBePracticed?: boolean;
     isAdminOrLecturerInContest?: boolean;
@@ -237,6 +239,7 @@ interface IIndexContestsType {
     hasContestPassword: boolean;
     hasPracticePassword: boolean;
     isOnlineExam: boolean;
+    isWithRandomTasks: boolean;
     category: string;
     isLoading: boolean;
     numberOfProblems: number;

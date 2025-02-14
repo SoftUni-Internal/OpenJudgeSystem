@@ -10,7 +10,7 @@ public class SubmitSubmissionServiceModel : IMapExplicitly
 
     public int ContestId { get; set; }
 
-    public bool IsOnlineExam { get; set; }
+    public bool IsWithRandomTasks { get; set; }
 
     public int SubmissionTypeId { get; set; }
 

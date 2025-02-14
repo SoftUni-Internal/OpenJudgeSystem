@@ -99,7 +99,7 @@ namespace OJS.Services.Ui.Business.Implementations
                 ? competeParticipant
                 : practiceParticipant;
 
-            if (!isLecturerInContestOrAdmin && participantToGetProblemsFrom != null && contestActivityEntity.CanBeCompeted && contest!.IsOnlineExam)
+            if (!isLecturerInContestOrAdmin && participantToGetProblemsFrom != null && contestActivityEntity.CanBeCompeted && contest!.IsWithRandomTasks)
             {
                 var problemsForParticipantIds = participantToGetProblemsFrom.ProblemsForParticipants.Select(x => x.ProblemId);
                 contest.Problems = contest.Problems
@@ -108,7 +108,7 @@ namespace OJS.Services.Ui.Business.Implementations
             }
 
             var canShowProblemsInCompete =
-                (!contest!.HasContestPassword && !contest.IsOnlineExam && contestActivityEntity is { CanBeCompeted: true, CompeteUserActivity: not null })
+                (!contest!.HasContestPassword && !contest.IsWithRandomTasks && contestActivityEntity is { CanBeCompeted: true, CompeteUserActivity: not null })
                  || isLecturerInContestOrAdmin
                  || contestActivityEntity.CompeteUserActivity?.IsActive == true;
 
@@ -327,9 +327,7 @@ namespace OJS.Services.Ui.Business.Implementations
                     participant.Contest.Problems.Select(x => x.Id),
                     participantsList);
 
-            var isOfficialOnlineContest = model.IsOfficial && contest.IsOnlineExam;
-
-            if (!userIsAdminOrLecturerInContest && isOfficialOnlineContest)
+            if (!userIsAdminOrLecturerInContest && model.IsOfficial && contest.IsWithRandomTasks)
             {
                 participant.Contest.Problems = [.. participant.Contest.Problems
                     .Where(x => participant.ProblemsForParticipantIds.Contains(x.Id))

@@ -135,7 +135,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
             IsolationLevel.RepeatableRead,
             TransactionScopeAsyncFlowOption.Enabled);
 
-        if (!await this.contestsData.IsOnlineById(problem.ContestId))
+        if (!await this.contestsData.IsWithRandomTasksById(problem.ContestId))
         {
             await this.problemGroupsBusiness.DeleteById(problem.ProblemGroupId);
         }
@@ -240,7 +240,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         problem.ProblemGroup.Type = (ProblemGroupType)Enum.Parse(typeof(ProblemGroupType), model.ProblemGroupType!);
 
-        if (!problem.ProblemGroup.Contest.IsOnlineExam)
+        if (!problem.ProblemGroup.Contest.IsWithRandomTasks)
         {
             problem.ProblemGroup.OrderBy = model.OrderBy;
         }

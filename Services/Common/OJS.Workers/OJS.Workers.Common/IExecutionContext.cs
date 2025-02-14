@@ -12,7 +12,7 @@
 
         byte[] FileContent { get; set; }
 
-        public byte[] AdditionalFiles { get; set; }
+        byte[] AdditionalFiles { get; set; }
 
         string? AllowedFileExtensions { get; }
 
