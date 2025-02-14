@@ -234,7 +234,7 @@ public class _$TestRunner {{
 
             var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             if (!string.IsNullOrWhiteSpace(executionContext.Input.TaskSkeletonAsString))
             {
@@ -261,7 +261,7 @@ public class _$TestRunner {{
                     return result;
                 }
 
-                var preprocessExecutor = this.CreateExecutor();
+                var preprocessExecutor = this.CreateRestrictedExecutor();
 
                 var preprocessArguments = new List<string>();
                 preprocessArguments.Add(this.ClassPathArgument);

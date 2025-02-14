@@ -164,9 +164,6 @@ public class OjsWorkersConfig : BaseConfig
     public string PythonExecutablePathV311 { get; set; } = string.Empty;
 
     [Required]
-    public string PipExecutablePathV311 { get; set; } = string.Empty;
-
-    [Required]
     public string PostgreSqlMasterDbConnectionString { get; set; } = string.Empty;
 
     [Required]
@@ -210,8 +207,6 @@ public class OjsWorkersConfig : BaseConfig
     public int PythonBaseMemoryUsedInBytes { get; set; }
 
     public int PythonV311BaseTimeUsedInMilliseconds { get; set; }
-
-    public int PythonV311InstallPackagesTimeUsedInMilliseconds { get; set; }
 
     public int PythonV311BaseMemoryUsedInBytes { get; set; }
 

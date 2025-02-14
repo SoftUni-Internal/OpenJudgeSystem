@@ -33,5 +33,7 @@
             bool useSystemEncoding = false,
             bool dependOnExitCodeForRunTimeError = false,
             double timeoutMultiplier = 1.5);
+
+        IDictionary<string, string> EnvironmentVariables { get; }
     }
 }

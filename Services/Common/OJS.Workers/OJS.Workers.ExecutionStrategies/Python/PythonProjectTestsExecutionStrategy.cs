@@ -49,7 +49,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         {
             SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
             var checker = executionContext.Input.GetChecker();
 
             return await this.RunTests(string.Empty, executor, checker, executionContext, result);

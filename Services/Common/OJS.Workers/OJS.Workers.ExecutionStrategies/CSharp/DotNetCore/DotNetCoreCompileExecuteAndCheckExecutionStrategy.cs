@@ -164,7 +164,7 @@ namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
             CompileResult compileResult,
             out string[] arguments)
         {
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             arguments = new[]
             {

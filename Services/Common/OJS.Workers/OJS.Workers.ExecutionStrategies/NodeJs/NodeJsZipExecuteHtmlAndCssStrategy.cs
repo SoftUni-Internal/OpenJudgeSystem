@@ -92,7 +92,7 @@ fs = undefined;";
                 this.ProgramEntryPath);
 
             var codeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             result.Results.AddRange(await this.ProcessTests(
                 executionContext,

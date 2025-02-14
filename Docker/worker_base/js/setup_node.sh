@@ -1,6 +1,13 @@
 #!/bin/bash
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # Load nvm into the shell.
+# Install nvm
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && \
+export NVM_DIR="$HOME/.nvm" && \
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Install Node.js v12 and v20
+nvm install 12.22.12
+nvm install 20.12.0
+nvm alias default 20.12.0
 
 # The order in which dependencies are installed matters:
 # - The 'nvm use' command sets the Node.js version for the current shell session
@@ -16,11 +23,14 @@ export NVM_DIR="$HOME/.nvm"
 #   echo $PATH
 # The shell searches these directories from LEFT to RIGHT for the 'node' binary.
 
-cd ./v12 && nvm use 12.22.12 && npm install
-cd ./js-run-spa-in-docker-and-execute-mocha-tests && npm install
+# Install dependencies for Node.js v12 and v20
+nvm use 12.22.12
+npm install --prefix /judge-resources/js/v12
+npm install --prefix /judge-resources/js/v12/js-run-spa-in-docker-and-execute-mocha-tests
 
-cd ../../v20 && nvm use default && npm install
-cd ./js-run-spa-in-docker-and-execute-mocha-tests && npm install
+nvm use default
+npm install --prefix /judge-resources/js/v20
+npm install --prefix /judge-resources/js/v20/js-run-spa-in-docker-and-execute-mocha-tests
 
 # Update /usr/bin/node to point to the currently active Node.js version:
 ln -sf "$(which node)" /usr/bin/node

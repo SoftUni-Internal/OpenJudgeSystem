@@ -22,8 +22,8 @@ namespace OJS.Workers.Executors.Implementations
             ProcessExecutorType type) =>
             type switch
             {
-                ProcessExecutorType.Default => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger),
                 ProcessExecutorType.Standard => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger),
+                ProcessExecutorType.Restricted => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger, runAsRestrictedUser: true),
                 _ => throw new AggregateException("Invalid process executor type provided."),
             };
     }

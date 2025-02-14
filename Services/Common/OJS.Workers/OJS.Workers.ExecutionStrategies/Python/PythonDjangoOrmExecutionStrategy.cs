@@ -8,6 +8,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using System.Linq;
     using System.Text.RegularExpressions;
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Extensions;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -62,22 +63,23 @@ namespace OJS.Workers.ExecutionStrategies.Python
                 throw new ArgumentException(string.Format(InvalidProjectStructureErrorMessage, ProjectSettingsFolder));
             }
 
-            var executor = this.CreateExecutor();
+            var standardExecutor = this.CreateStandardExecutor().KeepEnvironmentVariables("PATH", "PYENV_ROOT");
+            var restrictedExecutor = this.CreateRestrictedExecutor();
             var checker = executionContext.Input.GetChecker();
 
             try
             {
-                await this.CreateVirtualEnvironment(executor, executionContext, virtualEnvironmentName);
-                await this.ActivateVirtualEnvironment(executor, executionContext, virtualEnvironmentName);
+                await this.CreateVirtualEnvironment(standardExecutor, executionContext, virtualEnvironmentName);
+                await this.ActivateVirtualEnvironment(standardExecutor, executionContext, virtualEnvironmentName);
                 ChangeDbConnection(pathToSettingsFile);
-                await this.ExportDjangoSettingsModule(executor, executionContext, virtualEnvironmentName);
-                await this.ApplyMigrations(executor, executionContext);
+                await this.ExportDjangoSettingsModule(standardExecutor, executionContext, virtualEnvironmentName);
+                await this.ApplyMigrations(standardExecutor, executionContext);
 
-                await this.RunTests(string.Empty, executor, checker, executionContext, result);
+                await this.RunTests(string.Empty, restrictedExecutor, checker, executionContext, result);
             }
             finally
             {
-                this.DeleteVirtualEnvironment(executor, executionContext, virtualEnvironmentName);
+                this.DeleteVirtualEnvironment(standardExecutor, executionContext, virtualEnvironmentName);
             }
 
             return result;
@@ -237,8 +239,6 @@ namespace OJS.Workers.ExecutionStrategies.Python
     public record PythonDjangoOrmExecutionStrategySettings(
         int BaseTimeUsed,
         int BaseMemoryUsed,
-        string PythonExecutablePath,
-        string PipExecutablePath,
-        int InstallPackagesTimeUsed)
+        string PythonExecutablePath)
         : PythonProjectTestsExecutionStrategySettings(BaseTimeUsed, BaseMemoryUsed, PythonExecutablePath);
 }

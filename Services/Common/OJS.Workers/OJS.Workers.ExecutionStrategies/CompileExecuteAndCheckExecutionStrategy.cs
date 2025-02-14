@@ -25,7 +25,7 @@
             => this.CompileExecuteAndCheck(
                 executionContext,
                 result,
-                this.CreateExecutor());
+                this.CreateRestrictedExecutor());
 
         protected override async Task<IExecutionResult<OutputResult>> ExecuteAgainstSimpleInput(
             IExecutionContext<SimpleInputModel> executionContext,
@@ -40,7 +40,7 @@
                 return result;
             }
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             var processExecutionResult = await executor.Execute(
                 compileResult.OutputFile,

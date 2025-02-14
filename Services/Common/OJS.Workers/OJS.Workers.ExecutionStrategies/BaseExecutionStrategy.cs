@@ -13,15 +13,12 @@
     public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
         where TSettings : BaseExecutionStrategySettings
     {
-        private readonly ILogger<BaseExecutionStrategy<TSettings>> logger;
-
         protected BaseExecutionStrategy(
             IOjsSubmission submission,
             IExecutionStrategySettingsProvider settingsProvider,
             ILogger<BaseExecutionStrategy<TSettings>> logger)
         {
-            this.logger = logger;
-
+            this.Logger = logger;
             this.Type = submission.ExecutionStrategyType;
             this.Settings = settingsProvider.GetSettings<TSettings>(submission)
                 ?? throw new ArgumentException(
@@ -30,6 +27,8 @@
         }
 
         protected ExecutionStrategyType Type { get; }
+
+        protected ILogger<BaseExecutionStrategy<TSettings>> Logger { get; }
 
         protected TSettings Settings { get; }
 
@@ -41,7 +40,7 @@
             where TResult : ISingleCodeRunResult, new()
         {
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
-            this.logger.LogExecutionStrategyCreatedWorkingDirectory(this.Type.ToString(), this.WorkingDirectory, submissionId);
+            this.Logger.LogExecutionStrategyCreatedWorkingDirectory(this.Type.ToString(), this.WorkingDirectory, submissionId);
 
             try
             {
@@ -66,7 +65,7 @@
                         // Problems in the deletion of leftover files should not break the execution flow,
                         // because the execution is already completed and results are generated.
                         // Only log the exception and continue.
-                        this.logger.LogSafeDeleteDirectoryException(ex);
+                        this.Logger.LogSafeDeleteDirectoryException(ex);
                     }
                 });
             }

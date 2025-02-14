@@ -55,7 +55,7 @@ namespace OJS.Workers.ExecutionStrategies.CSharp.DotNetCore
 
             this.nUnitLiteConsoleAppCsProjTemplate = nunitLiteConsoleApp.csProjTemplate;
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             return await this.RunUnitTests(
                 nunitLiteConsoleApp.csProjPath,

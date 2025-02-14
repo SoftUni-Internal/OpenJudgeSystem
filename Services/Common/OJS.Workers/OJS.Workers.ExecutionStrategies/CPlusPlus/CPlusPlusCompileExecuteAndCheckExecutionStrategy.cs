@@ -29,7 +29,7 @@
             return this.CompileExecuteAndCheck(
                 executionContext,
                 result,
-                this.CreateExecutor(),
+                this.CreateRestrictedExecutor(),
                 useSystemEncoding: false,
                 dependOnExitCodeForRunTimeError: true);
         }

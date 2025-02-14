@@ -431,9 +431,7 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
                 PythonDjangoOrmExecutionStrategySettings(
                     GetBaseTimeUsed(submission, this.settings.PythonV311BaseTimeUsedInMilliseconds),
                     GetBaseMemoryUsed(submission, this.settings.PythonV311BaseMemoryUsedInBytes),
-                    this.settings.PythonExecutablePathV311,
-                    this.settings.PipExecutablePathV311,
-                    this.settings.PythonV311InstallPackagesTimeUsedInMilliseconds)
+                    this.settings.PythonExecutablePathV311)
 
                 as TSettings,
             ExecutionStrategyType.DoNothing => new DoNothingExecutionStrategySettings() as TSettings,

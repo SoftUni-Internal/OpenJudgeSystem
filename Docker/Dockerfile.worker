@@ -15,10 +15,21 @@ COPY Services/Infrastructure ./Services/Infrastructure
 WORKDIR Servers/Worker/OJS.Servers.Worker
 RUN dotnet publish OJS.Servers.Worker.csproj -c Release --verbosity q -o /app
 
-FROM ghcr.io/softuni-internal/judge_worker_base:latest
+FROM ghcr.io/softuni-internal/judge_worker_base:dev-latest
 WORKDIR /app
 COPY --from=build-env /app .
 
 ENV IS_IN_DOCKER=TRUE
 
-CMD dotnet OJS.Servers.Worker.dll
+# Grant restricted_user permissions for ExecutionStrategies directory and preserve them for new files
+# This is needed for the worker to be able to execute the strategies as the restricted_user
+# As the ExecutionStrategies directory is part of a volume, the permissions are overwritten by docker,
+# so we need to set them here on startup, not during the build
+CMD chown -R restricted_user:restricted_user /tmp/ExecutionStrategies && \
+    chmod -R u+rwx,g+rwX,o+rX /tmp/ExecutionStrategies && \
+    chmod g+s /tmp/ExecutionStrategies && \
+    setfacl -R -m u:restricted_user:rwx /tmp/ExecutionStrategies && \
+    setfacl -R -d -m u:restricted_user:rwx /tmp/ExecutionStrategies && \
+    dotnet OJS.Servers.Worker.dll
+
+

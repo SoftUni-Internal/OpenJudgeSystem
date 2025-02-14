@@ -15,14 +15,20 @@
         private const int TimeBeforeClosingOutputStreams = 100;
 
         private readonly ILogger<StandardProcessExecutor> logger;
+        private readonly bool runAsRestrictedUser;
 
         public StandardProcessExecutor(
             int baseTimeUsed,
             int baseMemoryUsed,
             ITasksService tasksService,
-            ILogger<StandardProcessExecutor> logger)
-            : base(baseTimeUsed, baseMemoryUsed, tasksService)
-            => this.logger = logger;
+            ILogger<StandardProcessExecutor> logger,
+            bool runAsRestrictedUser = false,
+            IDictionary<string, string>? environmentVariables = null)
+            : base(baseTimeUsed, baseMemoryUsed, tasksService, environmentVariables)
+        {
+            this.logger = logger;
+            this.runAsRestrictedUser = runAsRestrictedUser;
+        }
 
         protected override async Task<ProcessExecutionResult> InternalExecute(
             string fileName,
@@ -48,6 +54,22 @@
                 WorkingDirectory = workingDirectory,
                 StandardOutputEncoding = useSystemEncoding ? Encoding.Default : new UTF8Encoding(false),
             };
+
+            if (this.runAsRestrictedUser)
+            {
+                processStartInfo.UserName = Constants.RestrictedUserName;
+            }
+
+            // If we don't clear the environment variables,
+            // the process will inherit the environment variables of the current process, which is a security risk
+            // If any env variables are needed, they should be set explicitly
+            processStartInfo.EnvironmentVariables.Clear();
+
+            // Add custom environment variables
+            foreach (var environmentVariable in this.EnvironmentVariables)
+            {
+                processStartInfo.EnvironmentVariables.Add(environmentVariable.Key, environmentVariable.Value);
+            }
 
             using var process = Process.Start(processStartInfo);
             if (process == null)

@@ -162,7 +162,7 @@ process.stdin.on('end', function() {
         {
             var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             var checker = executionContext.Input.GetChecker();
 
@@ -179,7 +179,7 @@ process.stdin.on('end', function() {
         {
             var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             var processExecutionResult = await this.ExecuteCode(
                 executionContext,
