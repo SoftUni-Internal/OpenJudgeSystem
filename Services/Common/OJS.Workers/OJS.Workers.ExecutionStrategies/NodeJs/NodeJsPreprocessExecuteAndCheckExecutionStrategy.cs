@@ -254,7 +254,7 @@ process.stdin.on('end', function() {
             return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
         }
 
-        private Task<ProcessExecutionResult> ExecuteCode<TInput>(
+        protected Task<ProcessExecutionResult> ExecuteCode<TInput>(
             IExecutionContext<TInput> executionContext,
             IExecutor executor,
             string codeSavePath,
@@ -264,7 +264,7 @@ process.stdin.on('end', function() {
                 executionContext.TimeLimit,
                 executionContext.MemoryLimit,
                 inputData,
-                new[] { LatestEcmaScriptFeaturesEnabledFlag, codeSavePath });
+                [LatestEcmaScriptFeaturesEnabledFlag, codeSavePath]);
     }
 
     public record NodeJsPreprocessExecuteAndCheckExecutionStrategySettings(

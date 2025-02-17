@@ -49,6 +49,9 @@ namespace OJS.Workers.Common
             public const string JavaScriptCodeAgainstUnitTestsWithMocha = "javascript-code-against-unit-tests-with-mocha";
             public const string JavaScriptCodeAgainstUnitTestsWithMochaV20 = "javascript-code-against-unit-tests-with-mochaV20";
 
+            // TypeScript
+            public const string TypeScriptCodeV20 = "typescript-codeV20";
+
             // Python
             public const string PythonCode = "python-code";
             public const string PythonCodeUnitTests = "python-code-unit-tests";
@@ -144,6 +147,9 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaScriptJsDomUnitTestsV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunJsDomUnitTests },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMochaV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
+
+                    // TypeScript
+                    { ExecutionStrategyNames.TypeScriptCodeV20, ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndCheck },
 
                     // Java
                     { ExecutionStrategyNames.JavaCode, ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck },

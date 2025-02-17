@@ -77,6 +77,9 @@ public class OjsWorkersConfig : BaseConfig
     public string NodeJs20ExecutablePath { get; set; } = string.Empty;
 
     [Required]
+    public string TypeScriptExecutablePath { get; set; } = string.Empty;
+
+    [Required]
     public string NodeResourcesPathPlaceholder { get; set; } = string.Empty;
 
     [Required]

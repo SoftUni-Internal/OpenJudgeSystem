@@ -12,6 +12,7 @@ namespace OJS.Services.Worker.Business.Implementations
     using OJS.Workers.ExecutionStrategies.Golang;
     using OJS.Workers.ExecutionStrategies.Java;
     using OJS.Workers.ExecutionStrategies.NodeJs;
+    using OJS.Workers.ExecutionStrategies.NodeJs.Typescript;
     using OJS.Workers.ExecutionStrategies.Python;
     using OJS.Workers.ExecutionStrategies.Sql.MySql;
     using OJS.Workers.ExecutionStrategies.Sql.PostgreSql;
@@ -167,6 +168,13 @@ namespace OJS.Services.Worker.Business.Implementations
                         processExecutorFactory,
                         this.executionStrategySettingsProvider,
                         this.loggerFactory.CreateLogger<NodeJsPreprocessExecuteAndCheckExecutionStrategy<NodeJsPreprocessExecuteAndCheckExecutionStrategySettings>>());
+                    break;
+                case ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndCheck:
+                    executionStrategy = new TypeScriptPreprocessExecuteAndCheckExecutionStrategy<TypeScriptPreprocessExecuteAndCheckExecutionStrategySettings>(
+                        submission,
+                        processExecutorFactory,
+                        this.executionStrategySettingsProvider,
+                        this.loggerFactory.CreateLogger<TypeScriptPreprocessExecuteAndCheckExecutionStrategy<TypeScriptPreprocessExecuteAndCheckExecutionStrategySettings>>());
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                 case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha:

@@ -21,14 +21,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     locale-gen && \
     rm -rf /var/lib/apt/lists/*
 
-# Install node.js 12 and 20 via nvm
+# Install Node.js 12 and 20 via nvm and TypeScript via npm
 RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && \
     export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" && \
     nvm install 12.22.12 && \
     nvm install 20.12.0 && \
     nvm alias default 20.12.0 && \
-    nvm use default
+    nvm use default && \
+    npm install -g typescript
 
 # Install supported languages and frameworks
 RUN apt-get update && apt-get install -y \
