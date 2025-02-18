@@ -151,7 +151,7 @@ const ContestsPage = () => {
                             ? selectedCategory.name
                             : 'All Categories'}
                     </div>
-                    <ContestStrategies />
+                    <ContestStrategies searchParams={searchParams} setSearchParams={setSearchParams} />
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls
