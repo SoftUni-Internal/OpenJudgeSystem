@@ -1,66 +1,66 @@
-﻿namespace OJS.Workers.ExecutionStrategies.NodeJs
+﻿namespace OJS.Workers.ExecutionStrategies.NodeJs;
+
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+using OJS.Workers.Common;
+using OJS.Workers.Common.Extensions;
+using OJS.Workers.Common.Helpers;
+using OJS.Workers.ExecutionStrategies.Helpers;
+using OJS.Workers.ExecutionStrategies.Models;
+using OJS.Workers.Executors;
+
+using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
+
+public class NodeJsPreprocessExecuteAndCheckExecutionStrategy<TSettings> : BaseInterpretedCodeExecutionStrategy<TSettings>
+    where TSettings : NodeJsPreprocessExecuteAndCheckExecutionStrategySettings
 {
-    using Microsoft.Extensions.Logging;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
+    protected const string RequiredModules = "#requiredModule#";
+    protected const string PreevaluationPlaceholder = "#preevaluationCode#";
+    protected const string PostevaluationPlaceholder = "#postevaluationCode#";
+    protected const string EvaluationPlaceholder = "#evaluationCode#";
 
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
-    using OJS.Workers.Common.Helpers;
-    using OJS.Workers.ExecutionStrategies.Helpers;
-    using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.Executors;
+    private const string DefaultAdapterFunctionCode = "(input, code) => code(input);";
 
-    using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
-
-    public class NodeJsPreprocessExecuteAndCheckExecutionStrategy<TSettings> : BaseInterpretedCodeExecutionStrategy<TSettings>
-        where TSettings : NodeJsPreprocessExecuteAndCheckExecutionStrategySettings
+    public NodeJsPreprocessExecuteAndCheckExecutionStrategy(
+        IOjsSubmission submission,
+        IProcessExecutorFactory processExecutorFactory,
+        IExecutionStrategySettingsProvider settingsProvider,
+        ILogger<BaseExecutionStrategy<TSettings>> logger)
+        : base(submission, processExecutorFactory, settingsProvider, logger)
     {
-        protected const string RequiredModules = "#requiredModule#";
-        protected const string PreevaluationPlaceholder = "#preevaluationCode#";
-        protected const string PostevaluationPlaceholder = "#postevaluationCode#";
-        protected const string EvaluationPlaceholder = "#evaluationCode#";
-
-        private const string DefaultAdapterFunctionCode = "(input, code) => code(input);";
-
-        public NodeJsPreprocessExecuteAndCheckExecutionStrategy(
-            IOjsSubmission submission,
-            IProcessExecutorFactory processExecutorFactory,
-            IExecutionStrategySettingsProvider settingsProvider,
-            ILogger<BaseExecutionStrategy<TSettings>> logger)
-            : base(submission, processExecutorFactory, settingsProvider, logger)
+        if (!File.Exists(this.Settings.NodeJsExecutablePath))
         {
-            if (!File.Exists(this.Settings.NodeJsExecutablePath))
-            {
-                throw new ArgumentException(
-                    $"NodeJS not found in: {this.Settings.NodeJsExecutablePath}",
-                    nameof(this.Settings.NodeJsExecutablePath));
-            }
-
-            if (!Directory.Exists(this.Settings.UnderscoreModulePath))
-            {
-                throw new ArgumentException(
-                    $"Underscore not found in: {this.Settings.UnderscoreModulePath}",
-                    nameof(this.Settings.UnderscoreModulePath));
-            }
-
-            if (this.Settings.BaseTimeUsed < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(this.Settings.BaseTimeUsed));
-            }
-
-            if (this.Settings.BaseMemoryUsed < 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(this.Settings.BaseMemoryUsed));
-            }
+            throw new ArgumentException(
+                $"NodeJS not found in: {this.Settings.NodeJsExecutablePath}",
+                nameof(this.Settings.NodeJsExecutablePath));
         }
 
-        protected virtual string JsCodeRequiredModules => $@"
+        if (!Directory.Exists(this.Settings.UnderscoreModulePath))
+        {
+            throw new ArgumentException(
+                $"Underscore not found in: {this.Settings.UnderscoreModulePath}",
+                nameof(this.Settings.UnderscoreModulePath));
+        }
+
+        if (this.Settings.BaseTimeUsed < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(this.Settings.BaseTimeUsed));
+        }
+
+        if (this.Settings.BaseMemoryUsed < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(this.Settings.BaseMemoryUsed));
+        }
+    }
+
+    protected virtual string JsCodeRequiredModules => $@"
 var EOL = require('os').EOL,
 _ = require('{this.Settings.UnderscoreModulePath}')";
 
-        protected virtual string JsNodeDisableCode => @"
+    protected virtual string JsNodeDisableCode => @"
 // DataView = undefined;
 DTRACE_NET_SERVER_CONNECTION = undefined;
 // DTRACE_NET_STREAM_END = undefined;
@@ -135,7 +135,7 @@ delete msg;
 
 process.exit = function () {};";
 
-        protected virtual string JsCodeEvaluation => @"
+    protected virtual string JsCodeEvaluation => @"
 process.stdin.resume();
 process.stdin.on('data', function(buf) { content += buf.toString(); });
 process.stdin.on('end', function() {
@@ -147,130 +147,129 @@ process.stdin.on('end', function() {
     }
 });";
 
-        protected virtual string JsCodePostevaulationCode => string.Empty;
+    protected virtual string JsCodePostevaulationCode => string.Empty;
 
-        protected virtual string JsCodeTemplate =>
-            RequiredModules + @";" +
-            NodeDisablePlaceholder +
-            PreevaluationPlaceholder +
-            EvaluationPlaceholder +
-            PostevaluationPlaceholder;
+    protected virtual string JsCodeTemplate =>
+        RequiredModules + @";" +
+        NodeDisablePlaceholder +
+        PreevaluationPlaceholder +
+        EvaluationPlaceholder +
+        PostevaluationPlaceholder;
 
-        protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+    protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
+        IExecutionContext<TestsInputModel> executionContext,
+        IExecutionResult<TestResult> result)
+    {
+        var codeSavePath = this.SaveCodeToTempFile(executionContext);
+
+        var executor = this.CreateExecutor();
+
+        var checker = executionContext.Input.GetChecker();
+
+        var testResults = await this.ProcessTests(executionContext, executor, checker, codeSavePath);
+
+        result.Results.AddRange(testResults);
+
+        return result;
+    }
+
+    protected override async Task<IExecutionResult<OutputResult>> ExecuteAgainstSimpleInput(
+        IExecutionContext<SimpleInputModel> executionContext,
+        IExecutionResult<OutputResult> result)
+    {
+        var codeSavePath = this.SaveCodeToTempFile(executionContext);
+
+        var executor = this.CreateExecutor();
+
+        var processExecutionResult = await this.ExecuteCode(
+            executionContext,
+            executor,
+            codeSavePath,
+            executionContext.Input.Input);
+
+        result.Results.Add(GetOutputResult(processExecutionResult));
+
+        return result;
+    }
+
+    protected virtual async Task<List<TestResult>> ProcessTests(
+        IExecutionContext<TestsInputModel> executionContext,
+        IExecutor executor,
+        IChecker checker,
+        string codeSavePath)
+    {
+        var testResults = new List<TestResult>();
+
+        foreach (var test in executionContext.Input.Tests)
         {
-            var codeSavePath = this.SaveCodeToTempFile(executionContext);
-
-            var executor = this.CreateExecutor();
-
-            var checker = executionContext.Input.GetChecker();
-
-            var testResults = await this.ProcessTests(executionContext, executor, checker, codeSavePath);
-
-            result.Results.AddRange(testResults);
-
-            return result;
-        }
-
-        protected override async Task<IExecutionResult<OutputResult>> ExecuteAgainstSimpleInput(
-            IExecutionContext<SimpleInputModel> executionContext,
-            IExecutionResult<OutputResult> result)
-        {
-            var codeSavePath = this.SaveCodeToTempFile(executionContext);
-
-            var executor = this.CreateExecutor();
-
+            var testInput = PrepareTestInput(test.Input);
             var processExecutionResult = await this.ExecuteCode(
                 executionContext,
                 executor,
                 codeSavePath,
-                executionContext.Input.Input);
+                testInput);
 
-            result.Results.Add(GetOutputResult(processExecutionResult));
+            var testResult = CheckAndGetTestResult(
+                test,
+                processExecutionResult,
+                checker,
+                processExecutionResult.ReceivedOutput);
 
-            return result;
+            testResults.Add(testResult);
         }
 
-        protected virtual async Task<List<TestResult>> ProcessTests(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutor executor,
-            IChecker checker,
-            string codeSavePath)
-        {
-            var testResults = new List<TestResult>();
-
-            foreach (var test in executionContext.Input.Tests)
-            {
-                var testInput = PrepareTestInput(test.Input);
-                var processExecutionResult = await this.ExecuteCode(
-                    executionContext,
-                    executor,
-                    codeSavePath,
-                    testInput);
-
-                var testResult = CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    processExecutionResult.ReceivedOutput);
-
-                testResults.Add(testResult);
-            }
-
-            return testResults;
-        }
-
-        protected virtual string PreprocessJsSubmission<TInput>(string template, IExecutionContext<TInput> context)
-        {
-            var problemSkeleton = !string.IsNullOrEmpty((context.Input as SimpleInputModel)?.TaskSkeletonAsString)
-                ? (context.Input as SimpleInputModel)?.TaskSkeletonAsString
-                : !string.IsNullOrEmpty((context.Input as TestsInputModel)?.TaskSkeletonAsString)
-                    ? (context.Input as TestsInputModel)?.TaskSkeletonAsString
-                    : DefaultAdapterFunctionCode;
-
-            var code = context.Code.Trim(';');
-
-            var processedCode = template
-                .Replace(RequiredModules, this.JsCodeRequiredModules)
-                .Replace(PreevaluationPlaceholder, JsCodePreEvaluationCodeProvider.GetPreEvaluationCode(this.Type))
-                .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
-                .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
-                .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
-                .Replace(UserInputPlaceholder, code)
-                .Replace(AdapterFunctionPlaceholder, problemSkeleton);
-
-            return processedCode;
-        }
-
-        protected override string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
-        {
-            // Preprocess the user submission
-            var codeToExecute = this.PreprocessJsSubmission(
-                this.JsCodeTemplate,
-                executionContext);
-
-            // Save the preprocessed submission which is ready for execution
-            return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
-        }
-
-        private Task<ProcessExecutionResult> ExecuteCode<TInput>(
-            IExecutionContext<TInput> executionContext,
-            IExecutor executor,
-            string codeSavePath,
-            string? inputData = null)
-            => executor.Execute(
-                this.Settings.NodeJsExecutablePath,
-                executionContext.TimeLimit,
-                executionContext.MemoryLimit,
-                inputData,
-                new[] { LatestEcmaScriptFeaturesEnabledFlag, codeSavePath });
+        return testResults;
     }
 
-    public record NodeJsPreprocessExecuteAndCheckExecutionStrategySettings(
-        int BaseTimeUsed,
-        int BaseMemoryUsed,
-        string NodeJsExecutablePath,
-        string UnderscoreModulePath)
-        : BaseInterpretedCodeExecutionStrategySettings(BaseTimeUsed, BaseMemoryUsed);
+    protected virtual string PreprocessJsSubmission<TInput>(string template, IExecutionContext<TInput> context)
+    {
+        var problemSkeleton = !string.IsNullOrEmpty((context.Input as SimpleInputModel)?.TaskSkeletonAsString)
+            ? (context.Input as SimpleInputModel)?.TaskSkeletonAsString
+            : !string.IsNullOrEmpty((context.Input as TestsInputModel)?.TaskSkeletonAsString)
+                ? (context.Input as TestsInputModel)?.TaskSkeletonAsString
+                : DefaultAdapterFunctionCode;
+
+        var code = context.Code.Trim(';');
+
+        var processedCode = template
+            .Replace(RequiredModules, this.JsCodeRequiredModules)
+            .Replace(PreevaluationPlaceholder, JsCodePreEvaluationCodeProvider.GetPreEvaluationCode(this.Type))
+            .Replace(EvaluationPlaceholder, this.JsCodeEvaluation)
+            .Replace(PostevaluationPlaceholder, this.JsCodePostevaulationCode)
+            .Replace(NodeDisablePlaceholder, this.JsNodeDisableCode)
+            .Replace(UserInputPlaceholder, code)
+            .Replace(AdapterFunctionPlaceholder, problemSkeleton);
+
+        return processedCode;
+    }
+
+    protected override string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        // Preprocess the user submission
+        var codeToExecute = this.PreprocessJsSubmission(
+            this.JsCodeTemplate,
+            executionContext);
+
+        // Save the preprocessed submission which is ready for execution
+        return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, codeToExecute);
+    }
+
+    private Task<ProcessExecutionResult> ExecuteCode<TInput>(
+        IExecutionContext<TInput> executionContext,
+        IExecutor executor,
+        string codeSavePath,
+        string? inputData = null)
+        => executor.Execute(
+            this.Settings.NodeJsExecutablePath,
+            executionContext.TimeLimit,
+            executionContext.MemoryLimit,
+            inputData,
+            [LatestEcmaScriptFeaturesEnabledFlag, codeSavePath]);
 }
+
+public record NodeJsPreprocessExecuteAndCheckExecutionStrategySettings(
+    int BaseTimeUsed,
+    int BaseMemoryUsed,
+    string NodeJsExecutablePath,
+    string UnderscoreModulePath)
+    : BaseInterpretedCodeExecutionStrategySettings(BaseTimeUsed, BaseMemoryUsed);

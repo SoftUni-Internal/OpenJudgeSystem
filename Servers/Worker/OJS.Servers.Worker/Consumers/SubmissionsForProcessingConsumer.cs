@@ -13,6 +13,9 @@ using OJS.Services.Common.Models.Submissions;
 using OJS.Services.Common.Models.Submissions.ExecutionContext;
 using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Constants;
+using OJS.Workers.Common.Exceptions;
+using OJS.Workers.Common.Models;
+using ConfigurationException = OJS.Workers.Common.Exceptions.ConfigurationException;
 
 public class SubmissionsForProcessingConsumer : IConsumer<SubmissionForProcessingPubSubModel>
 {
@@ -65,11 +68,20 @@ public class SubmissionsForProcessingConsumer : IConsumer<SubmissionForProcessin
 
             result.SetExecutionResult(executionResult.Map<ExecutionResultServiceModel>());
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            this.logger.LogErrorProcessingSubmission(context.Message.Id, result.WorkerName, ex);
-            result.SetException(ex, true);
+            var exceptionType = exception switch
+            {
+                StrategyException => ExceptionType.Strategy,
+                SolutionException => ExceptionType.Solution,
+                ConfigurationException => ExceptionType.Configuration,
+                _ => ExceptionType.Other
+            };
+
+            this.logger.LogErrorProcessingSubmission(context.Message.Id, result.WorkerName, exception);
+            result.SetException(exception, true, exceptionType);
         }
+
         finally
         {
             result.SetStartedAndCompletedExecutionOn(startedExecutionOn.UtcDateTime, completedExecutionOn: DateTime.UtcNow);

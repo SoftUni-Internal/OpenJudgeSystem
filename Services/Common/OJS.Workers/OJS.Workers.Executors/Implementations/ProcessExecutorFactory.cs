@@ -24,7 +24,7 @@ namespace OJS.Workers.Executors.Implementations
             {
                 ProcessExecutorType.Default => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger),
                 ProcessExecutorType.Standard => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger),
-                _ => throw new AggregateException("Invalid process executor type provided."),
+                _ => throw new ArgumentOutOfRangeException($"Unsupported process executor: {type}"),
             };
     }
 }

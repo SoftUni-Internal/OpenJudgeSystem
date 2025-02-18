@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using System.Text.RegularExpressions;
+    using OJS.Workers.Common.Exceptions;
 
     public static class JavaCodePreprocessorHelper
     {
@@ -32,9 +33,7 @@
             var classNameMatch = Regex.Match(sourceCode, ClassNameRegEx);
             if (!classNameMatch.Success)
             {
-                throw new ArgumentException(
-                    $"No valid class found! " +
-                    $"{string.Format(ClassNameRegexUnmatchedMessage, ClassNameRegEx)}");
+                throw new SolutionException($"No valid class found! {string.Format(ClassNameRegexUnmatchedMessage, ClassNameRegEx)}");
             }
 
             return classNameMatch.Groups[ClassNameRegExGroup].Value;
@@ -43,11 +42,10 @@
         public static string GetPublicClassName(string sourceCode)
         {
             var classNameMatch = Regex.Match(sourceCode, PublicClassNameRegEx);
+
             if (!classNameMatch.Success)
             {
-                throw new ArgumentException(
-                    $"No valid public class found! " +
-                    $"{string.Format(ClassNameRegexUnmatchedMessage, PublicClassNameRegEx)}");
+                throw new ConfigurationException($"No valid public class found! {string.Format(ClassNameRegexUnmatchedMessage, PublicClassNameRegEx)}");
             }
 
             return classNameMatch.Groups[PublicClassNameRegExGroup].Value;

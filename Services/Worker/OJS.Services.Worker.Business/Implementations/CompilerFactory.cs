@@ -6,6 +6,7 @@ using OJS.Workers.Common;
 using OJS.Workers.Common.Models;
 using OJS.Workers.Compilers;
 using System;
+using OJS.Workers.Common.Exceptions;
 
 public class CompilerFactory : ICompilerFactory
 {
@@ -15,26 +16,15 @@ public class CompilerFactory : ICompilerFactory
         => this.settings = settingsAccessor.Value;
 
     public string GetCompilerPath(CompilerType compilerType, ExecutionStrategyType strategyType)
-    {
-        switch (compilerType)
+        => compilerType switch
         {
-            case CompilerType.CPlusPlusGcc:
-            case CompilerType.CPlusPlusZip:
-                return this.settings.CPlusPlusGccCompilerPath;
-            case CompilerType.Java:
-            case CompilerType.JavaZip:
-            case CompilerType.JavaInPlaceCompiler:
-                return this.GetJavaCompilerPath(strategyType);
-            case CompilerType.DotNetCompiler:
-            case CompilerType.CSharpDotNetCore:
-                return this.settings.DotNetCompilerPath;
-            case CompilerType.GolangCompiler:
-                return this.settings.GolangCompilerPath;
-            case CompilerType.None:
-            default:
-                throw new ArgumentOutOfRangeException(nameof(compilerType), $"Cannot get compiler path for \"{compilerType}\" compiler type.");
-        }
-    }
+            CompilerType.None => throw new ArgumentException($"Cannot get the compiler path for the \"{compilerType}\" compiler type."),
+            CompilerType.CPlusPlusGcc or CompilerType.CPlusPlusZip => this.settings.CPlusPlusGccCompilerPath,
+            CompilerType.Java or CompilerType.JavaZip or CompilerType.JavaInPlaceCompiler => this.GetJavaCompilerPath(strategyType),
+            CompilerType.DotNetCompiler or CompilerType.CSharpDotNetCore => this.settings.DotNetCompilerPath,
+            CompilerType.GolangCompiler => this.settings.GolangCompilerPath,
+            _ => throw new ArgumentException($"Unsupported compiler type: {compilerType}."),
+        };
 
     public ICompiler CreateCompiler(CompilerType compilerType, ExecutionStrategyType strategyType)
         => compilerType switch
@@ -54,7 +44,7 @@ public class CompilerFactory : ICompilerFactory
                 .CPlusPlusZipCompilerProcessExitTimeOutMultiplier),
             CompilerType.DotNetCompiler => new DotNetCompiler(this.settings.DotNetCompilerProcessExitTimeOutMultiplier),
             CompilerType.GolangCompiler => new GolangCompiler(this.settings.GolangCompilerProcessExitTimeOutMultiplier),
-            _ => throw new ArgumentException("Unsupported compiler."),
+            _ => throw new ArgumentException($"Unsupported compiler: {compilerType}"),
         };
 
     private string GetCSharpDotNetCoreCompilerPath(ExecutionStrategyType type)

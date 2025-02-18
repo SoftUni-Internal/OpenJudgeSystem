@@ -3,6 +3,7 @@
 using AutoMapper;
 using OJS.Data.Models.Submissions;
 using OJS.Services.Infrastructure.Models.Mapping;
+using OJS.Workers.Common.Models;
 
 public class SubmitSubmissionServiceModel : IMapExplicitly
 {
@@ -64,5 +65,6 @@ public class SubmitSubmissionServiceModel : IMapExplicitly
             .ForMember(m => m.DeletedOn, opt => opt.Ignore())
             .ForMember(m => m.CreatedOn, opt => opt.Ignore())
             .ForMember(m => m.ModifiedOn, opt => opt.Ignore())
-            .ForMember(m => m.Id, opt => opt.Ignore());
+            .ForMember(m => m.Id, opt => opt.Ignore())
+            .ForMember(m => m.ExceptionType, opt => opt.Ignore());
 }

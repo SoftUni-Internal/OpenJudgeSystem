@@ -80,7 +80,7 @@
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(processExecutionResult),
-                    "Invalid ProcessExecutionResultType value.");
+                    $"Unsupported process execution result type: {processExecutionResult.Type}");
             }
 
             testResult.Input = test.Input;
@@ -89,7 +89,7 @@
         }
 
         protected static OutputResult GetOutputResult(ProcessExecutionResult processExecutionResult)
-            => new OutputResult
+            => new()
             {
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,
@@ -103,7 +103,7 @@
             => this.ProcessExecutorFactory
                 .CreateProcessExecutor(this.Settings.BaseTimeUsed, this.Settings.BaseMemoryUsed, processExecutorType);
 
-        protected virtual string SaveCodeToTempFile<TINput>(IExecutionContext<TINput> executionContext)
+        protected virtual string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
             => string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);

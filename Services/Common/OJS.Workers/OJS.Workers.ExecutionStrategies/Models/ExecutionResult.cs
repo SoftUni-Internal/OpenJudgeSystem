@@ -12,7 +12,7 @@ namespace OJS.Workers.ExecutionStrategies.Models
 
         public string CompilerComment { get; set; }
 
-        public ICollection<TResult> Results { get; set; } = new List<TResult>();
+        public ICollection<TResult> Results { get; set; } = [];
 
         public DateTime? StartedExecutionOn { get; set; }
 

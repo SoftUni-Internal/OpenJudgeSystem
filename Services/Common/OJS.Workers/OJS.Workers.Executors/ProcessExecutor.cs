@@ -51,7 +51,7 @@
             this.timeLimit = processTimeLimit;
             this.memoryLimit = processMemoryLimit;
 
-            workingDirectory = workingDirectory ?? new FileInfo(fileName).DirectoryName;
+            workingDirectory ??= new FileInfo(fileName).DirectoryName;
 
             this.BeforeExecute();
 

@@ -1,56 +1,55 @@
 ﻿#nullable disable
-namespace OJS.Workers.ExecutionStrategies.Java
+namespace OJS.Workers.ExecutionStrategies.Java;
+
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+using OJS.Workers.Common;
+using OJS.Workers.Common.Exceptions;
+using OJS.Workers.Common.Helpers;
+using OJS.Workers.Common.Models;
+using OJS.Workers.Compilers;
+using OJS.Workers.ExecutionStrategies.Models;
+using OJS.Workers.Executors;
+
+using static OJS.Workers.Common.Constants;
+using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
+
+public class JavaUnitTestsExecutionStrategy<TSettings> : JavaZipFileCompileExecuteAndCheckExecutionStrategy<TSettings>
+    where TSettings : JavaUnitTestsExecutionStrategySettings
 {
-    using Microsoft.Extensions.Logging;
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text.RegularExpressions;
+    protected const string IncorrectTestFormat = "The problem's tests were not uploaded as an archive of zips. Reupload the tests in the correct format.";
 
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
-    using OJS.Workers.Common.Models;
-    using OJS.Workers.Compilers;
-    using OJS.Workers.ExecutionStrategies.Helpers;
-    using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.Executors;
+    protected const string FilenameRegex = @"^//((?:\w+/)*[a-zA-Z_][a-zA-Z_0-9]*\.java)";
 
-    using static OJS.Workers.Common.Constants;
-    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
+    protected const string JUnitRunnerClassName = "_$TestRunner";
 
-    public class JavaUnitTestsExecutionStrategy<TSettings> : JavaZipFileCompileExecuteAndCheckExecutionStrategy<TSettings>
-        where TSettings : JavaUnitTestsExecutionStrategySettings
-    {
-        protected const string IncorrectTestFormat =
-            "The problem's tests were not uploaded as an archive of zips. Reupload the tests in the correct format.";
+    protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms16m -Xmx256m";
 
-        protected const string FilenameRegex = @"^//((?:\w+/)*[a-zA-Z_][a-zA-Z_0-9]*\.java)";
+    protected const string TestResultsRegex = @"Total Tests: (\d+) Successful: (\d+) Failed: (\d+)";
 
-        protected const string JUnitRunnerClassName = "_$TestRunner";
+    public JavaUnitTestsExecutionStrategy(
+        IOjsSubmission submission,
+        IProcessExecutorFactory processExecutorFactory,
+        ICompilerFactory compilerFactory,
+        IExecutionStrategySettingsProvider settingsProvider,
+        ILogger<BaseExecutionStrategy<TSettings>> logger)
+        : base(submission, processExecutorFactory, compilerFactory, settingsProvider, logger)
+        => this.TestNames = [];
 
-        protected const string AdditionalExecutionArguments = "-Dfile.encoding=UTF-8 -Xms16m -Xmx256m";
+    protected string JUnitTestRunnerSourceFilePath =>
+        FileHelpers.BuildPath(this.WorkingDirectory, $"{JUnitRunnerClassName}{javaSourceFileExtension}");
 
-        protected const string TestResultsRegex = @"Total Tests: (\d+) Successful: (\d+) Failed: (\d+)";
+    protected List<string> TestNames { get; }
 
-        public JavaUnitTestsExecutionStrategy(
-            IOjsSubmission submission,
-            IProcessExecutorFactory processExecutorFactory,
-            ICompilerFactory compilerFactory,
-            IExecutionStrategySettingsProvider settingsProvider,
-            ILogger<BaseExecutionStrategy<TSettings>> logger)
-            : base(submission, processExecutorFactory, compilerFactory, settingsProvider, logger)
-            => this.TestNames = new List<string>();
+    protected override string ClassPathArgument => $@" -classpath ""{this.Settings.JavaLibrariesPath}*""";
 
-        protected string JUnitTestRunnerSourceFilePath =>
-            FileHelpers.BuildPath(this.WorkingDirectory, $"{JUnitRunnerClassName}{javaSourceFileExtension}");
-
-        protected List<string> TestNames { get; }
-
-        protected override string ClassPathArgument => $@" -classpath ""{this.Settings.JavaLibrariesPath}*""";
-
-        protected virtual string JUnitTestRunnerCode =>
-            $@"
+    protected virtual string JUnitTestRunnerCode =>
+        $@"
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
@@ -66,12 +65,12 @@ public class _$TestRunner {{
     public static void main(String[] args) {{
         // Define test classes to run
         Class[] testClasses = new Class[]{{{
-            string.Join(
-                ", ",
-                this.TestNames.Select(x
-                    => x
-                        .Replace(".java", ".class")
-                        .Replace("/", ".")))}}};
+        string.Join(
+            ", ",
+            this.TestNames.Select(x
+                => x
+                    .Replace(".java", ".class")
+                    .Replace("/", ".")))}}};
 
         InputStream originalIn = System.in;
         PrintStream originalOut = System.out;
@@ -110,8 +109,8 @@ public class _$TestRunner {{
     }}
 }}";
 
-        protected virtual string JUnit5TestRunnerCode =>
-            $@"
+    protected virtual string JUnit5TestRunnerCode =>
+        $@"
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.launcher.Launcher;
 import org.junit.platform.launcher.LauncherDiscoveryRequest;
@@ -132,12 +131,12 @@ public class _$TestRunner {{
     public static void main(String[] args) {{
         // Define test classes to run
         Class[] testClasses = new Class[]{{{
-            string.Join(
-                ", ",
-                this.TestNames.Select(x
-                    => x
-                        .Replace(".java", ".class")
-                        .Replace("/", ".")))}}};
+        string.Join(
+            ", ",
+            this.TestNames.Select(x
+                => x
+                    .Replace(".java", ".class")
+                    .Replace("/", ".")))}}};
 
         // Set up streams to capture system output
         InputStream originalIn = System.in;
@@ -182,231 +181,231 @@ public class _$TestRunner {{
     }}
 }}";
 
-        protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+    protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
+        IExecutionContext<TestsInputModel> executionContext,
+        IExecutionResult<TestResult> result)
+    {
+        string submissionFilePath;
+
+        try
         {
-            string submissionFilePath;
-
-            try
-            {
-                submissionFilePath = this.CreateSubmissionFile(executionContext);
-            }
-            catch (ArgumentException exception)
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return result;
-            }
-
-            FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
-            File.Delete(submissionFilePath);
-
-            var executor = this.CreateExecutor();
-
-            var checker = executionContext.Input.GetChecker();
-
-            var originalTestsPassed = int.MaxValue;
-            var count = 0;
-
-            var tests = executionContext.Input.Tests.OrderBy(x => x.IsTrialTest).ThenBy(x => x.OrderBy);
-
-            foreach (var test in tests)
-            {
-                var testFileNames = this.ExtractFileNames(test.Input)
-                    .ToList();
-                if (testFileNames.Any(string.IsNullOrEmpty))
-                {
-                    result.IsCompiledSuccessfully = false;
-                    result.CompilerComment = IncorrectTestFormat;
-                    return result;
-                }
-
-                var compilerResult = this.CompileProject(executionContext);
-                result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
-                result.CompilerComment = compilerResult.CompilerComment;
-                if (!result.IsCompiledSuccessfully)
-                {
-                    return result;
-                }
-
-                var classPathWithCompiledFile = $@" -classpath ""{this.Settings.JavaLibrariesPath}*{ClassPathArgumentSeparator}{compilerResult.OutputFile}""";
-
-                var arguments = new List<string>
-                {
-                    classPathWithCompiledFile,
-                    AdditionalExecutionArguments,
-                    JUnitRunnerClassName,
-                };
-
-                // Process the submission and check each test
-                var processExecutionResult = await executor.Execute(
-                    this.Settings.JavaExecutablePath,
-                    executionContext.TimeLimit,
-                    executionContext.MemoryLimit,
-                    executionArguments: arguments,
-                    workingDirectory: this.WorkingDirectory,
-                    useProcessTime: true);
-
-                JavaStrategiesHelper.ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
-
-                // Construct and figure out what the Test results are
-                ExtractTestResult(processExecutionResult.ReceivedOutput, out var passedTests, out var totalTests);
-
-                var message = TestPassedMessage;
-
-                if (totalTests == 0)
-                {
-                    message = "No tests found";
-                }
-                else if (passedTests >= originalTestsPassed)
-                {
-                    message = "No functionality covering this test!";
-                }
-
-                if (count == 0)
-                {
-                    originalTestsPassed = passedTests;
-                    if (totalTests != passedTests)
-                    {
-                        message = "Not all tests passed on the correct solution.";
-                    }
-                }
-
-                var testResult = CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    message);
-
-                result.Results.Add(testResult);
-                count++;
-            }
+            submissionFilePath = this.CreateSubmissionFile(executionContext);
+        }
+        catch (SolutionException exception)
+        {
+            result.IsCompiledSuccessfully = false;
+            result.CompilerComment = exception.Message;
 
             return result;
         }
 
-        protected override CompileResult Compile(
-            CompilerType compilerType,
-            string compilerPath,
-            string compilerArguments,
-            string submissionFilePath,
-            bool useWorkingDirectoryForProcess = false)
+        FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
+        File.Delete(submissionFilePath);
+
+        var executor = this.CreateExecutor();
+
+        var checker = executionContext.Input.GetChecker();
+
+        var originalTestsPassed = int.MaxValue;
+        var count = 0;
+
+        var tests = executionContext.Input.Tests
+            .OrderBy(x => x.IsTrialTest)
+            .ThenBy(x => x.OrderBy);
+
+        foreach (var test in tests)
         {
-            if (compilerType == CompilerType.None)
+            var testFileNames = this.ExtractFileNames(test.Input)
+                .ToList();
+
+            if (testFileNames.Any(string.IsNullOrEmpty))
             {
-                return new CompileResult(true, null) { OutputFile = submissionFilePath };
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = IncorrectTestFormat;
+                return result;
             }
 
-            if (!File.Exists(compilerPath))
+            var compilerResult = this.CompileProject(executionContext);
+            result.IsCompiledSuccessfully = compilerResult.IsCompiledSuccessfully;
+            result.CompilerComment = compilerResult.CompilerComment;
+            if (!result.IsCompiledSuccessfully)
             {
-                throw new ArgumentException($"Compiler not found in: {compilerPath}", nameof(compilerPath));
+                return result;
             }
 
-            var compiler = this.CompilerFactory.CreateCompiler(compilerType, this.Type);
-            var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments);
-            return compilerResult;
-        }
+            var classPathWithCompiledFile = $@" -classpath ""{this.Settings.JavaLibrariesPath}*{ClassPathArgumentSeparator}{compilerResult.OutputFile}""";
 
-        protected override string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
-        {
-            var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
-            var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
-                ? $".{trimmedAllowedFileExtensions}"
-                : trimmedAllowedFileExtensions;
-
-            if (allowedFileExtensions != ZipFileExtension)
+            var arguments = new List<string>
             {
-                throw new ArgumentException("Submission file is not a zip file!");
+                classPathWithCompiledFile,
+                AdditionalExecutionArguments,
+                JUnitRunnerClassName,
+            };
+
+            // Process the submission and check each test
+            var processExecutionResult = await executor.Execute(
+                this.Settings.JavaExecutablePath,
+                executionContext.TimeLimit,
+                executionContext.MemoryLimit,
+                executionArguments: arguments,
+                workingDirectory: this.WorkingDirectory,
+                useProcessTime: true);
+
+            ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
+
+            ExtractTestResult(processExecutionResult.ReceivedOutput, out var passedTests, out var totalTests);
+
+            var message = TestPassedMessage;
+
+            if (totalTests == 0)
+            {
+                message = "No tests found.";
+            }
+            else if (passedTests >= originalTestsPassed)
+            {
+                message = "No functionality covering this test!";
             }
 
-            return this.PrepareSubmissionFile((IExecutionContext<TestsInputModel>)executionContext);
-        }
-
-        protected virtual string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
-        {
-            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, SubmissionFileName);
-            File.WriteAllBytes(submissionFilePath, context.FileContent);
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-            this.ExtractUserTestFiles(submissionFilePath);
-            this.AddTestRunnerTemplate(submissionFilePath);
-            return submissionFilePath;
-        }
-
-        private static void ExtractTestResult(string receivedOutput, out int passedTests, out int totalTests)
-        {
-            var testResultsRegex = new Regex(TestResultsRegex);
-            var res = testResultsRegex.Match(receivedOutput);
-            if (!res.Success)
+            if (count == 0)
             {
-                throw new ArgumentException("Process output was incorrect or empty.");
+                originalTestsPassed = passedTests;
+                if (totalTests != passedTests)
+                {
+                    message = "Not all tests passed on the correct solution.";
+                }
             }
 
-            totalTests = int.Parse(res.Groups[1].Value);
-            passedTests = int.Parse(res.Groups[2].Value);
+            var testResult = CheckAndGetTestResult(
+                test,
+                processExecutionResult,
+                checker,
+                message);
+
+            result.Results.Add(testResult);
+            count++;
         }
 
-        private void AddTestRunnerTemplate(string submissionFilePath)
-        {
-            // It is important to call the JUintTestRunnerCodeTemplate after the TestClasses have been filled
-            // otherwise no tests will be queued in the JUnitTestRunner, which would result in no tests failing.
-            File.WriteAllText(this.JUnitTestRunnerSourceFilePath, this.Type.ToString().Contains("21") ? this.JUnit5TestRunnerCode : this.JUnitTestRunnerCode);
-            FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, this.JUnitTestRunnerSourceFilePath);
-            FileHelpers.DeleteFiles(this.JUnitTestRunnerSourceFilePath);
-        }
-
-        private void ExtractUserTestFiles(string submissionFilePath)
-        {
-            var fileNames = FileHelpers.GetFilePathsFromZip(submissionFilePath)
-                .Where(x => x.EndsWith(javaSourceFileExtension));
-            this.TestNames.AddRange(fileNames);
-        }
-
-        private IEnumerable<string> ExtractFileNames(string testInput)
-            => testInput.Split(new[] { classDelimiterUnix, classDelimiterWin }, StringSplitOptions.RemoveEmptyEntries)
-                .Select(this.PrepareFileFromClassname);
-
-        private string PrepareFileFromClassname(string projectClass)
-        {
-            var name = Regex.Match(projectClass, FilenameRegex, RegexOptions.Multiline);
-            if (!name.Success)
-            {
-                return null;
-            }
-
-            var filename = FileHelpers.BuildPath(name.Groups[1].Value.Split('/', '\\'));
-            var filepath = FileHelpers.BuildPath(this.WorkingDirectory, filename);
-            var className = filename.Replace('/', '.')
-                .Replace(".java", string.Empty);
-
-            var directory = Path.GetDirectoryName(filepath);
-            if (!Directory.Exists(directory) && !string.IsNullOrEmpty(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            File.WriteAllText(filepath, projectClass);
-            return filename;
-        }
-
-        private CompileResult CompileProject(IExecutionContext<TestsInputModel> executionContext)
-        {
-            var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
-
-            return this.Compile(
-                executionContext.CompilerType,
-                this.CompilerFactory.GetCompilerPath(executionContext.CompilerType, this.Type),
-                combinedArguments,
-                this.WorkingDirectory);
-        }
+        return result;
     }
 
-    public record JavaUnitTestsExecutionStrategySettings(
-        int BaseTimeUsed,
-        int BaseMemoryUsed,
-        string JavaExecutablePath,
-        string JavaLibrariesPath,
-        int BaseUpdateTimeOffset) : JavaZipFileCompileExecuteAndCheckExecutionStrategySettings(
-        BaseTimeUsed, BaseMemoryUsed, JavaExecutablePath, JavaLibrariesPath, BaseUpdateTimeOffset);
+    protected override CompileResult Compile(
+        CompilerType compilerType,
+        string compilerPath,
+        string compilerArguments,
+        string submissionFilePath,
+        bool useWorkingDirectoryForProcess = false)
+    {
+        if (compilerType == CompilerType.None)
+        {
+            return new CompileResult(true, null) { OutputFile = submissionFilePath };
+        }
+
+        if (!File.Exists(compilerPath))
+        {
+            throw new ArgumentException($"Compiler not found in: {compilerPath}", nameof(compilerPath));
+        }
+
+        var compiler = this.CompilerFactory.CreateCompiler(compilerType, this.Type);
+        var compilerResult = compiler.Compile(compilerPath, submissionFilePath, compilerArguments);
+        return compilerResult;
+    }
+
+    protected override string CreateSubmissionFile<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
+        var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith('.') ?? false)
+            ? $".{trimmedAllowedFileExtensions}"
+            : trimmedAllowedFileExtensions;
+
+        if (allowedFileExtensions != ZipFileExtension)
+        {
+            throw new SolutionException("The submission file is not a zip file!");
+        }
+
+        return this.PrepareSubmissionFile((IExecutionContext<TestsInputModel>)executionContext);
+    }
+
+    protected virtual string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
+    {
+        var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, SubmissionFileName);
+
+        File.WriteAllBytes(submissionFilePath, context.FileContent);
+        FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+
+        this.ExtractUserTestFiles(submissionFilePath);
+        this.AddTestRunnerTemplate(submissionFilePath);
+
+        return submissionFilePath;
+    }
+
+    private static void ExtractTestResult(string receivedOutput, out int passedTests, out int totalTests)
+    {
+        var testResultsRegex = new Regex(TestResultsRegex);
+        var match = testResultsRegex.Match(receivedOutput);
+
+        if (!match.Success)
+        {
+            throw new InvalidProcessExecutionOutputException();
+        }
+
+        totalTests = int.Parse(match.Groups[1].Value);
+        passedTests = int.Parse(match.Groups[2].Value);
+    }
+
+    private void AddTestRunnerTemplate(string submissionFilePath)
+    {
+        // It is important to call the JUintTestRunnerCodeTemplate after the TestClasses have been filled
+        // otherwise no tests will be queued in the JUnitTestRunner, which would result in no tests failing.
+        File.WriteAllText(this.JUnitTestRunnerSourceFilePath, this.Type.ToString().Contains("21") ? this.JUnit5TestRunnerCode : this.JUnitTestRunnerCode);
+        FileHelpers.AddFilesToZipArchive(submissionFilePath, string.Empty, this.JUnitTestRunnerSourceFilePath);
+        FileHelpers.DeleteFiles(this.JUnitTestRunnerSourceFilePath);
+    }
+
+    private void ExtractUserTestFiles(string submissionFilePath)
+        => this.TestNames.AddRange(
+            FileHelpers.GetFilePathsFromZip(submissionFilePath).Where(x => x.EndsWith(javaSourceFileExtension)));
+
+    private IEnumerable<string> ExtractFileNames(string testInput)
+        => testInput.Split([classDelimiterUnix, classDelimiterWin], StringSplitOptions.RemoveEmptyEntries)
+            .Select(this.PrepareFileFromClassname);
+
+    private string PrepareFileFromClassname(string projectClass)
+    {
+        var name = Regex.Match(projectClass, FilenameRegex, RegexOptions.Multiline);
+        if (!name.Success)
+        {
+            return null;
+        }
+
+        var filename = FileHelpers.BuildPath(name.Groups[1].Value.Split('/', '\\'));
+        var filepath = FileHelpers.BuildPath(this.WorkingDirectory, filename);
+
+        var directory = Path.GetDirectoryName(filepath);
+        if (!Directory.Exists(directory) && !string.IsNullOrEmpty(directory))
+        {
+            Directory.CreateDirectory(directory);
+        }
+
+        File.WriteAllText(filepath, projectClass);
+        return filename;
+    }
+
+    private CompileResult CompileProject(IExecutionContext<TestsInputModel> executionContext)
+    {
+        var combinedArguments = executionContext.AdditionalCompilerArguments + this.ClassPathArgument;
+
+        return this.Compile(
+            executionContext.CompilerType,
+            this.CompilerFactory.GetCompilerPath(executionContext.CompilerType, this.Type),
+            combinedArguments,
+            this.WorkingDirectory);
+    }
 }
+
+public record JavaUnitTestsExecutionStrategySettings(
+    int BaseTimeUsed,
+    int BaseMemoryUsed,
+    string JavaExecutablePath,
+    string JavaLibrariesPath,
+    int BaseUpdateTimeOffset) : JavaZipFileCompileExecuteAndCheckExecutionStrategySettings(
+    BaseTimeUsed, BaseMemoryUsed, JavaExecutablePath, JavaLibrariesPath, BaseUpdateTimeOffset);
