@@ -1,5 +1,7 @@
 namespace OJS.Services.Common.Data.Implementations;
 
+using FluentExtensions.Extensions;
+using OJS.Common.Enumerations;
 using OJS.Data.Models;
 using OJS.Services.Infrastructure.Cache;
 using System;
@@ -14,30 +16,29 @@ public class SettingsCacheService(
 {
     public async Task<T> GetRequiredValue<T>(string name)
     {
-        var value = await this.GetValueFromCache(name);
+        var setting = await this.GetValueFromCache(name);
 
-        return value == null
+        return setting == null
             ? throw new ArgumentNullException(name)
-            : ChangeType<T>(value);
+            : ChangeType<T>(setting.Value, setting.Type);
     }
 
     public async Task<T> GetValue<T>(string name, T defaultValue)
     {
-        var value = await this.GetValueFromCache(name);
+        var setting = await this.GetValueFromCache(name);
 
-        return value == null
+        return setting == null
             ? defaultValue
-            : ChangeType<T>(value);
+            : ChangeType<T>(setting.Value, setting.Type);
     }
 
-    private async Task<string?> GetValueFromCache(string name)
-        => await cache.Get(string.Format(CultureInfo.InvariantCulture, SettingsFormat, name), async () =>
-        {
-            var dbSetting = await settingsData.One(s => s.Name == name);
+    private async Task<Setting?> GetValueFromCache(string name)
+        => await cache.Get(
+            string.Format(CultureInfo.InvariantCulture, SettingsFormat, name),
+            async () => await settingsData.One(s => s.Name == name));
 
-            return dbSetting?.Value;
-        });
-
-    private static T ChangeType<T>(string value)
-        => (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
+    private static T ChangeType<T>(string value, SettingType settingType)
+        => settingType == SettingType.Json
+            ? value.FromJson<T>()
+            : (T)Convert.ChangeType(value, typeof(T), CultureInfo.InvariantCulture);
 }

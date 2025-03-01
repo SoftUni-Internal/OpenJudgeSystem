@@ -33,6 +33,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Resource = OJS.Common.Resources.ContestsGeneral;
 using static OJS.Common.GlobalConstants.FileExtensions;
+using static OJS.Common.GlobalConstants.Settings;
 
 public class ContestsBusinessService : AdministrationOperationService<Contest, int, ContestAdministrationModel>, IContestsBusinessService
 {
@@ -50,6 +51,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
     private readonly ISubmissionsDataService submissionsDataService;
     private readonly IZipArchivesService zipArchivesService;
     private readonly IDataService<LecturerInContest> lecturerInContestDataService;
+    private readonly ISettingsCacheService settingsCache;
 
     public ContestsBusinessService(
         IContestsDataService contestsData,
@@ -65,7 +67,8 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         IParticipantScoresDataService participantScoresDataService,
         ISubmissionsDataService submissionsDataService,
         IZipArchivesService zipArchivesService,
-        IDataService<LecturerInContest> lecturerInContestDataService)
+        IDataService<LecturerInContest> lecturerInContestDataService,
+        ISettingsCacheService settingsCache)
     {
         this.contestsData = contestsData;
         this.ipsData = ipsData;
@@ -81,6 +84,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         this.submissionsDataService = submissionsDataService;
         this.zipArchivesService = zipArchivesService;
         this.lecturerInContestDataService = lecturerInContestDataService;
+        this.settingsCache = settingsCache;
     }
 
     public async Task<IEnumerable<LecturerInContestActionsModel>> GetForLecturerInContest(string userId)
@@ -379,25 +383,25 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
 
     public async Task AdjustLimitBetweenSubmissions(WorkersBusyRatioServiceModel model)
     {
+        var settings = await this.settingsCache.GetRequiredValue<ContestLimitBetweenSubmissionsAdjustSettings>(ContestLimitBetweenSubmissionsAdjustmentSettings);
+
         var combinedRatio = (model.ExponentialMovingAverageRatio + model.RollingAverageRatio) / 2.0;
-        var maxLimitBetweenSubmissionsInSeconds = 5 * 60; // 5 minutes
-        var ratioMultiplier = 1.5;
         var queueFactor = ComputeQueueFactor(
             model.SubmissionsAwaitingExecution,
-            model.WorkersTotalCount * 2,
-            model.WorkersTotalCount * 5,
-            3.0);
+            (int)(model.WorkersTotalCount * settings.QueueModerateThresholdMultiplier),
+            (int)(model.WorkersTotalCount * settings.QueueCriticalThresholdMultiplier),
+            settings.QueueMaxFactor);
 
         var ratioFactor = 1.0;
-        if (combinedRatio > 0.8)
+        if (combinedRatio > settings.RatioCriticalThreshold)
         {
             // Increase the limit between submissions
-            ratioFactor = ratioMultiplier;
+            ratioFactor = settings.RatioMultiplier;
         }
-        else if (combinedRatio < 0.3)
+        else if (combinedRatio < settings.RatioModerateThreshold)
         {
             // Decrease the limit between submissions
-            ratioFactor = 1.0 / ratioMultiplier;
+            ratioFactor = 1.0 / settings.RatioMultiplier;
         }
 
         var adjustingFactor = ratioFactor * queueFactor;
@@ -411,10 +415,10 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
                 LimitBetweenSubmissions = Math.Clamp(
                     (int)((c.LimitBetweenSubmissions <= 0 && adjustingFactor > 1
                               ? 1
-                              : c.LimitBetweenSubmissions) // If the limit is 0, and we want to increase it, start from 1
+                              : c.LimitBetweenSubmissions) // If the limit is 0, and we want to increase it, start from 1 or else it will stay 0 indefinitely
                         * adjustingFactor),
                     0,
-                    maxLimitBetweenSubmissionsInSeconds),
+                    settings.MaxLimitBetweenSubmissionsInSeconds),
             });
     }
 

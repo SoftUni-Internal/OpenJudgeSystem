@@ -196,6 +196,20 @@ const SettingForm = (props: ISettingFormProps) => {
                     />
                 </FormControl>
             );
+        case getEnumMemberName(SettingTypeEnums, SettingTypeEnums.Json).toString():
+            return (
+                <FormControl className={formStyles.inputRow}>
+                    <TextField
+                      label={VALUE}
+                      value={JSON.stringify(JSON.parse(setting?.value), null, 2)}
+                      variant="filled"
+                      name="value"
+                      onChange={(e) => onChange(e)}
+                      multiline
+                      rows={15}
+                    />
+                </FormControl>
+            );
         case getEnumMemberName(SettingTypeEnums, SettingTypeEnums.DateTime).toString():
             return (
                 <FormControl className={formStyles.inputRow}>

@@ -1,9 +1,11 @@
 namespace OJS.Servers.Administration.Extensions;
 
+using FluentExtensions.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using OJS.Common.Enumerations;
 using OJS.Data.Models;
 using OJS.Data.Models.Mentor;
+using OJS.Services.Administration.Models;
 using OJS.Services.Common.Data;
 using OJS.Services.Common.Models.MentorPromptTemplates;
 using OJS.Services.Common.Models.Settings;
@@ -16,7 +18,17 @@ public static class ServiceProviderExtensions
 {
     public static async Task SeedSettings(this IServiceProvider serviceProvider)
     {
-        var dataService = serviceProvider.GetRequiredService<ISeederDataService<Setting>>();
+        var contestLimitBetweenSubmissionsAdjustmentSettings = new ContestLimitBetweenSubmissionsAdjustSettings
+        {
+            MaxLimitBetweenSubmissionsInSeconds = 300,
+            RatioMultiplier = 1.5,
+            RatioModerateThreshold = 0.3,
+            RatioCriticalThreshold = 0.8,
+            QueueMaxFactor = 3,
+            QueueModerateThresholdMultiplier = 1.5,
+            QueueCriticalThresholdMultiplier = 4,
+        };
+
         SettingServiceModel[] settings =
         [
             new() { Name = MaxWorkersWorkingTimeInSeconds, Value = "300", Type = SettingType.Numeric },
@@ -28,7 +40,15 @@ public static class ServiceProviderExtensions
             new() { Name = nameof(MentorQuotaLimit), Value = "10", Type = SettingType.Numeric },
             new() { Name = nameof(MentorQuotaResetTimeInMinutes), Value = "60", Type = SettingType.Numeric },
             new() { Name = MentorModel, Value = "Gpt4oMini", Type = SettingType.ShortString },
+            new()
+            {
+                Name = ContestLimitBetweenSubmissionsAdjustmentSettings,
+                Value = contestLimitBetweenSubmissionsAdjustmentSettings.ToJson(),
+                Type = SettingType.Json,
+            },
         ];
+
+        var dataService = serviceProvider.GetRequiredService<ISeederDataService<Setting>>();
 
         foreach (var setting in settings)
         {
