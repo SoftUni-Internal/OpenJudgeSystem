@@ -410,17 +410,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
                 targetMax: settings.RatioMultiplier);
         }
 
-        if (combinedRatio > settings.RatioCriticalThreshold)
-        {
-            // Increase the limit between submissions
-            ratioFactor = settings.RatioMultiplier;
-        }
-        else if (combinedRatio < settings.RatioModerateThreshold)
-        {
-            // Decrease the limit between submissions
-            ratioFactor = 1.0 / settings.RatioMultiplier;
-        }
-
         // Smoothly scale from factor=1.0 up to maxFactor as queue length
         // grows between moderate and critical thresholds
         var queueFactor = Calculator.LinearInterpolate(
