@@ -93,7 +93,15 @@
 
         public override void OnProcessingSubmissionError(IOjsSubmission submissionModel, Exception ex)
         {
-            this.submission.ExecutionComment = $"{ex.GetAllMessages()}{Environment.NewLine}{ex.StackTrace}";
+            if (submissionModel.ExceptionType == ExceptionType.Solution)
+            {
+                this.submission.IsCompiledSuccessfully = false;
+                this.submission.CompilerComment = ex.Message;
+            }
+            else
+            {
+                this.submission.ExecutionComment = $"{ex.GetAllMessages()}{Environment.NewLine}{ex.StackTrace}";
+            }
             this.submission.StartedExecutionOn = submissionModel.StartedExecutionOn;
             this.submission.CompletedExecutionOn = submissionModel.CompletedExecutionOn;
             this.submission.WorkerEndpoint = submissionModel.WorkerEndpoint;
