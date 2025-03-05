@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Common.Extensions.Strings;
+using OJS.Common.Utils;
 using OJS.Data.Models;
 using OJS.Data.Models.Contests;
 using OJS.Data.Models.Participants;
@@ -386,13 +387,29 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         var settings = await this.settingsCache.GetRequiredValue<ContestLimitBetweenSubmissionsAdjustSettings>(ContestLimitBetweenSubmissionsAdjustmentSettings);
 
         var combinedRatio = (model.ExponentialMovingAverageRatio + model.RollingAverageRatio) / 2.0;
-        var queueFactor = ComputeQueueFactor(
-            model.SubmissionsAwaitingExecution,
-            (int)(model.WorkersTotalCount * settings.QueueModerateThresholdMultiplier),
-            (int)(model.WorkersTotalCount * settings.QueueCriticalThresholdMultiplier),
-            settings.QueueMaxFactor);
 
-        var ratioFactor = 1.0;
+        double ratioFactor;
+        if (combinedRatio < settings.RatioModerateThreshold)
+        {
+            // Decrease the factor -> decrease limit between submissions
+            ratioFactor = 1.0 / settings.RatioMultiplier;
+        }
+        else if (combinedRatio > settings.RatioCriticalThreshold)
+        {
+            // Increase the factor to the max -> increase limit between submissions
+            ratioFactor = settings.RatioMultiplier;
+        }
+        else
+        {
+            // Increase factor from 1.0 to the RatioMultiplier -> increase limit between submissions linearly
+            ratioFactor = Calculator.LinearInterpolate(
+                combinedRatio,
+                settings.RatioModerateThreshold,
+                settings.RatioCriticalThreshold,
+                targetMin: 1.0,
+                targetMax: settings.RatioMultiplier);
+        }
+
         if (combinedRatio > settings.RatioCriticalThreshold)
         {
             // Increase the limit between submissions
@@ -403,6 +420,16 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
             // Decrease the limit between submissions
             ratioFactor = 1.0 / settings.RatioMultiplier;
         }
+
+        // Smoothly scale from factor=1.0 up to maxFactor as queue length
+        // grows between moderate and critical thresholds
+        var queueFactor = Calculator.LinearInterpolate(
+            model.SubmissionsAwaitingExecution,
+            sourceMin: model.WorkersTotalCount / settings.QueueCriticalThresholdMultiplier,
+            sourceMax: (int)(model.WorkersTotalCount * settings.QueueCriticalThresholdMultiplier),
+            targetMin: 1,
+            targetMax: settings.QueueMaxFactor,
+            clamp: true);
 
         var adjustingFactor = ratioFactor * queueFactor;
 
@@ -420,30 +447,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
                     0,
                     settings.MaxLimitBetweenSubmissionsInSeconds),
             });
-    }
-
-    // Smoothly scale from factor=1.0 up to maxFactor as queue length
-    // grows between moderateThreshold and criticalThreshold.
-    private static double ComputeQueueFactor(
-        int queueLength,
-        int moderateThreshold,
-        int criticalThreshold,
-        double maxFactor)
-    {
-        if (queueLength <= moderateThreshold)
-        {
-            return 1.0; // no slowdown
-        }
-
-        if (queueLength >= criticalThreshold)
-        {
-            return maxFactor; // max slowdown
-        }
-
-        // Linear interpolation
-        var fraction = (double)(queueLength - moderateThreshold)
-                        / (criticalThreshold - moderateThreshold);
-        return 1.0 + (fraction * (maxFactor - 1.0));
     }
 
     private static void RemoveCircularReferences(Contest contest)

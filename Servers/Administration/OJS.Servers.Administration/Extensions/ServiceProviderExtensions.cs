@@ -23,10 +23,9 @@ public static class ServiceProviderExtensions
             MaxLimitBetweenSubmissionsInSeconds = 300,
             RatioMultiplier = 1.5,
             RatioModerateThreshold = 0.3,
-            RatioCriticalThreshold = 0.8,
-            QueueMaxFactor = 3,
-            QueueModerateThresholdMultiplier = 1.5,
-            QueueCriticalThresholdMultiplier = 4,
+            RatioCriticalThreshold = 0.7,
+            QueueMaxFactor = 4,
+            QueueCriticalThresholdMultiplier = 3,
         };
 
         SettingServiceModel[] settings =
