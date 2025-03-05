@@ -16,7 +16,8 @@ public class RabbitMqHttpClient : HttpClientService, IRabbitMqHttpClient
     public RabbitMqHttpClient(
         HttpClient client,
         ILogger<RabbitMqHttpClient> logger,
-        IOptions<MessageQueueConfig> messageQueueConfigAccessor)
+        IOptions<MessageQueueConfig> messageQueueConfigAccessor,
+        IOptions<ApplicationUrlsConfig> applicationUrlsConfigAccessor)
         : base(client, logger, string.Empty)
     {
         this.mqConfig = messageQueueConfigAccessor.Value;
@@ -30,7 +31,7 @@ public class RabbitMqHttpClient : HttpClientService, IRabbitMqHttpClient
             hostValue = "http://" + hostValue;
         }
 
-        client.BaseAddress = new Uri($"{hostValue}:15672");
+        client.BaseAddress = new Uri($"{hostValue}:{applicationUrlsConfigAccessor.Value.RabbitMqHttpApiPort}");
         client.DefaultRequestHeaders.Authorization =
             new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", base64Auth);
     }
