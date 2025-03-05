@@ -389,35 +389,30 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         var combinedRatio = (model.ExponentialMovingAverageRatio + model.RollingAverageRatio) / 2.0;
 
         double ratioFactor;
-        if (combinedRatio < settings.RatioModerateThreshold)
+        if (combinedRatio < settings.BusyRatioModerateThreshold)
         {
             // Decrease the factor -> decrease limit between submissions
-            ratioFactor = 1.0 / settings.RatioMultiplier;
-        }
-        else if (combinedRatio > settings.RatioCriticalThreshold)
-        {
-            // Increase the factor to the max -> increase limit between submissions
-            ratioFactor = settings.RatioMultiplier;
+            ratioFactor = 1.0 / settings.BusyRatioMaxFactor;
         }
         else
         {
-            // Increase factor from 1.0 to the RatioMultiplier -> increase limit between submissions linearly
+            // Smoothly scale factor from 1.0 up to max factor -> increase limit between submissions linearly
             ratioFactor = Calculator.LinearInterpolate(
                 combinedRatio,
-                settings.RatioModerateThreshold,
-                settings.RatioCriticalThreshold,
+                settings.BusyRatioModerateThreshold,
+                settings.BusyRatioCriticalThreshold,
                 targetMin: 1.0,
-                targetMax: settings.RatioMultiplier);
+                targetMax: settings.BusyRatioMaxFactor,
+                clamp: true);
         }
 
-        // Smoothly scale from factor=1.0 up to maxFactor as queue length
-        // grows between moderate and critical thresholds
+        // Smoothly scale from 1.0 up to max factor as queue length grows between moderate and critical thresholds
         var queueFactor = Calculator.LinearInterpolate(
             model.SubmissionsAwaitingExecution,
-            sourceMin: model.WorkersTotalCount / settings.QueueCriticalThresholdMultiplier,
-            sourceMax: (int)(model.WorkersTotalCount * settings.QueueCriticalThresholdMultiplier),
-            targetMin: 1,
-            targetMax: settings.QueueMaxFactor,
+            model.WorkersTotalCount * settings.QueueLenghtModerateThresholdMultiplier,
+            model.WorkersTotalCount * settings.QueueLenghtCriticalThresholdMultiplier,
+            targetMin: 1.0,
+            targetMax: settings.QueueLenghtMaxFactor,
             clamp: true);
 
         var adjustingFactor = ratioFactor * queueFactor;

@@ -21,11 +21,12 @@ public static class ServiceProviderExtensions
         var contestLimitBetweenSubmissionsAdjustmentSettings = new ContestLimitBetweenSubmissionsAdjustSettings
         {
             MaxLimitBetweenSubmissionsInSeconds = 300,
-            RatioMultiplier = 1.5,
-            RatioModerateThreshold = 0.3,
-            RatioCriticalThreshold = 0.7,
-            QueueMaxFactor = 4,
-            QueueCriticalThresholdMultiplier = 3,
+            BusyRatioMaxFactor = 1.5,
+            BusyRatioModerateThreshold = 0.3,
+            BusyRatioCriticalThreshold = 0.7,
+            QueueLenghtMaxFactor = 4,
+            QueueLenghtModerateThresholdMultiplier = 0.2,
+            QueueLenghtCriticalThresholdMultiplier = 3,
         };
 
         SettingServiceModel[] settings =
