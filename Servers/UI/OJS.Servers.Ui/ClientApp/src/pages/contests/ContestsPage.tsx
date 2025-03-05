@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { IContestStrategyFilter, SortType } from '../../common/contest-types';
+import { SortType } from '../../common/contest-types';
 import { IContestsSortAndFilterOptions, IIndexContestsType } from '../../common/types';
 import MetaTags from '../../components/common/MetaTags';
 import ContestCard from '../../components/contests/contest-card/ContestCard';
@@ -16,6 +16,7 @@ import {
     clearContestCategoryBreadcrumbItems,
     setContests,
     setContestsCacheIsReset,
+    setContestStrategy,
 } from '../../redux/features/contestsSlice';
 import { useGetAllContestsQuery } from '../../redux/services/contestsService';
 import { useAppDispatch, useAppSelector } from '../../redux/store';
@@ -27,7 +28,7 @@ import styles from './ContestsPage.module.scss';
 const ContestsPage = () => {
     const dispatch = useAppDispatch();
     const { categoryId } = useParams();
-    const { breadcrumbItems } = useAppSelector((state) => state.contests);
+    const { breadcrumbItems, selectedStrategy } = useAppSelector((state) => state.contests);
     const { themeColors, getColorClassName } = useTheme();
     const {
         contests,
@@ -36,7 +37,6 @@ const ContestsPage = () => {
     } = useAppSelector((state) => state.contests);
 
     const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
-    const [ selectedStrategy, setSelectedStrategy ] = useState<IContestStrategyFilter | null>(null);
 
     const textColorClassName = getColorClassName(themeColors.textColor);
 
@@ -72,8 +72,8 @@ const ContestsPage = () => {
     } = useGetAllContestsQuery({ ...contestParams });
 
     useEffect(() => {
-        setSelectedStrategy(null);
-    }, [ categoryId ]);
+        dispatch(setContestStrategy(null));
+    }, [ categoryId, dispatch ]);
 
     useEffect(() => {
         if (!categoryId && breadcrumbItems.length > 0) {
@@ -158,8 +158,6 @@ const ContestsPage = () => {
                     <ContestStrategies
                       setSearchParams={setSearchParams}
                       searchParams={searchParams}
-                      setSelectedStrategy={setSelectedStrategy}
-                      selectedStrategy={selectedStrategy}
                     />
                 </div>
                 <div className={styles.contestsListContainer}>
