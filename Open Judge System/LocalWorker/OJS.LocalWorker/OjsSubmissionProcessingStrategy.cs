@@ -360,6 +360,7 @@
                 AdditionalCompilerArguments = this.submission.SubmissionType.AdditionalCompilerArguments,
                 AllowedFileExtensions = this.submission.SubmissionType.AllowedFileExtensions,
                 FileContent = this.submission.Content,
+                AdditionalFiles = this.submission.Problem.AdditionalFiles,
                 CompilerType = this.submission.SubmissionType.CompilerType,
                 TimeLimit = timeLimit,
                 MemoryLimit = memoryLimit,
