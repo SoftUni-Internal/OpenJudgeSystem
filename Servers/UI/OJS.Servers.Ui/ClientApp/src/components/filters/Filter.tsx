@@ -1,4 +1,4 @@
-﻿/* eslint-disable max-len */
+/* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable import/group-exports */
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';

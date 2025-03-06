@@ -2,19 +2,15 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { defaultPathIdentifier } from '../../common/constants';
-import { submissionsServiceName } from '../../common/reduxNames';
 import { IPagedResultType, IPublicSubmission } from '../../common/types';
 import {
-    IGetSubmissionsUrlParams,
-    IGetUserSubmissionsUrlParams,
-    IGetSubmissionsByUserParams,
     IRetestSubmissionUrlParams,
     IGetRecentSubmissionsUrlParams,
     IGetProfileSubmissionsUrlParams,
     IGetSubmissionResultsByProblemUrlParams,
 } from '../../common/url-types';
 import { ISubmissionDetailsResponseType } from '../../hooks/submissions/types';
-import {SubmissionStatus} from "src/common/enums";
+import { submissionsServiceName } from '../../common/reduxNames';
 
 const submissionsService = createApi({
     reducerPath: submissionsServiceName,
@@ -51,7 +47,7 @@ const submissionsService = createApi({
             IGetRecentSubmissionsUrlParams>({
                 query: ({ status, itemsPerPage, page, filter, sorting }) => (
                     {
-                        url: `Submissions/GetSubmissions`,
+                        url: 'Submissions/GetSubmissions',
                         params: { status, itemsPerPage, page, filter, sorting },
                     }),
             }),
@@ -60,7 +56,7 @@ const submissionsService = createApi({
             IGetRecentSubmissionsUrlParams>({
                 query: ({ status, itemsPerPage, page, filter, sorting }) => (
                     {
-                        url: `Submissions/GetSubmissionsForUserInRole`,
+                        url: 'Submissions/GetSubmissionsForUserInRole',
                         params: { status, itemsPerPage, page, filter, sorting },
                     }),
             }),
@@ -75,7 +71,7 @@ const submissionsService = createApi({
             IGetProfileSubmissionsUrlParams>({
                 query: ({ username, itemsPerPage, page, filter, sorting }) => (
                     {
-                        url: `Submissions/GetUserSubmissions`,
+                        url: 'Submissions/GetUserSubmissions',
                         params: { username, itemsPerPage, page, filter, sorting },
                     }),
             }),
