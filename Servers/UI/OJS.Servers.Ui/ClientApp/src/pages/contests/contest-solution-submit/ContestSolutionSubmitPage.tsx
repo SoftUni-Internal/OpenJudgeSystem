@@ -869,7 +869,7 @@ const ContestSolutionSubmitPage = () => {
                           options={{
                               showDetailedResults: true,
                               showTaskDetails: false,
-                              showCompeteMarker: true,
+                              showCompeteMarker: false,
                               showSubmissionTypeInfo: true,
                               showParticipantUsername: false,
                           }}

@@ -69,7 +69,7 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
               options={{
                   showTaskDetails: true,
                   showDetailedResults: internalUser.canAccessAdministration || userIsProfileOwner,
-                  showCompeteMarker: false,
+                  showCompeteMarker: true,
                   showSubmissionTypeInfo: false,
                   showParticipantUsername: false,
               }}

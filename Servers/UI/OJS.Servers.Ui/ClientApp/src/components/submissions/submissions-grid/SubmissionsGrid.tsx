@@ -5,6 +5,7 @@ import { IDictionary } from 'src/common/common-types';
 import { FilterColumnTypeEnum } from 'src/common/enums';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import Filter, { handlePageChange, IFilter, mapUrlToFilters } from 'src/components/filters/Filter';
+import { useAppSelector } from 'src/redux/store';
 
 import { IPagedResultType, IPublicSubmission } from '../../../common/types';
 import useTheme from '../../../hooks/use-theme';
@@ -43,6 +44,7 @@ const SubmissionsGrid = ({
     setQueryParams,
 }: ISubmissionsGridProps) => {
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
+    const { internalUser: user } = useAppSelector((state) => state.authorization);
 
     const [ selectedFilters, setSelectedFilters ] = useState<IDictionary<Array<IFilter>>>(mapUrlToFilters(searchParams, [
         { name: 'Id', id: 'Id', columnType: FilterColumnTypeEnum.NUMBER },
@@ -54,6 +56,7 @@ const SubmissionsGrid = ({
     ]));
     const [ openFilter, setOpenFilter ] = useState<string | null>(null);
     const areItemsAvailable = useMemo(() => !isEmpty(submissions?.items), [ submissions?.items ]);
+    const isAdmin = user.isAdmin;
 
     const onPageChange = (page: number) => {
         handlePageChange(setQueryParams, setSearchParams, page);
@@ -94,6 +97,7 @@ const SubmissionsGrid = ({
                 <tr className={headerClassName}>
                     <td>
                         <div className={styles.header}>
+                            {isAdmin && (
                             <Filter
                               filterColumn={{ id: 'Id', name: 'Id', columnType: FilterColumnTypeEnum.NUMBER }}
                               allFilters={selectedFilters}
@@ -104,12 +108,14 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
+                            )}
                             ID
                         </div>
                     </td>
                     {options.showTaskDetails && (
                     <td>
                         <div className={styles.header}>
+                            {isAdmin && (
                             <Filter
                               filterColumn={{
                                   id: 'Problem.Name',
@@ -124,12 +130,14 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
+                            )}
                             Task
                         </div>
                     </td>
                     )}
                     <td>
                         <div className={styles.header}>
+                            {isAdmin && (
                             <Filter
                               filterColumn={{
                                   id: 'CreatedOn',
@@ -144,12 +152,14 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
+                            )}
                             From
                         </div>
                     </td>
                     {options.showCompeteMarker && (
                     <td>
                         <div className={styles.header}>
+                            {isAdmin && (
                             <Filter
                               filterColumn={{
                                   id: 'IsOfficial',
@@ -164,6 +174,7 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
+                            )}
                             Mode
                         </div>
                     </td>
@@ -171,6 +182,7 @@ const SubmissionsGrid = ({
                     {options.showDetailedResults && <td>Time and Memory Used</td>}
                     <td>
                         <div className={styles.header}>
+                            {isAdmin && (
                             <Filter
                               filterColumn={{
                                   id: 'Result.Points',
@@ -185,12 +197,14 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
+                            )}
                             Result
                         </div>
                     </td>
                     {options.showSubmissionTypeInfo && (
                     <td>
                         <div className={styles.header}>
+                            {isAdmin && (
                             <Filter
                               filterColumn={{
                                   id: 'StrategyName',
@@ -205,6 +219,7 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
+                            )}
                             Strategy
                         </div>
                     </td>
@@ -246,7 +261,8 @@ const SubmissionsGrid = ({
         isDataLoaded,
         getColspan,
         submissions?.items,
-        areItemsAvailable ]);
+        areItemsAvailable,
+        isAdmin ]);
 
     return (
         <>

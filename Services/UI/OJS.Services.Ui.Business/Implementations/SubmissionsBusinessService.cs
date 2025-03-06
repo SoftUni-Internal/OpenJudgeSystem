@@ -317,8 +317,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         }
 
         var query = this.submissionsData
-            .GetAllByProblemAndParticipant(problemId, participant!.Id)
-            .AsNoTracking();
+            .GetAllByProblemAndParticipant(problemId, participant!.Id);
 
         var submissions = await
             this.ApplyFiltersAndSorters<SubmissionForSubmitSummaryServiceModel>(requestModel, query)
@@ -331,11 +330,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             submission.IsOfficial = isOfficial;
             submission.MaxMemoryUsed = maxMemoryUsed;
             submission.MaxTimeUsed = maxTimeUsed;
-            submission.Result = new ResultForPublicSubmissionsServiceModel
-            {
-                Points = submission.Points,
-                MaxPoints = problem!.MaximumPoints,
-            };
+            submission.Result.MaxPoints = problem!.MaximumPoints;
         }
 
         return submissions;

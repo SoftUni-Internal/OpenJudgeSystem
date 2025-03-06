@@ -135,40 +135,7 @@ public class FilteringService : IFilteringService
             throw new InvalidOperationException("Expression cannot be built");
         }
 
-        // if (filter.IsNestedProperty)
-        // {
-        //     expression = AddNullChecks(parameter, filter.PropertyPath, expression);
-        // }
-
         return Expression.Lambda<Func<T, bool>>(expression, parameter);
-    }
-
-    private static Expression AddNullChecks(ParameterExpression parameter, string[] propertyPath, Expression finalExpression)
-    {
-        Expression current = parameter;
-        Expression? combinedNullChecks = null;
-
-        for (var i = 0; i < propertyPath.Length - 1; i++)
-        {
-            current = Expression.Property(current, propertyPath[i]);
-            var nullCheck = Expression.NotEqual(current, Expression.Constant(null));
-
-            if (combinedNullChecks == null)
-            {
-                combinedNullChecks = nullCheck;
-            }
-            else
-            {
-                combinedNullChecks = Expression.AndAlso(combinedNullChecks, nullCheck);
-            }
-        }
-
-        if (combinedNullChecks != null)
-        {
-            return Expression.AndAlso(combinedNullChecks, finalExpression);
-        }
-
-        return finalExpression;
     }
 
     private static Expression BuildEnumExpression(string filterValue, Type propertyType, MemberExpression property)

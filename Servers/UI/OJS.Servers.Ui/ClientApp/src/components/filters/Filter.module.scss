@@ -9,6 +9,10 @@
   box-shadow: colors.$box-shadow-color;
   border: 2px solid colors.$background-color-btn-primary;
 
+  & .closeIcon {
+    cursor: pointer;
+  }
+
   & .fieldsContainer {
     display: flex;
     flex-direction: column;
@@ -53,36 +57,6 @@
           border-bottom-color: colors.$background-color-btn-primary;
         }
       }
-
-      .MuiPaper-root {
-        background-color: colors.$dark-base-color-400 !important;
-        color: colors.$dark-text-color !important;
-      }
-
-      .MuiTypography-root {
-        color: colors.$dark-text-color !important;
-      }
-
-      .MuiPickersDay-root {
-        color: colors.$dark-text-color !important;
-      }
-
-      .MuiPickersDay-root.Mui-selected {
-        background-color: colors.$dark-base-color-400 !important;
-        color: colors.$dark-text-color !important;
-      }
-
-      .MuiPickersYear-yearButton {
-        color: colors.$dark-text-color !important;
-      }
-
-      .MuiClockNumber-root {
-        color: colors.$dark-text-color !important;
-      }
-
-      .MuiIconButton-root {
-        color: colors.$dark-text-color !important;
-      }
     }
   }
 
@@ -103,6 +77,10 @@
 
     & .addFilter {
       color: colors.$light-text-color;
+
+      &:disabled {
+        opacity: 0.6;
+      }
     }
 
     .MuiSvgIcon-root {
@@ -111,7 +89,7 @@
 
     .option {
       color: colors.$light-text-color;
-      background-color: colors.$light-base-color-100;
+      background-color: colors.$light-base-color-400;
 
       &:hover,
       &[aria-selected='true'] {
@@ -133,6 +111,10 @@
 
     & .addFilter {
       color: colors.$dark-text-color;
+
+      &:disabled {
+        opacity: 0.6;
+      }
     }
 
     .MuiSvgIcon-root {
