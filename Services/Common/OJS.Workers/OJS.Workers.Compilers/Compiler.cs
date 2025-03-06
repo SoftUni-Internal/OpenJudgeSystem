@@ -32,15 +32,9 @@ public abstract class Compiler : ICompiler
         string additionalArguments,
         bool useInputFileDirectoryAsWorking = false)
     {
-        if (compilerPath == null)
-        {
-            throw new ArgumentNullException(nameof(compilerPath));
-        }
+        ArgumentNullException.ThrowIfNull(compilerPath);
 
-        if (inputFile == null)
-        {
-            throw new ArgumentNullException(nameof(inputFile));
-        }
+        ArgumentNullException.ThrowIfNull(inputFile);
 
         if (!File.Exists(compilerPath))
         {
@@ -63,7 +57,7 @@ public abstract class Compiler : ICompiler
         Directory.CreateDirectory(this.CompilationDirectory);
 
         // Move source file if needed
-        string newInputFilePath = this.RenameInputFile(inputFile);
+        var newInputFilePath = this.RenameInputFile(inputFile);
         if (newInputFilePath != inputFile)
         {
             File.Move(inputFile, newInputFilePath);
@@ -159,67 +153,65 @@ public abstract class Compiler : ICompiler
         {
             using (errorWaitHandle)
             {
-                using (var process = new Process())
+                using var process = new Process();
+                process.StartInfo = compilerProcessStartInfo;
+
+                var outputHandle = new DataReceivedEventHandler((sender, e) =>
                 {
-                    process.StartInfo = compilerProcessStartInfo;
-
-                    var outputHandle = new DataReceivedEventHandler((sender, e) =>
+                    if (e.Data == null)
                     {
-                        if (e.Data == null)
-                        {
-                            outputWaitHandle.Set();
-                        }
-                        else
-                        {
-                            outputBuilder.AppendLine(e.Data);
-                        }
-                    });
-
-                    var errorHandle = new DataReceivedEventHandler((sender, e) =>
-                    {
-                        if (e.Data == null)
-                        {
-                            errorWaitHandle.Set();
-                        }
-                        else
-                        {
-                            errorOutputBuilder.AppendLine(e.Data);
-                        }
-                    });
-
-                    process.OutputDataReceived += outputHandle;
-                    process.ErrorDataReceived += errorHandle;
-
-                    var started = process.Start();
-                    if (!started)
-                    {
-                        return new CompilerOutput(1, "Could not start compiler.");
+                        outputWaitHandle.Set();
                     }
-
-                    process.BeginOutputReadLine();
-                    process.BeginErrorReadLine();
-
-                    var exited = process.WaitForExit(processExitTimeOutMillisecond);
-                    if (!exited)
+                    else
                     {
-                        process.CancelOutputRead();
-                        process.CancelErrorRead();
-
-                        // Double check if the process has exited before killing it
-                        if (!process.HasExited)
-                        {
-                            process.Kill();
-                        }
-
-                        return new CompilerOutput(1, "Compiler process timed out.");
+                        outputBuilder.AppendLine(e.Data);
                     }
+                });
 
-                    outputWaitHandle.WaitOne(300);
-                    errorWaitHandle.WaitOne(300);
-                    process.OutputDataReceived -= outputHandle;
-                    process.ErrorDataReceived -= errorHandle;
-                    exitCode = process.ExitCode;
+                var errorHandle = new DataReceivedEventHandler((sender, e) =>
+                {
+                    if (e.Data == null)
+                    {
+                        errorWaitHandle.Set();
+                    }
+                    else
+                    {
+                        errorOutputBuilder.AppendLine(e.Data);
+                    }
+                });
+
+                process.OutputDataReceived += outputHandle;
+                process.ErrorDataReceived += errorHandle;
+
+                var started = process.Start();
+                if (!started)
+                {
+                    return new CompilerOutput(1, "Could not start compiler.");
                 }
+
+                process.BeginOutputReadLine();
+                process.BeginErrorReadLine();
+
+                var exited = process.WaitForExit(processExitTimeOutMillisecond);
+                if (!exited)
+                {
+                    process.CancelOutputRead();
+                    process.CancelErrorRead();
+
+                    // Double check if the process has exited before killing it
+                    if (!process.HasExited)
+                    {
+                        process.Kill();
+                    }
+
+                    return new CompilerOutput(1, "Compiler process timed out.");
+                }
+
+                outputWaitHandle.WaitOne(300);
+                errorWaitHandle.WaitOne(300);
+                process.OutputDataReceived -= outputHandle;
+                process.ErrorDataReceived -= errorHandle;
+                exitCode = process.ExitCode;
             }
         }
 

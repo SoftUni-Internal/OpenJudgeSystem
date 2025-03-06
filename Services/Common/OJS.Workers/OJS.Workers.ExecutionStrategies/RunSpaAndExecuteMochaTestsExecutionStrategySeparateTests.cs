@@ -1,46 +1,47 @@
-namespace OJS.Workers.ExecutionStrategies
+namespace OJS.Workers.ExecutionStrategies;
+
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using Ionic.Zip;
+using Microsoft.Extensions.Logging;
+using OJS.Workers.Common;
+using OJS.Workers.Common.Exceptions;
+using OJS.Workers.Common.Extensions;
+using OJS.Workers.Common.Helpers;
+using OJS.Workers.Common.Models;
+using OJS.Workers.ExecutionStrategies.Models;
+using OJS.Workers.ExecutionStrategies.Python;
+using OJS.Workers.Executors;
+using static OJS.Workers.Common.Constants;
+
+public class RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests<TSettings> : PythonExecuteAndCheckExecutionStrategy<TSettings>
+    where TSettings : RunSpaAndExecuteMochaTestsExecutionStrategySettings
 {
-    using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Linq;
-    using System.Text.RegularExpressions;
-    using Ionic.Zip;
-    using Microsoft.Extensions.Logging;
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Extensions;
-    using OJS.Workers.Common.Helpers;
-    using OJS.Workers.Common.Models;
-    using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.ExecutionStrategies.Python;
-    using OJS.Workers.Executors;
-    using static OJS.Workers.Common.Constants;
+    private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
+    private const string MochaTestsPlaceholder = "#mochaTests#";
+    private const string MochaTestsFullTitlePrefix = "E2E tests";
+    private const string ContainerNamePlaceholder = "#containerNamePlaceholder#";
+    private const string KillContainerPlaceholder = "#killContainerPlaceholder#";
+    private const string TestFilePathPlaceholder = "#testFilePathPlaceholder#";
+    private const string NodeModulesRequirePattern = "(require\\((?'quote'[\'\"]))([\\w\\-]*)(\\k<quote>)";
+    private const string TestsDirectoryName = "test";
+    private const string UserApplicationDirectoryName = "app";
+    private const string NginxConfFileName = "nginx.conf";
+    private readonly Regex testTimeoutRegex = new Regex(@"Timeout (?:of )?\d+ms exceeded\.");
 
-    public class RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests<TSettings> : PythonExecuteAndCheckExecutionStrategy<TSettings>
-        where TSettings : RunSpaAndExecuteMochaTestsExecutionStrategySettings
+    public RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests(
+        IOjsSubmission submission,
+        IProcessExecutorFactory processExecutorFactory,
+        IExecutionStrategySettingsProvider settingsProvider,
+        ILogger<BaseExecutionStrategy<TSettings>> logger)
+        : base(submission, processExecutorFactory, settingsProvider, logger)
     {
-        private const string UserApplicationHttpPortPlaceholder = "#userApplicationHttpPort#";
-        private const string MochaTestsPlaceholder = "#mochaTests#";
-        private const string MochaTestsFullTitlePrefix = "E2E tests";
-        private const string ContainerNamePlaceholder = "#containerNamePlaceholder#";
-        private const string KillContainerPlaceholder = "#killContainerPlaceholder#";
-        private const string TestFilePathPlaceholder = "#testFilePathPlaceholder#";
-        private const string NodeModulesRequirePattern = "(require\\((?'quote'[\'\"]))([\\w\\-]*)(\\k<quote>)";
-        private const string TestsDirectoryName = "test";
-        private const string UserApplicationDirectoryName = "app";
-        private const string NginxConfFileName = "nginx.conf";
-        private readonly Regex testTimeoutRegex = new Regex(@"Timeout (?:of )?\d+ms exceeded\.");
+    }
 
-        public RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests(
-            IOjsSubmission submission,
-            IProcessExecutorFactory processExecutorFactory,
-            IExecutionStrategySettingsProvider settingsProvider,
-            ILogger<BaseExecutionStrategy<TSettings>> logger)
-            : base(submission, processExecutorFactory, settingsProvider, logger)
-        {
-        }
-
-        private static string NginxFileContent => $@"
+    private static string NginxFileContent => $@"
 worker_processes  1;
 
 events {{
@@ -71,17 +72,17 @@ http {{
     }}
 }}";
 
-        private int PortNumber { get; set; }
+    private int PortNumber { get; set; }
 
-        private string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
+    private string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
 
-        private string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
+    private string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
 
-        private string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
+    private string NginxConfFileDirectory => FileHelpers.BuildPath(this.WorkingDirectory, "nginx");
 
-        private string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
+    private string NginxConfFileFullPath => FileHelpers.BuildPath(this.NginxConfFileDirectory, NginxConfFileName);
 
-        private string PythonPreExecuteCodeTemplate => $@"
+    private string PythonPreExecuteCodeTemplate => $@"
 import docker
 import shutil
 import tarfile
@@ -211,7 +212,7 @@ except Exception as e:
     executor.stop()
 ";
 
-        private string PythonCodeTemplate => $@"
+    private string PythonCodeTemplate => $@"
 import docker
 import subprocess
 
@@ -240,311 +241,293 @@ finally:
         container.remove()
 ";
 
-        private string ContainerName { get; set; } = string.Empty;
+    private string ContainerName { get; set; } = string.Empty;
 
-        protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+    protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
+        IExecutionContext<TestsInputModel> executionContext,
+        IExecutionResult<TestResult> result)
+    {
+        if (string.IsNullOrEmpty(executionContext.Input.TaskSkeletonAsString))
         {
-            if (string.IsNullOrEmpty(executionContext.Input.TaskSkeletonAsString))
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = "Submission type skeleton must not be empty.";
-
-                return result;
-            }
-
-            try
-            {
-                this.ExtractSubmissionFiles(executionContext);
-            }
-            catch (ArgumentException exception)
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return result;
-            }
-
-            this.SaveNginxFile();
-
-            var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
-            var executor = this.CreateStandardExecutor();
-            var checker = executionContext.Input.GetChecker();
-            var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
-            var match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
-            if (match.Success)
-            {
-                this.PortNumber = int.Parse(match.Groups[1].Value);
-                this.ContainerName = match.Groups[2].Value;
-            }
-            else
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = "Failed running strategy pre execute step, please contact an Administrator";
-                this.Logger.LogUnexpectedProcessOutput(preExecutionResult);
-
-                return result;
-            }
-
-            try
-            {
-                return await this.RunTests(string.Empty, executor, checker, executionContext, result);
-            }
-            catch (Exception e)
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = e.Message;
-
-                return result;
-            }
+            throw new ConfigurationException("The submission type skeleton must not be empty.");
         }
 
-        protected override async Task<IExecutionResult<TestResult>> RunTests(
-            string codeSavePath,
-            IExecutor executor,
-            IChecker checker,
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+        try
         {
-            var filePath = this.BuildTestPath("tests");
-
-            // pass in container name in order to close container after execution
-            // pass test file path to mocha so it executes only this test file, and not all test files each run
-            var processedPythonCodeTemplate = this.PythonCodeTemplate
-                .Replace(ContainerNamePlaceholder, this.ContainerName)
-                .Replace(TestFilePathPlaceholder, filePath)
-                .Replace(KillContainerPlaceholder, "True");
-
-            var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
-
-            var testsConcatenated = string.Join(
-                $"{Environment.NewLine}{Environment.NewLine}",
-                executionContext
-                    .Input
-                    .Tests
-                    .Select(t => t.Input));
-
-            var skeletonWithTests = executionContext
-                .Input
-                .TaskSkeletonAsString
-                .Replace(MochaTestsPlaceholder, testsConcatenated);
-
-            FileHelpers.SaveStringToFile(
-                this.PreprocessTestInput(skeletonWithTests),
-                filePath);
-
-            var processExecutionResult = await this.Execute(executionContext, executor, mainCodeSavePath);
-
-            var testResults = this.ExtractTestResultsFromReceivedOutput(
-                processExecutionResult.ReceivedOutput,
-                executionContext.Input.Tests);
-
-            result.Results.AddRange(testResults);
+            this.ExtractSubmissionFiles(executionContext);
+        }
+        catch (SolutionException exception)
+        {
+            result.IsCompiledSuccessfully = false;
+            result.CompilerComment = exception.Message;
 
             return result;
         }
 
-        private static Dictionary<string, int> MapTitlesToTestId(IEnumerable<TestContext> tests, IEnumerable<string> titles)
-        {
-            try
-            {
-                return titles.ToDictionary(
-                    title => title,
-                    title => tests.FirstOrDefault(t => t
-                            .Input
-                            .Contains(title
-                                .Replace(MochaTestsFullTitlePrefix, string.Empty)
-                                .Trim()))?
-                        .Id ?? 0);
-            }
-            catch (ArgumentException exception)
-            {
-                var keyStr = "Key:";
-                var testName = exception.Message
-                    .Substring(exception.Message.IndexOf(keyStr, StringComparison.Ordinal) + keyStr.Length)
-                    .Trim();
+        this.SaveNginxFile();
 
-                throw new Exception($"Duplicate naming of tests: {testName}");
-            }
+        var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
+            var executor = this.CreateStandardExecutor();
+        var checker = executionContext.Input.GetChecker();
+        var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
+        var match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
+        if (match.Success)
+        {
+            this.PortNumber = int.Parse(match.Groups[1].Value);
+            this.ContainerName = match.Groups[2].Value;
+        }
+        else
+        {
+            this.Logger.LogUnexpectedProcessOutput(preExecutionResult);
+            throw new ArgumentException("Failed to run the strategy pre execute step. Please contact a developer.");
         }
 
-        private static void ValidateAllowedFileExtension<TInput>(IExecutionContext<TInput> executionContext)
-        {
-            var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
-            var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
-                ? $".{trimmedAllowedFileExtensions}"
-                : trimmedAllowedFileExtensions;
+        return await this.RunTests(string.Empty, executor, checker, executionContext, result);
+    }
 
-            if (allowedFileExtensions != ZipFileExtension)
-            {
-                throw new ArgumentException(
-                    "This file extension is not allowed for the execution strategy. Please contact an administrator.");
-            }
+    protected override async Task<IExecutionResult<TestResult>> RunTests(
+        string codeSavePath,
+        IExecutor executor,
+        IChecker checker,
+        IExecutionContext<TestsInputModel> executionContext,
+        IExecutionResult<TestResult> result)
+    {
+        var filePath = this.BuildTestPath("tests");
+
+        // pass in container name in order to close container after execution
+        // pass test file path to mocha so it executes only this test file, and not all test files each run
+        var processedPythonCodeTemplate = this.PythonCodeTemplate
+            .Replace(ContainerNamePlaceholder, this.ContainerName)
+            .Replace(TestFilePathPlaceholder, filePath)
+            .Replace(KillContainerPlaceholder, "True");
+
+        var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
+
+        var testsConcatenated = string.Join(
+            $"{Environment.NewLine}{Environment.NewLine}",
+            executionContext
+                .Input
+                .Tests
+                .Select(t => t.Input));
+
+        var skeletonWithTests = executionContext
+            .Input
+            .TaskSkeletonAsString
+            .Replace(MochaTestsPlaceholder, testsConcatenated);
+
+        FileHelpers.SaveStringToFile(
+            this.PreprocessTestInput(skeletonWithTests),
+            filePath);
+
+        var processExecutionResult = await this.Execute(executionContext, executor, mainCodeSavePath);
+
+        var testResults = this.ExtractTestResultsFromReceivedOutput(
+            processExecutionResult.ReceivedOutput,
+            executionContext.Input.Tests);
+
+        result.Results.AddRange(testResults);
+
+        return result;
+    }
+
+    private static Dictionary<string, int> MapTitlesToTestId(IEnumerable<TestContext> tests, IEnumerable<string> titles)
+    {
+        try
+        {
+            return titles.ToDictionary(
+                title => title,
+                title => tests.FirstOrDefault(t => t
+                        .Input
+                        .Contains(title
+                            .Replace(MochaTestsFullTitlePrefix, string.Empty)
+                            .Trim()))?
+                    .Id ?? 0);
+        }
+        catch (ArgumentException exception)
+        {
+            var keyStr = "Key:";
+            var testName = exception.Message
+                .Substring(exception.Message.IndexOf(keyStr, StringComparison.Ordinal) + keyStr.Length)
+                .Trim();
+
+            throw new ConfigurationException($"Duplicate naming of tests: {testName}");
+        }
+    }
+
+    private static void ValidateAllowedFileExtension<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        var trimmedAllowedFileExtensions = executionContext.AllowedFileExtensions?.Trim();
+        var allowedFileExtensions = (!trimmedAllowedFileExtensions?.StartsWith(".") ?? false)
+            ? $".{trimmedAllowedFileExtensions}"
+            : trimmedAllowedFileExtensions;
+
+        if (allowedFileExtensions != ZipFileExtension)
+        {
+            throw new SolutionException("The submission file is not a zip file!");
+        }
+    }
+
+    private static string PreproccessReceivedExecutionOutput(string receivedOutput)
+        => receivedOutput
+            .Trim()
+            .Replace("b'", string.Empty)
+            .Replace("}'", "}")
+            .Replace("}None", "}");
+
+    private static IEnumerable<(string, string)> GetNodeModules(string testInputContent)
+    {
+        var requirePattern = new Regex(NodeModulesRequirePattern);
+        var results = requirePattern.Matches(testInputContent);
+        var nodeModules = new List<(string, string)>();
+
+        foreach (Match match in results)
+        {
+            var fullRequireStatement = match.Groups[0].ToString();
+            var nodeModuleName = match.Groups[2].ToString();
+            nodeModules.Add((nodeModuleName, fullRequireStatement));
         }
 
-        private static string PreproccessReceivedExecutionOutput(string receivedOutput)
-            => receivedOutput
-                .Trim()
-                .Replace("b'", string.Empty)
-                .Replace("}'", "}")
-                .Replace("}None", "}");
+        return nodeModules;
+    }
 
-        private static IEnumerable<(string, string)> GetNodeModules(string testInputContent)
+    private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        ValidateAllowedFileExtension(executionContext);
+
+        var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
+        File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
+        using (var zip = ZipFile.Read(submissionFilePath))
         {
-            var requirePattern = new Regex(NodeModulesRequirePattern);
-            var results = requirePattern.Matches(testInputContent);
-            var nodeModules = new List<(string, string)>();
-
-            foreach (Match match in results)
-            {
-                var fullRequireStatement = match.Groups[0].ToString();
-                var nodeModuleName = match.Groups[2].ToString();
-                nodeModules.Add((nodeModuleName, fullRequireStatement));
-            }
-
-            return nodeModules;
+            zip.RemoveSelectedEntries("node_modules/*");
+            zip.Save();
         }
 
-        private void ExtractSubmissionFiles<TInput>(IExecutionContext<TInput> executionContext)
+        FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+        FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
+
+        if (executionContext.AdditionalFiles.Length != 0)
         {
-            ValidateAllowedFileExtension(executionContext);
-
-            var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
-            File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
-            using (var zip = ZipFile.Read(submissionFilePath))
-            {
-                zip.RemoveSelectedEntries("node_modules/*");
-                zip.Save();
-            }
-
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-            FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
-
-            if (executionContext.AdditionalFiles.Length != 0)
-            {
-                var additionalFilesPath = FileHelpers.BuildPath(this.WorkingDirectory, "additionalFiles");
-                File.WriteAllBytes(additionalFilesPath, executionContext.AdditionalFiles);
-                FileHelpers.UnzipFileAndOverwriteExistingFiles(additionalFilesPath, this.UserApplicationPath);
-            }
-
-            Directory.CreateDirectory(this.TestsPath);
-            Directory.CreateDirectory(this.NginxConfFileDirectory);
+            var additionalFilesPath = FileHelpers.BuildPath(this.WorkingDirectory, "additionalFiles");
+            File.WriteAllBytes(additionalFilesPath, executionContext.AdditionalFiles);
+            FileHelpers.UnzipFileAndOverwriteExistingFiles(additionalFilesPath, this.UserApplicationPath);
         }
 
-        private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, IEnumerable<TestContext> tests)
+        Directory.CreateDirectory(this.TestsPath);
+        Directory.CreateDirectory(this.NginxConfFileDirectory);
+    }
+
+    private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, IEnumerable<TestContext> tests)
+    {
+        JsonExecutionResult mochaResult = JsonExecutionResult.Parse(PreproccessReceivedExecutionOutput(receivedOutput));
+        if (mochaResult.TotalTests == 0)
         {
-            JsonExecutionResult mochaResult = JsonExecutionResult.Parse(PreproccessReceivedExecutionOutput(receivedOutput));
-            if (mochaResult.TotalTests == 0)
-            {
-                return tests
-                    .Select(t => new TestResult
+            return tests
+                .Select(t => new TestResult
+                {
+                    Id = t.Id,
+                    IsTrialTest = t.IsTrialTest,
+                    ResultType = TestRunResultType.WrongAnswer,
+                    CheckerDetails = new CheckerDetails
                     {
-                        Id = t.Id,
-                        IsTrialTest = t.IsTrialTest,
-                        ResultType = TestRunResultType.WrongAnswer,
-                        CheckerDetails = new CheckerDetails
-                        {
-                            UserOutputFragment = receivedOutput,
-                        },
-                    })
-                    .ToList();
-            }
-
-            var titlesToTestsMapping = MapTitlesToTestId(
-                tests, mochaResult.TestTitles);
-
-            return mochaResult.TestErrors
-                .Select((test, index) => this.ParseTestResult(test, titlesToTestsMapping, index, mochaResult.TestTitles))
+                        UserOutputFragment = receivedOutput,
+                    },
+                })
                 .ToList();
         }
 
-        private TestResult ParseTestResult(string? testResult, Dictionary<string, int> titlesToTestsMapping, int index, List<string> testTitles)
-        {
-            var isTimeout = false;
-            if (testResult != null)
-            {
-                isTimeout = this.testTimeoutRegex.IsMatch(testResult);
-            }
+        var titlesToTestsMapping = MapTitlesToTestId(
+            tests, mochaResult.TestTitles);
 
-            return new TestResult
-            {
-                Id = titlesToTestsMapping[testTitles[index]],
-                IsTrialTest = false,
-                ResultType = testResult == null
-                                ? TestRunResultType.CorrectAnswer
-                                : isTimeout
-                                    ? TestRunResultType.TimeLimit
-                                    : TestRunResultType.WrongAnswer,
-                CheckerDetails = new CheckerDetails
-                {
-                    Comment = string.Empty,
-                    ExpectedOutputFragment = string.Empty,
-                    UserOutputFragment = isTimeout
-                        ? $"{testTitles[index]}\n{testResult}"
-                        : testResult,
-                },
-            };
-        }
-
-        private string SavePythonCodeTemplateToTempFile(string codeTemplate)
-        {
-            var pythonCodeTemplate = codeTemplate.Replace("\\", "\\\\");
-            return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
-        }
-
-        private void SaveNginxFile()
-        {
-            var nginxCorrectedContent = NginxFileContent.Replace("{{", "{").Replace("}}", "}");
-            FileHelpers.SaveStringToFile(nginxCorrectedContent, this.NginxConfFileFullPath);
-        }
-
-        private string ReplaceNodeModulesRequireStatementsInTests(string testInputContent)
-        {
-            GetNodeModules(testInputContent)
-                .ToList()
-                .ForEach(nodeModule =>
-                {
-                    var (name, requireStatement) = nodeModule;
-                    testInputContent = this.FixPathsForNodeModule(testInputContent, name, requireStatement);
-                });
-
-            return testInputContent;
-        }
-
-        private string FixPathsForNodeModule(string testInputContent, string name, string requireStatement)
-        {
-            var path = this.GetNodeModulePathByName(name);
-
-            var fixedRequireStatement = requireStatement.Replace(name, path)
-                .Replace("\\", "\\\\");
-
-            return testInputContent.Replace(requireStatement, fixedRequireStatement);
-        }
-
-        private string? GetNodeModulePathByName(string name)
-        {
-            switch (name)
-            {
-                case "mocha":
-                    return this.Settings.MochaModulePath;
-                case "chai":
-                    return this.Settings.ChaiModulePath;
-                case "playwright-chromium":
-                    return this.Settings.PlaywrightChromiumModulePath;
-                default:
-                    return null;
-            }
-        }
-
-        private string PreprocessTestInput(string testInput)
-        {
-            testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
-                .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
-
-            return testInput.Replace("localhost", "host.docker.internal");
-        }
-
-        private string BuildTestPath(string fileName) => FileHelpers.BuildPath(this.TestsPath, $"{fileName}{JavaScriptFileExtension}");
+        return mochaResult.TestErrors
+            .Select((test, index) => this.ParseTestResult(test, titlesToTestsMapping, index, mochaResult.TestTitles))
+            .ToList();
     }
+
+    private TestResult ParseTestResult(string? testResult, Dictionary<string, int> titlesToTestsMapping, int index, List<string> testTitles)
+    {
+        var isTimeout = false;
+        if (testResult != null)
+        {
+            isTimeout = this.testTimeoutRegex.IsMatch(testResult);
+        }
+
+        return new TestResult
+        {
+            Id = titlesToTestsMapping[testTitles[index]],
+            IsTrialTest = false,
+            ResultType = testResult == null
+                            ? TestRunResultType.CorrectAnswer
+                            : isTimeout
+                                ? TestRunResultType.TimeLimit
+                                : TestRunResultType.WrongAnswer,
+            CheckerDetails = new CheckerDetails
+            {
+                Comment = string.Empty,
+                ExpectedOutputFragment = string.Empty,
+                UserOutputFragment = isTimeout
+                    ? $"{testTitles[index]}\n{testResult}"
+                    : testResult,
+            },
+        };
+    }
+
+    private string SavePythonCodeTemplateToTempFile(string codeTemplate)
+    {
+        var pythonCodeTemplate = codeTemplate.Replace("\\", "\\\\");
+        return FileHelpers.SaveStringToTempFile(this.WorkingDirectory, pythonCodeTemplate);
+    }
+
+    private void SaveNginxFile()
+    {
+        var nginxCorrectedContent = NginxFileContent.Replace("{{", "{").Replace("}}", "}");
+        FileHelpers.SaveStringToFile(nginxCorrectedContent, this.NginxConfFileFullPath);
+    }
+
+    private string ReplaceNodeModulesRequireStatementsInTests(string testInputContent)
+    {
+        GetNodeModules(testInputContent)
+            .ToList()
+            .ForEach(nodeModule =>
+            {
+                var (name, requireStatement) = nodeModule;
+                testInputContent = this.FixPathsForNodeModule(testInputContent, name, requireStatement);
+            });
+
+        return testInputContent;
+    }
+
+    private string FixPathsForNodeModule(string testInputContent, string name, string requireStatement)
+    {
+        var path = this.GetNodeModulePathByName(name);
+
+        var fixedRequireStatement = requireStatement.Replace(name, path)
+            .Replace("\\", "\\\\");
+
+        return testInputContent.Replace(requireStatement, fixedRequireStatement);
+    }
+
+    private string? GetNodeModulePathByName(string name)
+    {
+        switch (name)
+        {
+            case "mocha":
+                return this.Settings.MochaModulePath;
+            case "chai":
+                return this.Settings.ChaiModulePath;
+            case "playwright-chromium":
+                return this.Settings.PlaywrightChromiumModulePath;
+            default:
+                return null;
+        }
+    }
+
+    private string PreprocessTestInput(string testInput)
+    {
+        testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
+            .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+
+        return testInput.Replace("localhost", "host.docker.internal");
+    }
+
+    private string BuildTestPath(string fileName) => FileHelpers.BuildPath(this.TestsPath, $"{fileName}{JavaScriptFileExtension}");
 }

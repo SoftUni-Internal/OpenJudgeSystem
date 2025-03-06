@@ -1,3 +1,5 @@
+import { ExceptionType } from 'src/common/enums';
+
 import { ITestRunType } from '../hooks/submissions/types';
 
 import { TestRunResultType } from './constants';
@@ -34,6 +36,23 @@ const getResultTypeText = (resultType: number) => {
     }
 };
 
+const getExceptionTypeMessage = (resultType?: number) => {
+    switch (resultType) {
+    case ExceptionType.Solution:
+        return 'An error related to the user\'s submission occurred.';
+    case ExceptionType.Configuration:
+        return 'An error related to the problem\'s configurations ( settings / skeleton / tests ) occurred.';
+    case ExceptionType.Remote:
+        return 'A connectivity issue occurred. Please contact a developer.';
+    case ExceptionType.Other:
+        return 'An unexpected error occurred. Please contact a developer.';
+    case ExceptionType.Strategy:
+        return 'An error related to the strategy occurred. Please contact a developer.';
+    default:
+        return 'A processing error occurred:';
+    }
+};
+
 const sortTestRunsByTrialTest = (a: ITestRunType, b: ITestRunType) => {
     if (a.isTrialTest && !b.isTrialTest) {
         return -1;
@@ -49,4 +68,5 @@ export {
     getTestResultColorId,
     getResultTypeText,
     sortTestRunsByTrialTest,
+    getExceptionTypeMessage,
 };
