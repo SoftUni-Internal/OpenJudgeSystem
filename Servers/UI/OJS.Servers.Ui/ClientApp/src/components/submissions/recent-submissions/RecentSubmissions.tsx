@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import { SubmissionStatus } from 'src/common/enums';
 import {
-    applyDefaultFilterToQueryString,
-} from 'src/components/filters/ColumnFilters';
+    applyDefaultQueryValues,
+} from 'src/components/filters/Filter';
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 
 import { IDictionary } from '../../../common/common-types';
@@ -38,15 +38,8 @@ const selectedSubmissionsStateMapping = {
 
 const RecentSubmissions = () => {
     const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
-    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(() => {
-        const page = searchParams.get('page')
-            ? parseInt(searchParams.get('page')!, 10)
-            : 1;
-        return {
-            ...applyDefaultFilterToQueryString('', '', searchParams),
-            page,
-        };
-    });
+    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(applyDefaultQueryValues(searchParams));
+    const [ status, setStatus ] = useState<SubmissionStatus>(SubmissionStatus.All);
     const [ selectedActive, setSelectedActive ] = useState<number>(1);
     const [ shouldLoadRegularUserSubmissions, setShouldLoadRegularUserSubmissions ] = useState<boolean>(false);
 
@@ -67,7 +60,7 @@ const RecentSubmissions = () => {
         isFetching: regularUserIsFetching,
         data: regularUserData,
     } = useGetLatestSubmissionsQuery(
-        queryParams,
+        { ...queryParams, status },
         { skip: !shouldLoadRegularUserSubmissions },
     );
 
@@ -98,7 +91,7 @@ const RecentSubmissions = () => {
 
     useEffect(() => {
         if (loggedInUserInRole) {
-            getLatestSubmissionsInRole(queryParams);
+            getLatestSubmissionsInRole({ ...queryParams, status });
             getUnprocessedSubmissionsCount(null);
         }
     }, [
@@ -106,7 +99,6 @@ const RecentSubmissions = () => {
         getLatestSubmissionsInRole,
         getUnprocessedSubmissionsCount,
         queryParams.page,
-        queryParams.status,
         queryParams.filter,
         queryParams.sorting,
     ]);
@@ -125,29 +117,17 @@ const RecentSubmissions = () => {
         }
     }, [ inRoleData, inRoleSubmissionsReady, regularUserData, regularUserSubmissionsReady ]);
 
-    const handlePageChange = useCallback((newPage: number) => {
-        setQueryParams((prev) => {
-            const updatedParams = { ...prev, page: newPage };
-            setSearchParams((prevParams) => {
-                const newParams = new URLSearchParams(prevParams);
-                newParams.set('page', newPage.toString());
-                return newParams;
-            });
-            return updatedParams;
-        });
-    }, [ setSearchParams ]);
-
     const handleSelectSubmissionState = useCallback(
         (typeKey: number) => {
             if (selectedActive) {
                 setQueryParams({
-                    status: typeKey,
                     page: 1,
                     itemsPerPage: queryParams.itemsPerPage,
                     filter: queryParams.filter,
                     sorting: queryParams.sorting,
                 });
 
+                setStatus(typeKey);
                 setSelectedActive(typeKey);
             }
         },
@@ -256,7 +236,6 @@ const RecentSubmissions = () => {
                           className={styles.recentSubmissionsGrid}
                           isDataLoaded={!areSubmissionsLoading}
                           submissions={latestSubmissions}
-                          handlePageChange={handlePageChange}
                           options={{
                               showDetailedResults: user.isAdmin,
                               showTaskDetails: true,

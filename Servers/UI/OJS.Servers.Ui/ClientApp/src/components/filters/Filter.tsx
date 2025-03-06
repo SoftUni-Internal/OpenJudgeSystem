@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable import/group-exports */
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { SetURLSearchParams } from 'react-router-dom';
+import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -12,17 +12,15 @@ import { GridColDef } from '@mui/x-data-grid';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { IDictionary } from 'src/common/common-types';
 import { FilterColumnTypeEnum } from 'src/common/enums';
-import { IEnumType, ISingleColumnFilter } from 'src/common/types';
+import { IEnumType, IFilterColumn } from 'src/common/types';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import Dropdown from 'src/components/guidelines/dropdown/Dropdown';
-import { defaultFilterToAdd } from 'src/pages/administration-new/AdministrationGridView';
 import concatClassNames from 'src/utils/class-names';
-import { DEFAULT_ITEMS_PER_PAGE } from 'src/utils/constants';
 import { getDateAsLocal } from 'src/utils/dates';
 
 import useTheme from '../../hooks/use-theme';
 
-import styles from './ColumnFilters.module.scss';
+import styles from './Filter.module.scss';
 
 interface IFiltersColumnOperators {
     name: string;
@@ -31,9 +29,9 @@ interface IFiltersColumnOperators {
 }
 
 interface IFilterProps {
-    filterColumn: ISingleColumnFilter;
+    filterColumn: IFilterColumn;
     searchParams?: URLSearchParams;
-    setSearchParams?: SetURLSearchParams;
+    setSearchParams?: (params: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void;
     allFilters: IDictionary<Array<IFilter>>;
     setAllFilters: Dispatch<SetStateAction<IDictionary<Array<IFilter>>>>;
     withSearchParams?: boolean;
@@ -49,7 +47,7 @@ interface IFilter {
     value: string;
     inputType: FilterColumnTypeEnum;
     availableOperators?: IFiltersColumnOperators[];
-    availableColumns: ISingleColumnFilter[];
+    availableColumns: IFilterColumn[];
 }
 
 const DROPDOWN_OPERATORS = {
@@ -73,8 +71,8 @@ const DROPDOWN_OPERATORS = {
         { name: 'Greater Than Or Equal', id: 'Greater Than Or Equal', value: 'greaterthanorequal' },
     ],
     [FilterColumnTypeEnum.DATE]: [
-        // Commented because it is not working
-        { name: 'Equals', id: 'Equals', value: 'equals' },
+        // Commented out because it does not work
+        // { name: 'Equals', id: 'Equals', value: 'equals' },
         { name: 'Greater Than', id: 'Greater Than', value: 'greaterthan' },
         { name: 'Less Than', id: 'Less Than', value: 'lessthan' },
         { name: 'Less Than Or Equal', id: 'Less Than Or Equal', value: 'lessthanorequal' },
@@ -109,10 +107,8 @@ const mapStringToFilterColumnTypeEnum = (type: string) => {
 
 const filterSeparator = '&&;';
 const filterParamsSeparator = '~';
-const sorterSeparator = '&';
-const sorterParamSeparator = '=';
 
-const ColumnFilters = (props: IFilterProps) => {
+const Filter = (props: IFilterProps) => {
     const { isDarkMode } = useTheme();
     const {
         filterColumn,
@@ -174,34 +170,6 @@ const ColumnFilters = (props: IFilterProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    useEffect(() => {
-        if (!searchParams || !setSearchParams || !setQueryParams) {
-            return;
-        }
-
-        const formatFilterToString = (filter: IFilter) => filter.column && filter.operator && filter.value
-            ? `${filter.id}${filterParamsSeparator}${filter.operator}${filterParamsSeparator}${filter.value}`.toLowerCase()
-            : null;
-
-        const filtersFormattedArray = Object.values(allFilters)
-            .flat()
-            .map(formatFilterToString)
-            .filter(Boolean) as string[];
-
-        const newFilterValue = filtersFormattedArray.join(filterSeparator);
-
-        if (!filtersFormattedArray.length) {
-            if (searchParams.has('filter')) {
-                searchParams.delete('filter');
-                setSearchParams(searchParams);
-            }
-        } else if (searchParams.get('filter') !== newFilterValue) {
-            searchParams.set('filter', newFilterValue);
-            setSearchParams(searchParams);
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ allFilters ]);
-
     const handleOpenClick = (event: React.MouseEvent<HTMLElement>) => {
         if (isOpen) {
             onToggleFilter(null);
@@ -218,11 +186,10 @@ const ColumnFilters = (props: IFilterProps) => {
     };
 
     const updateQueryParams = (filters?: IDictionary<Array<IFilter>>) => {
-        if (!setQueryParams) {
+        if (!setQueryParams || !setSearchParams) {
             return;
         }
 
-        // Use the passed filters if available, otherwise default to allFilters
         const filtersToUse = filters || allFilters;
 
         const formatFilterToString = (filter: IFilter) => filter.column && filter.operator && filter.value
@@ -239,7 +206,14 @@ const ColumnFilters = (props: IFilterProps) => {
         setQueryParams((currentParams) => ({
             ...currentParams,
             filter: newFilterValue || '',
+            page: 1,
         }));
+
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('filter', newFilterValue || '');
+        newParams.set('page', '1');
+
+        setSearchParams(Object.fromEntries(newParams));
     };
 
     const addFilter = () => {
@@ -263,14 +237,23 @@ const ColumnFilters = (props: IFilterProps) => {
     };
 
     const removeAllFilters = () => {
+        const newFilter: IFilter = {
+            id: filterColumn.id,
+            column: filterColumn.name,
+            operator: '',
+            value: '',
+            availableOperators: DROPDOWN_OPERATORS[filterColumn.columnType] || [],
+            availableColumns: [ filterColumn ],
+            inputType: filterColumn.columnType,
+        };
+
         setAllFilters((prevFilters) => {
             const updatedFilters = { ...prevFilters };
             delete updatedFilters[filterColumn.name];
 
-            // Call updateQueryParams with the latest filters
             updateQueryParams(updatedFilters);
 
-            return updatedFilters;
+            return { ...updatedFilters, [newFilter.column]: [ newFilter ] };
         });
     };
 
@@ -280,18 +263,16 @@ const ColumnFilters = (props: IFilterProps) => {
 
             let updatedFilters: IDictionary<Array<IFilter>>;
             if (filtersForColumn.length <= 1) {
-                // If only one filter exists, remove the entire key
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { [filterColumn.name]: _, ...remainingFilters } = prevFilters;
                 updatedFilters = remainingFilters;
             } else {
-                // Remove only the selected filter
                 updatedFilters = {
                     ...prevFilters,
                     [filterColumn.name]: filtersForColumn.filter((_, index) => index !== idx),
                 };
             }
 
-            // Call updateQueryParams with the latest filters
             updateQueryParams(updatedFilters);
 
             return updatedFilters;
@@ -429,6 +410,10 @@ const ColumnFilters = (props: IFilterProps) => {
                               border: '2px solid #42abf8',
                           },
                       },
+                      popper: {
+                          placement: 'bottom-start',
+                          disablePortal: true,
+                      },
                   }}
                 />
             );
@@ -459,7 +444,7 @@ const ColumnFilters = (props: IFilterProps) => {
                 />
             </div>
 
-            <Dropdown<ISingleColumnFilter>
+            <Dropdown<IFilterColumn>
               dropdownItems={selectedFilters[idx].availableColumns}
               value={filterColumn}
               minWidth={250}
@@ -540,13 +525,8 @@ const ColumnFilters = (props: IFilterProps) => {
     );
 };
 
-/**
- * Maps columns from the grid to an array with property name, type and enum values (when there is a column of type 'enum').
- * @param {GridColDef& IEnumType} dataColumns The grid columns that will be mapped.
- * @returns {Array<IFilter>} Return the grid col definitions mapped to an easy to use object.
- */
 const mapGridColumnsToAdministrationFilterProps =
-    (dataColumns: Array<GridColDef & IEnumType>): ISingleColumnFilter[] => dataColumns.map((column) => {
+    (dataColumns: Array<GridColDef & IEnumType>): IFilterColumn[] => dataColumns.map((column) => {
         const mappedEnumType = mapStringToFilterColumnTypeEnum(column.type || '');
         return {
             id: column.headerName?.replace(/\s/g, '') ?? '',
@@ -555,16 +535,10 @@ const mapGridColumnsToAdministrationFilterProps =
             enumValues: mappedEnumType === FilterColumnTypeEnum.ENUM
                 ? column.enumValues?.map((value) => ({ id: value, name: value }))
                 : null,
-        } as ISingleColumnFilter;
+        } as IFilterColumn;
     });
 
-/**
- * Maps the filter parameter from the search bar to Array<IFilter> that will later be united with the default filter and will set the initial default filters.
- * @param {URLSearchParams} urlSearchParams Search params that will be mapped to IFilter.
- * @param {Array<string>} columns The sorting columns as an Array<ISingleColumnFilter>
- * @returns {Array<IFilter>} Return the filters from the search bar mapped as Array<IFilter>
- */
-const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: Array<ISingleColumnFilter>): IDictionary<Array<IFilter>> => {
+const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: Array<IFilterColumn>): IDictionary<Array<IFilter>> => {
     if (!urlSearchParams) {
         return {};
     }
@@ -602,7 +576,6 @@ const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: 
             inputType: column?.columnType || FilterColumnTypeEnum.STRING,
         };
 
-        // Add filter to the dictionary under its column name
         if (!urlSelectedFilters[column.name]) {
             urlSelectedFilters[column.name] = [];
         }
@@ -613,127 +586,45 @@ const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: 
     return urlSelectedFilters;
 };
 
-/**
- * Sets the initial Selected filters.
- * @param {GridColDef[]} gridColDef All filterable columns for the certain grid.
- * @param {URLSearchParams} searchParams Search params that will be mapped to IFilter.
- * @param {string} filterToAdd The default filter that must be added.
- * @returns {Array<IFilter>} Return the initial selected filters that will appear in the search bar.
- */
-const addDefaultFilter = (
-    gridColDef: GridColDef[],
+const applyDefaultQueryValues = (
     searchParams: URLSearchParams,
-    filterToAdd: string = defaultFilterToAdd,
-): IDictionary<Array<IFilter>> => {
-    const columns = mapGridColumnsToAdministrationFilterProps(gridColDef);
-    const filters = mapUrlToFilters(searchParams, columns); // Now a dictionary
-
-    const paramChunks = filterToAdd.split(filterParamsSeparator);
-    const columnValue = paramChunks[0];
-    const operator = paramChunks[1];
-    const value = paramChunks[2];
-
-    if (!columns.some((x) => x.name.toLowerCase() === columnValue)) {
-        return filters; // No matching column found, return existing filters
-    }
-
-    const column = columns.find((c) => c.name.toLowerCase() === columnValue) || {
-        id: columnValue, // Ensure a valid `id`
-        name: columnValue,
-        columnType: FilterColumnTypeEnum.STRING,
-    };
-
-    const availableColumns = columns.filter((c) => !Object.values(filters).flat().some((f) => f.column === c.name));
-    const availableOperators = column?.columnType
-        ? DROPDOWN_OPERATORS[column.columnType]
-        : [];
-
-    const newFilter: IFilter = {
-        id: column.id,
-        column: column.name,
-        operator,
-        value,
-        availableOperators,
-        availableColumns: [ ...availableColumns, column ], // Ensure `column` is always valid
-        inputType: column.columnType,
-    };
-
-    // Initialize the key if it doesn't exist
-    if (!filters[column.name]) {
-        filters[column.name] = [];
-    }
-
-    // Ensure we don't duplicate the default filter
-    const existingFilters = filters[column.name];
-    if (!existingFilters.some((f) => f.column.toLowerCase() === columnValue.toLowerCase())) {
-        filters[column.name] = [ newFilter, ...existingFilters ];
-    }
-
-    return { ...filters }; // Ensure immutability by returning a new object reference
-};
-
-const applyQueryParam = (
-    separator: string,
-    paramSeparator: string,
-    param: string | null,
-    skipDefault: boolean,
-    defaultParamValue: string,
-) => {
-    if (!defaultParamValue) {
-        return param || '';
-    }
-
-    const defaultParamArray = defaultParamValue.split(separator);
-    const valueToReturn = param
-        ? param.split(separator)
-        : [];
-
-    if (!param) {
-        return skipDefault
-            ? ''
-            : defaultParamValue;
-    }
-
-    // Ensure default values are added only if they don't exist in `param`
-    defaultParamArray.forEach((defaultValue) => {
-        const prop = defaultValue.split(paramSeparator)[0];
-
-        if (!valueToReturn.some((existing) => existing.startsWith(prop))) {
-            valueToReturn.push(defaultValue);
-        }
-    });
-
-    return valueToReturn.join(separator);
-};
-
-const applyDefaultFilterToQueryString = (
-    defaultFilter: string,
-    defaultSorter: string,
-    searchParams?: URLSearchParams,
-    skipDefault: boolean = false,
-    page: number = 1,
+    page?: number,
     itemsPerPage: number = 6,
-): IGetSubmissionsUrlParams => {
-    let filter = searchParams?.get('filter') || '';
-    let sorting = searchParams?.get('sorting') || '';
+): IGetSubmissionsUrlParams => ({
+    page: page ?? searchParams.get('page')
+        ? parseInt(searchParams.get('page')!, 10)
+        : 1,
+    itemsPerPage,
+    filter: '',
+    sorting: '',
+} as IGetSubmissionsUrlParams);
 
-    filter = applyQueryParam(filterSeparator, filterParamsSeparator, filter, skipDefault, defaultFilter);
-    sorting = applyQueryParam(sorterSeparator, sorterParamSeparator, sorting, skipDefault, defaultSorter);
+const handlePageChange = (
+    setQueryParams: Dispatch<React.SetStateAction<IGetSubmissionsUrlParams>>,
+    setSearchParams: (params: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void,
+    newPage: number,
+) => {
+    setQueryParams((prev) => {
+        const updatedParams = { ...prev, page: newPage };
 
-    return {
-        page,
-        itemsPerPage,
-        filter,
-        sorting,
-    } as IGetSubmissionsUrlParams;
+        const newParams = new URLSearchParams();
+        Object.entries(updatedParams).forEach(([ key, value ]) => {
+            if (value !== undefined && value !== null) {
+                newParams.set(key, value.toString());
+            }
+        });
+
+        setSearchParams(newParams);
+        return updatedParams;
+    });
 };
 
 export {
     type IFilter,
     mapGridColumnsToAdministrationFilterProps,
-    addDefaultFilter,
     mapUrlToFilters,
-    applyDefaultFilterToQueryString,
+    applyDefaultQueryValues,
+    handlePageChange,
 };
 
-export default ColumnFilters;
+export default Filter;

@@ -29,18 +29,13 @@ public class SubmissionsController(
     /// <summary>
     /// Gets all user submissions. Prepared for the user's profile page.
     /// </summary>
-    /// <param name="username">Username of the profile's owner.</param>
-    /// <param name="page">The current page number.</param>
-    /// <param name="itemsPerPage">Items count per page in paged result.</param>
-    /// <returns>A page with submissions containing information about their score and user.</returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<FullDetailsPublicSubmissionsResponseModel>), Status200OK)]
     public async Task<IActionResult> GetUserSubmissions(
         [FromQuery] string username,
-        [FromQuery] int page,
-        [FromQuery] int itemsPerPage = DefaultSubmissionResultsPerPage)
+        [FromQuery] PaginationRequestModel requestModel)
         => await submissionsBusiness
-            .GetByUsername<FullDetailsPublicSubmissionsServiceModel>(username, page, itemsPerPage)
+            .GetByUsername<FullDetailsPublicSubmissionsServiceModel>(username, requestModel)
             .Map<PagedResultResponse<FullDetailsPublicSubmissionsResponseModel>>()
             .ToOkResult();
 
@@ -70,7 +65,7 @@ public class SubmissionsController(
     /// </summary>
     /// <param name="problemId">The id of the problem.</param>
     /// <param name="isOfficial">Should the submissions be only from compete mode.</param>
-    /// <param name="page">Current submissions page.</param>
+    /// <param name="requestModel">Contains information regarding the current request - filter, sorter, page, itemsPerPage, etc.</param>
     /// <returns>A collection of submissions for a specific problem.</returns>
     [HttpGet("{problemId:int}")]
     [Authorize]
@@ -82,9 +77,9 @@ public class SubmissionsController(
     public async Task<IActionResult> GetUserSubmissionsByProblem(
         int problemId,
         [FromQuery] bool isOfficial,
-        [FromQuery] int page)
+        [FromQuery] PaginationRequestModel requestModel)
         => await submissionsBusiness
-            .GetUserSubmissionsByProblem(problemId, isOfficial, page)
+            .GetUserSubmissionsByProblem(problemId, isOfficial, requestModel)
             .Map<PagedResultResponse<FullDetailsPublicSubmissionsResponseModel>>()
             .ToOkResult();
 

@@ -1,10 +1,10 @@
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react';
-import { SetURLSearchParams } from 'react-router-dom';
+import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import isEmpty from 'lodash/isEmpty';
 import { IDictionary } from 'src/common/common-types';
 import { FilterColumnTypeEnum } from 'src/common/enums';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
-import ColumnFilters, { IFilter, mapUrlToFilters } from 'src/components/filters/ColumnFilters';
+import Filter, { handlePageChange, IFilter, mapUrlToFilters } from 'src/components/filters/Filter';
 
 import { IPagedResultType, IPublicSubmission } from '../../../common/types';
 import useTheme from '../../../hooks/use-theme';
@@ -19,10 +19,9 @@ import styles from './SubmissionsGrid.module.scss';
 interface ISubmissionsGridProps extends IHaveOptionalClassName {
     isDataLoaded: boolean;
     submissions?: IPagedResultType<IPublicSubmission>;
-    handlePageChange: (page: number) => void;
     options: ISubmissionsGridOptions;
     searchParams: URLSearchParams;
-    setSearchParams: SetURLSearchParams;
+    setSearchParams: (params: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void;
     setQueryParams: Dispatch<SetStateAction<IGetSubmissionsUrlParams>>;
 }
 
@@ -38,7 +37,6 @@ const SubmissionsGrid = ({
     className,
     isDataLoaded,
     submissions,
-    handlePageChange,
     options,
     searchParams,
     setSearchParams,
@@ -51,12 +49,14 @@ const SubmissionsGrid = ({
         { name: 'ProblemName', id: 'Problem.Name', columnType: FilterColumnTypeEnum.STRING },
         { name: 'StrategyName', id: 'StrategyName', columnType: FilterColumnTypeEnum.STRING },
         { name: 'CreatedOn', id: 'CreatedOn', columnType: FilterColumnTypeEnum.DATE },
+        { name: 'Points', id: 'Result.Points', columnType: FilterColumnTypeEnum.NUMBER },
+        { name: 'IsCompete', id: 'IsOfficial', columnType: FilterColumnTypeEnum.BOOL },
     ]));
     const [ openFilter, setOpenFilter ] = useState<string | null>(null);
     const areItemsAvailable = useMemo(() => !isEmpty(submissions?.items), [ submissions?.items ]);
 
     const onPageChange = (page: number) => {
-        handlePageChange(page);
+        handlePageChange(setQueryParams, setSearchParams, page);
     };
 
     const handleToggleFilter = (filterId: string | null) => {
@@ -78,9 +78,15 @@ const SubmissionsGrid = ({
         if (options.showCompeteMarker) { colspan += 1; }
         if (options.showDetailedResults) { colspan += 1; }
         if (options.showSubmissionTypeInfo) { colspan += 1; }
+        if (options.showTaskDetails) { colspan += 1; }
         if (areItemsAvailable) { colspan += 1; }
         return colspan;
-    }, [ options.showCompeteMarker, options.showDetailedResults, options.showSubmissionTypeInfo, submissions?.items ]);
+    }, [
+        areItemsAvailable,
+        options.showCompeteMarker,
+        options.showDetailedResults,
+        options.showSubmissionTypeInfo,
+        options.showTaskDetails ]);
 
     const renderSubmissionsGrid = useCallback(() => (
         <table className={concatClassNames(className, styles.submissionsGrid)}>
@@ -88,7 +94,7 @@ const SubmissionsGrid = ({
                 <tr className={headerClassName}>
                     <td>
                         <div className={styles.header}>
-                            <ColumnFilters
+                            <Filter
                               filterColumn={{ id: 'Id', name: 'Id', columnType: FilterColumnTypeEnum.NUMBER }}
                               allFilters={selectedFilters}
                               setSearchParams={setSearchParams}
@@ -101,9 +107,10 @@ const SubmissionsGrid = ({
                             ID
                         </div>
                     </td>
+                    {options.showTaskDetails && (
                     <td>
                         <div className={styles.header}>
-                            <ColumnFilters
+                            <Filter
                               filterColumn={{
                                   id: 'Problem.Name',
                                   name: 'ProblemName',
@@ -117,14 +124,13 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
-                            {options.showTaskDetails
-                                ? 'Task'
-                                : ''}
+                            Task
                         </div>
                     </td>
+                    )}
                     <td>
                         <div className={styles.header}>
-                            <ColumnFilters
+                            <Filter
                               filterColumn={{
                                   id: 'CreatedOn',
                                   name: 'CreatedOn',
@@ -141,13 +147,51 @@ const SubmissionsGrid = ({
                             From
                         </div>
                     </td>
-                    {options.showCompeteMarker && <td />}
+                    {options.showCompeteMarker && (
+                    <td>
+                        <div className={styles.header}>
+                            <Filter
+                              filterColumn={{
+                                  id: 'IsOfficial',
+                                  name: 'IsCompete',
+                                  columnType: FilterColumnTypeEnum.BOOL,
+                              }}
+                              allFilters={selectedFilters}
+                              setSearchParams={setSearchParams}
+                              searchParams={searchParams}
+                              setAllFilters={setSelectedFilters}
+                              setQueryParams={setQueryParams}
+                              openFilter={openFilter}
+                              onToggleFilter={handleToggleFilter}
+                            />
+                            Mode
+                        </div>
+                    </td>
+                    )}
                     {options.showDetailedResults && <td>Time and Memory Used</td>}
-                    <td>Result</td>
+                    <td>
+                        <div className={styles.header}>
+                            <Filter
+                              filterColumn={{
+                                  id: 'Result.Points',
+                                  name: 'Points',
+                                  columnType: FilterColumnTypeEnum.NUMBER,
+                              }}
+                              allFilters={selectedFilters}
+                              setSearchParams={setSearchParams}
+                              searchParams={searchParams}
+                              setAllFilters={setSelectedFilters}
+                              setQueryParams={setQueryParams}
+                              openFilter={openFilter}
+                              onToggleFilter={handleToggleFilter}
+                            />
+                            Result
+                        </div>
+                    </td>
                     {options.showSubmissionTypeInfo && (
                     <td>
                         <div className={styles.header}>
-                            <ColumnFilters
+                            <Filter
                               filterColumn={{
                                   id: 'StrategyName',
                                   name: 'StrategyName',

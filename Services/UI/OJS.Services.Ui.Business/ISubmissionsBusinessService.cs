@@ -20,12 +20,11 @@
 
         Task<PagedResult<TServiceModel>> GetByUsername<TServiceModel>(
             string? username,
-            int page,
-            int itemsInPage = DefaultSubmissionsPerPage);
+            PaginationRequestModel requestModel);
 
         Task ProcessExecutionResult(SubmissionExecutionResult submissionExecutionResult);
 
-        Task<PagedResult<SubmissionForSubmitSummaryServiceModel>> GetUserSubmissionsByProblem(int problemId, bool isOfficial, int page);
+        Task<PagedResult<SubmissionForSubmitSummaryServiceModel>> GetUserSubmissionsByProblem(int problemId, bool isOfficial, PaginationRequestModel requestModel);
 
         Task<int> GetTotalCount();
 

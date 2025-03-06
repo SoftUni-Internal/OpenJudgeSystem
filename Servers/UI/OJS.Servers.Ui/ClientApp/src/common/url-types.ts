@@ -45,11 +45,23 @@ interface ISubmitContestPasswordParams {
 }
 
 interface IGetSubmissionsUrlParams {
-    status: SubmissionStatus;
     itemsPerPage: number;
     page: number;
     filter?: string;
     sorting?: string;
+}
+
+interface IGetRecentSubmissionsUrlParams extends IGetSubmissionsUrlParams {
+    status: SubmissionStatus;
+}
+
+interface IGetProfileSubmissionsUrlParams extends IGetSubmissionsUrlParams {
+    username: string;
+}
+
+interface IGetSubmissionResultsByProblemUrlParams extends IGetSubmissionsUrlParams {
+    problemId: number;
+    isOfficial: boolean;
 }
 
 interface IGetSubmissionsByUserParams {
@@ -109,6 +121,9 @@ export type {
     IContestDetailsUrlParams,
     IContestCategoriesUrlParams,
     IGetSubmissionsUrlParams,
+    IGetRecentSubmissionsUrlParams,
+    IGetProfileSubmissionsUrlParams,
+    IGetSubmissionResultsByProblemUrlParams,
     IGetContestResultsParams,
     IRetestSubmissionUrlParams,
     IGetUserSubmissionsUrlParams,

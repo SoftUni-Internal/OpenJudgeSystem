@@ -9,8 +9,12 @@ import {
     IGetUserSubmissionsUrlParams,
     IGetSubmissionsByUserParams,
     IRetestSubmissionUrlParams,
+    IGetRecentSubmissionsUrlParams,
+    IGetProfileSubmissionsUrlParams,
+    IGetSubmissionResultsByProblemUrlParams,
 } from '../../common/url-types';
 import { ISubmissionDetailsResponseType } from '../../hooks/submissions/types';
+import {SubmissionStatus} from "src/common/enums";
 
 const submissionsService = createApi({
     reducerPath: submissionsServiceName,
@@ -44,7 +48,7 @@ const submissionsService = createApi({
         // eslint-disable-next-line max-len
         getLatestSubmissions: builder.query<
             IPagedResultType<IPublicSubmission>,
-            IGetSubmissionsUrlParams>({
+            IGetRecentSubmissionsUrlParams>({
                 query: ({ status, itemsPerPage, page, filter, sorting }) => (
                     {
                         url: `Submissions/GetSubmissions`,
@@ -53,27 +57,27 @@ const submissionsService = createApi({
             }),
         getLatestSubmissionsInRole: builder.query<
             IPagedResultType<IPublicSubmission>,
-            IGetSubmissionsUrlParams>({
+            IGetRecentSubmissionsUrlParams>({
                 query: ({ status, itemsPerPage, page, filter, sorting }) => (
                     {
                         url: `Submissions/GetSubmissionsForUserInRole`,
                         params: { status, itemsPerPage, page, filter, sorting },
                     }),
             }),
-        getSubmissionResultsByProblem: builder.query<IPagedResultType<IPublicSubmission>, IGetSubmissionsByUserParams>({
-            query: ({ id, page, isOfficial }) => ({
-                url: `Submissions/GetUserSubmissionsByProblem/${id}`,
-                params: {
-                    isOfficial,
-                    page,
-                },
+        getSubmissionResultsByProblem: builder.query<IPagedResultType<IPublicSubmission>, IGetSubmissionResultsByProblemUrlParams>({
+            query: ({ problemId, isOfficial, itemsPerPage, page, filter, sorting }) => ({
+                url: `Submissions/GetUserSubmissionsByProblem/${problemId}`,
+                params: { isOfficial, itemsPerPage, page, filter, sorting },
             }),
         }),
         getUserSubmissions: builder.query<
             IPagedResultType<IPublicSubmission>,
-            IGetUserSubmissionsUrlParams>({
-                query: ({ username, page }) => (
-                    { url: `Submissions/GetUserSubmissions?username=${username}&page=${page}` }),
+            IGetProfileSubmissionsUrlParams>({
+                query: ({ username, itemsPerPage, page, filter, sorting }) => (
+                    {
+                        url: `Submissions/GetUserSubmissions`,
+                        params: { username, itemsPerPage, page, filter, sorting },
+                    }),
             }),
         getSubmissionDetails: builder.query<ISubmissionDetailsResponseType, { id: number }>({
             query: ({ id }) => (

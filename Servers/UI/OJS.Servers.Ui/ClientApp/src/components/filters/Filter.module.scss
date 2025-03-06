@@ -49,7 +49,7 @@
 
       .Mui-disabled {
         & .MuiInput-underline:before {
-          border-bottom-style: solid; // Change from dotted to solid
+          border-bottom-style: solid;
           border-bottom-color: colors.$background-color-btn-primary;
         }
       }
@@ -60,28 +60,28 @@
       }
 
       .MuiTypography-root {
-        color: colors.$dark-text-color !important; // Text inside the pop-up
+        color: colors.$dark-text-color !important;
       }
 
       .MuiPickersDay-root {
-        color: colors.$dark-text-color !important; // Date numbers
+        color: colors.$dark-text-color !important;
       }
 
       .MuiPickersDay-root.Mui-selected {
-        background-color: colors.$dark-base-color-400 !important; // Selected date background
+        background-color: colors.$dark-base-color-400 !important;
         color: colors.$dark-text-color !important;
       }
 
       .MuiPickersYear-yearButton {
-        color: colors.$dark-text-color !important; // Year selector text
+        color: colors.$dark-text-color !important;
       }
 
       .MuiClockNumber-root {
-        color: colors.$dark-text-color !important; // Clock numbers in time picker
+        color: colors.$dark-text-color !important;
       }
 
       .MuiIconButton-root {
-        color: colors.$dark-text-color !important; // Icons (e.g., navigation arrows)
+        color: colors.$dark-text-color !important;
       }
     }
   }

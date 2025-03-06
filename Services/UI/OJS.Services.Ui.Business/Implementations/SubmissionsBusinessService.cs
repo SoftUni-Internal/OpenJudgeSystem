@@ -269,8 +269,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
     public async Task<PagedResult<TServiceModel>> GetByUsername<TServiceModel>(
         string? username,
-        int page,
-        int itemsInPage = DefaultSubmissionsPerPage)
+        PaginationRequestModel requestModel)
     {
         if (!await this.usersBusiness.IsUserInRolesOrProfileOwner(
                 username,
@@ -286,17 +285,17 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             .Select(p => p.Id)
             .ToListAsync();
 
-        return await this.submissionsData
-            .GetLatestSubmissionsByUserParticipations<TServiceModel>(
-                userParticipantsIds,
-                itemsInPage,
-                page);
+        var query = this.submissionsData.GetLatestSubmissionsByUserParticipations(userParticipantsIds);
+
+        return await
+            this.ApplyFiltersAndSorters<TServiceModel>(requestModel, query)
+                .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
     }
 
     public async Task<PagedResult<SubmissionForSubmitSummaryServiceModel>> GetUserSubmissionsByProblem(
         int problemId,
         bool isOfficial,
-        int page)
+        PaginationRequestModel requestModel)
     {
         var problem =
             await this.problemsDataService.OneByIdTo<ProblemForSubmissionDetailsServiceModel>(problemId);
@@ -317,11 +316,13 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             throw new BusinessServiceException(validationResult.Message);
         }
 
-        var submissions = await this.submissionsData
+        var query = this.submissionsData
             .GetAllByProblemAndParticipant(problemId, participant!.Id)
-            .AsNoTracking()
-            .MapCollection<SubmissionForSubmitSummaryServiceModel>()
-            .ToPagedResultAsync(DefaultSubmissionResultsPerPage, page);
+            .AsNoTracking();
+
+        var submissions = await
+            this.ApplyFiltersAndSorters<SubmissionForSubmitSummaryServiceModel>(requestModel, query)
+                .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
 
         foreach (var submission in submissions.Items)
         {
@@ -573,47 +574,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 descending: true);
         }
 
-        // switch (status)
-        // {
-        //     case SubmissionStatus.Enqueued:
-        //         query = this.submissionsCommonData.GetAllEnqueued();
-        //         break;
-        //     case SubmissionStatus.Processing:
-        //         query = this.submissionsCommonData.GetAllProcessing();
-        //         break;
-        //     case SubmissionStatus.Pending:
-        //         query = this.submissionsCommonData.GetAllPending();
-        //         break;
-        //     case SubmissionStatus.All:
-        //     default:
-        //         return this.userProviderService.GetCurrentUser().IsAdminOrLecturer
-        //             ? await this.submissionsData
-        //                 .GetLatestSubmissions<TServiceModel>()
-        //                 .ToPagedResultAsync(itemsPerPage, page)
-        //             : await this.cache.Get(
-        //                 CacheConstants.LatestPublicSubmissions,
-        //                 async () =>
-        //                 {
-        //                     var submissions = await this.submissionsData
-        //                         .GetLatestSubmissions<TServiceModel>(DefaultSubmissionsPerPage)
-        //                         .ToListAsync();
-        //
-        //                     var totalItemsCount = await this.GetTotalCount();
-        //
-        //                     // Public submissions do not have pagination, but PagedResult is used for consistency.
-        //                     return new PagedResult<TServiceModel>
-        //                     {
-        //                         Items = submissions,
-        //                         TotalItemsCount = totalItemsCount,
-        //                         PageNumber = 1,
-        //                     };
-        //                 },
-        //                 CacheConstants.TwoMinutesInSeconds);
-        // }
-
         return await
             this.ApplyFiltersAndSorters<TServiceModel>(requestModel, query)
-            // .OrderByDescending(s => s.Id)
             .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
     }
 
