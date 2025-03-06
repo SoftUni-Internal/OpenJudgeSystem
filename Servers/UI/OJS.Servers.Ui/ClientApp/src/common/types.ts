@@ -431,6 +431,7 @@ interface IContestAdministration {
     contestPassword: string | null;
     practicePassword: string | null;
     limitBetweenSubmissions: number;
+    autoChangeLimitBetweenSubmissions: boolean;
     isVisible: boolean;
     visibleFrom: Date | null;
     newIpPassword: string | null;

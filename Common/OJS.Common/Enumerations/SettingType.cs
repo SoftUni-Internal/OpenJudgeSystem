@@ -7,4 +7,5 @@ public enum SettingType
     LongString = 3,
     DateTime = 4,
     Boolean = 5,
+    Json = 6,
 }

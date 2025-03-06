@@ -227,6 +227,7 @@ namespace OJS.Servers.Infrastructure.Extensions
             IConfiguration configuration)
         {
             services.AddTransient<IPublisherService, PublisherService>();
+            services.AddOptionsWithValidation<MessageQueueConfig>();
 
             var consumers = typeof(TStartup).Assembly
                 .GetExportedTypes()
@@ -381,6 +382,7 @@ namespace OJS.Servers.Infrastructure.Extensions
 
             services.AddHttpClient<IHttpClientService, HttpClientService>(ConfigureHttpClient);
             services.AddHttpClient<ISulsPlatformHttpClientService, SulsPlatformHttpClientService>(ConfigureHttpClient);
+            services.AddHttpClient<IRabbitMqHttpClient, RabbitMqHttpClient>(ConfigureHttpClient);
             services.AddHttpClient(ServerConstants.SvnHttpClientName, client =>
             {
                 client.BaseAddress = new Uri(svnConfig.BaseUrl);

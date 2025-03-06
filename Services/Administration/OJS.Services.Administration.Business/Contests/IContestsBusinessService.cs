@@ -1,6 +1,7 @@
 namespace OJS.Services.Administration.Business.Contests;
 
 using OJS.Data.Models.Contests;
+using OJS.Services.Administration.Models;
 using OJS.Services.Administration.Models.Contests;
 using OJS.Services.Administration.Models.Submissions;
 using OJS.Services.Common.Models.Files;
@@ -24,4 +25,6 @@ public interface IContestsBusinessService : IAdministrationOperationService<Cont
     Task<ContestActivityModel> GetContestActivity(int contestId);
 
     Task TransferParticipantsToPracticeById(int contestId);
+
+    Task AdjustLimitBetweenSubmissions(WorkersBusyRatioServiceModel model);
 }

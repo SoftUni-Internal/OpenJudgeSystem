@@ -1,5 +1,7 @@
 ﻿namespace OJS.Services.Infrastructure.Constants
 {
+    using System.Text;
+
     public static class CacheConstants
     {
         public const int OneMinuteInSeconds = 60;
@@ -24,5 +26,7 @@
         public const string SubmissionTypesByContestCategory = "SubmissionTypesByCategory:{0}";
 
         public const string MentorSystemMessage = "MentorSystemMessage:{0}:{1}";
+
+        public static CompositeFormat SettingsFormat => CompositeFormat.Parse("Settings:{0}");
     }
 }

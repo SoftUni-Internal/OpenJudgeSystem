@@ -17,4 +17,6 @@ public class ApplicationUrlsConfig : BaseConfig
 
     [Required]
     public string FrontEndUrl { get; set; } = string.Empty;
+
+    public int RabbitMqHttpApiPort { get; set; } = 15672;
 }
