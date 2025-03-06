@@ -96,13 +96,35 @@ else
             <pre>Unexpected error.</pre>
         }
         <pre>Please contact an Administrator.</pre>
-        
+
         if (Model.UserHasAdminPermission)
         {
-            <pre>@Resource.Exception_type: @Model.ExceptionType  
-             @Model.ExecutionComment
-        </pre>
+            string message = "A processing error occurred:";
+
+            if (Model.ExceptionType == ExceptionType.Solution)
+            {
+                message = "An error related to the user's submission occurred";
+            }
+            else if (Model.ExceptionType == ExceptionType.Configuration)
+            {
+                message = "An error related to the problem's configurations (settings / skeleton / tests) occurred.";
+            }
+            else if (Model.ExceptionType == ExceptionType.Strategy)
+            {
+                message = "An error related to the strategy occurred. Please contact a developer.";
+            }
+            else if (Model.ExceptionType == ExceptionType.Other)
+            {
+                message = "An unexpected error occurred. Please contact a developer.";
+            }
+
+<pre>
+<strong>@message</strong>
+<strong>@Resource.Exception_type: @Model.ExceptionType</strong>
+@Model.ExecutionComment
+</pre>
         }
+
     }
 
     if (!Model.IsCompiledSuccessfully)
