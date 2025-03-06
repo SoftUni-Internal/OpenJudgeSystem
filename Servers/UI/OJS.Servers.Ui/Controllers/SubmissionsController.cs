@@ -14,6 +14,7 @@ using OJS.Services.Ui.Models.Submissions;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
+using OJS.Services.Common.Models.Pagination;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static OJS.Common.GlobalConstants.Roles;
 using static OJS.Services.Common.Constants.PaginationConstants.Submissions;
@@ -144,8 +145,8 @@ public class SubmissionsController : BaseApiController
     // Unify (Public, GetProcessingSubmissions, GetPendingSubmissions) endpoints for Submissions into single one.
     [HttpGet]
     [ProducesResponseType(typeof(PagedResultResponse<PublicSubmissionsResponseModel>), Status200OK)]
-    public async Task<IActionResult> GetSubmissions([FromQuery] SubmissionStatus status, [FromQuery] int page)
-         => await this.submissionsBusiness.GetSubmissions<PublicSubmissionsServiceModel>(status, page)
+    public async Task<IActionResult> GetSubmissions([FromQuery] SubmissionStatus status, [FromQuery] PaginationRequestModel requestModel)
+         => await this.submissionsBusiness.GetSubmissions<PublicSubmissionsServiceModel>(status, requestModel)
              .Map<PagedResultResponse<PublicSubmissionsResponseModel>>()
              .ToOkResult();
 
@@ -154,12 +155,10 @@ public class SubmissionsController : BaseApiController
     [ProducesResponseType(typeof(PagedResultResponse<FullDetailsPublicSubmissionsResponseModel>), Status200OK)]
     public async Task<IActionResult> GetSubmissionsForUserInRole(
         [FromQuery] SubmissionStatus status,
-        [FromQuery] int page,
-        int itemsPerPage = DefaultSubmissionResultsPerPage)
+        [FromQuery] PaginationRequestModel requestModel)
         => await this.submissionsBusiness.GetSubmissions<FullDetailsPublicSubmissionsServiceModel>(
                 status,
-                page,
-                itemsPerPage)
+                requestModel)
             .Map<PagedResultResponse<FullDetailsPublicSubmissionsResponseModel>>()
             .ToOkResult();
 }

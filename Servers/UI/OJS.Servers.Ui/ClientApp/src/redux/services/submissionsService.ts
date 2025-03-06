@@ -45,14 +45,20 @@ const submissionsService = createApi({
         getLatestSubmissions: builder.query<
             IPagedResultType<IPublicSubmission>,
             IGetSubmissionsUrlParams>({
-                query: ({ status, page }) => (
-                    { url: `Submissions/GetSubmissions?status=${status}&page=${page}` }),
+                query: ({ status, itemsPerPage, page, filter, sorting }) => (
+                    {
+                        url: `Submissions/GetSubmissions`,
+                        params: { status, itemsPerPage, page, filter, sorting },
+                    }),
             }),
         getLatestSubmissionsInRole: builder.query<
             IPagedResultType<IPublicSubmission>,
             IGetSubmissionsUrlParams>({
-                query: ({ status, page }) => (
-                    { url: `Submissions/GetSubmissionsForUserInRole?status=${status}&page=${page}` }),
+                query: ({ status, itemsPerPage, page, filter, sorting }) => (
+                    {
+                        url: `Submissions/GetSubmissionsForUserInRole`,
+                        params: { status, itemsPerPage, page, filter, sorting },
+                    }),
             }),
         getSubmissionResultsByProblem: builder.query<IPagedResultType<IPublicSubmission>, IGetSubmissionsByUserParams>({
             query: ({ id, page, isOfficial }) => ({

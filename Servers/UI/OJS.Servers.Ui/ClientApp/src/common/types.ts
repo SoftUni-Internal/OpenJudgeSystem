@@ -503,6 +503,18 @@ interface IFilterColumn {
     enumValues?: Array<string> | null;
 }
 
+interface ISingleColumnFilter {
+    name: string;
+    id: string;
+    columnType: FilterColumnTypeEnum;
+    enumValues?: Array<ISingleColumnFilterEnum> | null;
+}
+
+interface ISingleColumnFilterEnum {
+    name: string;
+    id: string;
+}
+
 type ExceptionData = {
     name: string;
     message: string;
@@ -749,7 +761,7 @@ interface IAccessLogInListModel {
 }
 
 interface IDropdownItemBase {
-    id: number;
+    id: number | string;
     name: string;
 }
 
@@ -903,4 +915,6 @@ export type {
     IAccessLogInListModel,
     IDropdownItemBase,
     IDropdownItem,
+    ISingleColumnFilter,
+    ISingleColumnFilterEnum,
 };

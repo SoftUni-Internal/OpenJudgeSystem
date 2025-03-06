@@ -670,8 +670,8 @@ const mapGridColumnsToAdministrationFilterProps =
 
 /**
  * Maps the filter parameter from the search bar to Array<IAdministrationFilter> that will later be united with the default filter and will set the initial default filters.
- * @param {URLSearchParams} searchParams Search params that will be mapped to IAdministrationFilter.
- * @param {Array<string>} columns The sorting columns as a  Array<IFilterColumn>
+ * @param {URLSearchParams} urlSearchParams Search params that will be mapped to IAdministrationFilter.
+ * @param {Array<string>} columns The sorting columns as an Array<IFilterColumn>
  * @returns {Array<IAdministrationFilter>} Return the filters from the search bar mapped as Array<IAdministrationFilter>
  */
 const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: Array<IFilterColumn>): IAdministrationFilter[] => {
@@ -783,7 +783,6 @@ const addDefaultFilter = (
 
     const filters = mapUrlToFilters(searchParams, columns);
     const paramChunks = filterToAdd.split(filterParamsSeparator);
-
     const columnValue = paramChunks[0];
     const operator = paramChunks[1];
     const value = paramChunks[2];

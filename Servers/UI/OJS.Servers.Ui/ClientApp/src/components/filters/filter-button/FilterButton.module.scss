@@ -1,0 +1,71 @@
+﻿@use 'src/styles/colors.scss';
+@use 'src/styles/spacings';
+
+.filterPopup {
+  min-width: 250px;
+  padding: spacings.$sp-8;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.lightPopup {
+  background-color: colors.$light-base-color-100;
+  border: 2px solid colors.$background-color-btn-primary;
+  color: colors.$light-text-color;
+
+  .header {
+    color: colors.$light-text-color;
+  }
+
+  .button {
+    color: colors.$light-text-color;
+  }
+
+  .addFilter {
+    color: colors.$background-color-btn-primary;
+  }
+
+  .removeAll {
+    color: colors.$error-color;
+  }
+}
+
+.darkPopup {
+  background-color: colors.$dark-base-color-400;
+  border: 2px solid colors.$background-color-btn-primary;
+  color: colors.$dark-text-color;
+
+  .header {
+    color: colors.$dark-text-color;
+  }
+
+  .button {
+    color: colors.$dark-text-color;
+  }
+
+  .addFilter {
+    color: colors.$primary-light;
+  }
+
+  .removeAll {
+    color: colors.$error-light;
+  }
+}
+
+.closeButton {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.filtersList {
+  display: flex;
+  flex-direction: column;
+  gap: spacings.$sp-8;
+  margin-top: spacings.$sp-8;
+}
+
+.buttonsSection {
+  display: flex;
+  justify-content: space-between;
+  margin-top: spacings.$sp-16;
+}

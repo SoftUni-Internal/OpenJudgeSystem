@@ -1,7 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import {
+    applyDefaultFilterToQueryString,
+} from 'src/components/filters/ColumnFilters';
+import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 
 import { IDictionary } from '../../../common/common-types';
 import { IPagedResultType, IPublicSubmission } from '../../../common/types';
@@ -31,12 +37,18 @@ const selectedSubmissionsStateMapping = {
 } as IDictionary<string>;
 
 const RecentSubmissions = () => {
+    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(() => {
+        const page = searchParams.get('page')
+            ? parseInt(searchParams.get('page')!, 10)
+            : 1;
+        return {
+            ...applyDefaultFilterToQueryString('', '', searchParams),
+            page,
+        };
+    });
     const [ selectedActive, setSelectedActive ] = useState<number>(1);
     const [ shouldLoadRegularUserSubmissions, setShouldLoadRegularUserSubmissions ] = useState<boolean>(false);
-    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>({
-        status: selectedActive,
-        page: 1,
-    });
 
     const [ latestSubmissions, setLatestSubmissions ] = useState<IPagedResultType<IPublicSubmission>>({
         items: [],
@@ -89,7 +101,15 @@ const RecentSubmissions = () => {
             getLatestSubmissionsInRole(queryParams);
             getUnprocessedSubmissionsCount(null);
         }
-    }, [ loggedInUserInRole, getLatestSubmissionsInRole, getUnprocessedSubmissionsCount, queryParams ]);
+    }, [
+        loggedInUserInRole,
+        getLatestSubmissionsInRole,
+        getUnprocessedSubmissionsCount,
+        queryParams.page,
+        queryParams.status,
+        queryParams.filter,
+        queryParams.sorting,
+    ]);
 
     useEffect(() => {
         if (!user.isAdmin) {
@@ -105,15 +125,17 @@ const RecentSubmissions = () => {
         }
     }, [ inRoleData, inRoleSubmissionsReady, regularUserData, regularUserSubmissionsReady ]);
 
-    const handlePageChange = useCallback(
-        (newPage: number) => {
-            setQueryParams({
-                status: queryParams.status,
-                page: newPage,
+    const handlePageChange = useCallback((newPage: number) => {
+        setQueryParams((prev) => {
+            const updatedParams = { ...prev, page: newPage };
+            setSearchParams((prevParams) => {
+                const newParams = new URLSearchParams(prevParams);
+                newParams.set('page', newPage.toString());
+                return newParams;
             });
-        },
-        [ queryParams.status ],
-    );
+            return updatedParams;
+        });
+    }, [ setSearchParams ]);
 
     const handleSelectSubmissionState = useCallback(
         (typeKey: number) => {
@@ -121,6 +143,9 @@ const RecentSubmissions = () => {
                 setQueryParams({
                     status: typeKey,
                     page: 1,
+                    itemsPerPage: queryParams.itemsPerPage,
+                    filter: queryParams.filter,
+                    sorting: queryParams.sorting,
                 });
 
                 setSelectedActive(typeKey);
@@ -239,6 +264,9 @@ const RecentSubmissions = () => {
                               showSubmissionTypeInfo: true,
                               showParticipantUsername: true,
                           }}
+                          searchParams={searchParams}
+                          setSearchParams={setSearchParams}
+                          setQueryParams={setQueryParams}
                         />
                     )
             }

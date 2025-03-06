@@ -4,32 +4,65 @@
 @use 'src/styles/shadows';
 @use 'src/styles/spacings';
 
-.noSubmissionsFound {
-  @extend %font-family-normal;
-
-  align-items: center;
-  display: flex;
-  font-size: variables.$f-size-20;
-  justify-content: center;
-  margin-top: spacings.$sp-18;
-}
-
 .submissionsGrid {
   color: colors.$white-color;
-  table-layout: auto;
   width: 100%;
+  border-collapse: collapse;
+  table-layout: auto;
+
+  .header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.2rem;
+    min-width: 100%;
+    padding-right: 8px;
+  }
 
   td {
     height: 65px;
-    overflow: hidden;
-    padding-left: spacings.$sp-12;
+    padding: spacings.$sp-12;
     text-align: left;
-    text-overflow: ellipsis;
     vertical-align: middle;
+    word-wrap: break-word;
+    white-space: normal;
+  }
 
-    .tdRight {
-      text-align: right;
-    }
+  // ID column
+  td:nth-child(1) {
+    min-width: 80px;
+  }
+
+  // Task column
+  td:nth-child(2) {
+    white-space: normal;
+    min-width: 150px;
+  }
+
+  // From column (date)
+  td:nth-child(3) {
+    min-width: 150px;
+  }
+
+  // Time and Memory Used column
+  td:nth-child(5) {
+    min-width: 200px;
+  }
+
+  // Result column
+  td:nth-child(6) {
+    min-width: 150px;
+  }
+
+  // Strategy column
+  td:nth-child(7) {
+    min-width: 200px;
+  }
+
+  // Action column
+  td:last-child {
+    width: 1%;
+    min-width: 60px;
   }
 
   .submissionsGridHeader {
@@ -46,4 +79,24 @@
     background: colors.$dark-base-color-500;
     box-shadow: shadows.$dp-shadow-4;
   }
+}
+
+.noSubmissionsRow {
+  td {
+    padding: 0 !important;
+  }
+}
+
+.noSubmissionsContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: variables.$f-size-20;
+  text-align: center;
+  width: 100%;
+  height: 300px;
+}
+
+:global(.columnFiltersContainer) {
+  min-width: 24px;
 }

@@ -46,7 +46,10 @@ interface ISubmitContestPasswordParams {
 
 interface IGetSubmissionsUrlParams {
     status: SubmissionStatus;
+    itemsPerPage: number;
     page: number;
+    filter?: string;
+    sorting?: string;
 }
 
 interface IGetSubmissionsByUserParams {

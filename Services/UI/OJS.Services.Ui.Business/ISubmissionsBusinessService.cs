@@ -7,6 +7,7 @@
     using OJS.Services.Infrastructure.Models;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using OJS.Services.Common.Models.Pagination;
     using static OJS.Services.Common.Constants.PaginationConstants.Submissions;
 
     public interface ISubmissionsBusinessService : IService
@@ -30,8 +31,7 @@
 
         Task<PagedResult<TServiceModel>> GetSubmissions<TServiceModel>(
             SubmissionStatus status,
-            int page,
-            int itemsPerPage = DefaultSubmissionsPerPage);
+            PaginationRequestModel requestModel);
 
         Task<SubmissionFileDownloadServiceModel> GetSubmissionFile(int submissionId);
 

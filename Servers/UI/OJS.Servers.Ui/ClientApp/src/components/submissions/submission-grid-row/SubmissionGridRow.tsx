@@ -1,12 +1,19 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { FaFlagCheckered } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import AccessAlarmIcon from '@mui/icons-material/AccessAlarm';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { Popover } from '@mui/material';
 import isNil from 'lodash/isNil';
+import { FilterColumnTypeEnum } from 'src/common/enums';
+import ColumnFilters, { addDefaultFilter } from 'src/components/filters/ColumnFilters';
 import { ITestRunIcon } from 'src/hooks/submissions/types';
+import {
+    IAdministrationFilter,
+    IAdministrationSorter,
+    mapUrlToSorters,
+} from 'src/pages/administration-new/administration-filters/AdministrationFilters';
 
 import { IPublicSubmission } from '../../../common/types';
 import { getContestsDetailsPageUrl } from '../../../common/urls/compose-client-urls';
