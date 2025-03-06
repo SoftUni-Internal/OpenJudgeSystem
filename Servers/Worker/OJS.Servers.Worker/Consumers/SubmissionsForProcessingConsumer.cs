@@ -63,7 +63,7 @@ public class SubmissionsForProcessingConsumer : IConsumer<SubmissionForProcessin
             var executionResult = await this.submissionsBusiness.ExecuteSubmission(submission);
             this.logger.LogProducedExecutionResult(submission.Id, executionResult);
 
-            result.SetExecutionResult(executionResult.Map<ExecutionResultServiceModel>());
+            result.SetExecutionResult(executionResult);
         }
         catch (Exception ex)
         {

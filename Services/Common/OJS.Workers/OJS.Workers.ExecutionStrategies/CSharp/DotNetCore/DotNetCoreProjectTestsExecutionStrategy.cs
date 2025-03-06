@@ -113,7 +113,7 @@
             // Delete tests before execution so the user can't access them
             FileHelpers.DeleteFiles(this.TestPaths.ToArray());
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             return await this.RunUnitTests(
                 compilerPath,

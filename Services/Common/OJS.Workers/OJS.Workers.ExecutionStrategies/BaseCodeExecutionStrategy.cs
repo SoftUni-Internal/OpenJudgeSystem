@@ -99,9 +99,13 @@
                     : processExecutionResult.ErrorOutput,
             };
 
-        protected IExecutor CreateExecutor(ProcessExecutorType processExecutorType = ProcessExecutorType.Default)
+        protected IExecutor CreateRestrictedExecutor()
             => this.ProcessExecutorFactory
-                .CreateProcessExecutor(this.Settings.BaseTimeUsed, this.Settings.BaseMemoryUsed, processExecutorType);
+                .CreateProcessExecutor(this.Settings.BaseTimeUsed, this.Settings.BaseMemoryUsed, ProcessExecutorType.Restricted, this.Logger);
+
+        protected IExecutor CreateStandardExecutor()
+            => this.ProcessExecutorFactory
+                .CreateProcessExecutor(this.Settings.BaseTimeUsed, this.Settings.BaseMemoryUsed, ProcessExecutorType.Standard, this.Logger);
 
         protected virtual string SaveCodeToTempFile<TINput>(IExecutionContext<TINput> executionContext)
             => string.IsNullOrEmpty(executionContext.AllowedFileExtensions)

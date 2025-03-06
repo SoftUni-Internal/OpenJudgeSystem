@@ -102,7 +102,7 @@ namespace OJS.Workers.ExecutionStrategies.Java
 
             var mavenArgs = new[] { MavenBuild };
 
-            var mavenExecutor = this.CreateExecutor();
+            var mavenExecutor = this.CreateRestrictedExecutor();
 
             var packageExecutionResult = await mavenExecutor.Execute(
               this.Settings.MavenPath,
@@ -121,7 +121,7 @@ namespace OJS.Workers.ExecutionStrategies.Java
                 return result;
             }
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             var checker = executionContext.Input.GetChecker();
             var testIndex = 0;

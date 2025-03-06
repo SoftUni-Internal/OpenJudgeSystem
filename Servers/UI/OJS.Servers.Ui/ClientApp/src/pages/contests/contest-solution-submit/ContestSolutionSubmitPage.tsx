@@ -10,6 +10,7 @@ import Popover from '@mui/material/Popover';
 import isNil from 'lodash/isNil';
 import moment from 'moment';
 import { SUBMISSION_SENT } from 'src/common/messages';
+import CheckBox from 'src/components/guidelines/checkbox/CheckBox';
 import Dropdown from 'src/components/guidelines/dropdown/Dropdown';
 import Mentor from 'src/components/mentor/Mentor';
 import useSuccessMessageEffect from 'src/hooks/common/use-success-message-effect';
@@ -83,6 +84,7 @@ const ContestSolutionSubmitPage = () => {
     const [ fileUploadError, setFileUploadError ] = useState<string>('');
     const [ isRotating, setIsRotating ] = useState<boolean>(false);
     const [ updatedProblems, setUpdatedProblems ] = useState<Array<IProblemType>>();
+    const [ executeVerbosely, setExecuteVerbosely ] = useState<boolean>(false);
     const [ submissionTypesPerProblem, setSubmissionTypesPerProblem ] =
         useState<AdjacencyList<number, ISubmissionTypeType>>({});
 
@@ -356,7 +358,7 @@ const ContestSolutionSubmitPage = () => {
                 id: data!.contest!.id,
                 name: data.contest.name,
                 categoryId: data!.contest!.categoryId,
-                isOnlineExam: data?.contest?.isOnlineExam,
+                isWithRandomTasks: data?.contest?.isWithRandomTasks,
             }));
         }
     }, [ contestDetails, contestId, data, dispatch ]);
@@ -381,7 +383,8 @@ const ContestSolutionSubmitPage = () => {
             problemId: selectedContestDetailsProblem?.id!,
             submissionTypeId: selectedSubmissionType?.id!,
             contestId: Number(contestId!),
-            isOnlineExam: contestDetails?.isOnlineExam,
+            isWithRandomTasks: contestDetails?.isWithRandomTasks,
+            verbosely: executeVerbosely,
         }).then((d) => {
             if (!(d as any).error) {
                 refetch();
@@ -397,7 +400,8 @@ const ContestSolutionSubmitPage = () => {
         submissionCode,
         submitSolution,
         contestId,
-        contestDetails?.isOnlineExam,
+        contestDetails?.isWithRandomTasks,
+        executeVerbosely,
     ]);
 
     const onSolutionSubmitFile = useCallback(async () => {
@@ -413,7 +417,8 @@ const ContestSolutionSubmitPage = () => {
             problemId: selectedContestDetailsProblem?.id!,
             submissionTypeId: selectedSubmissionType?.id!,
             contestId: Number(contestId!),
-            isOnlineExam: contestDetails?.isOnlineExam,
+            isWithRandomTasks: contestDetails?.isWithRandomTasks,
+            verbosely: executeVerbosely,
         });
         refetch();
         getSubmissionsData();
@@ -426,7 +431,8 @@ const ContestSolutionSubmitPage = () => {
         submitSolutionFile,
         uploadedFile,
         contestId,
-        contestDetails?.isOnlineExam,
+        contestDetails?.isWithRandomTasks,
+        executeVerbosely,
     ]);
 
     const sumMyPoints = useMemo(() => contest
@@ -623,6 +629,8 @@ const ContestSolutionSubmitPage = () => {
                         {(allowedFileExtensions || []).join(', ')}
                     </div>
                     {fileUploadError && <div className={styles.fileUploadError}>{fileUploadError}</div>}
+                    {contest?.userIsAdminOrLecturerInContest &&
+                        <CheckBox label="Execute verbosely" onChange={setExecuteVerbosely} id="execute-verbosely-checkbox" />}
                     <FileUploader
                       file={uploadedFile}
                       problemId={selectedContestDetailsProblem?.id}
@@ -674,6 +682,8 @@ const ContestSolutionSubmitPage = () => {
                   onCodeChange={(inputCode) => setSubmissionCode(inputCode)}
                 />
                 <div className={styles.submitSettings}>
+                    {contest?.userIsAdminOrLecturerInContest &&
+                        <CheckBox label="Execute verbosely" onChange={setExecuteVerbosely} id="execute-verbosely-checkbox" />}
                     <Dropdown<ISubmissionTypeType>
                       dropdownItems={strategyDropdownItems || []}
                       value={selectedSubmissionType}
@@ -722,6 +732,7 @@ const ContestSolutionSubmitPage = () => {
         submitSolutionFileIsLoading,
         submitSolutionFileHasError,
         submitSolutionFileError,
+        contest?.userIsAdminOrLecturerInContest,
     ]);
 
     if (isLoading) {

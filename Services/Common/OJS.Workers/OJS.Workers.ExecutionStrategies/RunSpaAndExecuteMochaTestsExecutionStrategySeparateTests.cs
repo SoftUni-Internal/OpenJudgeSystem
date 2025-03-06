@@ -269,7 +269,7 @@ finally:
             this.SaveNginxFile();
 
             var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
-            var executor = this.CreateExecutor();
+            var executor = this.CreateStandardExecutor();
             var checker = executionContext.Input.GetChecker();
             var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
             var match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
@@ -282,6 +282,7 @@ finally:
             {
                 result.IsCompiledSuccessfully = false;
                 result.CompilerComment = "Failed running strategy pre execute step, please contact an Administrator";
+                this.Logger.LogUnexpectedProcessOutput(preExecutionResult);
 
                 return result;
             }

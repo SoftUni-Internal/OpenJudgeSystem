@@ -13,15 +13,12 @@
     public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
         where TSettings : BaseExecutionStrategySettings
     {
-        private readonly ILogger<BaseExecutionStrategy<TSettings>> logger;
-
         protected BaseExecutionStrategy(
             IOjsSubmission submission,
             IExecutionStrategySettingsProvider settingsProvider,
             ILogger<BaseExecutionStrategy<TSettings>> logger)
         {
-            this.logger = logger;
-
+            this.Logger = logger;
             this.Type = submission.ExecutionStrategyType;
             this.Settings = settingsProvider.GetSettings<TSettings>(submission)
                 ?? throw new ArgumentException(
@@ -31,22 +28,42 @@
 
         protected ExecutionStrategyType Type { get; }
 
+        protected ILogger<BaseExecutionStrategy<TSettings>> Logger { get; }
+
         protected TSettings Settings { get; }
 
         protected string WorkingDirectory { get; set; } = string.Empty;
 
         public async Task<IExecutionResult<TResult>> SafeExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            int submissionId)
+            IOjsSubmission submission)
             where TResult : ISingleCodeRunResult, new()
         {
+            var submissionId = (int)submission.Id;
             this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
-            this.logger.LogExecutionStrategyCreatedWorkingDirectory(this.Type.ToString(), this.WorkingDirectory, submissionId);
+            this.Logger.LogExecutionStrategyCreatedWorkingDirectory(this.Type.ToString(), this.WorkingDirectory, submissionId);
 
             try
             {
                 executionContext.Code = this.PreprocessCode(executionContext);
-                return await this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+                var result = await this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+
+                if (submission.Verbosely)
+                {
+                    // If the submission is marked as verbose, try read the log file and attach it to the result
+                    var logFilePath = FileHelpers.BuildSubmissionLogFilePath(submissionId);
+                    if (FileHelpers.FileExists(logFilePath))
+                    {
+                        result.VerboseLogFile = await FileHelpers.ReadFileUpToBytes(logFilePath, executionContext.VerboseLogFileMaxBytes);
+                    }
+                    else
+                    {
+                        result.ProcessingComment = $"No verbose log file found in {logFilePath}";
+                    }
+                }
+
+                return result;
+
                 // Catch logic is handled by the caller
             }
             finally
@@ -58,6 +75,7 @@
                     try
                     {
                         DirectoryHelpers.SafeDeleteDirectory(this.WorkingDirectory, true);
+                        FileHelpers.DeleteFile(FileHelpers.BuildSubmissionLogFilePath(submissionId));
                     }
                     catch (Exception ex)
                     {
@@ -66,7 +84,7 @@
                         // Problems in the deletion of leftover files should not break the execution flow,
                         // because the execution is already completed and results are generated.
                         // Only log the exception and continue.
-                        this.logger.LogSafeDeleteDirectoryException(ex);
+                        this.Logger.LogSafeDeleteDirectoryException(ex);
                     }
                 });
             }

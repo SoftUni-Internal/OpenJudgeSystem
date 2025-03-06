@@ -41,6 +41,8 @@
 
         public bool WithExceptionStackTrace { get; set; }
 
+        public bool Verbosely { get; set; }
+
         public void RegisterMappings(IProfileExpression configuration)
         {
             var mapping = configuration

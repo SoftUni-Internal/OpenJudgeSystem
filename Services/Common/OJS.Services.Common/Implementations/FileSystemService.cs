@@ -16,4 +16,14 @@ public class FileSystemService : IFileSystemService
 
     public string GetTempPath()
         => Path.GetTempPath();
+
+    public string GetTempDirectory(string directoryName)
+    {
+        var directoryPath = this.BuildPath(this.GetTempPath(), directoryName);
+        Directory.CreateDirectory(directoryPath);
+        return directoryPath;
+    }
+
+    public bool FileExists(string filePath)
+        => File.Exists(filePath);
 }

@@ -15,20 +15,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       lsb-release \
       build-essential \
       locales \
+      acl \
       unzip && \
     ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
     sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
     locale-gen && \
     rm -rf /var/lib/apt/lists/*
 
-# Install node.js 12 and 20 via nvm
-RUN curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash && \
-    export NVM_DIR="$HOME/.nvm" && \
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-    nvm install 12.22.12 && \
-    nvm install 20.12.0 && \
-    nvm alias default 20.12.0 && \
-    nvm use default
+# Add restricted_user
+RUN useradd -m -s /bin/bash restricted_user && \
+    passwd -d restricted_user && \
+    usermod -aG restricted_user restricted_user
 
 # Install supported languages and frameworks
 RUN apt-get update && apt-get install -y \
@@ -112,6 +109,9 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 
 RUN $PYENV_ROOT/versions/3.11.5/bin/pip install --no-cache-dir -r /tmp/requirements.txt
 
+# Java 11 and 21 with Spring and Hibernate
+USER restricted_user
+
 WORKDIR /judge-resources/java/java-spring-and-hibernate
 COPY ./java-spring-and-hibernate .
 RUN mvn dependency:go-offline
@@ -129,8 +129,14 @@ RUN mvn dependency:go-offline
 RUN mvn dependency:get -DgroupId=org.codehaus.plexus -DartifactId=plexus-utils -Dversion=3.0.10
 RUN mvn clean install
 
+USER root
+
 # Go
 ENV GO111MODULE=off
+
+# Grant restricted user access to Node.js and Python env
+RUN chgrp -R restricted_user /root/.nvm && \
+    chmod +x /root && chmod -R g+rx /root/.nvm && chmod -R g+rx /root/.pyenv
 
 # Clean up
 RUN apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*

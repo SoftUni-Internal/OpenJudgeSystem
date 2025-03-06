@@ -41,7 +41,7 @@ namespace OJS.Workers.ExecutionStrategies.NodeJs
             IExecutionContext<TestsInputModel> executionContext,
             IExecutionResult<TestResult> result)
         {
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             var codeSavePath = this.SaveCodeToTempFile(executionContext);
 

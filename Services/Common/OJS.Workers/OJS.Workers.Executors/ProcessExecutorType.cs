@@ -2,7 +2,7 @@ namespace OJS.Workers.Executors
 {
     public enum ProcessExecutorType
     {
-        Default = 0,
-        Standard = 1,
+        Standard = 0,
+        Restricted = 1,
     }
 }

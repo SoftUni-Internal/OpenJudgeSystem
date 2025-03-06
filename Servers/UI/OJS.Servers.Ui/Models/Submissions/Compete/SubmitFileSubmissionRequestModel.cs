@@ -16,11 +16,15 @@ public class SubmitFileSubmissionRequestModel : IMapExplicitly
 
     public bool IsOnlineExam { get; set; }
 
+    public bool IsWithRandomTasks { get; set; }
+
     public int SubmissionTypeId { get; set; }
 
     public IFormFile? Content { get; set; } = null;
 
     public bool Official { get; set; }
+
+    public bool Verbosely { get; set; }
 
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<SubmitFileSubmissionRequestModel, SubmitSubmissionServiceModel>()

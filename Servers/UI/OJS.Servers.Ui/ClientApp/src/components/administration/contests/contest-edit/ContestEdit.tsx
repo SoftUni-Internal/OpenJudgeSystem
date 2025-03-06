@@ -158,6 +158,13 @@ const ContestEdit = (props:IContestEditProps) => {
             isLoading: isCreating,
         } ] = useCreateContestMutation();
 
+    const isVariation =
+        (value: string, variation: ContestVariation) => value === getEnumMemberName(ContestVariation, variation).toString();
+
+    const isOnlineExam = isVariation(contest.type, ContestVariation.OnlinePracticalExam);
+
+    const isWithRandomTasks = isOnlineExam || isVariation(contest.type, ContestVariation.OnsitePracticalExamWithRandomTasks);
+
     const getDefaultContestCategory = useCallback(() => {
         const defaultCategory = contestCategories![0];
         const categoryName = defaultCategory.name;
@@ -273,7 +280,9 @@ const ContestEdit = (props:IContestEditProps) => {
             const isValid = !!Object.keys(ContestVariation).filter((key) => isNaN(Number(key))).some((x) => x === value);
             currentContestValidations.isTypeValid = isValid;
 
-            if (value === getEnumMemberName(ContestVariation, ContestVariation.OnlinePracticalExam).toString()) {
+            const isOnlineExamValue = isVariation(value, ContestVariation.OnlinePracticalExam);
+            const isWithRandomTasksValue = isVariation(value, ContestVariation.OnsitePracticalExamWithRandomTasks);
+            if (isOnlineExamValue || isWithRandomTasksValue) {
                 numberOfProblemGroups = 2;
             }
             break;
@@ -530,7 +539,7 @@ const ContestEdit = (props:IContestEditProps) => {
                             </FormControl>
                         </Box>
                         <Box className={formStyles.row}>
-                            { contest.type === getEnumMemberName(ContestVariation, ContestVariation.OnlinePracticalExam) && (
+                            { isWithRandomTasks && (
                                 <TextField
                                   className={formStyles.inputRow}
                                   type="number"
@@ -624,7 +633,7 @@ const ContestEdit = (props:IContestEditProps) => {
                             />
                         </Box>
                         <Box className={formStyles.row}>
-                            {contest.type === getEnumMemberName(ContestVariation, ContestVariation.OnlinePracticalExam) && (
+                            {isOnlineExam && (
                                 <TextField
                                   className={formStyles.inputRow}
                                   type="string"
@@ -636,7 +645,7 @@ const ContestEdit = (props:IContestEditProps) => {
                                       : undefined}
                                   name="duration"
                                   onChange={(e) => onChange(e)}
-                                  disabled={contest.type !== getEnumMemberName(ContestVariation, ContestVariation.OnlinePracticalExam)}
+                                  disabled={!isOnlineExam}
                                   InputLabelProps={{ shrink: true }}
                                   error={(contestValidations.isDurationTouched && !contestValidations.isDurationValid)}
                                   helperText={(contestValidations.isDurationTouched && !contestValidations.isDurationValid) &&

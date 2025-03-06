@@ -30,6 +30,8 @@ public class CompilerFactory : ICompilerFactory
                 return this.settings.DotNetCompilerPath;
             case CompilerType.GolangCompiler:
                 return this.settings.GolangCompilerPath;
+            case CompilerType.TypeScriptCompiler:
+                return this.settings.TypeScriptExecutablePath;
             case CompilerType.None:
             default:
                 throw new ArgumentOutOfRangeException(nameof(compilerType), $"Cannot get compiler path for \"{compilerType}\" compiler type.");
@@ -54,6 +56,7 @@ public class CompilerFactory : ICompilerFactory
                 .CPlusPlusZipCompilerProcessExitTimeOutMultiplier),
             CompilerType.DotNetCompiler => new DotNetCompiler(this.settings.DotNetCompilerProcessExitTimeOutMultiplier),
             CompilerType.GolangCompiler => new GolangCompiler(this.settings.GolangCompilerProcessExitTimeOutMultiplier),
+            CompilerType.TypeScriptCompiler => new TypeScriptCompiler(this.settings.TypeScriptCompilerProcessExitTimeOutMultiplier),
             _ => throw new ArgumentException("Unsupported compiler."),
         };
 

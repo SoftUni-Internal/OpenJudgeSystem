@@ -114,6 +114,9 @@
             }
         }
 
+        public static string ReadFile(string filePath)
+            => File.ReadAllText(filePath);
+
         public static string ExtractFileFromZip(string pathToArchive, string fileName, string destinationDirectory)
         {
             using (var zip = new ZipFile(pathToArchive))
@@ -148,6 +151,9 @@
 
         public static string BuildPath(params string[] paths) => Path.Combine(paths);
 
+        public static string BuildSubmissionLogFilePath(int submissionId)
+            => Path.Combine(Path.GetTempPath(), $"submission-{submissionId}.log");
+
         public static void WriteAllText(string filePath, string text)
             => File.WriteAllText(filePath, text);
 
@@ -155,6 +161,22 @@
             => File.WriteAllBytes(filePath, data);
 
         public static bool FileExists(string filePath) => File.Exists(filePath);
+
+        public static async Task<byte[]> ReadFileUpToBytes(string filePath, int maxBytes)
+        {
+            // If the file is less than 10 MB, read the entire file
+            var fileInfo = new FileInfo(filePath);
+            if (fileInfo.Length <= maxBytes)
+            {
+                return await File.ReadAllBytesAsync(filePath);
+            }
+
+            // Otherwise, read only the first 10 MB
+            var buffer = new byte[maxBytes];
+            await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            await stream.ReadExactlyAsync(buffer, 0, maxBytes);
+            return buffer;
+        }
 
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {

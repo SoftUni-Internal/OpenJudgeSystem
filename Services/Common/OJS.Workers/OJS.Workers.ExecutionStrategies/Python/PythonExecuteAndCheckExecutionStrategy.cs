@@ -37,7 +37,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         {
             var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             var checker = executionContext.Input.GetChecker();
 
@@ -50,7 +50,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
         {
             var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
-            var executor = this.CreateExecutor();
+            var executor = this.CreateRestrictedExecutor();
 
             var processExecutionResult = await this.Execute(
                 executionContext,

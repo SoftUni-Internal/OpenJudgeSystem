@@ -53,5 +53,7 @@ namespace OJS.Workers.Common
         public DateTime? StartedExecutionOn { get; set; }
 
         public DateTime? CompletedExecutionOn { get; set; }
+
+        public bool Verbosely { get; set; }
     }
 }
