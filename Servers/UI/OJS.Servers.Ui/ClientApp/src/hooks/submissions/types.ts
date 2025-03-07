@@ -63,6 +63,7 @@ interface ISubmissionDetailsResponseType {
     contestCategoryId: number;
     maxPoints: number;
     allowMentor: boolean;
+    exceptionType: number;
 }
 
 interface ITestRun {

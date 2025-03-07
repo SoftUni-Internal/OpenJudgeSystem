@@ -3,13 +3,14 @@ namespace OJS.Services.Ui.Business.Implementations;
 using Microsoft.EntityFrameworkCore;
 using OJS.Services.Common;
 using OJS.Services.Infrastructure.Exceptions;
+using OJS.Services.Ui.Business.Cache;
 using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.Submissions;
 using System.Linq;
 using System.Threading.Tasks;
 
 public class TestsBusinessService(
-    IContestsDataService contestsData,
+    ILecturersInContestsCacheService lecturersInContestsCache,
     ISubmissionsDataService submissionsData,
     IUserProviderService userProvider)
     : ITestsBusinessService
@@ -22,6 +23,7 @@ public class TestsBusinessService(
             {
                 s.Participant.UserId,
                 s.Participant.ContestId,
+                s.Participant.Contest.CategoryId,
                 Test = s.TestRuns
                     .Select(tr => new TestSeparateDetailsServiceModel
                     {
@@ -38,8 +40,8 @@ public class TestsBusinessService(
 
         var test = submission.Test ?? throw new BusinessServiceException("Test not found.");
 
-        var isCurrentUserAdminOrLecturerInContest = currentUser.IsAdmin ||
-            await contestsData.IsUserLecturerInByContestAndUser(submission.ContestId, currentUser.Id);
+        var isCurrentUserAdminOrLecturerInContest = await lecturersInContestsCache
+            .IsUserAdminOrLecturerInContest(submission.ContestId, submission.CategoryId, currentUser);
 
         if (!isCurrentUserAdminOrLecturerInContest && submission.UserId != currentUser.Id)
         {

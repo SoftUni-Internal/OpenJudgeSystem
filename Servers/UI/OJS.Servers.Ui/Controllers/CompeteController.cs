@@ -133,10 +133,11 @@ public class CompeteController : BaseApiController
     /// For regular users, if the user is the participant attached to the submission and if the tests have changed.
     /// </summary>
     /// <param name="id">The submission id to be retested.</param>
+    /// <param name="verbosely">Whether to include verbose execution details.</param>
     /// <returns>Success status code.</returns>
     [HttpPost("retest/{id:int}")]
-    public async Task<IActionResult> Retest(int id)
+    public async Task<IActionResult> Retest(int id, bool verbosely = false)
         => await this.submissionsBusinessService
-            .Retest(id)
+            .Retest(id, verbosely)
             .ToOkResult();
 }

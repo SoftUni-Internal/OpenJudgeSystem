@@ -11,15 +11,15 @@ const contestParticipationType =
 
 const getCompeteResultsAreVisibleInContestCards = (
     contest: IIndexContestsType,
-    loggedInUserCanAccessAdministration: boolean,
-) => (loggedInUserCanAccessAdministration ||
+    isAdmin: boolean,
+) => (isAdmin ||
     (contest.canBeCompeted && !isNil(contest.userParticipationResult?.competePoints))) &&
     contest.competeResults > 0;
 
 const getPracticeResultsAreVisibleInContestCards = (
     contest: IIndexContestsType,
-    loggedInUserCanAccessAdministration: boolean,
-) => (loggedInUserCanAccessAdministration || (!loggedInUserCanAccessAdministration && (contest.canBeCompeted || contest.canBePracticed))) &&
+    isAdmin: boolean,
+) => (isAdmin || (!isAdmin && (contest.canBeCompeted || contest.canBePracticed))) &&
     contest.practiceResults > 0;
 
 const createUrlFriendlyPath = (inputString: string | undefined | null): string => {

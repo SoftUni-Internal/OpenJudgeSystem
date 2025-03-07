@@ -1,6 +1,7 @@
 namespace OJS.Services.Common;
 
 using OJS.Services.Infrastructure;
+using System.Threading.Tasks;
 
 public interface IFileIoService : IService
 {
@@ -11,4 +12,6 @@ public interface IFileIoService : IService
     bool DirectoryExists(string directoryPath);
 
     void SafeDeleteDirectory(string path, bool recursive = false);
+
+    Task SaveFile(string path, byte[] content);
 }

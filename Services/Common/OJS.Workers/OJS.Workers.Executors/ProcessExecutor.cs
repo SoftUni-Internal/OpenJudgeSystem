@@ -26,14 +26,17 @@
         /// <param name="baseTimeUsed">The base time in milliseconds added to the time limit when executing.</param>
         /// <param name="baseMemoryUsed">The base memory in bytes added to the memory limit when executing.</param>
         /// <param name="tasksService">Service for running tasks in the background.</param>
+        /// <param name="environmentVariables">Environment variables to be passed to the process.</param>
         protected ProcessExecutor(
             int baseTimeUsed,
             int baseMemoryUsed,
-            ITasksService tasksService)
+            ITasksService tasksService,
+            IDictionary<string, string>? environmentVariables = null)
         {
             this.baseTimeUsed = baseTimeUsed;
             this.baseMemoryUsed = baseMemoryUsed;
             this.TasksService = tasksService;
+            this.EnvironmentVariables = environmentVariables ?? new Dictionary<string, string>();
         }
 
         public async Task<ProcessExecutionResult> Execute(
@@ -51,7 +54,7 @@
             this.timeLimit = processTimeLimit;
             this.memoryLimit = processMemoryLimit;
 
-            workingDirectory = workingDirectory ?? new FileInfo(fileName).DirectoryName;
+            workingDirectory ??= new FileInfo(fileName).DirectoryName;
 
             this.BeforeExecute();
 
@@ -71,6 +74,8 @@
 
             return processExecutionResult;
         }
+
+        public IDictionary<string, string> EnvironmentVariables { get; }
 
         protected abstract Task<ProcessExecutionResult> InternalExecute(
             string fileName,

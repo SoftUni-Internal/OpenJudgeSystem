@@ -7,6 +7,7 @@ using OJS.Data.Models.Submissions;
 using OJS.Services.Infrastructure.Models.Mapping;
 using OJS.Services.Ui.Models.Users;
 using OJS.Workers.Common.Extensions;
+using OJS.Workers.Common.Models;
 using static OJS.Services.Infrastructure.Models.ModelHelpers;
 
 public class SubmissionDetailsServiceModel : IMapExplicitly
@@ -68,6 +69,8 @@ public class SubmissionDetailsServiceModel : IMapExplicitly
     public int? ContestCategoryId { get; set; }
 
     public bool AllowMentor { get; set; }
+
+    public ExceptionType? ExceptionType { get; set; }
 
     public ICollection<TestDetailsServiceModel> Tests { get; set; } = [];
 

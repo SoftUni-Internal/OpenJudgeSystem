@@ -14,7 +14,6 @@ using System.Threading.Tasks;
 
 public class ProblemGroupAdministrationModelValidator : BaseAdministrationModelValidator<ProblemGroupsAdministrationModel, int, ProblemGroup>
 {
-    private readonly IContestsActivityService contestsActivityService;
     private readonly IContestsDataService contestsDataService;
     private readonly IProblemGroupsDataService problemGroupsDataService;
 
@@ -24,7 +23,6 @@ public class ProblemGroupAdministrationModelValidator : BaseAdministrationModelV
         IProblemGroupsDataService problemGroupsDataService)
         : base(problemGroupsDataService)
     {
-        this.contestsActivityService = contestsActivityService;
         this.contestsDataService = contestsDataService;
         this.problemGroupsDataService = problemGroupsDataService;
 
@@ -36,19 +34,20 @@ public class ProblemGroupAdministrationModelValidator : BaseAdministrationModelV
 
         this.RuleFor(model => model)
             .MustAsync(async (model, _) => await this.NotBeActiveOrOnlineContest(model))
-            .WithMessage($"{string.Format(Resources.ProblemGroupsControllers.CanEditOrderbyOnlyInOnlineContest, ContestType.OnlinePracticalExam.ToString())}")
+            .WithMessage($"{Resources.ProblemGroupsControllers.CanEditOrderByOnlyInContestWithRandomTasks}")
             .When(x => x.OperationType is CrudOperationType.Update or CrudOperationType.Delete);
 
         this.RuleFor(model => model)
-            .MustAsync(async (model, _) => await this.IsOnline(model.Contest.Id) && !await this.contestsActivityService.IsContestActive(model.Contest.Id))
+            .MustAsync(async (model, _) => await this.contestsDataService.IsWithRandomTasksById(model.Contest.Id) &&
+                                           !await contestsActivityService.IsContestActive(model.Contest.Id))
             .WithMessage($"" +
-                         $"{string.Format(Resources.ProblemGroupsControllers.CanCreateOnlyInOnlineContest, ContestType.OnlinePracticalExam.ToString())}" +
+                         $"{Resources.ProblemGroupsControllers.CanCreateOnlyInContestWithRandomTasks}" +
                          $" or " +
                          $"{Resources.ProblemGroupsControllers.ActiveContestCannotAddProblemGroup}")
             .When(x => x.OperationType == CrudOperationType.Create);
 
         this.RuleFor(x => x.Contest.Id)
-            .MustAsync(async (id, _) => !await this.contestsActivityService.IsContestActive(id))
+            .MustAsync(async (id, _) => !await contestsActivityService.IsContestActive(id))
             .WithMessage("Cannot delete problem group when the related contest is active")
             .When(x => x.OperationType is CrudOperationType.Update);
     }
@@ -60,14 +59,7 @@ public class ProblemGroupAdministrationModelValidator : BaseAdministrationModelV
         var contestIdToCheck =
             model.OperationType is CrudOperationType.Update ? model.Contest.Id : problemGroup!.ContestId;
 
-        if (Math.Abs(problemGroup!.OrderBy - model.OrderBy) > 0 && !await this.IsOnline(contestIdToCheck))
-        {
-            return false;
-        }
-
-        return true;
+        return Math.Abs(problemGroup!.OrderBy - model.OrderBy) <= 0 ||
+               await this.contestsDataService.IsWithRandomTasksById(contestIdToCheck);
     }
-
-    private async Task<bool> IsOnline(int id)
-        => await this.contestsDataService.IsOnlineById(id);
 }

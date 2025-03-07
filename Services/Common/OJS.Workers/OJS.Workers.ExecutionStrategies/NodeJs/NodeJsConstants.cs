@@ -2,14 +2,14 @@
 {
     public static class NodeJsConstants
     {
-        // arguments
+        // Arguments
         public const string TestsReporterArgument = "-R"; // https://node-tap.org/docs/reporting/
 
-        // flags
+        // JavaScript Flags
         public const string DelayFlag = "--delay";
         public const string LatestEcmaScriptFeaturesEnabledFlag = "--harmony";
 
-        // other
+        // Other
         public const string JsonReportName = "json";
 
         public const string UserInputPlaceholder = "#userInput#";

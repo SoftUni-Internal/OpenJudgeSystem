@@ -51,6 +51,8 @@ namespace OJS.Data.Models.Submissions
         [StringLength(ConstraintConstants.Submission.WorkerNameMaxLength)]
         public string? WorkerName { get; set; }
 
+        public ExceptionType? ExceptionType { get; set; }
+
         [NotMapped]
         public bool IsBinaryFile => !string.IsNullOrWhiteSpace(this.FileExtension);
 

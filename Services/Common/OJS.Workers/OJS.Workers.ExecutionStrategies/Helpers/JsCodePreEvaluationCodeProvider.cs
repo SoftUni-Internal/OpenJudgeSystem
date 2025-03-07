@@ -9,7 +9,8 @@ public static class JsCodePreEvaluationCodeProvider
         => executionStrategyType switch
         {
             ExecutionStrategyType.NodeJsPreprocessExecuteAndCheck or
-            ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck
+            ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck or
+            ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndCheck
                 => GetForNodeJsPreprocessExecuteAndCheck(),
 
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha or

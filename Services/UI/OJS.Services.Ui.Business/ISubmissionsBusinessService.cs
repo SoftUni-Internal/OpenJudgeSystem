@@ -13,7 +13,7 @@
     {
         Task Submit(SubmitSubmissionServiceModel model);
 
-        Task Retest(int submissionId);
+        Task Retest(int submissionId, bool verbosely = false);
 
         Task<SubmissionDetailsServiceModel> GetDetailsById(int submissionId);
 
@@ -36,5 +36,7 @@
         Task<SubmissionFileDownloadServiceModel> GetSubmissionFile(int submissionId);
 
         Task<Dictionary<SubmissionProcessingState, int>> GetAllUnprocessedCount();
+
+        string GetLogFilePath(int submissionId);
     }
 }

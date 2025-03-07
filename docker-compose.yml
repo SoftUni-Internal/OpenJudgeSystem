@@ -77,7 +77,6 @@ services:
       - Docker/envs/common.env
       - Docker/envs/worker.env
     volumes:
-      - ./Logs:/Logs
       - /tmp/ExecutionStrategies:/tmp/ExecutionStrategies
       - /var/run/docker.sock:/var/run/docker.sock
     links:

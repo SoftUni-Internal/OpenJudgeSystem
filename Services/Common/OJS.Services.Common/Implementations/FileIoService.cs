@@ -1,14 +1,10 @@
 namespace OJS.Services.Common.Implementations;
 
 using System.IO;
+using System.Threading.Tasks;
 
-public class FileIoService : IFileIoService
+public class FileIoService(IFileSystemService fileSystem) : IFileIoService
 {
-    private readonly IFileSystemService fileSystem;
-
-    public FileIoService(IFileSystemService fileSystem)
-        => this.fileSystem = fileSystem;
-
     public void CreateDirectory(string directoryPath)
         => Directory.CreateDirectory(directoryPath);
 
@@ -16,8 +12,8 @@ public class FileIoService : IFileIoService
     {
         while (true)
         {
-            var randomDirectoryName = this.fileSystem.GetRandomFileName();
-            var path = this.fileSystem.BuildPath(this.fileSystem.GetTempPath(), randomDirectoryName);
+            var randomDirectoryName = fileSystem.GetRandomFileName();
+            var path = fileSystem.BuildPath(fileSystem.GetTempPath(), randomDirectoryName);
             if (this.DirectoryExists(path))
             {
                 continue;
@@ -46,5 +42,11 @@ public class FileIoService : IFileIoService
         }
 
         Directory.Delete(path, recursive);
+    }
+
+    public async Task SaveFile(string path, byte[] content)
+    {
+        await using var fileStream = new FileStream(path, FileMode.Create);
+        await fileStream.WriteAsync(content);
     }
 }

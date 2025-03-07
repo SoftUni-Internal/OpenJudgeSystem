@@ -13,25 +13,29 @@
 
         public string CompilerComment { get; set; } = string.Empty;
 
+        public string? ProcessingComment { get; set; }
+
         public TaskResultServiceModel? TaskResult { get; set; }
 
         public OutputResult? OutputResult { get; set; }
+
+        public byte[]? VerboseLogFile { get; set; }
 
         public void RegisterMappings(IProfileExpression configuration)
             => configuration
                 .CreateMap(typeof(ExecutionResult<TestResult>), typeof(ExecutionResultServiceModel))
                 .ForMember(
                     nameof(this.CompilerComment),
-                    opt => opt.MapFrom(src => ((src as ExecutionResult<TestResult>)!).CompilerComment))
+                    opt => opt.MapFrom(src => (src as ExecutionResult<TestResult>)!.CompilerComment))
                 .ForMember(
                     nameof(this.IsCompiledSuccessfully),
-                    opt => opt.MapFrom(src => ((src as ExecutionResult<TestResult>)!).IsCompiledSuccessfully))
+                    opt => opt.MapFrom(src => (src as ExecutionResult<TestResult>)!.IsCompiledSuccessfully))
                 .ForMember(
                     nameof(this.TaskResult),
-                    opt => opt.MapFrom(src => ((src as ExecutionResult<TestResult>)!)))
+                    opt => opt.MapFrom(src => (src as ExecutionResult<TestResult>)!))
                 .ForMember(
                     nameof(this.OutputResult),
-                    opt => opt.MapFrom(src => ((src as ExecutionResult<OutputResult>)!).Results.FirstOrDefault()))
+                    opt => opt.MapFrom(src => (src as ExecutionResult<OutputResult>)!.Results.FirstOrDefault()))
                 .ForMember(nameof(this.Id), opt => opt.Ignore());
     }
 }

@@ -17,5 +17,6 @@
         CSharpDotNetCore = 10,
         // SolidityCompiler = 11,
         GolangCompiler = 12,
+        TypeScriptCompiler = 13,
     }
 }

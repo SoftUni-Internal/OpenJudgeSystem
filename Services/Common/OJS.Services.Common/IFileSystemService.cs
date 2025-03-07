@@ -12,4 +12,8 @@ public interface IFileSystemService : IService
     string GetRandomFileName();
 
     string GetTempPath();
+
+    string GetTempDirectory(string directoryName);
+
+    bool FileExists(string filePath);
 }

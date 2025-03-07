@@ -13,21 +13,11 @@ namespace OJS.Services.Administration.Data.Implementations
     using OJS.Services.Common.Data;
     using OJS.Services.Common.Models.Contests;
     using OJS.Services.Common.Models.Users;
-    using OJS.Services.Infrastructure;
     using OJS.Services.Infrastructure.Extensions;
 
-    public class ContestsDataService : AdministrationDataService<Contest>, IContestsDataService
+    public class ContestsDataService(OjsDbContext db, IContestsActivityService activityService)
+        : AdministrationDataService<Contest>(db), IContestsDataService
     {
-        private readonly IDatesService dates;
-        private readonly IContestsActivityService activityService;
-
-        public ContestsDataService(OjsDbContext db, IDatesService dates, IContestsActivityService activityService)
-            : base(db)
-        {
-            this.dates = dates;
-            this.activityService = activityService;
-        }
-
         public Task<Contest?> GetByIdWithProblems(int id)
             => this.GetByIdQuery(id)
                 .Include(c => c.ProblemGroups)
@@ -69,18 +59,17 @@ namespace OJS.Services.Administration.Data.Implementations
         {
             var contest = await this.OneById(id);
 
-            if (contest == null)
-            {
-                return false;
-            }
-
-            return await this.activityService.IsContestActive(contest.Map<ContestForActivityServiceModel>());
+            return contest != null && await activityService.IsContestActive(contest.Map<ContestForActivityServiceModel>());
         }
 
-        public async Task<bool> IsOnlineById(int id)
-            => await this.GetByIdQuery(id)
+        public async Task<bool> IsWithRandomTasksById(int id)
+        {
+            var type = await this.GetByIdQuery(id)
                 .Select(c => c.Type)
-                .FirstOrDefaultAsync() == ContestType.OnlinePracticalExam;
+                .FirstOrDefaultAsync();
+
+            return type is ContestType.OnlinePracticalExam or ContestType.OnsitePracticalExamWithRandomTasks;
+        }
 
         public Task<bool> IsUserLecturerInContestByContestAndUser(int id, string? userId)
             => this.GetByIdQuery(id)
@@ -114,8 +103,5 @@ namespace OJS.Services.Administration.Data.Implementations
 
             return problemsMaxPoints.Sum();
         }
-
-        private IQueryable<Contest> GetAllVisibleQuery()
-            => this.GetQuery(c => c.IsVisible);
     }
 }

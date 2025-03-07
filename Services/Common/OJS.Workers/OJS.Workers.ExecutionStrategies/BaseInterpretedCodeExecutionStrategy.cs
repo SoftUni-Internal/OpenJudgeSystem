@@ -22,7 +22,7 @@
         protected static string PrepareTestInput(string testInput)
             => string.Join(
                 Environment.NewLine,
-                testInput.Split(new[] { NewLineUnix, NewLineWin }, StringSplitOptions.None));
+                testInput.Split([NewLineUnix, NewLineWin], StringSplitOptions.None));
 
         protected override Task<IExecutionResult<TResult>> InternalExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,

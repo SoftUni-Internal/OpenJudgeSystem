@@ -6,7 +6,7 @@
     using System.Linq;
 
     using Ionic.Zip;
-
+    using OJS.Workers.Common.Exceptions;
     using Zip = System.IO.Compression.ZipFile;
 
     // TODO: Unit test
@@ -74,28 +74,22 @@
 
         public static void AddFilesToZipArchive(string archivePath, string pathInArchive, params string[] filePaths)
         {
-            using (var zipFile = new ZipFile(archivePath))
-            {
-                zipFile.UpdateFiles(filePaths, pathInArchive);
-                zipFile.Save();
-            }
+            using var zipFile = new ZipFile(archivePath);
+            zipFile.UpdateFiles(filePaths, pathInArchive);
+            zipFile.Save();
         }
 
         public static IEnumerable<string> GetFilePathsFromZip(string archivePath)
         {
-            using (var file = new ZipFile(archivePath))
-            {
-                return file.EntryFileNames;
-            }
+            using var file = new ZipFile(archivePath);
+            return file.EntryFileNames;
         }
 
         public static void RemoveFilesFromZip(string pathToArchive, string pattern)
         {
-            using (var file = new ZipFile(pathToArchive))
-            {
-                file.RemoveSelectedEntries(pattern);
-                file.Save();
-            }
+            using var file = new ZipFile(pathToArchive);
+            file.RemoveSelectedEntries(pattern);
+            file.Save();
         }
 
         public static void DeleteFiles(params string[] filePaths)
@@ -114,22 +108,24 @@
             }
         }
 
+        public static string ReadFile(string filePath)
+            => File.ReadAllText(filePath);
+
         public static string ExtractFileFromZip(string pathToArchive, string fileName, string destinationDirectory)
         {
-            using (var zip = new ZipFile(pathToArchive))
+            using var zip = new ZipFile(pathToArchive);
+
+            var entryToExtract = zip.Entries.FirstOrDefault(f => f.FileName.EndsWith(fileName));
+            if (entryToExtract == null)
             {
-                var entryToExtract = zip.Entries.FirstOrDefault(f => f.FileName.EndsWith(fileName));
-                if (entryToExtract == null)
-                {
-                    throw new FileNotFoundException($"{fileName} not found in submission!");
-                }
-
-                entryToExtract.Extract(destinationDirectory);
-
-                var extractedFilePath = $"{destinationDirectory}{Path.DirectorySeparatorChar}{entryToExtract.FileName.Replace("/",  Path.DirectorySeparatorChar.ToString())}";
-
-                return extractedFilePath;
+                throw new SolutionException($"The file \"{fileName}\" was not found in the submission!");
             }
+
+            entryToExtract.Extract(destinationDirectory);
+
+            var extractedFilePath = $"{destinationDirectory}{Path.DirectorySeparatorChar}{entryToExtract.FileName.Replace("/", Path.DirectorySeparatorChar.ToString())}";
+
+            return extractedFilePath;
         }
 
         public static bool FileExistsInZip(string pathToArchive, string fileName)
@@ -148,6 +144,9 @@
 
         public static string BuildPath(params string[] paths) => Path.Combine(paths);
 
+        public static string BuildSubmissionLogFilePath(int submissionId)
+            => Path.Combine(Path.GetTempPath(), $"submission-{submissionId}.log");
+
         public static void WriteAllText(string filePath, string text)
             => File.WriteAllText(filePath, text);
 
@@ -155,6 +154,22 @@
             => File.WriteAllBytes(filePath, data);
 
         public static bool FileExists(string filePath) => File.Exists(filePath);
+
+        public static async Task<byte[]> ReadFileUpToBytes(string filePath, int maxBytes)
+        {
+            // If the file is less than 10 MB, read the entire file
+            var fileInfo = new FileInfo(filePath);
+            if (fileInfo.Length <= maxBytes)
+            {
+                return await File.ReadAllBytesAsync(filePath);
+            }
+
+            // Otherwise, read only the first 10 MB
+            var buffer = new byte[maxBytes];
+            await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+            await stream.ReadExactlyAsync(buffer, 0, maxBytes);
+            return buffer;
+        }
 
         private static List<string> DiscoverAllFilesMatchingPattern(string workingDirectory, string pattern)
         {
@@ -166,9 +181,7 @@
 
             if (files.Count == 0)
             {
-                throw new ArgumentException(
-                    $@"'{pattern}' file not found in output directory!",
-                    nameof(pattern));
+                throw new SolutionException($"A file following the pattern '{pattern}' was not found in the submission!");
             }
 
             return files;

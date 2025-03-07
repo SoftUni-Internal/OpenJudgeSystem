@@ -40,15 +40,9 @@
             string additionalArguments,
             bool useInputFileDirectoryAsWorking = false)
         {
-            if (compilerPath == null)
-            {
-                throw new ArgumentNullException(nameof(compilerPath));
-            }
+            ArgumentNullException.ThrowIfNull(compilerPath);
 
-            if (inputDirectory == null)
-            {
-                throw new ArgumentNullException(nameof(inputDirectory));
-            }
+            ArgumentNullException.ThrowIfNull(inputDirectory);
 
             if (!File.Exists(compilerPath))
             {

@@ -36,7 +36,7 @@ namespace OJS.Services.Ui.Business.Implementations
         private readonly IContestParticipationValidationService contestParticipationValidationService;
         private readonly IContestParticipantsCacheService contestParticipantsCacheService;
         private readonly IContestsCacheService contestsCacheService;
-        private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
+        private readonly ILecturersInContestsCacheService lecturersInContestsCache;
         private readonly IContestDetailsValidationService contestDetailsValidationService;
 
         public ContestsBusinessService(
@@ -50,7 +50,7 @@ namespace OJS.Services.Ui.Business.Implementations
             IContestParticipationValidationService contestParticipationValidationService,
             IContestParticipantsCacheService contestParticipantsCacheService,
             IContestsCacheService contestsCacheService,
-            ILecturersInContestsBusinessService lecturersInContestsBusiness,
+            ILecturersInContestsCacheService lecturersInContestsCache,
             IContestDetailsValidationService contestDetailsValidationService)
         {
             this.contestsData = contestsData;
@@ -63,7 +63,7 @@ namespace OJS.Services.Ui.Business.Implementations
             this.contestParticipationValidationService = contestParticipationValidationService;
             this.contestParticipantsCacheService = contestParticipantsCacheService;
             this.contestsCacheService = contestsCacheService;
-            this.lecturersInContestsBusiness = lecturersInContestsBusiness;
+            this.lecturersInContestsCache = lecturersInContestsCache;
             this.contestDetailsValidationService = contestDetailsValidationService;
         }
 
@@ -72,7 +72,7 @@ namespace OJS.Services.Ui.Business.Implementations
             var user = this.userProviderService.GetCurrentUser();
             var contest = await this.contestsCacheService.GetContestDetailsServiceModel(id);
             var category = await this.contestCategoriesCache.GetById(contest?.CategoryId);
-            var isLecturerInContestOrAdmin = await this.lecturersInContestsBusiness.IsCurrentUserAdminOrLecturerInContest(contest?.Id);
+            var isLecturerInContestOrAdmin = await this.lecturersInContestsCache.IsUserAdminOrLecturerInContest(contest?.Id, contest?.CategoryId, user);
 
             var validationResult = this.contestDetailsValidationService.GetValidationResult((
                 contest,
@@ -99,7 +99,7 @@ namespace OJS.Services.Ui.Business.Implementations
                 ? competeParticipant
                 : practiceParticipant;
 
-            if (!isLecturerInContestOrAdmin && participantToGetProblemsFrom != null && contestActivityEntity.CanBeCompeted && contest!.IsOnlineExam)
+            if (!isLecturerInContestOrAdmin && participantToGetProblemsFrom != null && contestActivityEntity.CanBeCompeted && contest!.IsWithRandomTasks)
             {
                 var problemsForParticipantIds = participantToGetProblemsFrom.ProblemsForParticipants.Select(x => x.ProblemId);
                 contest.Problems = contest.Problems
@@ -108,7 +108,7 @@ namespace OJS.Services.Ui.Business.Implementations
             }
 
             var canShowProblemsInCompete =
-                (!contest!.HasContestPassword && !contest.IsOnlineExam && contestActivityEntity is { CanBeCompeted: true, CompeteUserActivity: not null })
+                (!contest!.HasContestPassword && !contest.IsWithRandomTasks && contestActivityEntity is { CanBeCompeted: true, CompeteUserActivity: not null })
                  || isLecturerInContestOrAdmin
                  || contestActivityEntity.CompeteUserActivity?.IsActive == true;
 
@@ -173,7 +173,7 @@ namespace OJS.Services.Ui.Business.Implementations
                 throw new BusinessServiceException(validationResult.Message);
             }
 
-            var userIsAdminOrLecturerInContest = await this.lecturersInContestsBusiness.IsCurrentUserAdminOrLecturerInContest(contest?.Id);
+            var userIsAdminOrLecturerInContest = await this.lecturersInContestsCache.IsUserAdminOrLecturerInContest(contest?.Id, contest?.CategoryId, user);
 
             contest!.RequirePassword = ShouldRequirePassword(contest.HasContestPassword, contest.HasPracticePassword, participant!, isOfficial);
             contest.ParticipantId = participant?.Id;
@@ -215,7 +215,7 @@ namespace OJS.Services.Ui.Business.Implementations
                 throw new BusinessServiceException(validationResult.Message);
             }
 
-            var userIsAdminOrLecturerInContest = await this.lecturersInContestsBusiness.IsCurrentUserAdminOrLecturerInContest(contest?.Id);
+            var userIsAdminOrLecturerInContest = await this.lecturersInContestsCache.IsUserAdminOrLecturerInContest(contest?.Id, contest?.CategoryId, user);
             var shouldRequirePassword = ShouldRequirePassword(contest!.HasContestPassword, contest!.HasPracticePassword, participantForActivity, isOfficial);
             var shouldConfirmParticipation =
                 ShouldConfirmParticipation(participantForActivity, isOfficial, contest!.IsOnlineExam, userIsAdminOrLecturerInContest);
@@ -308,7 +308,7 @@ namespace OJS.Services.Ui.Business.Implementations
                 throw new BusinessServiceException(validationResult.Message);
             }
 
-            var userIsAdminOrLecturerInContest = await this.lecturersInContestsBusiness.IsCurrentUserAdminOrLecturerInContest(contest?.Id);
+            var userIsAdminOrLecturerInContest = await this.lecturersInContestsCache.IsUserAdminOrLecturerInContest(contest?.Id, contest?.CategoryId, user);
 
             participant.IsRegisteredParticipant = true;
             participant.Contest!.UserIsAdminOrLecturerInContest = userIsAdminOrLecturerInContest;
@@ -327,9 +327,7 @@ namespace OJS.Services.Ui.Business.Implementations
                     participant.Contest.Problems.Select(x => x.Id),
                     participantsList);
 
-            var isOfficialOnlineContest = model.IsOfficial && contest.IsOnlineExam;
-
-            if (!userIsAdminOrLecturerInContest && isOfficialOnlineContest)
+            if (!userIsAdminOrLecturerInContest && model.IsOfficial && contest.IsWithRandomTasks)
             {
                 participant.Contest.Problems = [.. participant.Contest.Problems
                     .Where(x => participant.ProblemsForParticipantIds.Contains(x.Id))

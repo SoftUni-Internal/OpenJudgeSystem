@@ -81,12 +81,6 @@ public class ContestsDataService : DataService<Contest>, IContestsDataService
     public Task<int> GetMaxPointsForExportById(int id)
         => this.GetMaxPointsByIdAndProblemGroupsFilter(id, pg => pg.Type != ProblemGroupType.ExcludedFromHomework);
 
-    public Task<bool> IsUserLecturerInByContestAndUser(int id, string userId)
-        => this.GetByIdQuery(id)
-            .AnyAsync(c =>
-                c.LecturersInContests.Any(l => l.LecturerId == userId) ||
-                c.Category!.LecturersInContestCategories.Any(l => l.LecturerId == userId));
-
     public Task<bool> IsUserInExamGroupByContestAndUser(int id, string userId)
         => this.Exists(c =>
                 c.Id == id &&

@@ -18,10 +18,16 @@ namespace OJS.Workers.Compilers
 
         public override string ChangeOutputFileAfterCompilation(string outputFile)
         {
-            string compiledFileName = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(outputFile));
-            string rootDir = Path.GetDirectoryName(outputFile);
-            string compiledFile =
-                FileHelpers.FindFileMatchingPattern(
+            var compiledFileName = Path.GetFileNameWithoutExtension(Path.GetFileNameWithoutExtension(outputFile));
+            var rootDir = Path.GetDirectoryName(outputFile);
+
+            if (rootDir is null)
+            {
+                throw new FileNotFoundException(
+                    $"The compiled file '{outputFile}' was not found or does not have a valid directory path. Ensure the compilation process generated the expected output file with a full path.");
+            }
+
+            var compiledFile = FileHelpers.FindFileMatchingPattern(
                     rootDir,
                     $"{compiledFileName}{Constants.ClassLibraryFileExtension}");
 

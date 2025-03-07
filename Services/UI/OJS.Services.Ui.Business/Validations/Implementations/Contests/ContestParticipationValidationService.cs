@@ -7,24 +7,25 @@ using OJS.Services.Common.Models.Users;
 using OJS.Services.Infrastructure;
 using OJS.Services.Ui.Data;
 using OJS.Services.Infrastructure.Models;
+using OJS.Services.Ui.Business.Cache;
 using OJS.Services.Ui.Models.Contests;
 
 public class ContestParticipationValidationService : IContestParticipationValidationService
 {
     private readonly IDatesService datesService;
     private readonly IContestsActivityService activityService;
-    private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
+    private readonly ILecturersInContestsCacheService lecturersInContestsCache;
     private readonly IContestsDataService contestsData;
 
     public ContestParticipationValidationService(
         IDatesService datesService,
         IContestsActivityService activityService,
-        ILecturersInContestsBusinessService lecturersInContestsBusiness,
+        ILecturersInContestsCacheService lecturersInContestsCache,
         IContestsDataService contestsData)
     {
         this.datesService = datesService;
         this.activityService = activityService;
-        this.lecturersInContestsBusiness = lecturersInContestsBusiness;
+        this.lecturersInContestsCache = lecturersInContestsCache;
         this.contestsData = contestsData;
     }
 
@@ -32,9 +33,8 @@ public class ContestParticipationValidationService : IContestParticipationValida
     {
         var (contest, contestCategory, participant, user, official) = item;
 
-        // TODO: Fix so it uses lecturers in contests business service
-        var userIsAdminOrLecturerInContest = user != null && (user.IsAdmin || await this.lecturersInContestsBusiness
-            .IsCurrentUserAdminOrLecturerInContest(contest?.Id));
+        var userIsAdminOrLecturerInContest = await this.lecturersInContestsCache
+            .IsUserAdminOrLecturerInContest(contest?.Id, contest?.CategoryId, user);
 
         var contestIsVisible = contest?.IsVisible == true || contest?.VisibleFrom <= this.datesService.GetUtcNow();
 
