@@ -52,10 +52,13 @@ const ContestStrategies = ({ setSearchParams, searchParams }: IContestStrategies
 
             if (selected) {
                 dispatch(setContestStrategy(selected));
+                searchParams.set('page', '1');
+                setSearchParams(searchParams);
             } else {
                 dispatch(setContestStrategy(null));
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ selectedId, contestStrategies, dispatch ]);
 
     if (strategiesError) {

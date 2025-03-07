@@ -28,12 +28,13 @@ import styles from './ContestsPage.module.scss';
 const ContestsPage = () => {
     const dispatch = useAppDispatch();
     const { categoryId } = useParams();
-    const { breadcrumbItems, selectedStrategy } = useAppSelector((state) => state.contests);
     const { themeColors, getColorClassName } = useTheme();
     const {
         contests,
         contestsCacheIsReset,
         selectedCategory,
+        selectedStrategy,
+        breadcrumbItems,
     } = useAppSelector((state) => state.contests);
 
     const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
@@ -70,10 +71,6 @@ const ContestsPage = () => {
         error: allContestsError,
         isFetching: areContestsFetching,
     } = useGetAllContestsQuery({ ...contestParams });
-
-    useEffect(() => {
-        dispatch(setContestStrategy(null));
-    }, [ categoryId, dispatch ]);
 
     useEffect(() => {
         if (!categoryId && breadcrumbItems.length > 0) {
