@@ -16,7 +16,6 @@ import {
     clearContestCategoryBreadcrumbItems,
     setContests,
     setContestsCacheIsReset,
-    setContestStrategy,
 } from '../../redux/features/contestsSlice';
 import { useGetAllContestsQuery } from '../../redux/services/contestsService';
 import { useAppDispatch, useAppSelector } from '../../redux/store';
