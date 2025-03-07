@@ -3,14 +3,13 @@
 using AutoMapper;
 using OJS.Services.Infrastructure.Models.Mapping;
 using System.Collections.Generic;
-using System.Linq;
 using OJS.Workers.ExecutionStrategies.Models;
 
 public class TaskResultServiceModel : IMapExplicitly
 {
     public int Points { get; set; }
 
-    public IEnumerable<TestResultServiceModel> TestResults { get; set; } = Enumerable.Empty<TestResultServiceModel>();
+    public IEnumerable<TestResultServiceModel> TestResults { get; set; } = [];
 
     public void RegisterMappings(IProfileExpression configuration)
         => configuration

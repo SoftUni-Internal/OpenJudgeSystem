@@ -5,10 +5,11 @@ using OJS.Data.Models;
 using System.Text;
 using System.Threading.Tasks;
 using OJS.Data.Models.Submissions;
-using OJS.Services.Common;
 using OJS.Services.Common.Data;
+using OJS.Services.Common.Models.Users;
 using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Models;
+using OJS.Services.Ui.Business.Cache;
 using OJS.Services.Ui.Business.Validations.Implementations.Contests;
 using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.Cache;
@@ -18,20 +19,20 @@ using System.Linq;
 
 public class SubmitSubmissionValidationService : ISubmitSubmissionValidationService
 {
-    private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
+    private readonly ILecturersInContestsCacheService lecturersInContestsCache;
     private readonly ISubmissionsDataService submissionsData;
     private readonly IContestsActivityService contestsActivity;
     private readonly IDataService<ProblemForParticipant> problemsForParticipantsData;
     private readonly IDatesService dates;
 
     public SubmitSubmissionValidationService(
-        ILecturersInContestsBusinessService lecturersInContestsBusiness,
+        ILecturersInContestsCacheService lecturersInContestsCache,
         ISubmissionsDataService submissionsData,
         IContestsActivityService contestsActivity,
         IDataService<ProblemForParticipant> problemsForParticipantsData,
         IDatesService dates)
     {
-        this.lecturersInContestsBusiness = lecturersInContestsBusiness;
+        this.lecturersInContestsCache = lecturersInContestsCache;
         this.submissionsData = submissionsData;
         this.contestsActivity = contestsActivity;
         this.problemsForParticipantsData = problemsForParticipantsData;
@@ -42,9 +43,10 @@ public class SubmitSubmissionValidationService : ISubmitSubmissionValidationServ
         (ProblemForSubmitCacheModel?,
         ParticipantSubmitServiceModel?,
         SubmitSubmissionServiceModel,
-        SubmissionType?) item)
+        SubmissionType?,
+        UserInfoModel? user) item)
     {
-        var (problem, participant, submitSubmissionServiceModel, submissionType) = item;
+        var (problem, participant, submitSubmissionServiceModel, submissionType, user) = item;
 
         if (problem == null)
         {
@@ -58,8 +60,8 @@ public class SubmitSubmissionValidationService : ISubmitSubmissionValidationServ
             return ValidationResult.Invalid(ValidationMessages.Participant.NotRegisteredForContest);
         }
 
-        var isAdminOrLecturer = await this.lecturersInContestsBusiness
-            .IsCurrentUserAdminOrLecturerInContest(participant.ContestId);
+        var isAdminOrLecturer = await this.lecturersInContestsCache
+            .IsUserAdminOrLecturerInContest(participant.ContestId, participant.ContestCategoryId, user);
 
         if (participantActivity.IsInvalidated)
         {

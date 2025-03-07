@@ -36,6 +36,8 @@
 
         public DateTime? StartedExecutionOn { get; set; }
 
+        public bool Verbosely { get; set; }
+
         public SimpleExecutionDetailsServiceModel? SimpleExecutionDetails { get; set; }
 
         public TestsExecutionDetailsServiceModel? TestsExecutionDetails { get; set; }
@@ -82,6 +84,9 @@
                 .ForMember(
                     nameof(OjsSubmission<object>.ExecutionStrategyBaseTimeLimit),
                     opt => opt.MapFrom(nameof(SubmissionServiceModel.ExecutionStrategyBaseTimeLimit)))
+                .ForMember(
+                    nameof(OjsSubmission<object>.Verbosely),
+                    opt => opt.MapFrom(nameof(SubmissionServiceModel.Verbosely)))
                 .ForMember(nameof(OjsSubmission<object>.AdditionalCompilerArguments), opt => opt.Ignore())
                 .ForMember(nameof(OjsSubmission<object>.ProcessingComment), opt => opt.Ignore())
                 .ForMember(nameof(OjsSubmission<object>.AllowedFileExtensions), opt => opt.Ignore())
@@ -149,6 +154,7 @@
                 .ForMember(
                     d => d.ExecutionOptions,
                     opt => opt.Ignore())
+                .ForMember(d => d.Verbosely, opt => opt.Ignore())
                 .AfterMap((src, dest) =>
                 {
                     if (src.SubmissionType is { MaxAllowedTimeLimitInMilliseconds: not null } &&

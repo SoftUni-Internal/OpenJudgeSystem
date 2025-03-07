@@ -244,7 +244,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
 
         contest.MapFrom(model);
 
-        if (model.IsOnlineExam && contest.ProblemGroups.Count == 0)
+        if (model.IsWithRandomTasks && contest.ProblemGroups.Count == 0)
         {
             AddProblemGroupsToContest(contest, model.NumberOfProblemGroups);
         }

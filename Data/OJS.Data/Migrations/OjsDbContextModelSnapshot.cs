@@ -910,6 +910,9 @@ namespace OJS.Data.Migrations
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("ExceptionType")
+                        .HasColumnType("int");
+
                     b.Property<string>("FileExtension")
                         .HasColumnType("nvarchar(max)");
 

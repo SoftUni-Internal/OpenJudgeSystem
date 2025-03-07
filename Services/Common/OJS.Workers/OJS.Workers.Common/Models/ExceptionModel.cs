@@ -10,9 +10,13 @@
         {
         }
 
-        public ExceptionModel(Exception exception, bool includeStackTrace = false)
+        public ExceptionModel(
+            Exception exception,
+            bool includeStackTrace = false,
+             ExceptionType? exceptionType = null)
         {
             this.Message = exception.GetAllMessages();
+            this.ExceptionType = exceptionType;
 
             if (includeStackTrace)
             {
@@ -23,5 +27,7 @@
         public string? Message { get; set; }
 
         public string? StackTrace { get; set; }
+
+        public ExceptionType? ExceptionType { get; set; }
     }
 }

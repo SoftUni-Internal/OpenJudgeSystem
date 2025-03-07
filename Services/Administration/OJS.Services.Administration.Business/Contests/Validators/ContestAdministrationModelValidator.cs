@@ -59,12 +59,11 @@ public class ContestAdministrationModelValidator : BaseAdministrationModelValida
             .When(model => model.OperationType is CrudOperationType.Update);
 
         this.RuleFor(model => model)
-            .Must(ValidateOnlineContestProblemGroups)
+            .Must(ValidateContestProblemGroups)
             .WithMessage($"The number of problem groups cannot be less than 0 and more than {ProblemGroupsCountLimit}")
             .WithName("Number of problem groups")
             .NotNull()
-            .When(model => model.OperationType == CrudOperationType.Create &&
-                           model.Type == ContestType.OnlinePracticalExam.ToString());
+            .When(model => model.OperationType == CrudOperationType.Create);
 
         this.RuleFor(model => model.Id)
             .MustAsync(async (x, _) => !await this.activityService.IsContestActive(x))
@@ -86,9 +85,9 @@ public class ContestAdministrationModelValidator : BaseAdministrationModelValida
         return isValid;
     }
 
-    private static bool ValidateOnlineContestProblemGroups(ContestAdministrationModel model)
+    private static bool ValidateContestProblemGroups(ContestAdministrationModel model)
     {
-        if (model.IsOnlineExam)
+        if (model.IsWithRandomTasks)
         {
             if (model.NumberOfProblemGroups <= 0)
             {

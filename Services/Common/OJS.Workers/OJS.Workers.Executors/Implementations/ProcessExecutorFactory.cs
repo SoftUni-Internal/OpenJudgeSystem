@@ -16,15 +16,17 @@ namespace OJS.Workers.Executors.Implementations
             this.logger = logger;
         }
 
-        public IExecutor CreateProcessExecutor(
+        public IExecutor CreateProcessExecutor<T>(
             int baseTimeUsed,
             int baseMemoryUsed,
-            ProcessExecutorType type) =>
+            ProcessExecutorType type,
+            ILogger<T> strategyLogger)
+            where T : IExecutionStrategy =>
             type switch
             {
-                ProcessExecutorType.Default => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger),
-                ProcessExecutorType.Standard => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger),
-                _ => throw new AggregateException("Invalid process executor type provided."),
+                ProcessExecutorType.Standard => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger, strategyLogger),
+                ProcessExecutorType.Restricted => new StandardProcessExecutor(baseTimeUsed, baseMemoryUsed, this.tasksService, this.logger, strategyLogger, runAsRestrictedUser: true),
+                _ => throw new ArgumentOutOfRangeException($"Unsupported process executor: {type}"),
             };
     }
 }

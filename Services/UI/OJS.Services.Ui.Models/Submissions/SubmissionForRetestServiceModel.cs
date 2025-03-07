@@ -12,6 +12,8 @@ public class SubmissionForRetestServiceModel : IMapExplicitly
 
     public int ContestId { get; set; }
 
+    public int? ContestCategoryId { get; set; }
+
     public int TestRunsCount { get; set; }
 
     public bool Processed { get; set; }
@@ -23,5 +25,6 @@ public class SubmissionForRetestServiceModel : IMapExplicitly
             .CreateMap<Submission, SubmissionForRetestServiceModel>()
             .ForMember(m => m.UserId, opt => opt.MapFrom(s => s.Participant.UserId))
             .ForMember(m => m.ContestId, opt => opt.MapFrom(s => s.Participant.ContestId))
+            .ForMember(m => m.ContestCategoryId, opt => opt.MapFrom(s => s.Participant.Contest.CategoryId))
             .ForMember(m => m.TestRunsCount, opt => opt.MapFrom(s => s.TestRuns.Count));
 }

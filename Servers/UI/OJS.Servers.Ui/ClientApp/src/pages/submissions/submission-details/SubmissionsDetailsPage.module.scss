@@ -170,3 +170,11 @@
   margin: spacings.$sp-18 0;
   padding: spacings.$sp-12;
 }
+
+.logsDownloadFileErrorWrapper {
+    background-color: colors.$dark-base-color-200;
+    color: colors.$primary-red;
+    border-radius: border-radiuses.$br-6;
+    margin: spacings.$sp-18 0;
+    padding: spacings.$sp-24 spacings.$sp-32;
+}

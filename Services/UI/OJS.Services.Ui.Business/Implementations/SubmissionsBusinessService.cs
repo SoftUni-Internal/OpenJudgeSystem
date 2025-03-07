@@ -5,7 +5,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OJS.Common;
 using OJS.Common.Enumerations;
-using OJS.Data;
 using OJS.Data.Models.Participants;
 using OJS.Data.Models.Submissions;
 using OJS.Data.Models.Tests;
@@ -32,6 +31,7 @@ using System.Threading.Tasks;
 using OJS.Data.Models.Problems;
 using OJS.Services.Ui.Business.Cache;
 using OJS.Workers.Common.Extensions;
+using static OJS.Common.GlobalConstants.Submissions;
 using static OJS.Services.Common.Constants.PaginationConstants.Submissions;
 using static OJS.Services.Infrastructure.Models.ModelHelpers;
 using static OJS.Services.Ui.Business.Constants.Comments;
@@ -48,7 +48,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private readonly IParticipantsDataService participantsDataService;
     private readonly IProblemsDataService problemsDataService;
     private readonly IUserProviderService userProviderService;
-    private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
+    private readonly ILecturersInContestsCacheService lecturersInContestsCache;
     private readonly ISubmissionDetailsValidationService submissionDetailsValidationService;
     private readonly ISubmitSubmissionValidationService submitSubmissionValidationService;
     private readonly ISubmissionResultsValidationService submissionResultsValidationService;
@@ -62,6 +62,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private readonly ITestRunsDataService testRunsDataService;
     private readonly IProblemsCacheService problemsCache;
     private readonly IContestCategoriesCacheService contestCategoriesCache;
+    private readonly IFileIoService fileIo;
+    private readonly IFileSystemService fileSystem;
 
     public SubmissionsBusinessService(
         ILogger<SubmissionsBusinessService> logger,
@@ -73,7 +75,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         ISubmissionsCommonBusinessService submissionsCommonBusinessService,
         IUserProviderService userProviderService,
         IParticipantScoresBusinessService participantScoresBusinessService,
-        ILecturersInContestsBusinessService lecturersInContestsBusiness,
+        ILecturersInContestsCacheService lecturersInContestsCache,
         ISubmissionDetailsValidationService submissionDetailsValidationService,
         ISubmitSubmissionValidationService submitSubmissionValidationService,
         ISubmissionResultsValidationService submissionResultsValidationService,
@@ -87,14 +89,16 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         ICacheService cache,
         ITestRunsDataService testRunsDataService,
         IProblemsCacheService problemsCache,
-        IContestCategoriesCacheService contestCategoriesCache)
+        IContestCategoriesCacheService contestCategoriesCache,
+        IFileIoService fileIo,
+        IFileSystemService fileSystem)
     {
         this.logger = logger;
         this.submissionsData = submissionsData;
         this.submissionsCommonData = submissionsCommonData;
         this.usersBusiness = usersBusiness;
         this.problemsDataService = problemsDataService;
-        this.lecturersInContestsBusiness = lecturersInContestsBusiness;
+        this.lecturersInContestsCache = lecturersInContestsCache;
         this.submissionsCommonBusinessService = submissionsCommonBusinessService;
         this.participantsDataService = participantsDataService;
         this.userProviderService = userProviderService;
@@ -113,17 +117,19 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.testRunsDataService = testRunsDataService;
         this.problemsCache = problemsCache;
         this.contestCategoriesCache = contestCategoriesCache;
+        this.fileIo = fileIo;
+        this.fileSystem = fileSystem;
     }
 
-    public async Task Retest(int submissionId)
+    public async Task Retest(int submissionId, bool verbosely = false)
     {
         var submission = await this.submissionsData.GetSubmissionById<SubmissionForRetestServiceModel>(submissionId)
             ?? throw new BusinessServiceException(ValidationMessages.Submission.NotFound);
 
         var user = this.userProviderService.GetCurrentUser();
 
-        var userIsAdminOrLecturerInContest = await this.lecturersInContestsBusiness
-            .IsCurrentUserAdminOrLecturerInContest(submission.ContestId);
+        var userIsAdminOrLecturerInContest = await this.lecturersInContestsCache
+            .IsUserAdminOrLecturerInContest(submission.ContestId, submission.ContestCategoryId, user);
 
         var validationResult = await this.retestSubmissionValidationService.GetValidationResult((
                 submission,
@@ -135,7 +141,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             throw new BusinessServiceException(validationResult.Message);
         }
 
-        await this.publisher.Publish(new RetestSubmissionPubSubModel { Id = submissionId });
+        verbosely = verbosely && userIsAdminOrLecturerInContest;
+        await this.publisher.Publish(new RetestSubmissionPubSubModel { Id = submissionId, Verbosely = verbosely });
     }
 
     public async Task<SubmissionDetailsServiceModel> GetDetailsById(int submissionId)
@@ -143,10 +150,10 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         var submission = await this.submissionsData.GetSubmissionById<SubmissionDetailsServiceModel>(submissionId)
             ?? throw new BusinessServiceException(ValidationMessages.Submission.NotFound);
 
-        var userAdminOrLecturerInContest = await this.lecturersInContestsBusiness
-            .IsCurrentUserAdminOrLecturerInContest(submission.ContestId);
-
         var currentUser = this.userProviderService.GetCurrentUser();
+
+        var userAdminOrLecturerInContest = await this.lecturersInContestsCache
+            .IsUserAdminOrLecturerInContest(submission.ContestId, submission.ContestCategoryId, currentUser);
 
         var validationResult = this.submissionDetailsValidationService
             .GetValidationResult((submission, currentUser, userAdminOrLecturerInContest));
@@ -235,7 +242,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             Content = submissionDetailsServiceModel!.ByteContent,
             MimeType = GlobalConstants.MimeTypes.ApplicationOctetStream,
             FileName = string.Format(
-                GlobalConstants.Submissions.SubmissionDownloadFileName,
+                SubmissionDownloadFileName,
                 submissionDetailsServiceModel.Id,
                 submissionDetailsServiceModel.FileExtension),
         };
@@ -246,6 +253,11 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             .GetAllUnprocessed()
             .GroupBy(sfp => sfp.State)
             .ToDictionaryAsync(sfp => sfp.Key, sfp => sfp.Count());
+
+    public string GetLogFilePath(int submissionId)
+        => this.fileSystem.BuildPath(
+            this.fileSystem.GetTempDirectory("submission-logs"),
+            $"submission-{submissionId}.log");
 
     public async Task<PagedResult<TServiceModel>> GetByUsername<TServiceModel>(
         string? username,
@@ -339,6 +351,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 IsOfficial = p.IsOfficial,
                 ContestId = p.ContestId,
                 ContestType = p.Contest.Type,
+                ContestCategoryId = p.Contest.CategoryId,
                 LastSubmissionTime = p.LastSubmissionTime,
                 ParticipationStartTime = p.ParticipationStartTime,
                 ParticipationEndTime = p.ParticipationEndTime,
@@ -348,7 +361,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 ContestPracticeEndTime = p.Contest.PracticeEndTime,
                 ContestLimitBetweenSubmissions = p.Contest.LimitBetweenSubmissions,
                 ContestAllowParallelSubmissionsInTasks = p.Contest.AllowParallelSubmissionsInTasks,
-                Problems = model.Official && model.IsOnlineExam
+                Problems = model.Official && model.IsWithRandomTasks
                     ? p.ProblemsForParticipants
                         .Select(pfp => new ProblemForParticipantServiceModel
                         {
@@ -365,7 +378,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             .FirstOrDefault(st => st.Id == model.SubmissionTypeId);
 
         var submitSubmissionValidationServiceResult = await this.submitSubmissionValidationService.GetValidationResult(
-            (problem, participant, model, submissionType));
+            (problem, participant, model, submissionType, currentUser));
 
         if (!submitSubmissionValidationServiceResult.IsValid)
         {
@@ -426,7 +439,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         var submissionServiceModel =
             this.submissionsCommonBusinessService.BuildSubmissionForProcessing(newSubmission, problem.Map<Problem>(),
-                submissionType);
+                submissionType, executeVerbosely: model.Verbosely && currentUser.IsAdminOrLecturer);
 
         await this.submissionsCommonBusinessService.PublishSubmissionForProcessing(submissionServiceModel,
             submissionForProcessing!);
@@ -468,21 +481,27 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
             if (executionResult != null)
             {
+                submission.ProcessingComment = executionResult.ProcessingComment;
                 ProcessTestsExecutionResult(submission, executionResult);
                 await this.SaveParticipantScore(participant, submission);
                 CacheTestRuns(submission);
             }
             else
             {
+                submission.ExceptionType = exception?.ExceptionType ?? ExceptionType.Other;
                 submission.IsCompiledSuccessfully = false;
-                var errorMessage = exception?.Message
-                    ?? "Invalid execution result received. Please contact an administrator.";
+                var errorMessage = exception?.Message ?? "Invalid execution result received. Please contact an administrator.";
                 submission.ProcessingComment = errorMessage;
-                submission.CompilerComment = ProcessingExceptionCompilerComment;
+                submission.CompilerComment = exception?.ExceptionType == ExceptionType.Solution ? exception.Message : ProcessingExceptionCompilerComment;
             }
 
             await this.submissionsForProcessingData.SetProcessingState(submissionForProcessing, SubmissionProcessingState.Processed);
         });
+
+        if (executionResult?.VerboseLogFile != null)
+        {
+            await this.fileIo.SaveFile(this.GetLogFilePath(submission.Id), executionResult.VerboseLogFile);
+        }
 
         this.logger.LogSubmissionProcessedSuccessfully(submission.Id, submissionForProcessing);
     }

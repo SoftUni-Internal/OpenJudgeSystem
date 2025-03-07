@@ -12,9 +12,10 @@ public interface ISubmissionsCommonBusinessService : IService
     SubmissionServiceModel BuildSubmissionForProcessing(
         Submission submission,
         Problem problem,
-        SubmissionType submissionType);
+        SubmissionType submissionType,
+        bool executeVerbosely = false);
 
-    SubmissionServiceModel BuildSubmissionForProcessing(Submission submission);
+    SubmissionServiceModel BuildSubmissionForProcessing(Submission submission, bool executeVerbosely = false);
 
     Task PublishSubmissionForProcessing(SubmissionServiceModel submission, SubmissionForProcessing submissionForProcessing);
 

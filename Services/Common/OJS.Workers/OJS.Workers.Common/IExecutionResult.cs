@@ -1,19 +1,22 @@
-﻿namespace OJS.Workers.Common
+﻿namespace OJS.Workers.Common;
+
+using System;
+using System.Collections.Generic;
+
+public interface IExecutionResult<TResult>
+    where TResult : ISingleCodeRunResult, new()
 {
-    using System;
-    using System.Collections.Generic;
+    bool IsCompiledSuccessfully { get; set; }
 
-    public interface IExecutionResult<TResult>
-        where TResult : ISingleCodeRunResult, new()
-    {
-        bool IsCompiledSuccessfully { get; set; }
+    string CompilerComment { get; set; }
 
-        string CompilerComment { get; set; }
+    string? ProcessingComment { get; set; }
 
-        ICollection<TResult> Results { get; }
+    ICollection<TResult> Results { get; }
 
-        DateTime? StartedExecutionOn { get; set; }
+    DateTime? StartedExecutionOn { get; set; }
 
-        DateTime? CompletedExecutionOn { get; set; }
-    }
+    DateTime? CompletedExecutionOn { get; set; }
+
+    byte[]? VerboseLogFile { get; set; }
 }

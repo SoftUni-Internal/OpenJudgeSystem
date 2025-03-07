@@ -63,10 +63,10 @@ export const contestSlice = createSlice({
             state.breadcrumbItems = [];
         },
         setContestDetailsIdAndCategoryId: (state, action: PayloadAction<{
-            id: number; name: string; categoryId: number; isOnlineExam?: boolean;
+            id: number; name: string; categoryId: number; isWithRandomTasks?: boolean;
         }>) => {
-            const { id, name, categoryId, isOnlineExam } = action.payload;
-            state.contestDetails = { id, name, categoryId, isOnlineExam };
+            const { id, name, categoryId, isWithRandomTasks } = action.payload;
+            state.contestDetails = { id, name, categoryId, isWithRandomTasks };
         },
         setSelectedContestDetailsProblem: (state, action: PayloadAction<{ selectedProblem: IProblemType | null }>) => {
             const { selectedProblem } = action.payload;

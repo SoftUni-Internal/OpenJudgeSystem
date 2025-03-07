@@ -8,7 +8,7 @@
 
         string AdditionalCompilerArguments { get; }
 
-        string ProcessingComment { get; set; }
+        string? ProcessingComment { get; set; }
 
         int MemoryLimit { get; }
 
@@ -35,5 +35,7 @@
         DateTime? StartedExecutionOn { get; set; }
 
         DateTime? CompletedExecutionOn { get; set; }
+
+        bool Verbosely { get; set; }
     }
 }

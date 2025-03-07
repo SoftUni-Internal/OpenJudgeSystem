@@ -140,6 +140,10 @@
   display: flex;
   justify-content: flex-end;
   margin-top: spacings.$sp-24;
+
+    > :first-child {
+        margin-right: auto;
+    }
 }
 
 .fileUpload {

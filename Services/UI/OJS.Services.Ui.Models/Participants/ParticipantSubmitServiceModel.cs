@@ -15,6 +15,8 @@ public class ParticipantSubmitServiceModel : IParticipantForActivityServiceModel
 
     public int ContestId { get; set; }
 
+    public int? ContestCategoryId { get; set; }
+
     public ContestType ContestType { get; set; }
 
     public DateTime? LastSubmissionTime { get; set; }

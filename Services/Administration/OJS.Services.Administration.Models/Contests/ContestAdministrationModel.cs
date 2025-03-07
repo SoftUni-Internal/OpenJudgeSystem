@@ -54,6 +54,9 @@ public class ContestAdministrationModel : BaseAdministrationModel<int>, IMapExpl
 
     public bool IsOnlineExam => this.Type == ContestType.OnlinePracticalExam.ToString();
 
+    public bool IsWithRandomTasks => this.IsOnlineExam ||
+                                     this.Type == ContestType.OnsitePracticalExamWithRandomTasks.ToString();
+
     public int NumberOfProblemGroups { get; set; }
     // TODO : Add Automatically change test detailed feedback visiblity and Warn on missing author solutions
     public void RegisterMappings(IProfileExpression configuration)
