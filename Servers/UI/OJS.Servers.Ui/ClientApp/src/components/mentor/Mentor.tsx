@@ -47,6 +47,7 @@ const Mentor = (props: IMentorProps) => {
             problemId: -1,
         },
     ]);
+    const inputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const [ startConversation, { data: conversationData, error, isLoading } ] = useStartConversationMutation();
@@ -141,6 +142,7 @@ const Mentor = (props: IMentorProps) => {
         });
 
         setInputMessage('');
+        inputRef.current?.focus();
     };
 
     const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -277,13 +279,13 @@ const Mentor = (props: IMentorProps) => {
                       fullWidth
                       multiline
                       maxRows={4}
+                      inputRef={inputRef}
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyDown={handleKeyPress}
                       placeholder="Напишете вашето съобщение..."
                       variant="standard"
                       size="small"
-                      disabled={isLoading}
                       className={styles.typingField}
                     />
                     <div className={styles.sendButtonContainer}>
