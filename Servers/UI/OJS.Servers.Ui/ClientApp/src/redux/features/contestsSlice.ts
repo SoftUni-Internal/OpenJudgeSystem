@@ -48,6 +48,7 @@ export const contestSlice = createSlice({
         },
         setContestCategory: (state, action: PayloadAction<IContestCategory | null>) => {
             state.selectedCategory = action.payload;
+            state.selectedStrategy = null;
         },
         setContestStrategy: (state, action: PayloadAction<IContestStrategyFilter | null>) => {
             state.selectedStrategy = action.payload;

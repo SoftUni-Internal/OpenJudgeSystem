@@ -42,7 +42,7 @@ const USER_ITEMS_PER_SEARCH = 35;
 
 const SearchPage = () => {
     const dispatch = useAppDispatch();
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'contestsPage', 'problemsPage', 'usersPage' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const { getColorClassName, themeColors } = useTheme();
     const { searchValue, selectedTerms } = useAppSelector((state) => state.search);
     const [ selectedContestsPage, setSelectedContestsPage ] = useState(1);
