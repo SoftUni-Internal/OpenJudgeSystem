@@ -13,7 +13,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import debounce from 'lodash/debounce';
 
 import { FilterColumnTypeEnum, SortingEnum } from '../../../common/enums';
-import { IEnumType, IFilterColumn, IGetAllAdminParams } from '../../../common/types';
+import { IAdministrationFilterColumn, IEnumType, IGetAllAdminParams } from '../../../common/types';
 import { getColors, useAdministrationTheme } from '../../../hooks/use-administration-theme-provider';
 import { getDateAsLocal } from '../../../utils/administration/administration-dates';
 import concatClassNames from '../../../utils/class-names';
@@ -28,7 +28,7 @@ interface IFiltersColumnOperators {
 }
 
 interface IAdministrationFilterProps {
-    filterColumns: IFilterColumn[];
+    filterColumns: IAdministrationFilterColumn[];
     searchParams?: URLSearchParams;
     setSearchParams?: SetURLSearchParams;
     selectedFilters: Array<IAdministrationFilter>;
@@ -46,7 +46,7 @@ interface IAdministrationFilter {
     value: string;
     inputType: FilterColumnTypeEnum;
     availableOperators?: IFiltersColumnOperators[];
-    availableColumns: IFilterColumn[];
+    availableColumns: IAdministrationFilterColumn[];
 }
 
 const DROPDOWN_OPERATORS = {
@@ -657,7 +657,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
  */
 
 const mapGridColumnsToAdministrationFilterProps =
-(dataColumns: Array<GridColDef& IEnumType>): IFilterColumn[] => dataColumns.map((column) => {
+(dataColumns: Array<GridColDef& IEnumType>): IAdministrationFilterColumn[] => dataColumns.map((column) => {
     const mappedEnumType = mapStringToFilterColumnTypeEnum(column.type || '');
     return {
         columnName: column.headerName?.replace(/\s/g, '') ?? '',
@@ -670,11 +670,11 @@ const mapGridColumnsToAdministrationFilterProps =
 
 /**
  * Maps the filter parameter from the search bar to Array<IAdministrationFilter> that will later be united with the default filter and will set the initial default filters.
- * @param {URLSearchParams} searchParams Search params that will be mapped to IAdministrationFilter.
- * @param {Array<string>} columns The sorting columns as a  Array<IFilterColumn>
+ * @param {URLSearchParams} urlSearchParams Search params that will be mapped to IAdministrationFilter.
+ * @param {Array<string>} columns The sorting columns as an Array<IAdministrationFilterColumn>
  * @returns {Array<IAdministrationFilter>} Return the filters from the search bar mapped as Array<IAdministrationFilter>
  */
-const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: Array<IFilterColumn>): IAdministrationFilter[] => {
+const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: Array<IAdministrationFilterColumn>): IAdministrationFilter[] => {
     if (!urlSearchParams) {
         return [];
     }
@@ -783,7 +783,6 @@ const addDefaultFilter = (
 
     const filters = mapUrlToFilters(searchParams, columns);
     const paramChunks = filterToAdd.split(filterParamsSeparator);
-
     const columnValue = paramChunks[0];
     const operator = paramChunks[1];
     const value = paramChunks[2];

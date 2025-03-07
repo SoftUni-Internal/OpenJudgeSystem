@@ -11,7 +11,7 @@ public class SubmissionForSubmitSummaryServiceModel : IMapExplicitly
 
     public DateTime CreatedOn { get; set; }
 
-    public string? SubmissionTypeName { get; set; }
+    public string? StrategyName { get; set; }
 
     public bool IsOfficial { get; set; }
 
@@ -34,7 +34,11 @@ public class SubmissionForSubmitSummaryServiceModel : IMapExplicitly
     public void RegisterMappings(IProfileExpression configuration)
         => configuration
             .CreateMap<Submission, SubmissionForSubmitSummaryServiceModel>()
-            .ForMember(x => x.Result, opt => opt.Ignore())
+            .ForMember(x => x.Result, opt => opt.MapFrom(s => new ResultForPublicSubmissionsServiceModel
+            {
+                Points = s.Points,
+            }))
+            .ForMember(x => x.StrategyName, opt => opt.MapFrom(s => s.SubmissionType != null ? s.SubmissionType.Name : null))
             .ForMember(x => x.IsOfficial, opt => opt.Ignore())
             .ForMember(x => x.MaxTimeUsed, opt => opt.Ignore())
             .ForMember(x => x.MaxMemoryUsed, opt => opt.Ignore());

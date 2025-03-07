@@ -26,16 +26,11 @@ public class SubmissionsDataService(OjsDbContext db) : DataService<Submission>(d
                 take: limit)
             .MapCollection<TServiceModel>();
 
-    public async Task<PagedResult<TServiceModel>> GetLatestSubmissionsByUserParticipations<TServiceModel>(
-        IEnumerable<int> userParticipantsIds,
-        int submissionsPerPage,
-        int pageNumber)
-            => await this.GetQuery(
-                    filter: s => !s.IsDeleted && userParticipantsIds.Contains(s.ParticipantId),
-                    orderBy: s => s.Id,
-                    descending: true)
-                .MapCollection<TServiceModel>()
-                .ToPagedResultAsync(submissionsPerPage, pageNumber);
+    public IQueryable<Submission> GetLatestSubmissionsByUserParticipations(IEnumerable<int> userParticipantsIds)
+        => this.GetQuery(
+            filter: s => !s.IsDeleted && userParticipantsIds.Contains(s.ParticipantId),
+            orderBy: s => s.Id,
+            descending: true);
 
     public IQueryable<Submission> GetAllByProblemAndParticipant(int problemId, int participantId)
         => this.GetQuery(

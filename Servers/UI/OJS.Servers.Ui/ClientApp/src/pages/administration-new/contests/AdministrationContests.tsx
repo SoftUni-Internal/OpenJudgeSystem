@@ -49,7 +49,6 @@ const AdministrationContestsPage = () => {
     const [ excelExportType, setExcelExportType ] = useState<number>(0);
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
-
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 

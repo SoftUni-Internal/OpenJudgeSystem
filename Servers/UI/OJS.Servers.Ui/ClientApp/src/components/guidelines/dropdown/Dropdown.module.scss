@@ -42,7 +42,12 @@
     }
 
     .MuiAutocomplete-endAdornment {
-      margin-right: spacings.$sp-16;
+      margin-right: 0;
+    }
+
+    .MuiInputBase-input.Mui-disabled {
+      -webkit-text-fill-color: colors.$light-text-color !important;
+      color: colors.$light-text-color !important;
     }
 
     ::placeholder {
@@ -120,6 +125,11 @@
 
     .MuiAutocomplete-endAdornment {
       margin-right: 0;
+    }
+
+    .MuiInputBase-input.Mui-disabled {
+      -webkit-text-fill-color: colors.$dark-text-color !important;
+      color: colors.$dark-text-color !important;
     }
 
     ::placeholder {

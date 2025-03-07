@@ -237,26 +237,24 @@ const SubmissionGridRow = ({
                     {submissionId}
                 </span>
             </td>
-            <td>
-                {
-                    options.showTaskDetails
-                        ? (
-                            <>
-                                {renderProblemInformation()}
-                                {/* TODO: Fix this to use Link */}
-                                <Button
-                                  type={ButtonType.secondary}
-                                  size={ButtonSize.small}
-                                  className={styles.link}
-                                  internalClassName={styles.redirectButton}
-                                  onClick={handleContestDetailsButtonSubmit}
-                                  text={contestName}
-                                />
-                            </>
-                        )
-                        : null
-                }
-            </td>
+            {
+                options.showTaskDetails
+                    ? (
+                        <td>
+                            {renderProblemInformation()}
+                            {/* TODO: Fix this to use Link */}
+                            <Button
+                              type={ButtonType.secondary}
+                              size={ButtonSize.small}
+                              className={styles.link}
+                              internalClassName={styles.redirectButton}
+                              onClick={handleContestDetailsButtonSubmit}
+                              text={contestName}
+                            />
+                        </td>
+                    )
+                    : null
+            }
             <td>
                 {internalUser.isAdmin
                     ? (

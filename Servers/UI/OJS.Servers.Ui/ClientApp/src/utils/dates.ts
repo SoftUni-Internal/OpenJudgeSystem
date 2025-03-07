@@ -86,6 +86,20 @@ const transformSecondsToTimeSpan = (seconds: number) => {
 
 const getMentorConversationDate = (date: Date): string => moment(date).utc(true).local().format('DD MMM HH:mm');
 
+const getDateAsLocal = (dateString: string) => {
+    if (!dateString) {
+        return null;
+    }
+
+    /*
+        When setting the filters, the date will be converted to lowercase, but date strings
+        are case-sensitive, this is why we have to manually fix the date string's casing.
+     */
+    const normalizedDateString = dateString.replace(/t/, 'T').replace(/z/, 'Z');
+
+    return moment.utc(normalizedDateString);
+};
+
 export {
     defaultDateTimeFormatReverse,
     dateTimeFormatWithSpacing,
@@ -100,4 +114,5 @@ export {
     transformSecondsToTimeSpan,
     transformDaysHoursMinutesTextToMinutes,
     getMentorConversationDate,
+    getDateAsLocal,
 };

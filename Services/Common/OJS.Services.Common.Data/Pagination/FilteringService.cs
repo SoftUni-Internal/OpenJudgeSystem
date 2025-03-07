@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Common.Models.Pagination;
 using System.Collections.Generic;
+using System.Reflection;
 
 public class FilteringService : IFilteringService
 {
@@ -14,7 +15,7 @@ public class FilteringService : IFilteringService
 
     public virtual IQueryable<TModel> ApplyFiltering<TEntity, TModel>(IQueryable<TEntity> query, List<FilteringModel> filters)
     {
-        if (!filters.Any())
+        if (filters.Count == 0)
         {
             return query.MapCollection<TModel>();
         }
@@ -30,41 +31,108 @@ public class FilteringService : IFilteringService
         return mappedQuery;
     }
 
+    public IEnumerable<FilteringModel> MapFilterStringToCollection<T>(PaginationRequestModel paginationRequestModel)
+    {
+        var filteringCollection = new List<FilteringModel>();
+        if (string.IsNullOrEmpty(paginationRequestModel.Filter))
+        {
+            return filteringCollection;
+        }
+
+        var conditions = paginationRequestModel.Filter!.Split("&&;", StringSplitOptions.RemoveEmptyEntries);
+
+        foreach (var condition in conditions)
+        {
+            var filterParts = condition.Split('~', StringSplitOptions.RemoveEmptyEntries);
+            if (filterParts.Length != 3)
+            {
+                throw new ArgumentOutOfRangeException($"Filter {condition} must contain key, operator and value");
+            }
+
+            var key = filterParts[0];
+            var operatorTypeAsString = filterParts[1];
+            var value = filterParts[2];
+
+            var isParsed = Enum.TryParse(operatorTypeAsString, true, out OperatorType operatorType);
+
+            if (!isParsed)
+            {
+                throw new ArgumentException($"Operator with type {operatorTypeAsString} is not supported.");
+            }
+
+            var (finalProperty, sourceType, propertyPath) = PropertyInfoCache.GetPropertyDetails<T>(key);
+
+            filteringCollection.Add(new FilteringModel(finalProperty, operatorType, value, sourceType, propertyPath));
+        }
+
+        return filteringCollection;
+    }
+
     private static Expression<Func<T, bool>> BuildFilteringExpression<T>(FilteringModel filter)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
-        var property = Expression.Property(parameter, filter.Property);
 
+        Expression propertyAccess;
+
+        if (filter.IsNestedProperty)
+        {
+            // Build nested property access
+            propertyAccess = parameter;
+            foreach (var prop in filter.PropertyPath)
+            {
+                var propInfo = propertyAccess.Type.GetProperty(prop, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                if (propInfo == null)
+                {
+                    throw new InvalidOperationException($"Property {prop} not found in type {propertyAccess.Type.Name}");
+                }
+
+                propertyAccess = Expression.Property(propertyAccess, propInfo);
+            }
+        }
+        else
+        {
+            // Single property access
+            propertyAccess = Expression.Property(parameter, filter.Property);
+        }
+
+        // Cast to MemberExpression for compatibility with existing methods
+        if (propertyAccess is not MemberExpression memberExpression)
+        {
+            throw new InvalidOperationException("Property access could not be converted to MemberExpression");
+        }
+
+        // Build the appropriate expression based on property type
         Expression? expression = null;
-        if (filter.Property.PropertyType.IsEnum)
+        var propertyType = filter.Property.PropertyType;
+
+        if (propertyType.IsEnum)
         {
-            expression = BuildEnumExpression(filter.Value, filter.Property.PropertyType, property);
+            expression = BuildEnumExpression(filter.Value, propertyType, memberExpression);
         }
-        else if (filter.Property.PropertyType == typeof(string))
+        else if (propertyType == typeof(string))
         {
-            expression = BuildStringExpression(filter.OperatorType, filter.Value, property);
+            expression = BuildStringExpression(filter.OperatorType, filter.Value, memberExpression);
         }
-        else if (filter.Property.PropertyType == typeof(bool))
+        else if (propertyType == typeof(bool))
         {
-            expression = BuildBooleanExpression(filter.OperatorType, filter.Value, property);
+            expression = BuildBooleanExpression(filter.OperatorType, filter.Value, memberExpression);
         }
-        else if (filter.Property.PropertyType == typeof(int) ||
-                 Nullable.GetUnderlyingType(filter.Property.PropertyType) == typeof(int) ||
-                 filter.Property.PropertyType == typeof(double) ||
-                 Nullable.GetUnderlyingType(filter.Property.PropertyType) == typeof(double))
+        else if (propertyType == typeof(int) ||
+                 Nullable.GetUnderlyingType(propertyType) == typeof(int) ||
+                 propertyType == typeof(double) ||
+                 Nullable.GetUnderlyingType(propertyType) == typeof(double))
         {
-            var propertyType = filter.Property.PropertyType;
-            expression = BuildNumberExpression(filter.OperatorType, filter.Value, property, propertyType);
+            expression = BuildNumberExpression(filter.OperatorType, filter.Value, memberExpression, propertyType);
         }
-        else if (filter.Property.PropertyType == typeof(DateTime) ||
-                 Nullable.GetUnderlyingType(filter.Property.PropertyType) == typeof(DateTime))
+        else if (propertyType == typeof(DateTime) ||
+                 Nullable.GetUnderlyingType(propertyType) == typeof(DateTime))
         {
-            expression = BuildDateTimeExpression(filter.OperatorType, filter.Value, property);
+            expression = BuildDateTimeExpression(filter.OperatorType, filter.Value, memberExpression);
         }
 
         if (expression == null)
         {
-            throw new InvalidOperationException("Expression cannot be build");
+            throw new InvalidOperationException("Expression cannot be built");
         }
 
         return Expression.Lambda<Func<T, bool>>(expression, parameter);

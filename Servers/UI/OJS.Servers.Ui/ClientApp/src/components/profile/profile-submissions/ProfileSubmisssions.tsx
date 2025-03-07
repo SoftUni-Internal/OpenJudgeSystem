@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import isNil from 'lodash/isNil';
+import { IGetSubmissionsUrlParams } from 'src/common/url-types';
+import { applyDefaultQueryValues } from 'src/components/filters/Filter';
+import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 
 import { useGetUserSubmissionsQuery } from '../../../redux/services/submissionsService';
 import { useAppSelector } from '../../../redux/store';
@@ -13,8 +16,9 @@ interface IProfileSubmissionsProps {
 }
 
 const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSubmissionsProps) => {
+    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(applyDefaultQueryValues(searchParams));
     const [ shouldRender, setShouldRender ] = useState<boolean>(false);
-    const [ userSubmissionsPage, setUserSubmissionsPage ] = useState<number>(1);
 
     const { internalUser, isLoggedIn } = useAppSelector((reduxState) => reduxState.authorization);
     const { profile } = useAppSelector((state) => state.users);
@@ -34,11 +38,8 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
         isLoading: areSubmissionsLoading,
         error: userSubmissionsQueryError,
     } = useGetUserSubmissionsQuery(
-        {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-            username: profile?.userName!,
-            page: userSubmissionsPage,
-        },
+        // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
+        { ...queryParams, username: profile?.userName! },
         { skip: !canFetchSubmissions },
     );
 
@@ -64,25 +65,28 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
             <SubmissionsGrid
               isDataLoaded={!areSubmissionsLoading}
               submissions={userSubmissions!}
-              handlePageChange={(page: number) => setUserSubmissionsPage(page)}
               className={styles.profileSubmissionsGrid}
               options={{
                   showTaskDetails: true,
                   showDetailedResults: internalUser.canAccessAdministration || userIsProfileOwner,
-                  showCompeteMarker: false,
+                  showCompeteMarker: true,
                   showSubmissionTypeInfo: false,
                   showParticipantUsername: false,
               }}
+              searchParams={searchParams}
+              setSearchParams={setSearchParams}
+              setQueryParams={setQueryParams}
             />
         );
     }, [
         areSubmissionsLoading,
         internalUser.canAccessAdministration,
+        searchParams,
+        setSearchParams,
         shouldRender,
         userIsProfileOwner,
         userSubmissions,
-        userSubmissionsQueryError,
-    ]);
+        userSubmissionsQueryError ]);
 
     return render();
 };

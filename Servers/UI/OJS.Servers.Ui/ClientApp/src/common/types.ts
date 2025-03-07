@@ -500,10 +500,22 @@ interface IEnumType {
     enumValues?: Array<string>;
 }
 
-interface IFilterColumn {
+interface IAdministrationFilterColumn {
     columnName: string;
     columnType: FilterColumnTypeEnum;
     enumValues?: Array<string> | null;
+}
+
+interface IFilterColumn {
+    name: string;
+    id: string;
+    columnType: FilterColumnTypeEnum;
+    enumValues?: Array<IFilterEnum> | null;
+}
+
+interface IFilterEnum {
+    name: string;
+    id: string;
 }
 
 type ExceptionData = {
@@ -752,7 +764,7 @@ interface IAccessLogInListModel {
 }
 
 interface IDropdownItemBase {
-    id: number;
+    id: number | string;
     name: string;
 }
 
@@ -837,7 +849,7 @@ export type {
     IContestCategoryHierarchy,
     IGetAllAdminParams,
     IContestAdministration,
-    IFilterColumn,
+    IAdministrationFilterColumn,
     ISubmissionsAdminGridViewType,
     ISubmissionForProcessingAdminGridViewType,
     IContestCategories,
@@ -906,4 +918,6 @@ export type {
     IAccessLogInListModel,
     IDropdownItemBase,
     IDropdownItem,
+    IFilterColumn,
+    IFilterEnum,
 };
