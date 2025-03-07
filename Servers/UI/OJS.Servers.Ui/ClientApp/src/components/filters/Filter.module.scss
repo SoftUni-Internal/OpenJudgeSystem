@@ -39,20 +39,20 @@
         color: colors.$background-color-btn-primary;
       }
 
-      .MuiInput-underline:before {
+      .MuiInput-underline::before {
         border-bottom-color: colors.$background-color-btn-primary;
       }
 
-      .MuiInput-underline:hover:before {
+      .MuiInput-underline:hover::before {
         border-bottom-color: colors.$background-color-btn-primary;
       }
 
-      .MuiInput-underline:after {
+      .MuiInput-underline::after {
         border-bottom-color: colors.$background-color-btn-primary;
       }
 
       .Mui-disabled {
-        & .MuiInput-underline:before {
+        & .MuiInput-underline::before {
           border-bottom-style: solid;
           border-bottom-color: colors.$background-color-btn-primary;
         }
@@ -145,6 +145,7 @@
       & .MuiOutlinedInput-notchedOutline {
         border-color: colors.$light-base-color-100 !important;
       }
+
       & input {
         color: colors.$light-text-color !important;
       }
@@ -158,6 +159,7 @@
       & .MuiOutlinedInput-notchedOutline {
         border-color: colors.$dark-text-color !important;
       }
+
       & input {
         color: colors.$dark-text-color !important;
       }
