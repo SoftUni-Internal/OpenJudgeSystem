@@ -1,5 +1,5 @@
-/* eslint-disable max-len,css-modules/no-unused-class */
-import React, { useState } from 'react';
+/* eslint-disable max-len,css-modules/no-unused-class,@typescript-eslint/ban-types */
+import React, { useEffect, useState } from 'react';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import { ContestVariation } from 'src/common/contest-types';
@@ -17,8 +17,13 @@ import { IContestsBulkEdit } from 'src/common/types';
 import FormActionButton from 'src/components/administration/form-action-button/FormActionButton';
 import { handleDateTimePickerChange } from 'src/components/administration/utils/mui-utils';
 import ConfirmDialog from 'src/components/guidelines/dialog/ConfirmDialog';
+import useDelayedSuccessEffect from 'src/hooks/common/use-delayed-success-effect';
+import useSuccessMessageEffect from 'src/hooks/common/use-success-message-effect';
 import { useBulkEditContestsMutation } from 'src/redux/services/admin/contestsAdminService';
 import { convertToUtc, getDateAsLocal } from 'src/utils/administration/administration-dates';
+import { getAndSetExceptionMessage } from 'src/utils/messages-utils';
+import { renderErrorMessagesAlert, renderSuccessfullAlert } from 'src/utils/render-utils';
+import clearSuccessMessages from 'src/utils/success-messages-utils';
 
 import formStyles from '../../../../components/administration/common/styles/FormStyles.module.scss';
 import styles from './ContestsBulkEdit.module.scss';
@@ -26,19 +31,23 @@ import styles from './ContestsBulkEdit.module.scss';
 interface IContestsBulkEditProps {
     categoryId?: number;
     categoryName?: string;
+    setParentSuccessMessage: Function;
+    onSuccess: Function;
 }
 
-const ContestsBulkEdit = ({ categoryId, categoryName }: IContestsBulkEditProps) => {
+const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, onSuccess }: IContestsBulkEditProps) => {
     const [
         bulkEditContests,
         {
-            // data: updateData,
-            // error: updateError,
-            // isSuccess: isSuccessfullyUpdated,
+            data: updateData,
+            error: updateError,
+            isSuccess: isSuccessfullyUpdated,
             isLoading: isUpdating,
         },
     ] = useBulkEditContestsMutation();
 
+    const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ showConfirmationDialog, setConfirmationDialog ] = useState<boolean>(false);
     const [ formData, setFormData ] = useState<IContestsBulkEdit>({
         startTime: null,
@@ -57,6 +66,20 @@ const ContestsBulkEdit = ({ categoryId, categoryName }: IContestsBulkEditProps) 
         isLimitBetweenSubmissionsTouched: false,
         isOrderByValid: true,
         isOrderByTouched: false,
+    });
+
+    useDelayedSuccessEffect({
+        isSuccess: isSuccessfullyUpdated,
+        onSuccess,
+    });
+
+    useSuccessMessageEffect({
+        data: [
+            { message: updateData, shouldGet: isSuccessfullyUpdated },
+        ],
+        setSuccessMessage,
+        setParentSuccessMessage,
+        clearFlags: [ isUpdating ],
     });
 
     const onChange = (e: any) => {
@@ -135,8 +158,15 @@ const ContestsBulkEdit = ({ categoryId, categoryName }: IContestsBulkEditProps) 
         }));
     };
 
+    useEffect(() => {
+        getAndSetExceptionMessage([ updateError ], setErrorMessages);
+        clearSuccessMessages({ setParentSuccessMessage });
+    }, [ setParentSuccessMessage, updateError ]);
+
     return (
         <Box className={styles.flex}>
+            {renderErrorMessagesAlert(errorMessages)}
+            {renderSuccessfullAlert(successMessage)}
             {showConfirmationDialog && (
             <ConfirmDialog
               title={`Are you sure you want to edit all contests${categoryName
@@ -145,19 +175,41 @@ const ContestsBulkEdit = ({ categoryId, categoryName }: IContestsBulkEditProps) 
               text={(
                   <>
                       Each contest in the category will be updated with the provided values.
-                      <strong> Note that required fields </strong>
+                      <strong className={styles.confirmationImportant}> Note that required fields </strong>
                       {' '}
-                      for a Contest like
-                      <strong> Type</strong>
+                      for a contest like
+                      <strong className={styles.confirmationImportant}> Type</strong>
                       {' '}
                       and
-                      <strong> Time Between Submissions</strong>
-                      , are optional here.
-                      This means that if no value is provided, the existing values will be preserved.
+                      <strong className={styles.confirmationImportant}> Time Between Submissions</strong>
+                      ,
+                      {' '}
+                      are
+                      {' '}
+                      <strong className={styles.confirmationUnderlined}>optional</strong>
+                      {' '}
+                      here.
+                      This means that if no value is provided, the existing values will be
+                      {' '}
+                      <strong className={styles.confirmationUnderlined}>preserved</strong>
+                      .
                       The fields
                       {' '}
-                      <strong>Start Time, End Time, Participation Start Time, Participation End Time</strong>
-                      <strong> will be cleared</strong>
+                      <strong className={styles.confirmationImportant}>Compete Start Time</strong>
+                      ,
+                      {' '}
+                      <strong className={styles.confirmationImportant}>Compete End Time</strong>
+                      ,
+                      {' '}
+                      <strong className={styles.confirmationImportant}>Participation Start Time</strong>
+                      {' '}
+                      and
+                      {' '}
+                      <strong className={styles.confirmationImportant}>Participation End Time</strong>
+                      {' '}
+                      will be
+                      {' '}
+                      <strong className={styles.confirmationUnderlined}>cleared</strong>
                       {' '}
                       if no value is provided.
                   </>

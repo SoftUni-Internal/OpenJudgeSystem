@@ -24,7 +24,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using OJS.Data.Models;
-using OJS.Services.Administration.Business.ContestCategories.Permissions;
 using OJS.Services.Common.Data;
 using static Common.GlobalConstants.FileExtensions;
 
@@ -186,7 +185,7 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
             return this.UnprocessableEntity(validationResult.Errors);
         }
 
-        await this.contestsBusinessService.ContestsBulkEdit(model);
+        await this.contestsBusinessService.BulkEdit(model);
         return this.Ok("The contests were edited successfully.");
     }
 }

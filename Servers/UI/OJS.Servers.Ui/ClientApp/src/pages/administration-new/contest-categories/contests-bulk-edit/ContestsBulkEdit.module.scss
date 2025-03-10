@@ -62,3 +62,11 @@
   justify-content: center;
   margin: 1rem auto;
 }
+
+.confirmationImportant {
+  color: colors.$primary-red;
+}
+
+.confirmationUnderlined {
+  text-decoration: underline;
+}

@@ -1,6 +1,7 @@
 /* eslint-disable no-restricted-globals */
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CONTESTS_BULK_EDIT } from 'src/utils/constants';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import CreateButton from '../../../components/administration/common/create/CreateButton';
@@ -83,7 +84,11 @@ const AdministrationContestCategoriesPage = () => {
           onClose={() => setOpenShowContestsBulkEditModal(false)}
           className={styles.administrationModal}
         >
-            <ContestsBulkEdit categoryId={contestCategoryId} />
+            <ContestsBulkEdit
+              categoryId={contestCategoryId}
+              setParentSuccessMessage={setSuccessMessage}
+              onSuccess={() => setOpenShowContestsBulkEditModal(false)}
+            />
         </AdministrationModal>
     );
 
@@ -96,12 +101,12 @@ const AdministrationContestCategoriesPage = () => {
     );
 
     useEffect(() => {
-        const categoryId = searchParams.get('contestsBulkEdit');
+        const categoryId = searchParams.get(CONTESTS_BULK_EDIT);
         if (categoryId) {
             onContestsBulkEditClick(Number(categoryId));
 
             const newParams = new URLSearchParams(searchParams);
-            newParams.delete('contestsBulkEdit');
+            newParams.delete(CONTESTS_BULK_EDIT);
             navigate({ search: newParams.toString() }, { replace: true });
         }
     }, [ navigate, searchParams ]);

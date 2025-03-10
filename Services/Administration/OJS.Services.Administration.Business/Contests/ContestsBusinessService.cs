@@ -376,7 +376,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         await this.participantsData.SaveChanges();
     }
 
-    public async Task ContestsBulkEdit(ContestsBulkEditModel model)
+    public async Task BulkEdit(ContestsBulkEditModel model)
     {
         var contests = await this.contestsData
             .GetQuery(c => c.CategoryId == model.CategoryId)

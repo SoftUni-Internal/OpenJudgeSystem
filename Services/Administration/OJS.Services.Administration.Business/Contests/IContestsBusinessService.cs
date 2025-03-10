@@ -25,5 +25,5 @@ public interface IContestsBusinessService : IAdministrationOperationService<Cont
 
     Task TransferParticipantsToPracticeById(int contestId);
 
-    Task ContestsBulkEdit(ContestsBulkEditModel model);
+    Task BulkEdit(ContestsBulkEditModel model);
 }
