@@ -376,6 +376,34 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         await this.participantsData.SaveChanges();
     }
 
+    public async Task ContestsBulkEdit(ContestsBulkEditModel model)
+    {
+        var contests = await this.contestsData
+            .GetQuery(c => c.CategoryId == model.CategoryId)
+            .ToListAsync();
+
+        foreach (var contest in contests)
+        {
+            if (model.LimitBetweenSubmissions is not null)
+            {
+                contest.LimitBetweenSubmissions = model.LimitBetweenSubmissions.Value;
+            }
+
+            if (model.Type is not null)
+            {
+                contest.Type = Enum.Parse<ContestType>(model.Type);
+            }
+
+            contest.StartTime = model.StartTime;
+            contest.EndTime = model.EndTime;
+            contest.PracticeStartTime = model.PracticeStartTime;
+            contest.PracticeEndTime = model.PracticeEndTime;
+        }
+
+        this.contestsData.UpdateMany(contests);
+        await this.contestsData.SaveChanges();
+    }
+
     private static void RemoveCircularReferences(Contest contest)
     {
         foreach (var problemGroup in contest.ProblemGroups)

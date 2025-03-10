@@ -24,6 +24,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using OJS.Data.Models;
+using OJS.Services.Administration.Business.ContestCategories.Permissions;
 using OJS.Services.Common.Data;
 using static Common.GlobalConstants.FileExtensions;
 
@@ -33,6 +34,7 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
     private readonly ContestAdministrationModelValidator validator;
     private readonly ContestSimilarityModelValidator similarityModelValidator;
     private readonly ContestTransferParticipantsModelValidator contestTransferParticipantsModelValidator;
+    private readonly ContestsBulkEditModelValidator contestsBulkEditModelValidator;
     private readonly IContestsDataService contestsData;
     private readonly ISimilarityService similarityService;
     private readonly IExcelService excelService;
@@ -42,6 +44,7 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
         ContestAdministrationModelValidator validator,
         ContestSimilarityModelValidator similarityModelValidator,
         ContestTransferParticipantsModelValidator contestTransferParticipantsModelValidator,
+        ContestsBulkEditModelValidator contestsBulkEditModelValidator,
         IContestsGridDataService contestGridDataService,
         IContestsDataService contestsData,
         ISimilarityService similarityService,
@@ -57,6 +60,7 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
         this.validator = validator;
         this.similarityModelValidator = similarityModelValidator;
         this.contestTransferParticipantsModelValidator = contestTransferParticipantsModelValidator;
+        this.contestsBulkEditModelValidator = contestsBulkEditModelValidator;
         this.contestsData = contestsData;
         this.similarityService = similarityService;
         this.excelService = excelService;
@@ -167,5 +171,22 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
 
         await this.contestsBusinessService.TransferParticipantsToPracticeById(model.ContestId);
         return this.Ok("The participants were transferred successfully.");
+    }
+
+    [HttpPost]
+    [ProtectedEntityAction("model", typeof(ContestsBulkEditPermissionsService))]
+    public async Task<IActionResult> BulkEditContests([FromBody] ContestsBulkEditModel model)
+    {
+        var validationResult = await this.contestsBulkEditModelValidator
+            .ValidateAsync(model)
+            .ToExceptionResponseAsync();
+
+        if (!validationResult.IsValid)
+        {
+            return this.UnprocessableEntity(validationResult.Errors);
+        }
+
+        await this.contestsBusinessService.ContestsBulkEdit(model);
+        return this.Ok("The contests were edited successfully.");
     }
 }
