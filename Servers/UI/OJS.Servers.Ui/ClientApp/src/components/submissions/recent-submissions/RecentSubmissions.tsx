@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useCallback, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import isEmpty from 'lodash/isEmpty';
@@ -98,9 +97,8 @@ const RecentSubmissions = () => {
         loggedInUserInRole,
         getLatestSubmissionsInRole,
         getUnprocessedSubmissionsCount,
-        queryParams.page,
-        queryParams.filter,
-        queryParams.sorting,
+        queryParams,
+        status,
     ]);
 
     useEffect(() => {
@@ -131,6 +129,8 @@ const RecentSubmissions = () => {
                 setSelectedActive(typeKey);
             }
         },
+        // If exhaustive dependencies are set, unnecessary re-renders will be made.
+        // eslint-disable-next-line
         [ selectedActive ],
     );
 
