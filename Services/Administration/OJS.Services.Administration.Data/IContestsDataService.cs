@@ -24,7 +24,7 @@ namespace OJS.Services.Administration.Data
 
         Task<bool> IsActiveById(int id);
 
-        Task<bool> IsOnlineById(int id);
+        Task<bool> IsWithRandomTasksById(int id);
 
         Task<bool> IsUserLecturerInContestByContestAndUser(int id, string? userId);
 

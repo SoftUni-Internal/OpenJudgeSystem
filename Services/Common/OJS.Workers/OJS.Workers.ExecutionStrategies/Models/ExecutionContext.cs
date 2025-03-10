@@ -22,6 +22,8 @@ namespace OJS.Workers.ExecutionStrategies.Models
 
         public int MemoryLimit { get; set; }
 
+        public int VerboseLogFileMaxBytes { get; set; }
+
         public TInput Input { get; set; }
     }
 }

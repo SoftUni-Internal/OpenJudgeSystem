@@ -26,8 +26,6 @@ namespace OJS.Services.Ui.Data
 
         Task<int> GetMaxPointsForExportById(int id);
 
-        Task<bool> IsUserLecturerInByContestAndUser(int id, string userId);
-
         Task<bool> IsUserInExamGroupByContestAndUser(int id, string userId);
     }
 }

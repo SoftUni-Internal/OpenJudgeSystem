@@ -234,7 +234,7 @@ const ContestCard = (props: IContestCardProps) => {
                     )}
                     {renderContestDetailsFragment(FaFile, numberOfProblems, 'Problem count')}
                     {
-                        getPracticeResultsAreVisibleInContestCards(contest, internalUser.canAccessAdministration) &&
+                        getPracticeResultsAreVisibleInContestCards(contest, internalUser.isAdmin) &&
                         renderContestDetailsFragment(
                             FaUser,
                             `Practice results: ${practiceResults}`,
@@ -245,7 +245,7 @@ const ContestCard = (props: IContestCardProps) => {
                         )
                     }
                     {
-                        getCompeteResultsAreVisibleInContestCards(contest, internalUser.canAccessAdministration) &&
+                        getCompeteResultsAreVisibleInContestCards(contest, internalUser.isAdmin) &&
                         renderContestDetailsFragment(
                             FaUser,
                             `Compete results: ${competeResults}`,

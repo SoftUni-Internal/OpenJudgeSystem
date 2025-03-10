@@ -20,6 +20,9 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(1500, LogLevel.Error, "executionStrategy.SafeDeleteDirectory has thrown an exception: {ex}", SkipEnabledCheck = true)]
     public static partial void LogSafeDeleteDirectoryException(this ILogger logger, Exception ex);
 
+    [LoggerMessage(1501, LogLevel.Error, "Unexpected execution result is produced with the following output: '{@UnexpectedProcessOutput}'", SkipEnabledCheck = true)]
+    public static partial void LogUnexpectedProcessOutput(this ILogger logger, ProcessExecutionResult unexpectedProcessOutput);
+
     [LoggerMessage(1600, LogLevel.Information, "Execution strategy: '{ExecutionStrategyType}' created a working directory: '{WorkingDirectory}' for submission #{SubmissionId}")]
     public static partial void LogExecutionStrategyCreatedWorkingDirectory(this ILogger logger, string executionStrategyType, string workingDirectory, int submissionId);
 }

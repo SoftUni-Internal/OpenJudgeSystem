@@ -3,6 +3,7 @@
 using AutoMapper;
 using OJS.Data.Models.Submissions;
 using OJS.Services.Infrastructure.Models.Mapping;
+using OJS.Workers.Common.Models;
 
 public class SubmitSubmissionServiceModel : IMapExplicitly
 {
@@ -10,7 +11,7 @@ public class SubmitSubmissionServiceModel : IMapExplicitly
 
     public int ContestId { get; set; }
 
-    public bool IsOnlineExam { get; set; }
+    public bool IsWithRandomTasks { get; set; }
 
     public int SubmissionTypeId { get; set; }
 
@@ -22,14 +23,16 @@ public class SubmitSubmissionServiceModel : IMapExplicitly
 
     public string? FileExtension { get; set; }
 
+    public bool Verbosely { get; set; }
+
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<SubmitSubmissionServiceModel, Submission>()
             .ForMember(
                 d => d.Content,
                 opt => opt.MapFrom(s =>
                     s.ByteContent == null
-                        ? null :
-                        s.ByteContent))
+                        ? null
+                        : s.ByteContent))
             .ForMember(
                 d => d.ProblemId,
                 opt => opt.MapFrom(s => s.ProblemId))
@@ -64,5 +67,6 @@ public class SubmitSubmissionServiceModel : IMapExplicitly
             .ForMember(m => m.DeletedOn, opt => opt.Ignore())
             .ForMember(m => m.CreatedOn, opt => opt.Ignore())
             .ForMember(m => m.ModifiedOn, opt => opt.Ignore())
-            .ForMember(m => m.Id, opt => opt.Ignore());
+            .ForMember(m => m.Id, opt => opt.Ignore())
+            .ForMember(m => m.ExceptionType, opt => opt.Ignore());
 }

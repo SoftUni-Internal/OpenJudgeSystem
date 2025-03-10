@@ -25,7 +25,7 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
     private readonly IContestResultsAggregatorCommonService contestResultsAggregator;
     private readonly IContestsDataService contestsData;
     private readonly IContestResultsValidationService contestResultsValidation;
-    private readonly ILecturersInContestsBusinessService lecturersInContestsBusinessService;
+    private readonly ILecturersInContestsCacheService lecturersInContestsCache;
     private readonly IUserProviderService userProvider;
     private readonly IParticipantsDataService participantsData;
     private readonly IContestsCacheService contestsCache;
@@ -35,7 +35,7 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
         IContestResultsAggregatorCommonService contestResultsAggregator,
         IContestsDataService contestsData,
         IContestResultsValidationService contestResultsValidation,
-        ILecturersInContestsBusinessService lecturersInContestsBusinessService,
+        ILecturersInContestsCacheService lecturersInContestsCache,
         IUserProviderService userProvider,
         IParticipantsDataService participantsData,
         IContestsCacheService contestsCache,
@@ -44,7 +44,7 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
         this.contestResultsAggregator = contestResultsAggregator;
         this.contestsData = contestsData;
         this.contestResultsValidation = contestResultsValidation;
-        this.lecturersInContestsBusinessService = lecturersInContestsBusinessService;
+        this.lecturersInContestsCache = lecturersInContestsCache;
         this.userProvider = userProvider;
         this.participantsData = participantsData;
         this.contestsCache = contestsCache;
@@ -56,7 +56,8 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
         var contest = await this.contestsCache.GetContestDetailsServiceModel(contestId)
             ?? throw new BusinessServiceException("Contest does not exist or is deleted.");
 
-        var isUserAdminOrLecturer = await this.lecturersInContestsBusinessService.IsCurrentUserAdminOrLecturerInContest(contestId);
+        var user = this.userProvider.GetCurrentUser();
+        var isUserAdminOrLecturer = await this.lecturersInContestsCache.IsUserAdminOrLecturerInContest(contestId, contest.CategoryId, user);
         var contestActivity = await this.contestsActivity.GetContestActivity(contest.Map<ContestForActivityServiceModel>());
 
         var validationResult = this.contestResultsValidation.GetValidationResult((contestActivity, isFullResults, official, isUserAdminOrLecturer));
@@ -66,7 +67,6 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
             throw new BusinessServiceException(validationResult.Message);
         }
 
-        var user = this.userProvider.GetCurrentUser();
         var problems = contest.Problems.MapCollection<Problem>().ToList();
 
         var contestResultsModel = new ContestResultsModel
@@ -75,7 +75,7 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
             Problems = problems,
             CategoryId = contest.CategoryId.GetValueOrDefault(),
             Official = official,
-            IsUserAdminOrLecturer = user.IsAdminOrLecturer,
+            IsUserAdminOrLecturer = isUserAdminOrLecturer,
             IsFullResults = isFullResults,
             TotalResultsCount = null,
             IsExportResults = false,

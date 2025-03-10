@@ -119,6 +119,7 @@ enum SubmissionStrategyType {
     NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy = 71,
     NodeJsV20ZipExecuteHtmlAndCssStrategy = 72,
     NodeJsV20RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = 73,
+    TypeScriptV20PreprocessExecuteAndCheck = 74,
 }
 
  enum CompilerType {
@@ -148,6 +149,14 @@ enum ChatMessageRole {
     Information = 5,
 }
 
+enum ExceptionType {
+    Solution = 0,
+    Configuration = 1,
+    Strategy = 2,
+    Remote = 3,
+    Other = 4,
+}
+
 export {
     ThemeMode,
     FilterColumnTypeEnum,
@@ -161,4 +170,5 @@ export {
     CompilerType,
     CheckboxSearchValues,
     ChatMessageRole,
+    ExceptionType,
 };

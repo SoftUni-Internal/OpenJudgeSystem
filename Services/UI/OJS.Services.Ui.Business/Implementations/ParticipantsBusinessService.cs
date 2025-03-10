@@ -36,13 +36,16 @@ public class ParticipantsBusinessService : IParticipantsBusinessService
     {
         var participant = new Participant(contest.Id, userId, isOfficial);
 
-        var utcNow = DateTime.SpecifyKind(this.datesService.GetUtcNow(), DateTimeKind.Unspecified);
-        if (isOfficial && contest.IsOnlineExam)
+        if (isOfficial)
         {
-            participant.ParticipationStartTime = utcNow;
-            participant.ParticipationEndTime = utcNow + contest.Duration;
+            if (contest.IsOnlineExam)
+            {
+                var utcNow = DateTime.SpecifyKind(this.datesService.GetUtcNow(), DateTimeKind.Unspecified);
+                participant.ParticipationStartTime = utcNow;
+                participant.ParticipationEndTime = utcNow + contest.Duration;
+            }
 
-            if (!isAdminOrLecturerInContest)
+            if (!isAdminOrLecturerInContest && contest.IsWithRandomTasks)
             {
                 var problemGroups = await this.problemGroupsData
                     .GetAllByContest(contest.Id)

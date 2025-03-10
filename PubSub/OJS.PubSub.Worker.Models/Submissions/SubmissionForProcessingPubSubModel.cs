@@ -30,6 +30,8 @@ public class SubmissionForProcessingPubSubModel : IMapExplicitly
 
     public int? ExecutionStrategyBaseMemoryLimit { get; set; }
 
+    public bool Verbosely { get; set; }
+
     public SimpleExecutionDetailsServiceModel? SimpleExecutionDetails { get; set; }
 
     public TestsExecutionDetailsServiceModel? TestsExecutionDetails { get; set; }

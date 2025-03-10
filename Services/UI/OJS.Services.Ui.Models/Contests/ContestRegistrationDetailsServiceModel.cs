@@ -28,6 +28,8 @@ public class ContestRegistrationDetailsServiceModel : IMapExplicitly, IContestFo
 
     public bool IsOnlineExam { get; set; }
 
+    public bool IsWithRandomTasks { get; set; }
+
     public int? CategoryId { get; set; }
 
     public bool IsVisible { get; set; }

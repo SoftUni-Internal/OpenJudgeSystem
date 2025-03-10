@@ -4,7 +4,7 @@
     {
         Task<IExecutionResult<TResult>> SafeExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            int submissionId)
+            IOjsSubmission submission)
             where TResult : ISingleCodeRunResult, new();
     }
 }

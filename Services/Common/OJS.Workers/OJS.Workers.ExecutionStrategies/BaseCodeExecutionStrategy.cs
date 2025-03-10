@@ -80,7 +80,7 @@
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(processExecutionResult),
-                    "Invalid ProcessExecutionResultType value.");
+                    $"Unsupported process execution result type: {processExecutionResult.Type}");
             }
 
             testResult.Input = test.Input;
@@ -89,7 +89,7 @@
         }
 
         protected static OutputResult GetOutputResult(ProcessExecutionResult processExecutionResult)
-            => new OutputResult
+            => new()
             {
                 TimeUsed = (int)processExecutionResult.TimeWorked.TotalMilliseconds,
                 MemoryUsed = (int)processExecutionResult.MemoryUsed,
@@ -99,11 +99,15 @@
                     : processExecutionResult.ErrorOutput,
             };
 
-        protected IExecutor CreateExecutor(ProcessExecutorType processExecutorType = ProcessExecutorType.Default)
+        protected IExecutor CreateRestrictedExecutor()
             => this.ProcessExecutorFactory
-                .CreateProcessExecutor(this.Settings.BaseTimeUsed, this.Settings.BaseMemoryUsed, processExecutorType);
+                .CreateProcessExecutor(this.Settings.BaseTimeUsed, this.Settings.BaseMemoryUsed, ProcessExecutorType.Restricted, this.Logger);
 
-        protected virtual string SaveCodeToTempFile<TINput>(IExecutionContext<TINput> executionContext)
+        protected IExecutor CreateStandardExecutor()
+            => this.ProcessExecutorFactory
+                .CreateProcessExecutor(this.Settings.BaseTimeUsed, this.Settings.BaseMemoryUsed, ProcessExecutorType.Standard, this.Logger);
+
+        protected virtual string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
             => string.IsNullOrEmpty(executionContext.AllowedFileExtensions)
                 ? FileHelpers.SaveStringToTempFile(this.WorkingDirectory, executionContext.Code)
                 : FileHelpers.SaveByteArrayToTempFile(this.WorkingDirectory, executionContext.FileContent);

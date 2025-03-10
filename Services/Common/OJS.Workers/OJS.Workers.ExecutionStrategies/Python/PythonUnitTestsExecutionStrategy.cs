@@ -7,6 +7,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
     using System.Text.RegularExpressions;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
@@ -147,7 +148,7 @@ namespace OJS.Workers.ExecutionStrategies.Python
 
             if (string.IsNullOrWhiteSpace(className))
             {
-                throw new ArgumentException(this.classNameNotFoundErrorMessage);
+                throw new ConfigurationException(this.classNameNotFoundErrorMessage);
             }
 
             return className;

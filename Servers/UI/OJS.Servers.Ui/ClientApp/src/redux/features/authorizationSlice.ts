@@ -40,9 +40,7 @@ export const authorizationSlice = createSlice({
         },
         setIsLoggedIn: (state, action: PayloadAction<boolean>) => {
             state.isLoggedIn = action.payload;
-            if (state.isLoggedIn && state.internalUser.isAdmin) {
-                state.internalUser.canAccessAdministration = true;
-            }
+            state.internalUser.canAccessAdministration = state.isLoggedIn && (state.internalUser.isAdmin || state.internalUser.isLecturer);
         },
         resetInInternalUser: (state) => {
             state.internalUser = initialState.internalUser;

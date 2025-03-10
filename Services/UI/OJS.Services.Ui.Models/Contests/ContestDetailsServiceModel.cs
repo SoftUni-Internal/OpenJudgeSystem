@@ -47,6 +47,8 @@ public class ContestDetailsServiceModel : IMapExplicitly, ICanBeCompetedAndPract
 
     public bool IsOnlineExam { get; set; }
 
+    public bool IsWithRandomTasks { get; set; }
+
     public bool CanBeCompeted { get; set; }
 
     public bool CanBePracticed { get; set; }

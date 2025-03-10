@@ -15,6 +15,8 @@
         public const string LocalWorkerServiceLogName = "LocalWorkerService";
         public const string LocalWorkerMonitoringServiceLogName = "LocalWorkerMonitoringService";
 
+        public const string RestrictedUserName = "restricted_user";
+
         public const string DefaultCheckerAssemblyName = "OJS.Workers.Checkers";
 
         public const int DefaultJobLoopWaitTimeInMilliseconds = 1000;

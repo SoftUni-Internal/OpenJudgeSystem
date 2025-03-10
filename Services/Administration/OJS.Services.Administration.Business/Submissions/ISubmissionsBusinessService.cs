@@ -7,7 +7,7 @@
 
     public interface ISubmissionsBusinessService : IAdministrationOperationService<Submission, int, SubmissionAdministrationServiceModel>
     {
-        Task<ServiceResult> Retest(int id);
+        Task<ServiceResult> Retest(int id, bool verbosely = false);
 
         Task<SubmissionAdministrationServiceModel> Download(int id);
     }
