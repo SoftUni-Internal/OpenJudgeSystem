@@ -1,6 +1,6 @@
 /* eslint-disable no-restricted-globals */
-import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import CreateButton from '../../../components/administration/common/create/CreateButton';
@@ -13,10 +13,14 @@ import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
+import ContestsBulkEdit from './contests-bulk-edit/ContestsBulkEdit';
 import categoriesFilterableColumns, { returnCategoriesNonFilterableColumns } from './contestCategoriesGridColumns';
+
+import styles from './AdministrationContestCategories.module.scss';
 
 const AdministrationContestCategoriesPage = () => {
     const [ searchParams ] = useSearchParams();
+    const navigate = useNavigate();
     const { themeMode } = useAdministrationTheme();
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
@@ -24,6 +28,7 @@ const AdministrationContestCategoriesPage = () => {
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditContestCategoryModal, setOpenEditContestCategoryModal ] = useState(false);
     const [ openShowCreateContestCategoryModal, setOpenShowCreateContestCategoryModal ] = useState<boolean>(false);
+    const [ openShowContestsBulkEditModal, setOpenShowContestsBulkEditModal ] = useState<boolean>(false);
     const [ contestCategoryId, setContestCategoryId ] = useState<number>();
 
     const {
@@ -35,6 +40,11 @@ const AdministrationContestCategoriesPage = () => {
 
     const onEditClick = (id: number) => {
         setOpenEditContestCategoryModal(true);
+        setContestCategoryId(id);
+    };
+
+    const onContestsBulkEditClick = (id: number) => {
+        setOpenShowContestsBulkEditModal(true);
         setContestCategoryId(id);
     };
 
@@ -66,6 +76,17 @@ const AdministrationContestCategoriesPage = () => {
         </AdministrationModal>
     );
 
+    const renderContestsBulkEditModal = (index: number) => (
+        <AdministrationModal
+          index={index}
+          open={openShowContestsBulkEditModal}
+          onClose={() => setOpenShowContestsBulkEditModal(false)}
+          className={styles.administrationModal}
+        >
+            <ContestsBulkEdit categoryId={contestCategoryId} />
+        </AdministrationModal>
+    );
+
     const renderGridActions = () => (
         <CreateButton
           showModal={openShowCreateContestCategoryModal}
@@ -73,6 +94,17 @@ const AdministrationContestCategoriesPage = () => {
           styles={{ width: '40px', height: '40px' }}
         />
     );
+
+    useEffect(() => {
+        const categoryId = searchParams.get('contestsBulkEdit');
+        if (categoryId) {
+            onContestsBulkEditClick(Number(categoryId));
+
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete('contestsBulkEdit');
+            navigate({ search: newParams.toString() }, { replace: true });
+        }
+    }, [ navigate, searchParams ]);
 
     if (isLoading) {
         return <SpinningLoader />;
@@ -85,13 +117,14 @@ const AdministrationContestCategoriesPage = () => {
               data={data}
               error={error}
               filterableGridColumnDef={categoriesFilterableColumns}
-              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick)}
+              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick, onContestsBulkEditClick)}
               renderActionButtons={renderGridActions}
               queryParams={queryParams}
               setQueryParams={setQueryParams}
               modals={[
                   { showModal: openShowCreateContestCategoryModal, modal: (i) => renderCategoryModal(i, false) },
                   { showModal: openEditContestCategoryModal, modal: (i) => renderCategoryModal(i, true) },
+                  { showModal: openShowContestsBulkEditModal, modal: (i) => renderContestsBulkEditModal(i) },
               ]}
               legendProps={[
                   { color: getColors(themeMode).palette.deleted, message: 'Category is deleted.' },

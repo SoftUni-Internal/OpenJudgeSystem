@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import BallotIcon from '@mui/icons-material/Ballot';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -35,6 +36,16 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
     {
         field: 'isVisible',
         headerName: 'Is Visible',
+        headerAlign: 'center',
+        type: 'boolean',
+        flex: 0,
+        filterable: false,
+        align: 'center',
+        sortable: false,
+    },
+    {
+        field: 'hasChildren',
+        headerName: 'Has Children',
         headerAlign: 'center',
         type: 'boolean',
         flex: 0,
@@ -117,7 +128,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
+export const returnCategoriesNonFilterableColumns = (onEditClick: Function, onContestsBulkEditClick: Function) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -138,6 +149,12 @@ export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
                   text="Are you sure that you want to delete the contest category?"
                   mutation={useDeleteContestCategoryMutation}
                 />
+                <IconButton onClick={() => onContestsBulkEditClick(params.row.id)} disabled={params.row.hasChildren}>
+                    <BallotIcon color={params.row.hasChildren
+                        ? 'disabled'
+                        : 'primary'}
+                    />
+                </IconButton>
             </div>
         ),
     },

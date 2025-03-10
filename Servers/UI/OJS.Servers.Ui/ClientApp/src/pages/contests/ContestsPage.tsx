@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { CONTEST_CATEGORIES_PATH } from 'src/common/urls/administration-urls';
+import AdministrationLink from 'src/components/guidelines/buttons/AdministrationLink';
 
 import { SortType } from '../../common/contest-types';
 import { IContestsSortAndFilterOptions, IIndexContestsType } from '../../common/types';
@@ -151,7 +153,15 @@ const ContestsPage = () => {
                             ? selectedCategory.name
                             : 'All Categories'}
                     </div>
-                    <ContestStrategies />
+                    <div className={styles.headingActions}>
+                        {selectedCategory?.id && selectedCategory?.children.length === 0 && (
+                            <AdministrationLink
+                              text="Edit Contests"
+                              to={`/${CONTEST_CATEGORIES_PATH}?contestsBulkEdit=${selectedCategory?.id}`}
+                            />
+                        )}
+                        <ContestStrategies />
+                    </div>
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls
