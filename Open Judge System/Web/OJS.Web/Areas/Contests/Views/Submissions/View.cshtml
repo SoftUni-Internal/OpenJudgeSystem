@@ -99,7 +99,7 @@ else
 
         if (Model.UserHasAdminPermission)
         {
-            string message = "A processing error occurred:";
+            string message = "A processing error occurred.";
 
             if (Model.ExceptionType == ExceptionType.Solution)
             {
@@ -116,6 +116,10 @@ else
             else if (Model.ExceptionType == ExceptionType.Other)
             {
                 message = "An unexpected error occurred. Please contact a developer.";
+            }
+            else if (Model.ExceptionType == ExceptionType.Remote)
+            {
+                message = "A remote error occurred.";
             }
 
 <pre>
