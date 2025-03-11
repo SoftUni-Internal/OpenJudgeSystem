@@ -27,6 +27,7 @@ const dataColumns: AdministrationGridColDef[] = [
         renderCell: (params: GridRenderCellParams) => (
             <ExternalLink to={`/submissions/${Number(params.row.id)}/details`} text={params.row.id.toString()} />
         ),
+        hidden: false,
     },
     {
         field: 'participantName',
@@ -40,7 +41,7 @@ const dataColumns: AdministrationGridColDef[] = [
     },
     {
         field: 'problemId',
-        headerName: 'ProblemId',
+        headerName: 'Problem Id',
         type: 'number',
         align: 'center',
         headerAlign: 'center',

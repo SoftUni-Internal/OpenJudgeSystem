@@ -533,7 +533,8 @@ interface IProblemSubmissionType{
 interface IIndexExamGroupsType {
     id: number;
     name: string;
-    contest: string;
+    contestName: string;
+    contestId: number;
     externalAppId: string;
     externalExamGroupId: string;
 }
