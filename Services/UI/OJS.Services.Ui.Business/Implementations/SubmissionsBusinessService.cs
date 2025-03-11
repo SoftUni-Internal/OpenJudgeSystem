@@ -48,7 +48,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private readonly IParticipantsDataService participantsDataService;
     private readonly IProblemsDataService problemsDataService;
     private readonly IUserProviderService userProviderService;
-    private readonly ILecturersInContestsBusinessService lecturersInContestsBusiness;
+    private readonly ILecturersInContestsCacheService lecturersInContestsCache;
     private readonly ISubmissionDetailsValidationService submissionDetailsValidationService;
     private readonly ISubmitSubmissionValidationService submitSubmissionValidationService;
     private readonly ISubmissionResultsValidationService submissionResultsValidationService;
@@ -75,7 +75,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         ISubmissionsCommonBusinessService submissionsCommonBusinessService,
         IUserProviderService userProviderService,
         IParticipantScoresBusinessService participantScoresBusinessService,
-        ILecturersInContestsBusinessService lecturersInContestsBusiness,
+        ILecturersInContestsCacheService lecturersInContestsCache,
         ISubmissionDetailsValidationService submissionDetailsValidationService,
         ISubmitSubmissionValidationService submitSubmissionValidationService,
         ISubmissionResultsValidationService submissionResultsValidationService,
@@ -98,7 +98,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.submissionsCommonData = submissionsCommonData;
         this.usersBusiness = usersBusiness;
         this.problemsDataService = problemsDataService;
-        this.lecturersInContestsBusiness = lecturersInContestsBusiness;
+        this.lecturersInContestsCache = lecturersInContestsCache;
         this.submissionsCommonBusinessService = submissionsCommonBusinessService;
         this.participantsDataService = participantsDataService;
         this.userProviderService = userProviderService;
@@ -128,8 +128,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         var user = this.userProviderService.GetCurrentUser();
 
-        var userIsAdminOrLecturerInContest = await this.lecturersInContestsBusiness
-            .IsCurrentUserAdminOrLecturerInContest(submission.ContestId);
+        var userIsAdminOrLecturerInContest = await this.lecturersInContestsCache
+            .IsUserAdminOrLecturerInContest(submission.ContestId, submission.ContestCategoryId, user);
 
         var validationResult = await this.retestSubmissionValidationService.GetValidationResult((
                 submission,
@@ -150,10 +150,10 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         var submission = await this.submissionsData.GetSubmissionById<SubmissionDetailsServiceModel>(submissionId)
             ?? throw new BusinessServiceException(ValidationMessages.Submission.NotFound);
 
-        var userAdminOrLecturerInContest = await this.lecturersInContestsBusiness
-            .IsCurrentUserAdminOrLecturerInContest(submission.ContestId);
-
         var currentUser = this.userProviderService.GetCurrentUser();
+
+        var userAdminOrLecturerInContest = await this.lecturersInContestsCache
+            .IsUserAdminOrLecturerInContest(submission.ContestId, submission.ContestCategoryId, currentUser);
 
         var validationResult = this.submissionDetailsValidationService
             .GetValidationResult((submission, currentUser, userAdminOrLecturerInContest));
@@ -351,6 +351,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 IsOfficial = p.IsOfficial,
                 ContestId = p.ContestId,
                 ContestType = p.Contest.Type,
+                ContestCategoryId = p.Contest.CategoryId,
                 LastSubmissionTime = p.LastSubmissionTime,
                 ParticipationStartTime = p.ParticipationStartTime,
                 ParticipationEndTime = p.ParticipationEndTime,
@@ -377,7 +378,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             .FirstOrDefault(st => st.Id == model.SubmissionTypeId);
 
         var submitSubmissionValidationServiceResult = await this.submitSubmissionValidationService.GetValidationResult(
-            (problem, participant, model, submissionType));
+            (problem, participant, model, submissionType, currentUser));
 
         if (!submitSubmissionValidationServiceResult.IsValid)
         {
