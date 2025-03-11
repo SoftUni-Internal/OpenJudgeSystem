@@ -149,7 +149,7 @@ export const returnCategoriesNonFilterableColumns = (onEditClick: Function, onCo
                   text="Are you sure that you want to delete the contest category?"
                   mutation={useDeleteContestCategoryMutation}
                 />
-                <IconButton onClick={() => onContestsBulkEditClick(params.row.id)} disabled={params.row.hasChildren}>
+                <IconButton onClick={() => onContestsBulkEditClick(params.row.id, params.row.name)} disabled={params.row.hasChildren}>
                     <BallotIcon color={params.row.hasChildren
                         ? 'disabled'
                         : 'primary'}

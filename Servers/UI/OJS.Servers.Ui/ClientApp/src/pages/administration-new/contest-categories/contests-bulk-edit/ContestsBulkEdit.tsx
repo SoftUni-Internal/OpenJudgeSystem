@@ -97,7 +97,9 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
 
         switch (name) {
         case 'type': {
-            type = value as string;
+            type = value === ''
+                ? null
+                : value;
             currentValidations.isTypeTouched = true;
             currentValidations.isTypeValid = true;
             break;
@@ -105,9 +107,9 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
         case 'limitBetweenSubmissions': {
             currentValidations.isLimitBetweenSubmissionsTouched = true;
             currentValidations.isLimitBetweenSubmissionsValid = true;
-            limitBetweenSubmissions = value
-                ? Number(value)
-                : null;
+            limitBetweenSubmissions = value === ''
+                ? null
+                : Number(value);
             if (limitBetweenSubmissions !== null && limitBetweenSubmissions < 0) {
                 currentValidations.isLimitBetweenSubmissionsValid = false;
             }
@@ -220,9 +222,14 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
               confirmFunction={() => bulkEditContests(formData)}
             />
             )}
-            <Typography className={formStyles.centralize} variant="h5">
+            <Typography className={formStyles.centralize} variant="h4">
                 Contests Edit
             </Typography>
+            {categoryName && (
+            <Typography className={formStyles.centralize} variant="h5">
+                {categoryName}
+            </Typography>
+            )}
             <Box className={formStyles.fieldBox}>
                 <Typography className={formStyles.fieldBoxTitle} variant="h6">
                     General Information
@@ -235,7 +242,7 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
                             <InputLabel id="formData-type" sx={{ alignSelf: 'start', left: '-14px' }}>{TYPE}</InputLabel>
                             <Select
                               variant="standard"
-                              value={formData.type}
+                              value={formData.type ?? ''}
                               name="type"
                               labelId="formData-type"
                               onChange={(e) => onChange(e)}
@@ -317,7 +324,7 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
                           label={LIMIT_BETWEEN_SUBMISSIONS}
                           variant="standard"
                           onChange={onChange}
-                          value={formData.limitBetweenSubmissions}
+                          value={formData.limitBetweenSubmissions ?? ''}
                           InputLabelProps={{ shrink: true }}
                           color={formDataValidations.isLimitBetweenSubmissionsValid && formDataValidations.isLimitBetweenSubmissionsTouched
                               ? 'success'
