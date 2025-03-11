@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { TestRunResultType } from '../../../common/constants';
 import { IEnumType } from '../../../common/types';
@@ -101,11 +102,11 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <Link to={`/submissions/${params.row.submissionId}/details`} target="_blank">
                 {params.row.submissionId}
             </Link>
-        ),
+        )),
     },
 ];
 

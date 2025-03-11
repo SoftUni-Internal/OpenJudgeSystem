@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridDeleteIcon, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { CREATED_ON, EDIT, MODIFIED_ON } from '../../../common/labels';
 import { NEW_ADMINISTRATION_PATH, USERS_PATH } from '../../../common/urls/administration-urls';
@@ -124,7 +125,7 @@ export const returnUsersNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(params.row.id)} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${USERS_PATH}/${params.row.id}`} location={`${EDIT} page`} />
@@ -136,7 +137,7 @@ export const returnUsersNonFilterableColumns = (
                 </Tooltip>
                 )}
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

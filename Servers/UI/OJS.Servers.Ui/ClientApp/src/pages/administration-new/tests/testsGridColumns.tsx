@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { EDIT, TEST } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
@@ -107,7 +108,7 @@ export const returnTestsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${TESTS_PATH}/${Number(params.row.id)}`} location={`${EDIT} page`} />
@@ -119,7 +120,7 @@ export const returnTestsNonFilterableColumns = (
                   onSuccess={onSuccessFullDelete}
                 />
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

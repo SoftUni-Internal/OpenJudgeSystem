@@ -2,6 +2,7 @@
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { CREATED_ON, MODIFIED_ON } from '../../../common/labels';
 import DeleteButton from '../../../components/administration/common/delete/DeleteButton';
@@ -127,7 +128,7 @@ export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <IconButton onClick={() => onEditClick(params.row.id)}>
                     <EditIcon color="warning" />
@@ -139,7 +140,7 @@ export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
                   mutation={useDeleteContestCategoryMutation}
                 />
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

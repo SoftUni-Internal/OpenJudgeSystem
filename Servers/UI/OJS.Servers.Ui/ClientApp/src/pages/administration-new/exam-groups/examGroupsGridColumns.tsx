@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { EDIT } from '../../../common/labels';
 import { EXAM_GROUPS_PATH, NEW_ADMINISTRATION_PATH } from '../../../common/urls/administration-urls';
@@ -76,7 +77,7 @@ export const returnExamGroupsNonFilterableColumns = (onEditClick: Function) => [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton
@@ -90,7 +91,7 @@ export const returnExamGroupsNonFilterableColumns = (onEditClick: Function) => [
                   mutation={useDeleteExamGroupMutation}
                 />
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

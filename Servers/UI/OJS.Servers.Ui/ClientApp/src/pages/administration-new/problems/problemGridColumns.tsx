@@ -4,6 +4,7 @@ import { FaCopy } from 'react-icons/fa';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { ProblemGroupTypes } from '../../../common/enums';
 import { CREATED_ON, EDIT, MODIFIED_ON } from '../../../common/labels';
@@ -170,7 +171,7 @@ export const returnProblemsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${Number(params.row.id)}`} location={`${EDIT} page`} />
@@ -196,7 +197,7 @@ export const returnProblemsNonFilterableColumns = (
                 </Tooltip>
                 )}
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

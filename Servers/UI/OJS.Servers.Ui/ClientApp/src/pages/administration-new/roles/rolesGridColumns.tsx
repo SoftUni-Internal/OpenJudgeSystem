@@ -5,6 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import AutoStoriesIcon from '@mui/icons-material/AutoStories';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { EDIT } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
@@ -59,7 +60,7 @@ export const returnRolesNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(params.row.id)} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${ROLES_PATH}/${params.row.id}`} location={`${EDIT} page`} />
@@ -113,7 +114,7 @@ export const returnRolesNonFilterableColumns = (
                     </>
                 )}
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

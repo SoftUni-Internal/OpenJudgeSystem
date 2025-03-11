@@ -4,6 +4,7 @@ import { BiTransfer } from 'react-icons/bi';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import {
     ALLOW_PARALLEL_SUBMISSIONS_IN_TASKS,
@@ -225,7 +226,7 @@ export const returnContestsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${CONTESTS_PATH}/${Number(params.row.id)}`} location={`${EDIT} page`} />
@@ -264,7 +265,7 @@ export const returnContestsNonFilterableColumns = (
                   id={Number(params.row.id)}
                 />
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

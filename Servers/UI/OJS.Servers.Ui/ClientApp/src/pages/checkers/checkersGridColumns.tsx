@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { CREATED_ON, MODIFIED_ON } from '../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../common/messages';
@@ -104,7 +105,7 @@ export const returnCheckersNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <DeleteButton
@@ -115,7 +116,7 @@ export const returnCheckersNonFilterableColumns = (
                   onSuccess={onSuccessFullDelete}
                 />
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

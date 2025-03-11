@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types,max-len */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { adminFormatDate } from 'src/utils/administration/administration-dates';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import {
     CREATED_ON,
@@ -92,14 +93,14 @@ export const returnNonFilterableColumns = (onViewClick: Function) => [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <ViewButton
                   onClick={() => onViewClick(params.row.id)}
                   text="View access log"
                 />
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

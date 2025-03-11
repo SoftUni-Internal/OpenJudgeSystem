@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/ban-types,max-len */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import {
     EDIT,
@@ -78,7 +79,7 @@ export const returnNonFilterableColumns = (onSuccessfulDelete: () => void) => [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <ViewButton
                   path={`/${NEW_ADMINISTRATION_PATH}/${SUBMISSION_TYPE_DOCUMENTS_VIEW_PATH}?submissionTypeIds=${params.row.submissionTypeId}`}
@@ -99,7 +100,7 @@ export const returnNonFilterableColumns = (onSuccessfulDelete: () => void) => [
                   onSuccess={onSuccessfulDelete}
                 />
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

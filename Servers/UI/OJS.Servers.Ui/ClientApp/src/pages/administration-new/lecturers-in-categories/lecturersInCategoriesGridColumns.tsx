@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridDeleteIcon, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { AdministrationGridColDef } from '../../../components/administration/utils/mui-utils';
 
@@ -40,7 +41,7 @@ export const returnLecturerInCategoriesNonFilterableColumns = (removeFromRoleFun
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 {removeFromRoleFunc && (
                 <Tooltip title="Remove from Category">
@@ -50,7 +51,7 @@ export const returnLecturerInCategoriesNonFilterableColumns = (removeFromRoleFun
                 </Tooltip>
                 )}
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 
