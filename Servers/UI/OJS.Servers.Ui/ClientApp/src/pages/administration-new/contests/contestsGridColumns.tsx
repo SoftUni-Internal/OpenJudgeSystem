@@ -66,6 +66,15 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         align: 'center',
         filterable: false,
         sortable: false,
+        renderCell: (params) => (
+            <ExternalLink
+              to={getContestsDetailsPageUrl({
+                  contestId: params.row.id,
+                  contestName: params.row.name,
+              })}
+              text={params.value.toString()}
+            />
+        ),
     },
     {
         field: 'category',
