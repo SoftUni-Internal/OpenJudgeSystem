@@ -1,10 +1,8 @@
 /* eslint-disable no-restricted-globals */
-import React, { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAppSelector } from 'src/redux/store';
-import { CONTESTS_BULK_EDIT } from 'src/utils/constants';
+import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
-import { IContestCategory, IGetAllAdminParams } from '../../../common/types';
+import { IGetAllAdminParams } from '../../../common/types';
 import CreateButton from '../../../components/administration/common/create/CreateButton';
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
 import CategoryEdit from '../../../components/administration/contest-categories/CategoryEdit';
@@ -22,8 +20,6 @@ import styles from './AdministrationContestCategories.module.scss';
 
 const AdministrationContestCategoriesPage = () => {
     const [ searchParams ] = useSearchParams();
-    const { contestCategories } = useAppSelector((state) => state.contests);
-    const navigate = useNavigate();
     const { themeMode } = useAdministrationTheme();
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
@@ -31,7 +27,7 @@ const AdministrationContestCategoriesPage = () => {
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditContestCategoryModal, setOpenEditContestCategoryModal ] = useState(false);
     const [ openShowCreateContestCategoryModal, setOpenShowCreateContestCategoryModal ] = useState<boolean>(false);
-    const [ openShowContestsBulkEditModal, setOpenShowContestsBulkEditModal ] = useState<boolean>(false);
+    const [ showContestsBulkEditModal, setShowContestsBulkEditModal ] = useState<boolean>(false);
     const [ contestCategoryId, setContestCategoryId ] = useState<number>();
     const [ contestCategoryName, setContestCategoryName ] = useState<string>();
 
@@ -48,7 +44,7 @@ const AdministrationContestCategoriesPage = () => {
     };
 
     const onContestsBulkEditClick = (id: number, name: string) => {
-        setOpenShowContestsBulkEditModal(true);
+        setShowContestsBulkEditModal(true);
         setContestCategoryId(id);
         setContestCategoryName(name);
     };
@@ -84,15 +80,15 @@ const AdministrationContestCategoriesPage = () => {
     const renderContestsBulkEditModal = (index: number) => (
         <AdministrationModal
           index={index}
-          open={openShowContestsBulkEditModal}
-          onClose={() => setOpenShowContestsBulkEditModal(false)}
+          open={showContestsBulkEditModal}
+          onClose={() => setShowContestsBulkEditModal(false)}
           className={styles.administrationModal}
         >
             <ContestsBulkEdit
               categoryId={contestCategoryId}
               categoryName={contestCategoryName}
               setParentSuccessMessage={setSuccessMessage}
-              onSuccess={() => setOpenShowContestsBulkEditModal(false)}
+              onSuccess={() => setShowContestsBulkEditModal(false)}
             />
         </AdministrationModal>
     );
@@ -104,39 +100,6 @@ const AdministrationContestCategoriesPage = () => {
           styles={{ width: '40px', height: '40px' }}
         />
     );
-
-    const getContestCategory = useCallback(
-        (category: IContestCategory, categoryId: number): IContestCategory | null => {
-            if (!category) {
-                return null;
-            }
-
-            if (category.id === categoryId) {
-                return category;
-            }
-
-            return (
-                category.children
-                    .map((child) => getContestCategory(child, categoryId))
-                    .find((foundCategory) => foundCategory !== null) || null
-            );
-        },
-        [],
-    );
-
-    useEffect(() => {
-        const categoryId = Number(searchParams.get(CONTESTS_BULK_EDIT));
-        if (categoryId) {
-            onContestsBulkEditClick(
-                categoryId,
-                getContestCategory({ id: 0, children: [ ...contestCategories ] } as IContestCategory, categoryId)?.name ?? '',
-            );
-
-            const newParams = new URLSearchParams(searchParams);
-            newParams.delete(CONTESTS_BULK_EDIT);
-            navigate({ search: newParams.toString() }, { replace: true });
-        }
-    }, [ contestCategories, getContestCategory, navigate, searchParams ]);
 
     if (isLoading) {
         return <SpinningLoader />;
@@ -156,7 +119,7 @@ const AdministrationContestCategoriesPage = () => {
               modals={[
                   { showModal: openShowCreateContestCategoryModal, modal: (i) => renderCategoryModal(i, false) },
                   { showModal: openEditContestCategoryModal, modal: (i) => renderCategoryModal(i, true) },
-                  { showModal: openShowContestsBulkEditModal, modal: (i) => renderContestsBulkEditModal(i) },
+                  { showModal: showContestsBulkEditModal, modal: (i) => renderContestsBulkEditModal(i) },
               ]}
               legendProps={[
                   { color: getColors(themeMode).palette.deleted, message: 'Category is deleted.' },

@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import React from 'react';
 import { NodeRendererProps } from 'react-arborist';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import BallotIcon from '@mui/icons-material/Ballot';
+import { IconButton } from '@mui/material';
 
 import { IContestCategoryHierarchy } from '../../../../common/types';
 
@@ -9,10 +12,18 @@ import styles from '../AdministrationContestCategoriesHierarchy.module.scss';
 
 type NodeProps = NodeRendererProps<IContestCategoryHierarchy> & {
     isActive: boolean;
+    onContestsBulkEditClick: Function;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const Node = ({ node, style, dragHandle, tree, isActive }: NodeProps) => (
+const Node = ({
+    node,
+    style,
+    dragHandle,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    tree,
+    isActive,
+    onContestsBulkEditClick,
+}: NodeProps) => (
     <div
       className={styles.node}
       style={style}
@@ -39,6 +50,19 @@ const Node = ({ node, style, dragHandle, tree, isActive }: NodeProps) => (
                 {node.data?.name}
             </span>
         </span>
+        <IconButton
+          className={styles.iconButton}
+          onClick={(e) => {
+              onContestsBulkEditClick(node.data?.id, node.data?.name);
+              e.stopPropagation();
+          }}
+          disabled={node.data?.children.length !== 0}
+        >
+            <BallotIcon color={node.data?.children.length !== 0
+                ? 'disabled'
+                : 'primary'}
+            />
+        </IconButton>
     </div>
 );
 
