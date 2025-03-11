@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { whenNotDeleted } from 'src/utils/administration/administration-grid';
 
 import { CREATED_ON, MODIFIED_ON } from '../../../common/labels';
 import { CONTESTS_PATH, NEW_ADMINISTRATION_PATH, PROBLEMS_PATH } from '../../../common/urls/administration-urls';
@@ -219,7 +220,7 @@ export const returnSubmissionsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: whenNotDeleted((params: GridRenderCellParams) => (
             <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
                 <Tooltip title="Retest">
                     <IconButton
@@ -247,7 +248,7 @@ export const returnSubmissionsNonFilterableColumns = (
                 </Tooltip>
 
             </div>
-        ),
+        )),
     },
 ] as GridColDef[];
 

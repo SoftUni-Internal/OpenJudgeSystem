@@ -1,4 +1,4 @@
-﻿/* eslint-disable import/prefer-default-export */
+/* eslint-disable import/prefer-default-export */
 import { ReactNode } from 'react';
 import { GridRenderCellParams } from '@mui/x-data-grid';
 
