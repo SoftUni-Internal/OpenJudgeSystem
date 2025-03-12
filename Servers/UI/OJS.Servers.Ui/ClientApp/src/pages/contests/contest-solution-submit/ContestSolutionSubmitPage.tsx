@@ -78,7 +78,7 @@ const ContestSolutionSubmitPage = () => {
     const location = useLocation();
     const dispatch = useAppDispatch();
     const { themeColors, getColorClassName } = useTheme();
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(applyDefaultQueryValues(searchParams));
     const { contestId, participationType, slug } = useParams();
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);

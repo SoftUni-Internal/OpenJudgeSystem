@@ -5,7 +5,7 @@ import useTheme from '../../../hooks/use-theme';
 import styles from './BackToTop.module.scss';
 
 const BackToTop = () => {
-    const [ isVisible, setIsVisible ] = useState(true);
+    const [ isVisible, setIsVisible ] = useState(false);
     const { isDarkMode } = useTheme();
 
     const toggleVisibility = () => {

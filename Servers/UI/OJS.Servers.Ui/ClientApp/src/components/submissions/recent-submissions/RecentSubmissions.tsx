@@ -36,7 +36,7 @@ const selectedSubmissionsStateMapping = {
 } as IDictionary<string>;
 
 const RecentSubmissions = () => {
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(applyDefaultQueryValues(searchParams));
     const [ status, setStatus ] = useState<SubmissionStatus>(SubmissionStatus.All);
     const [ selectedActive, setSelectedActive ] = useState<number>(1);
