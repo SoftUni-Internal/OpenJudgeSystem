@@ -137,6 +137,7 @@ const SettingForm = (props: ISettingFormProps) => {
                           onSuccess={() => navigate(`/${NEW_ADMINISTRATION_PATH}/${SETTINGS_PATH}`)}
                           mutation={useDeleteSettingMutation}
                           text={DELETE_CONFIRMATION_MESSAGE}
+                          setParentSuccessMessage={setParentSuccessMessage}
                         />
                     </Box>
                 </>

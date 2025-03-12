@@ -66,7 +66,11 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnExamGroupsNonFilterableColumns = (onEditClick: Function) => [
+export const returnExamGroupsNonFilterableColumns = (
+    onEditClick: Function,
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -88,6 +92,8 @@ export const returnExamGroupsNonFilterableColumns = (onEditClick: Function) => [
                   name={params.row.name}
                   text="Are you sure that you want to delete the exam group."
                   mutation={useDeleteExamGroupMutation}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

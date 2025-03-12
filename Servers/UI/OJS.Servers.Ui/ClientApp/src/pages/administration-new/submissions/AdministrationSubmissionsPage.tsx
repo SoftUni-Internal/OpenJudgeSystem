@@ -78,14 +78,14 @@ const AdministrationSubmissionsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             {renderErrorMessagesAlert(exceptionMessages)}
             <AdministrationGridView
               data={data}
               error={error}
               filterableGridColumnDef={dataColumns}
               notFilterableGridColumnDef={
-                returnSubmissionsNonFilterableColumns(retest, startDownload, retakeSubmissions)
+                returnSubmissionsNonFilterableColumns(retest, startDownload, retakeSubmissions, setSuccessMessage)
             }
               queryParams={queryParams}
               setQueryParams={setQueryParams}

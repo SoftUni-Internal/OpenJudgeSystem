@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { CREATED_ON, MODIFIED_ON } from '../../../common/labels';
@@ -122,7 +123,10 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnparticipantsNonFilterableColumns = (onSuccessFullDelete: () => void) => [
+export const returnparticipantsNonFilterableColumns = (
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -139,7 +143,8 @@ export const returnparticipantsNonFilterableColumns = (onSuccessFullDelete: () =
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteParticipantMutation}
-                  onSuccess={onSuccessFullDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

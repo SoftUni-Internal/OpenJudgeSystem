@@ -106,10 +106,10 @@ const AdministrationSubmissionTypesPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               filterableGridColumnDef={submissionTypesFilterableColumns}
-              notFilterableGridColumnDef={returnNonFilterableColumns(onEditClick, onSuccessfullDelete)}
+              notFilterableGridColumnDef={returnNonFilterableColumns(onEditClick, onSuccessfullDelete, setSuccessMessage)}
               data={submissionTypesData}
               error={error}
               queryParams={queryParams}

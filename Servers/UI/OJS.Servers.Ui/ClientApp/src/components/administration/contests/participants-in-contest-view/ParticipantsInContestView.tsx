@@ -109,7 +109,7 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
                   data={data}
                   error={error}
                   filterableGridColumnDef={participantsFilteringColumns}
-                  notFilterableGridColumnDef={returnparticipantsNonFilterableColumns(refetch)}
+                  notFilterableGridColumnDef={returnparticipantsNonFilterableColumns(refetch, setParentSuccessMessage)}
                   queryParams={queryParams}
                   renderActionButtons={renderActions}
                   modals={[

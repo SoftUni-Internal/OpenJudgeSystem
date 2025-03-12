@@ -157,9 +157,10 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
 
 export const returnProblemsNonFilterableColumns = (
     onEditClick: Function,
+    setParentSuccessMessage: Function,
     onCopyProblem?: Function,
     retestProblem?: Function,
-    onDeleteSuccess?:() => void,
+    onSuccessfulDelete?:() => void,
 ) => [
     {
         field: 'actions',
@@ -179,7 +180,8 @@ export const returnProblemsNonFilterableColumns = (
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteProblemMutation}
-                  onSuccess={onDeleteSuccess}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 {retestProblem && (
                 <Tooltip title="Retest">

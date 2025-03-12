@@ -208,7 +208,8 @@ const dataColumns: AdministrationGridColDef[] = [
 export const returnSubmissionsNonFilterableColumns = (
     retest: Function,
     downloadClicked: Function,
-    onSuccessFullyDelete:() => void,
+    onSuccessfulDelete:() => void,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -233,7 +234,8 @@ export const returnSubmissionsNonFilterableColumns = (
                   name="Submission"
                   text={`Are you sure that you want to delete submission #${params.row.id}?`}
                   mutation={useDeleteSubmissionMutation}
-                  onSuccess={onSuccessFullyDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 <Tooltip title="Download">
                     <span>
