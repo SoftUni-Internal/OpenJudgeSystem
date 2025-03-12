@@ -81,6 +81,8 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
                         x.message = UNEXPECTED_ERROR_MESSAGE;
                     }
                 });
+            } else {
+                data = [ { name: 'The error response could not be parsed.', message: UNEXPECTED_ERROR_MESSAGE } ];
             }
         } catch {
             const errorData = result?.error?.data as ExceptionData;
