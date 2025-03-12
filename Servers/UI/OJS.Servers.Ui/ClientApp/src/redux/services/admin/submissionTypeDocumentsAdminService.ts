@@ -17,7 +17,7 @@ const submissionTypeDocumentsAdminService = createApi({
     baseQuery: getCustomBaseQuery('submissionTypeDocuments'),
     endpoints: (builder) => ({
         // eslint-disable-next-line max-len
-        getSubmissionTypeDocumentById: builder.query<ISubmissionTypeDocumentAdministrationModel, ISubmissionTypeDocumentUrlById>({ query: (submissionTypeDocument) => ({ url: `/${GET_ENDPOINT}/${submissionTypeDocument.id}` }) }),
+        getSubmissionTypeDocumentById: builder.query<ISubmissionTypeDocumentAdministrationModel, ISubmissionTypeDocumentUrlById>({ query: (submissionTypeDocument) => ({ url: `/${GET_ENDPOINT}/${submissionTypeDocument.id}` }), keepUnusedDataFor: 0 }),
         createSubmissionTypeDocument: builder.mutation<string, ISubmissionTypeDocumentAdministrationModel>({
             query: (submissionTypeDocument) => ({
                 url: `/${CREATE_ENDPOINT}`,

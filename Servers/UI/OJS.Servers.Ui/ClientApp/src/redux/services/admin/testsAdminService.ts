@@ -22,7 +22,10 @@ const testsAdminService = createApi({
             }),
         }),
         deleteTest: builder.mutation<string, number>({ query: (id) => ({ url: `/${DELETE_ENDPOINT}/${id}`, method: 'DELETE' }) }),
-        getTestById: builder.query<ITestAdministration, number>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }) }),
+        getTestById: builder.query<ITestAdministration, number>({
+            query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }),
+            keepUnusedDataFor: 0,
+        }),
         updateTest: builder.mutation<string, ITestAdministration >({
             query: (test) => ({
                 url: `/${UPDATE_ENDPOINT}`,

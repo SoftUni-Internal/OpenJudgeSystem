@@ -37,7 +37,7 @@ const AdministrationCheckersPage = () => {
         setOpenEditModal(true);
     };
 
-    const closeModal = (isEditMode: boolean) => {
+    const onCloseModal = (isEditMode: boolean) => {
         if (isEditMode) {
             setOpenEditModal(false);
         } else {
@@ -53,12 +53,12 @@ const AdministrationCheckersPage = () => {
           open={isEditMode
               ? openEditModal
               : openCreateModal}
-          onClose={() => closeModal(isEditMode)}
+          onClose={() => onCloseModal(isEditMode)}
         >
             <CheckerForm
               id={checkerId}
               isEditMode={isEditMode}
-              onSuccess={() => closeModal(isEditMode)}
+              onSuccess={() => onCloseModal(isEditMode)}
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>

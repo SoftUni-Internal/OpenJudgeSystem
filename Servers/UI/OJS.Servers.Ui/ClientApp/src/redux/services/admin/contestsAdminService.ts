@@ -32,7 +32,7 @@ const contestService = createApi({
 
         getContestById: builder.query<IContestAdministration, IContestDetailsUrlParams>({
             query: ({ id }) => ({ url: `/${GET_ENDPOINT}/${id}` }),
-            keepUnusedDataFor: 10,
+            keepUnusedDataFor: 0,
         }),
 
         deleteContest: builder.mutation<string, number >({ query: (id) => ({ url: `/${DELETE_ENDPOINT}/${id}`, method: 'DELETE' }) }),
