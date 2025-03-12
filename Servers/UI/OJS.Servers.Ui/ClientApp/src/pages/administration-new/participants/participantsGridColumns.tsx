@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { getContestsDetailsPageUrl } from 'src/common/urls/compose-client-urls';
 import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
@@ -133,7 +134,10 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnparticipantsNonFilterableColumns = (onSuccessFullDelete: () => void) => [
+export const returnparticipantsNonFilterableColumns = (
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -150,7 +154,8 @@ export const returnparticipantsNonFilterableColumns = (onSuccessFullDelete: () =
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteParticipantMutation}
-                  onSuccess={onSuccessFullDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

@@ -78,7 +78,7 @@ const AdministrationCheckersPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               data={checkersData}
               error={checkersError}
@@ -86,7 +86,12 @@ const AdministrationCheckersPage = () => {
               setQueryParams={setQueryParams}
               renderActionButtons={renderGridSettings}
               filterableGridColumnDef={checkersFilterableColumns}
-              notFilterableGridColumnDef={returnCheckersNonFilterableColumns(onEditClick, useDeleteCheckerMutation, retakeCheckers)}
+              notFilterableGridColumnDef={returnCheckersNonFilterableColumns(
+                  onEditClick,
+                  useDeleteCheckerMutation,
+                  retakeCheckers,
+                  setSuccessMessage,
+              )}
               modals={[
                   { showModal: openEditModal, modal: (i) => renderModal(i, true) },
                   { showModal: openCreateModal, modal: (i) => renderModal(i, false) },

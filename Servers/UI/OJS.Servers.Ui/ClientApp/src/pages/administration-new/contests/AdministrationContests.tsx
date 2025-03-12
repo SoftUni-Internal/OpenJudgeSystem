@@ -241,7 +241,7 @@ const AdministrationContestsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             {renderErrorMessagesAlert(errorMessages)}
             <AdministrationGridView
               data={data}
@@ -253,6 +253,7 @@ const AdministrationContestsPage = () => {
                   onExcelClick,
                   onDownloadSubmissionClick,
                   onTransferParticipantsClick,
+                  setSuccessMessage,
               )}
               renderActionButtons={renderGridActions}
               queryParams={queryParams}

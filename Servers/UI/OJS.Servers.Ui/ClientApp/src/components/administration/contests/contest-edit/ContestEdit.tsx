@@ -808,6 +808,7 @@ const ContestEdit = (props:IContestEditProps) => {
                   onSuccess={onDelete}
                   mutation={useDeleteContestMutation}
                   text={DELETE_CONFIRMATION_MESSAGE}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </Box>
         </Box>

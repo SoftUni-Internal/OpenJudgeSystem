@@ -220,10 +220,11 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
 
 export const returnContestsNonFilterableColumns = (
     onEditClick: Function,
-    onSuccessDelete: () => void,
+    onSuccessfulDelete: () => void,
     onExcelClick: Function,
     onDownloadSubmissionClick: Function,
     onTransferParticipantsClick: Function,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -243,7 +244,8 @@ export const returnContestsNonFilterableColumns = (
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteContestMutation}
-                  onSuccess={onSuccessDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 <AdministrationGridDropdown
                   sections={

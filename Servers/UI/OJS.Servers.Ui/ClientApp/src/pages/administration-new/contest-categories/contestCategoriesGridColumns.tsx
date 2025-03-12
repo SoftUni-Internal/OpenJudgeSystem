@@ -137,7 +137,11 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
+export const returnCategoriesNonFilterableColumns = (
+    onEditClick: Function,
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -157,6 +161,8 @@ export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
                   name={params.row.name}
                   text="Are you sure that you want to delete the contest category?"
                   mutation={useDeleteContestCategoryMutation}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),
