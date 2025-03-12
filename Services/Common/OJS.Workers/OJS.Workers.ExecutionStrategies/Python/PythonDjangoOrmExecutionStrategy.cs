@@ -215,7 +215,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
             return;
         }
 
-        throw new ArgumentException("Failed to apply migrations! " + GetErrorOutput(result));
+        throw new SolutionException("Failed to apply migrations! " + GetErrorOutput(result));
     }
 
     private Task<ProcessExecutionResult> Execute(
