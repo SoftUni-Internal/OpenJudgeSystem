@@ -17,6 +17,7 @@ interface IDropdownProps<T = object> {
     isDisabled?: boolean;
     noOptionsFoundText?: string;
     isSearchable?: boolean;
+    minWidth?: number;
 }
 
 const StyledPopper = (popperProps: any) => (
@@ -46,6 +47,7 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
         placeholder = 'Select element',
         noOptionsFoundText = 'No options found',
         isSearchable = false,
+        minWidth = 280,
     } = props;
 
     const { isDarkMode } = useTheme();
@@ -85,6 +87,7 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
 
     return (
         <Autocomplete
+          sx={{ minWidth: `${minWidth}px !important` }}
           options={dropdownItems}
           getOptionLabel={(option) => option.name}
           value={value ?? undefined}

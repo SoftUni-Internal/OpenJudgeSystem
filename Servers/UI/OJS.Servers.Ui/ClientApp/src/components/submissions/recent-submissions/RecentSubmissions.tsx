@@ -2,6 +2,11 @@ import { useCallback, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import { SubmissionStatus } from 'src/common/enums';
+import {
+    applyDefaultQueryValues,
+} from 'src/components/filters/Filter';
+import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 
 import { IDictionary } from '../../../common/common-types';
 import { IPagedResultType, IPublicSubmission } from '../../../common/types';
@@ -31,12 +36,11 @@ const selectedSubmissionsStateMapping = {
 } as IDictionary<string>;
 
 const RecentSubmissions = () => {
+    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(applyDefaultQueryValues(searchParams));
+    const [ status, setStatus ] = useState<SubmissionStatus>(SubmissionStatus.All);
     const [ selectedActive, setSelectedActive ] = useState<number>(1);
     const [ shouldLoadRegularUserSubmissions, setShouldLoadRegularUserSubmissions ] = useState<boolean>(false);
-    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>({
-        status: selectedActive,
-        page: 1,
-    });
 
     const [ latestSubmissions, setLatestSubmissions ] = useState<IPagedResultType<IPublicSubmission>>({
         items: [],
@@ -55,7 +59,7 @@ const RecentSubmissions = () => {
         isFetching: regularUserIsFetching,
         data: regularUserData,
     } = useGetLatestSubmissionsQuery(
-        queryParams,
+        { ...queryParams, status },
         { skip: !shouldLoadRegularUserSubmissions },
     );
 
@@ -86,10 +90,16 @@ const RecentSubmissions = () => {
 
     useEffect(() => {
         if (loggedInUserInRole) {
-            getLatestSubmissionsInRole(queryParams);
+            getLatestSubmissionsInRole({ ...queryParams, status });
             getUnprocessedSubmissionsCount(null);
         }
-    }, [ loggedInUserInRole, getLatestSubmissionsInRole, getUnprocessedSubmissionsCount, queryParams ]);
+    }, [
+        loggedInUserInRole,
+        getLatestSubmissionsInRole,
+        getUnprocessedSubmissionsCount,
+        queryParams,
+        status,
+    ]);
 
     useEffect(() => {
         if (!user.isAdmin) {
@@ -105,27 +115,22 @@ const RecentSubmissions = () => {
         }
     }, [ inRoleData, inRoleSubmissionsReady, regularUserData, regularUserSubmissionsReady ]);
 
-    const handlePageChange = useCallback(
-        (newPage: number) => {
-            setQueryParams({
-                status: queryParams.status,
-                page: newPage,
-            });
-        },
-        [ queryParams.status ],
-    );
-
     const handleSelectSubmissionState = useCallback(
         (typeKey: number) => {
             if (selectedActive) {
                 setQueryParams({
-                    status: typeKey,
                     page: 1,
+                    itemsPerPage: queryParams.itemsPerPage,
+                    filter: queryParams.filter,
+                    sorting: queryParams.sorting,
                 });
 
+                setStatus(typeKey);
                 setSelectedActive(typeKey);
             }
         },
+        // If exhaustive dependencies are set, unnecessary re-renders will be made.
+        // eslint-disable-next-line
         [ selectedActive ],
     );
 
@@ -231,7 +236,6 @@ const RecentSubmissions = () => {
                           className={styles.recentSubmissionsGrid}
                           isDataLoaded={!areSubmissionsLoading}
                           submissions={latestSubmissions}
-                          handlePageChange={handlePageChange}
                           options={{
                               showDetailedResults: user.isAdmin,
                               showTaskDetails: true,
@@ -239,6 +243,9 @@ const RecentSubmissions = () => {
                               showSubmissionTypeInfo: true,
                               showParticipantUsername: true,
                           }}
+                          searchParams={searchParams}
+                          setSearchParams={setSearchParams}
+                          setQueryParams={setQueryParams}
                         />
                     )
             }
