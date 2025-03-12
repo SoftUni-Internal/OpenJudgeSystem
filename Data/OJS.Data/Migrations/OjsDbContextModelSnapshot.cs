@@ -227,6 +227,9 @@ namespace OJS.Data.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("AutoChangeLimitBetweenSubmissions")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("AutoChangeTestsFeedbackVisibility")
                         .HasColumnType("bit");
 

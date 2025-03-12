@@ -291,8 +291,9 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
                 returnTestsNonFilterableColumns(
                     onEditClick,
                     onSuccessDelete,
+                    setSuccessMessage,
                 )
-}
+              }
               data={testsData}
               renderActionButtons={renderGridSettings}
               error={error}

@@ -107,12 +107,13 @@ const AdministrationContestCategoriesPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               data={data}
               error={error}
               filterableGridColumnDef={categoriesFilterableColumns}
-              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick, onContestsBulkEditClick)}
+              // eslint-disable-next-line max-len
+              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick, onContestsBulkEditClick, retakeData, setSuccessMessage)}
               renderActionButtons={renderGridActions}
               queryParams={queryParams}
               setQueryParams={setQueryParams}

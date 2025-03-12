@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TextField, Typography } from '@mui/material';
+import useDelayedSuccessEffect from 'src/hooks/common/use-delayed-success-effect';
 
 import {
     IExamGroupAdministration,
@@ -21,6 +23,8 @@ import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IAddUsersInExamGroupProps {
     examGroupId: number;
+    setParentSuccessMessage: Function;
+    onSuccess: Function;
 }
 
 interface IAddUserInExamGroupUrlParams {
@@ -29,7 +33,7 @@ interface IAddUserInExamGroupUrlParams {
 }
 
 const AddBulkUsersInGroupModal = (props:IAddUsersInExamGroupProps) => {
-    const { examGroupId } = props;
+    const { examGroupId, setParentSuccessMessage, onSuccess } = props;
 
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
@@ -57,11 +61,17 @@ const AddBulkUsersInGroupModal = (props:IAddUsersInExamGroupProps) => {
             isLoading: isAdding,
         } ] = useAddBulkUsersInExamGroupByIdMutation();
 
+    useDelayedSuccessEffect({
+        isSuccess: isSuccessfullyAdded,
+        onSuccess,
+    });
+
     useSuccessMessageEffect({
         data: [
             { message: addingData, shouldGet: isSuccessfullyAdded },
         ],
         setSuccessMessage,
+        setParentSuccessMessage,
         clearFlags: [ isAdding ],
     });
 

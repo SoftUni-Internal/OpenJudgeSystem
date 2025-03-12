@@ -3,6 +3,7 @@ import { IoIosClose } from 'react-icons/io';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Checkbox, TextField } from '@mui/material';
 import debounce from 'lodash/debounce';
+import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 import concatClassNames from 'src/utils/class-names';
 
 import { CheckboxSearchValues } from '../../../common/enums';
@@ -20,12 +21,13 @@ const CHECKBOXES: Array<CheckboxSearchValues> = [
 ];
 
 const SearchBar = () => {
-    const location = useLocation();
     const navigate = useNavigate();
+    const location = useLocation();
+    const { setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const dispatch = useAppDispatch();
     const { isDarkMode, themeColors, getColorClassName } = useTheme();
     const [ inputValue, setInputValue ] = useState<string>('');
-    const initialMount = useRef(true); // Ref to track the first render
+    const initialMount = useRef(true);
 
     const { searchValue, selectedTerms, isVisible } = useAppSelector((state) => state.search);
 
@@ -34,35 +36,34 @@ const SearchBar = () => {
         ? themeColors.baseColor200
         : themeColors.baseColor100);
 
-    const composeSearchString = useCallback(() => {
-        const searchStringValue = searchValue
-            ? `searchTerm=${searchValue}`
-            : '';
-        const selectedTermsStringValue = selectedTerms.map((term) => `&${term}=true`).join('');
-        return `?${searchStringValue}${selectedTermsStringValue}`;
-    }, [ searchValue, selectedTerms ]);
+    const updateSearchParams = useCallback(() => {
+        const params = new URLSearchParams();
+
+        if (searchValue) {
+            params.set('searchTerm', searchValue);
+        }
+
+        selectedTerms.forEach((term) => params.set(term, 'true'));
+        setSearchParams(params);
+    }, [ searchValue, selectedTerms, setSearchParams ]);
 
     useEffect(() => {
         if (isVisible) {
-            const textInputElement = document.getElementById('search-for-text-input');
-            textInputElement?.focus();
+            document.getElementById('search-for-text-input')?.focus();
         }
     }, [ isVisible ]);
 
     useEffect(() => {
         if (initialMount.current) {
-            // Skip navigation on initial mount
             initialMount.current = false;
             return;
         }
 
         if (isVisible && searchValue?.trim().length >= 3) {
-            const searchString = composeSearchString();
-            navigate(`/search${searchString}`);
+            updateSearchParams();
         }
-    }, [ composeSearchString, isVisible, navigate, searchValue, selectedTerms ]);
+    }, [ updateSearchParams, isVisible, searchValue, selectedTerms ]);
 
-    // Hide search bar on page change and reset state
     useEffect(() => {
         if (!location.pathname.includes('/search')) {
             setInputValue('');
@@ -77,10 +78,7 @@ const SearchBar = () => {
     }, [ location.pathname, dispatch ]);
 
     const handleSubmit = () => {
-        navigate({
-            pathname: '/search',
-            search: composeSearchString(),
-        });
+        navigate({ pathname: '/search' });
     };
 
     const handleSearchCheckboxClick = (checkbox: string) => {
@@ -88,7 +86,7 @@ const SearchBar = () => {
             const newSelectedItems = selectedTerms.filter((term) => term !== checkbox);
             dispatch(setSelectedTerms(newSelectedItems));
         } else {
-            dispatch(setSelectedTerms([ ...selectedTerms, (checkbox as CheckboxSearchValues) ]));
+            dispatch(setSelectedTerms([ ...selectedTerms, checkbox as CheckboxSearchValues ]));
         }
     };
 
@@ -106,14 +104,10 @@ const SearchBar = () => {
     return (
         <div
           className={`${styles.searchContainer} ${backgroundColorClassName} ${isVisible
-              ? `${styles.show}`
+              ? styles.show
               : ''}`}
         >
-            <Form
-              className={styles.search}
-              onSubmit={handleSubmit}
-              hideFormButton
-            >
+            <Form className={styles.search} onSubmit={handleSubmit} hideFormButton>
                 <TextField
                   id="search-for-text-input"
                   variant="standard"
@@ -124,8 +118,6 @@ const SearchBar = () => {
                   onChange={handleSearchInputChange}
                   type="text"
                 />
-                {/* eslint-disable-next-line max-len */}
-                {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events,jsx-a11y/no-static-element-interactions */}
                 <div className={styles.checkboxContainer}>
                     {CHECKBOXES.map((checkbox) => (
                         <div key={`search-bar-checkbox-${checkbox}`} className={styles.checkboxWrapper}>
@@ -150,12 +142,10 @@ const SearchBar = () => {
             <IoIosClose
               size={50}
               onClick={() => dispatch(setIsVisible(!isVisible))}
-              className={concatClassNames(
-                  styles.closeIcon,
-                  getColorClassName(themeColors.textColor),
-              )}
+              className={concatClassNames(styles.closeIcon, getColorClassName(themeColors.textColor))}
             />
         </div>
     );
 };
+
 export default SearchBar;

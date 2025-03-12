@@ -81,12 +81,12 @@ const AdministrationExamGroupsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               data={data}
               error={error}
               filterableGridColumnDef={examGroupsFilterableColumns}
-              notFilterableGridColumnDef={returnExamGroupsNonFilterableColumns(onEditClick)}
+              notFilterableGridColumnDef={returnExamGroupsNonFilterableColumns(onEditClick, refetch, setSuccessMessage)}
               renderActionButtons={renderGridActions}
               queryParams={queryParams}
               setQueryParams={setQueryParams}

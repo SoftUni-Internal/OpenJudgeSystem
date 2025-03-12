@@ -80,6 +80,8 @@ namespace OJS.Data.Models.Contests
 
         public int LimitBetweenSubmissions { get; set; }
 
+        public bool AutoChangeLimitBetweenSubmissions { get; set; }
+
         public double OrderBy { get; set; }
 
         public short NumberOfProblemGroups { get; set; }

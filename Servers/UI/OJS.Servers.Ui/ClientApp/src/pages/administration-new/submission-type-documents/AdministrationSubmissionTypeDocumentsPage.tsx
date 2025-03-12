@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { renderSuccessfullAlert } from 'src/utils/render-utils';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import { NEW_ADMINISTRATION_PATH, SUBMISSION_TYPE_DOCUMENTS_PATH } from '../../../common/urls/administration-urls';
@@ -20,6 +21,7 @@ const AdministrationSubmissionTypeDocumentsPage = () => {
     const navigate = useNavigate();
 
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', '', searchParams));
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const {
         refetch: refetchSubmissionTypesInSubmissionDocuments,
@@ -46,18 +48,21 @@ const AdministrationSubmissionTypeDocumentsPage = () => {
     );
 
     return (
-        <AdministrationGridView
-          filterableGridColumnDef={submissionTypeDocumentsFilterableColumns}
-          notFilterableGridColumnDef={returnNonFilterableColumns(onDelete)}
-          data={submissionTypesInSubmissionDocumentsData}
-          error={error}
-          queryParams={queryParams}
-          setQueryParams={setQueryParams}
-          renderActionButtons={renderGridSettings}
-          defaultSorter=""
-          defaultFilter=""
-          specificRowIdName={[ 'submissionTypeDocumentId', 'submissionTypeId' ]}
-        />
+        <>
+            {renderSuccessfullAlert(successMessage, 7000)}
+            <AdministrationGridView
+              filterableGridColumnDef={submissionTypeDocumentsFilterableColumns}
+              notFilterableGridColumnDef={returnNonFilterableColumns(onDelete, setSuccessMessage)}
+              data={submissionTypesInSubmissionDocumentsData}
+              error={error}
+              queryParams={queryParams}
+              setQueryParams={setQueryParams}
+              renderActionButtons={renderGridSettings}
+              defaultSorter=""
+              defaultFilter=""
+              specificRowIdName={[ 'submissionTypeDocumentId', 'submissionTypeId' ]}
+            />
+        </>
     );
 };
 

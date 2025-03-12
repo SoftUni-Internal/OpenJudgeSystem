@@ -30,16 +30,16 @@ import styles from './ContestsPage.module.scss';
 const ContestsPage = () => {
     const dispatch = useAppDispatch();
     const { categoryId } = useParams();
-    const { breadcrumbItems } = useAppSelector((state) => state.contests);
     const { themeColors, getColorClassName } = useTheme();
     const {
         contests,
         contestsCacheIsReset,
         selectedCategory,
         selectedStrategy,
+        breadcrumbItems,
     } = useAppSelector((state) => state.contests);
 
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
 
     const textColorClassName = getColorClassName(themeColors.textColor);
 
@@ -163,6 +163,10 @@ const ContestsPage = () => {
                         )}
                         <ContestStrategies />
                     </div>
+                    <ContestStrategies
+                      setSearchParams={setSearchParams}
+                      searchParams={searchParams}
+                    />
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls

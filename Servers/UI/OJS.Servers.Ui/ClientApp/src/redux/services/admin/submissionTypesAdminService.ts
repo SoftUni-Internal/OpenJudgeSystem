@@ -12,7 +12,7 @@ import {
 } from '../../../common/types';
 import {
     CREATE_ENDPOINT,
-    EXCEL_RESULTS_ENDPOINT,
+    EXCEL_RESULTS_ENDPOINT, GET_ENDPOINT,
     UPDATE_ENDPOINT,
 } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
@@ -39,7 +39,7 @@ const submissionTypesAdminService = createApi({
         getCompilers: builder.query<Array<string>, null>({ query: () => ({ url: '/GetCompilers' }) }),
         getExecutionStrategies: builder.query<Array<string>, null>({ query: () => ({ url: '/GetExecutionStrategies' }) }),
         getById: builder.query<ISubmissionTypeAdministrationModel, number>({
-            query: (id) => ({ url: `/Get/${id}` }),
+            query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }),
             keepUnusedDataFor: 0,
         }),
         replaceSubmissionType: builder.mutation<string, IReplaceSubmissionTypeModel>({

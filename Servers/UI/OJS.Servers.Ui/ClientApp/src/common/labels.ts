@@ -37,6 +37,7 @@ export const VALUE = 'Value';
 
 // Contests
 export const LIMIT_BETWEEN_SUBMISSIONS = 'Limit between submissions';
+export const AUTO_CHANGE_LIMIT_BETWEEN_SUBMISSIONS = 'Auto change limit between submissions';
 export const CONTEST_NAME = 'Contest Name';
 export const NUMBER_OF_PROBLEM_GROUPS = 'Number of problem groups';
 export const COMPETE_PASSWORD = 'Compete Password';
@@ -78,7 +79,7 @@ export const COPY_INTO_NEW_PROBLEM_GROUP = 'Copy into new problem group';
 export const SUBMISSION_TYPE_NAME = 'Submission Type Name';
 export const SUBMISSION_TYPE_ID = 'Submission Type Id';
 export const SUBMISSION_TYPES = 'Submission Types';
-export const EXECUTION_STRATEGY = 'Execution Strategy';
+export const EXECUTION_STRATEGY = 'Execution Strategy Type';
 export const ALLOWED_FILE_EXTENSIONS = 'Allowed File Extensions';
 export const IS_SELECTED = 'Is Selected';
 export const ALLOW_BINARY_FILES_UPLOAD = 'Allow Binary files upload';
