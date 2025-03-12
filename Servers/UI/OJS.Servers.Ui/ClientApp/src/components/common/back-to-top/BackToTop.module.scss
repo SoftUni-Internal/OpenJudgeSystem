@@ -18,29 +18,29 @@
 
     &.lightTheme {
         opacity: 0.9;
-        box-shadow: 0 4px 12px rgba(68, 169, 248, 0.2);
+        box-shadow: 0 4px 12px rgb(68 169 248 / 20%);
 
         &:hover {
             opacity: 1;
-            box-shadow: 0 6px 16px rgba(68, 169, 248, 0.3);
+            box-shadow: 0 6px 16px rgb(68 169 248 / 30%);
         }
 
         &:focus {
-            box-shadow: 0 0 0 3px rgba(68, 169, 248, 0.3);
+            box-shadow: 0 0 0 3px rgb(68 169 248 / 30%);
         }
     }
 
     &.darkTheme {
         opacity: 0.8;
-        box-shadow: 0 4px 12px rgba(68, 169, 248, 0.15);
+        box-shadow: 0 4px 12px rgb(68 169 248 / 15%);
 
         &:hover {
             opacity: 1;
-            box-shadow: 0 6px 16px rgba(68, 169, 248, 0.25);
+            box-shadow: 0 6px 16px rgb(68 169 248 / 25%);
         }
 
         &:focus {
-            box-shadow: 0 0 0 3px rgba(68, 169, 248, 0.2);
+            box-shadow: 0 0 0 3px rgb(68 169 248 / 20%);
         }
     }
 
