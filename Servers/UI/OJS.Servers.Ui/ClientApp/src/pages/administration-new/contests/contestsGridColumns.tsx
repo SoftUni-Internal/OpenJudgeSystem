@@ -7,6 +7,7 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import {
     ALLOW_PARALLEL_SUBMISSIONS_IN_TASKS,
+    AUTO_CHANGE_LIMIT_BETWEEN_SUBMISSIONS,
     CATEGORY,
     CATEGORY_ID,
     COMPETE_END_TIME,
@@ -162,6 +163,15 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
     },
     {
+        field: 'autoChangeLimitBetweenSubmissions',
+        headerName: `${AUTO_CHANGE_LIMIT_BETWEEN_SUBMISSIONS}`,
+        type: 'boolean',
+        flex: 0,
+        filterable: false,
+        sortable: false,
+        hidden: true,
+    },
+    {
         field: 'allowParallelSubmissionsInTasks',
         headerName: `${ALLOW_PARALLEL_SUBMISSIONS_IN_TASKS}`,
         type: 'boolean',
@@ -220,10 +230,11 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
 
 export const returnContestsNonFilterableColumns = (
     onEditClick: Function,
-    onSuccessDelete: () => void,
+    onSuccessfulDelete: () => void,
     onExcelClick: Function,
     onDownloadSubmissionClick: Function,
     onTransferParticipantsClick: Function,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -243,7 +254,8 @@ export const returnContestsNonFilterableColumns = (
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteContestMutation}
-                  onSuccess={onSuccessDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 <AdministrationGridDropdown
                   sections={

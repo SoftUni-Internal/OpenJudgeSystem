@@ -162,6 +162,8 @@ namespace OJS.Common
             public const string MaxSubmissionTimeToExecuteAllowedForBatchRetest = "MaxSubmissionTimeToExecuteAllowedForBatchRetest";
             public const string MaxSubmissionsCountAllowedForBatchRetest = "MaxSubmissionsCountAllowedForBatchRetest";
             public const string MaxWorkersWorkingTimeInSeconds = "MaxWorkersWorkingTimeInSeconds";
+
+            public const string ContestLimitBetweenSubmissionsAdjustmentSettings = "ContestLimitBetweenSubmissionsAdjustmentSettings";
         }
     }
 }

@@ -431,6 +431,7 @@ interface IContestAdministration {
     contestPassword: string | null;
     practicePassword: string | null;
     limitBetweenSubmissions: number;
+    autoChangeLimitBetweenSubmissions: boolean;
     isVisible: boolean;
     visibleFrom: Date | null;
     newIpPassword: string | null;
@@ -500,10 +501,22 @@ interface IEnumType {
     enumValues?: Array<string>;
 }
 
-interface IFilterColumn {
+interface IAdministrationFilterColumn {
     columnName: string;
     columnType: FilterColumnTypeEnum;
     enumValues?: Array<string> | null;
+}
+
+interface IFilterColumn {
+    name: string;
+    id: string;
+    columnType: FilterColumnTypeEnum;
+    enumValues?: Array<IFilterEnum> | null;
+}
+
+interface IFilterEnum {
+    name: string;
+    id: string;
 }
 
 type ExceptionData = {
@@ -533,7 +546,8 @@ interface IProblemSubmissionType{
 interface IIndexExamGroupsType {
     id: number;
     name: string;
-    contest: string;
+    contestName: string;
+    contestId: number;
     externalAppId: string;
     externalExamGroupId: string;
 }
@@ -752,7 +766,7 @@ interface IAccessLogInListModel {
 }
 
 interface IDropdownItemBase {
-    id: number;
+    id: number | string;
     name: string;
 }
 
@@ -837,7 +851,7 @@ export type {
     IContestCategoryHierarchy,
     IGetAllAdminParams,
     IContestAdministration,
-    IFilterColumn,
+    IAdministrationFilterColumn,
     ISubmissionsAdminGridViewType,
     ISubmissionForProcessingAdminGridViewType,
     IContestCategories,
@@ -906,4 +920,6 @@ export type {
     IAccessLogInListModel,
     IDropdownItemBase,
     IDropdownItem,
+    IFilterColumn,
+    IFilterEnum,
 };

@@ -96,7 +96,8 @@ const testsFilterableColums: AdministrationGridColDef[] = [
 
 export const returnTestsNonFilterableColumns = (
     onEditClick: Function,
-    onSuccessFullDelete: () => void,
+    onSuccessfullDelete: () => void,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -116,7 +117,8 @@ export const returnTestsNonFilterableColumns = (
                   name={`${TEST}`}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteTestMutation}
-                  onSuccess={onSuccessFullDelete}
+                  onSuccess={onSuccessfullDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

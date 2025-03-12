@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, FormControl, MenuItem, TextField, Typography } from '@mui/material';
 import debounce from 'lodash/debounce';
+import useDelayedSuccessEffect from 'src/hooks/common/use-delayed-success-effect';
 
 import {
     IExamGroupAdministration,
@@ -25,6 +26,8 @@ import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IAddUserInExamGroupProps {
     examGroupId: number;
+    setParentSuccessMessage: Function;
+    onSuccess: Function;
 }
 
 interface IAddUserInExamGroupUrlParams {
@@ -32,8 +35,8 @@ interface IAddUserInExamGroupUrlParams {
     userId: string;
 }
 
-const AddUserInGroupModal = (props:IAddUserInExamGroupProps) => {
-    const { examGroupId } = props;
+const AddUserInGroupModal = (props: IAddUserInExamGroupProps) => {
+    const { examGroupId, setParentSuccessMessage, onSuccess } = props;
 
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
@@ -64,11 +67,17 @@ const AddUserInGroupModal = (props:IAddUserInExamGroupProps) => {
             isLoading: isCreating,
         } ] = useAddUserInExamGroupByIdMutation();
 
+    useDelayedSuccessEffect({
+        isSuccess: isSuccessfullyCreated,
+        onSuccess,
+    });
+
     useSuccessMessageEffect({
         data: [
             { message: createData, shouldGet: isSuccessfullyCreated },
         ],
         setSuccessMessage,
+        setParentSuccessMessage,
         clearFlags: [ isCreating ],
     });
 

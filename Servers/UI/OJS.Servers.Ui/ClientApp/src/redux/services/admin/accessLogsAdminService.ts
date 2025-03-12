@@ -29,7 +29,7 @@ const accessLogsAdminService = createApi({
             }),
             keepUnusedDataFor: 3,
         }),
-        getAccessLogById: builder.query<IAccessLogAdministrationModel, number>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }) }),
+        getAccessLogById: builder.query<IAccessLogAdministrationModel, number>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }), keepUnusedDataFor: 0 }),
     }),
 });
 

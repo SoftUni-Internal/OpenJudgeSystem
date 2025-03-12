@@ -33,9 +33,6 @@ public class FullDetailsPublicSubmissionsResponseModel : IMapFrom<FullDetailsPub
     public void RegisterMappings(IProfileExpression configuration)
         => configuration
             .CreateMap<SubmissionForSubmitSummaryServiceModel, FullDetailsPublicSubmissionsResponseModel>()
-            .ForMember(
-                x => x.StrategyName,
-                opt => opt.MapFrom(y => y.SubmissionTypeName))
             .ForMember(m => m.User, opt => opt.Ignore())
             .ForMember(m => m.Problem, opt => opt.MapFrom(src => new ProblemForPublicSubmissionsServiceModel
             {

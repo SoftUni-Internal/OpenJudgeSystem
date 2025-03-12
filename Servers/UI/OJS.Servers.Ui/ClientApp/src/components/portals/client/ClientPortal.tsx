@@ -1,5 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { Outlet, ScrollRestoration } from 'react-router-dom';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 
 import MuiUiThemeProvider from '../../../hooks/use-mui-ui-theme';
 import useTheme from '../../../hooks/use-theme';
@@ -51,13 +53,15 @@ const ClientPortal = () => {
 
     return (
         <MuiUiThemeProvider>
-            <PageHeader />
-            <SearchBar />
-            <main className={`${styles.main} ${backgroundColorClassName}`}>
-                <Outlet />
-            </main>
-            <PageFooter />
-            <ScrollRestoration />
+            <LocalizationProvider dateAdapter={AdapterMoment} adapterLocale="bg">
+                <PageHeader />
+                <SearchBar />
+                <main className={`${styles.main} ${backgroundColorClassName}`}>
+                    <Outlet />
+                </main>
+                <PageFooter />
+                <ScrollRestoration />
+            </LocalizationProvider>
         </MuiUiThemeProvider>
     );
 };

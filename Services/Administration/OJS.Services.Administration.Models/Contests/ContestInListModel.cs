@@ -34,6 +34,8 @@ public class ContestInListModel : IMapExplicitly
 
     public int LimitBetweenSubmissions { get; set; }
 
+    public bool AutoChangeLimitBetweenSubmissions { get; set; }
+
     public DateTime CreatedOn { get; set; }
 
     public DateTime? ModifiedOn { get; set; }

@@ -80,12 +80,12 @@ const AdministrationContestCategoriesPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               data={data}
               error={error}
               filterableGridColumnDef={categoriesFilterableColumns}
-              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick)}
+              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick, retakeData, setSuccessMessage)}
               renderActionButtons={renderGridActions}
               queryParams={queryParams}
               setQueryParams={setQueryParams}

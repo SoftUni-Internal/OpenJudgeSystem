@@ -2,6 +2,8 @@
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { getContestsByCategoryUrl } from 'src/common/urls/compose-client-urls';
+import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
 
 import { CREATED_ON, MODIFIED_ON } from '../../../common/labels';
 import DeleteButton from '../../../components/administration/common/delete/DeleteButton';
@@ -52,6 +54,15 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         align: 'center',
         filterable: false,
         sortable: false,
+        renderCell: (params) => (
+            <ExternalLink
+              to={getContestsByCategoryUrl({
+                  categoryId: params.row.id,
+                  categoryName: params.row.name,
+              })}
+              text={params.value.toString()}
+            />
+        ),
     },
     {
         field: 'orderBy',
@@ -73,6 +84,15 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         type: 'string',
         filterable: false,
         sortable: false,
+        renderCell: (params) => (
+            <ExternalLink
+              to={getContestsByCategoryUrl({
+                  categoryId: params.row.parentId,
+                  categoryName: params.row.parent,
+              })}
+              text={params.value.toString()}
+            />
+        ),
     },
     {
         field: 'parentId',
@@ -117,7 +137,11 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
+export const returnCategoriesNonFilterableColumns = (
+    onEditClick: Function,
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -137,6 +161,8 @@ export const returnCategoriesNonFilterableColumns = (onEditClick: Function) => [
                   name={params.row.name}
                   text="Are you sure that you want to delete the contest category?"
                   mutation={useDeleteContestCategoryMutation}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

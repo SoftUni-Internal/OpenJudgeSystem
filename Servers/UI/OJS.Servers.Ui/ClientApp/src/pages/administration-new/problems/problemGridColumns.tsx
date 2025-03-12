@@ -4,6 +4,8 @@ import { FaCopy } from 'react-icons/fa';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { getContestsDetailsPageUrl } from 'src/common/urls/compose-client-urls';
+import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
 
 import { ProblemGroupTypes } from '../../../common/enums';
 import { CREATED_ON, EDIT, MODIFIED_ON } from '../../../common/labels';
@@ -70,6 +72,15 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
+        renderCell: (params) => (
+            <ExternalLink
+              to={getContestsDetailsPageUrl({
+                  contestId: params.row.contestId,
+                  contestName: params.row.contest,
+              })}
+              text={params.value.toString()}
+            />
+        ),
     },
     {
         field: 'problemGroupId',
@@ -157,9 +168,10 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
 
 export const returnProblemsNonFilterableColumns = (
     onEditClick: Function,
+    setParentSuccessMessage: Function,
     onCopyProblem?: Function,
     retestProblem?: Function,
-    onDeleteSuccess?:() => void,
+    onSuccessfulDelete?:() => void,
 ) => [
     {
         field: 'actions',
@@ -179,7 +191,8 @@ export const returnProblemsNonFilterableColumns = (
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteProblemMutation}
-                  onSuccess={onDeleteSuccess}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 {retestProblem && (
                 <Tooltip title="Retest">
