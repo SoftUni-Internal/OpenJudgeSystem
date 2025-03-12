@@ -112,8 +112,12 @@ const AdministrationContestCategoriesPage = () => {
               data={data}
               error={error}
               filterableGridColumnDef={categoriesFilterableColumns}
-              // eslint-disable-next-line max-len
-              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(onEditClick, onContestsBulkEditClick, retakeData, setSuccessMessage)}
+              notFilterableGridColumnDef={returnCategoriesNonFilterableColumns(
+                  onEditClick,
+                  onContestsBulkEditClick,
+                  retakeData,
+                  setSuccessMessage,
+              )}
               renderActionButtons={renderGridActions}
               queryParams={queryParams}
               setQueryParams={setQueryParams}

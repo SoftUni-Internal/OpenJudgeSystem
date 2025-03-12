@@ -150,7 +150,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
 
 export const returnCategoriesNonFilterableColumns = (
     onEditClick: Function,
-    onContestsBulkEditClick: Function
+    onContestsBulkEditClick: Function,
     onSuccessfulDelete: () => void,
     setParentSuccessMessage: Function,
 ) => [
