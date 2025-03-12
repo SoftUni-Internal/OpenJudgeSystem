@@ -1,4 +1,6 @@
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { getContestsDetailsPageUrl } from 'src/common/urls/compose-client-urls';
+import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
 
 import { CREATED_ON, MODIFIED_ON } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
@@ -52,6 +54,15 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 2,
         filterable: false,
         sortable: false,
+        renderCell: (params) => (
+            <ExternalLink
+              to={getContestsDetailsPageUrl({
+                  contestId: params.row.contestId,
+                  contestName: params.row.contestName,
+              })}
+              text={params.value.toString()}
+            />
+        ),
     },
     {
         field: 'isOfficial',
