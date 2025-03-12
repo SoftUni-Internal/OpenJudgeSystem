@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { renderSuccessfullAlert } from 'src/utils/render-utils';
 
 import { USERS } from '../../../common/labels';
 import useScrollToTab from '../../../hooks/common/use-scroll-to-tab';
@@ -15,6 +16,7 @@ const AdministrationExamGroupPage = () => {
     const { pathname, hash } = useLocation();
     const [ , , , examGroupId ] = pathname.split('/');
     const [ tabName, setTabName ] = useState(EXAM_GROUPS_LISTED_DATA.USERS_TAB);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
     const [ contestId, setContestId ] = useState<number | null>(null);
 
@@ -34,19 +36,27 @@ const AdministrationExamGroupPage = () => {
 
     const returnUsers = (key: string) => (
         <div id={EXAM_GROUPS_LISTED_DATA.USERS_TAB}>
-            <UsersInExamGroupView key={key} examGroupId={Number(examGroupId)} isAllowedToAddUsers={contestId !== null} />
+            <UsersInExamGroupView
+              key={key}
+              examGroupId={Number(examGroupId)}
+              isAllowedToAddUsers={contestId !== null}
+              setParentSuccessMessage={setSuccessMessage}
+            />
         </div>
     );
 
     return (
-        <TabsInView
-          form={returnExamGroupForm}
-          onTabChange={onTabChange}
-          tabName={tabName}
-          tabs={[
-              { value: EXAM_GROUPS_LISTED_DATA.USERS_TAB, label: USERS, node: returnUsers },
-          ]}
-        />
+        <>
+            {renderSuccessfullAlert(successMessage, 7000)}
+            <TabsInView
+              form={returnExamGroupForm}
+              onTabChange={onTabChange}
+              tabName={tabName}
+              tabs={[
+                  { value: EXAM_GROUPS_LISTED_DATA.USERS_TAB, label: USERS, node: returnUsers },
+              ]}
+            />
+        </>
     );
 };
 export default AdministrationExamGroupPage;
