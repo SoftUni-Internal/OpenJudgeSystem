@@ -12,6 +12,7 @@ interface IDropdownProps<T = object> {
     dropdownItems: Array<IDropdownItem<T>>;
     value: IDropdownItem<T> | null;
     handleDropdownItemClick?: (item: IDropdownItem<T> | undefined) => void;
+    handleDropdownItemClear?: () => void;
     placeholder?: string;
     isDisabled?: boolean;
     noOptionsFoundText?: string;
@@ -40,6 +41,7 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
         dropdownItems,
         value,
         handleDropdownItemClick,
+        handleDropdownItemClear,
         isDisabled = false,
         placeholder = 'Select element',
         noOptionsFoundText = 'No options found',
@@ -127,6 +129,9 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
                                           event.stopPropagation();
                                           setInputValue('');
                                           handleDropdownItemClick?.(undefined);
+                                          if (handleDropdownItemClear) {
+                                              handleDropdownItemClear();
+                                          }
                                       }}
                                       edge="end"
                                       size="small"

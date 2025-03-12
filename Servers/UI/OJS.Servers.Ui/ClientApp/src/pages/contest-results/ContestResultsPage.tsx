@@ -30,7 +30,7 @@ import styles from './ContestResultPage.module.scss';
 const ContestResultsPage = () => {
     const params = useParams();
     const { contestId, participationType: participationUrlType, resultType } = params;
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const official = participationUrlType === ContestParticipationType.Compete;
     const full = resultType === ContestResultType.Full;
 
