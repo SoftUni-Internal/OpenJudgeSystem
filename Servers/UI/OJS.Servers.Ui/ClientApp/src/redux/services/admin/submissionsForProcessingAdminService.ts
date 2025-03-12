@@ -8,7 +8,7 @@ import {
     IPagedResultType,
     ISubmissionForProcessingAdminGridViewType,
 } from '../../../common/types';
-import { EXCEL_RESULTS_ENDPOINT } from '../../../common/urls/administration-urls';
+import { EXCEL_RESULTS_ENDPOINT, GET_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
 const submissionsForProcessingAdminService = createApi({
@@ -27,9 +27,9 @@ const submissionsForProcessingAdminService = createApi({
                 } }) }),
         getById: builder.query<ISubmissionForProcessingAdminGridViewType, { id:number }>({
             query: ({ id }) => ({
-                url: `/Get/${id}`,
+                url: `/${GET_ENDPOINT}/${id}`,
             }),
-            keepUnusedDataFor: 10,
+            keepUnusedDataFor: 0,
         }),
 
         exportSubmissionsForProcessingToExcel: builder.query<IFileModel, IGetAllAdminParams>({
