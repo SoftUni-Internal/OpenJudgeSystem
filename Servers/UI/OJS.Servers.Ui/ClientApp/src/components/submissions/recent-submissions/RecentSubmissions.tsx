@@ -102,10 +102,10 @@ const RecentSubmissions = () => {
     ]);
 
     useEffect(() => {
-        if (!user.isAdmin) {
+        if (!user?.isAdmin && !shouldLoadRegularUserSubmissions) {
             setShouldLoadRegularUserSubmissions(true);
         }
-    }, [ user ]);
+    }, [ user?.isAdmin, shouldLoadRegularUserSubmissions ]);
 
     useEffect(() => {
         if (inRoleSubmissionsReady) {
