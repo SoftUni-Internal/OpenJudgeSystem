@@ -65,8 +65,12 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
             sortTypeDirection: SortTypeDirection.Descending,
             itemsPerPage: 6,
             page: userContestParticipationsPage,
-            contestId: Number(selectedContest?.id),
-            categoryId: Number(selectedCategory?.id),
+            contestId: selectedContest?.id
+                ? Number(selectedContest.id)
+                : undefined,
+            categoryId: selectedCategory?.id
+                ? Number(selectedCategory.id)
+                : undefined,
         },
         {
             skip: !canFetchParticipations,
@@ -152,7 +156,9 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
     // Get contests for the selected category efficiently
     const filteredContestDropdownItems = useMemo(
         () => contestDropdownItemsMap
-            .get(Number(selectedCategory?.id) ?? 0) ||
+            .get(selectedCategory === null
+                ? 0
+                : Number(selectedCategory.id)) ||
             [],
         [ selectedCategory, contestDropdownItemsMap ],
     );
@@ -189,6 +195,7 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
 
     const handleCategorySelect = useCallback((item: IDropdownItem | undefined) => {
         setSelectedCategory(item || null);
+        setSelectedContest(null);
         setUserContestParticipationsPage(1);
     }, []);
 
@@ -244,7 +251,7 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
                       handleDropdownItemClear={handleCategoryClear}
                       placeholder="Filter by category"
                       isSearchable
-                      isDisabled={selectedContest !== null && selectedCategory === null}
+                      isDisabled={selectedContest !== null && (selectedCategory === null || selectedCategory.id === 0)}
                     />
                 </div>
             )}
