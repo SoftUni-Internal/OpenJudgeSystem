@@ -25,7 +25,7 @@
         private readonly IParticipantsDataService participantsData;
         private readonly IParticipantScoresDataService participantScoresData;
         private readonly ISubmissionsForProcessingDataService submissionsForProcessingData;
-        
+
         private Submission submission;
         private SubmissionForProcessing submissionForProcessing;
 
@@ -93,15 +93,10 @@
 
         public override void OnProcessingSubmissionError(IOjsSubmission submissionModel, Exception ex)
         {
-            if (submissionModel.ExceptionType == ExceptionType.Solution)
-            {
-                this.submission.IsCompiledSuccessfully = false;
-                this.submission.CompilerComment = ex.Message;
-            }
-            else
-            {
-                this.submission.ExecutionComment = $"{ex.GetAllMessages()}{Environment.NewLine}{ex.StackTrace}";
-            }
+            this.submission.IsCompiledSuccessfully = false;
+            var isRegularUserError = submissionModel.ExceptionType == ExceptionType.Solution;
+            this.submission.CompilerComment = isRegularUserError ? ex.Message : string.Empty;
+            this.submission.ExecutionComment = isRegularUserError ? "See the compiler comment for more details." : $"{ex.GetAllMessages()}{Environment.NewLine}{ex.StackTrace}";
             this.submission.StartedExecutionOn = submissionModel.StartedExecutionOn;
             this.submission.CompletedExecutionOn = submissionModel.CompletedExecutionOn;
             this.submission.WorkerEndpoint = submissionModel.WorkerEndpoint;
@@ -117,7 +112,7 @@
             this.submission.ExceptionType = ExceptionType.UnprocessableSubmission;
             this.SetSubmissionToProcessed();
         }
-        
+
         public override void SetSubmissionToProcessing()
         {
             try
@@ -177,7 +172,7 @@
                     ex);
             }
         }
-        
+
         protected override void ProcessTestsExecutionResult(IExecutionResult<TestResult> executionResult)
         {
             this.submission.IsCompiledSuccessfully = executionResult.IsCompiledSuccessfully;
@@ -186,7 +181,7 @@
             this.submission.StartedExecutionOn = executionResult.StartedExecutionOn;
             this.submission.CompletedExecutionOn = executionResult.CompletedExecutionOn;
             this.submission.WorkerEndpoint = executionResult.WorkerEndpoint;
-            
+
             if (!executionResult.IsCompiledSuccessfully)
             {
                 this.UpdateResults();
@@ -297,7 +292,7 @@
                         return;
                     }
                 }
-                
+
                 if (this.submission.Points > existingScore.Points ||
                     this.submission.Id == existingScore.SubmissionId)
                 {
