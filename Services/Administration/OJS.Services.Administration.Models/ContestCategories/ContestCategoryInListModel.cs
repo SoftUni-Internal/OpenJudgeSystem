@@ -21,6 +21,8 @@ public class ContestCategoryInListModel : IMapExplicitly
 
     public bool IsVisible { get; set; }
 
+    public bool HasChildren { get; set; }
+
     public DateTime? DeletedOn { get; set; }
 
     public DateTime? ModifiedOn { get; set; }
@@ -30,5 +32,7 @@ public class ContestCategoryInListModel : IMapExplicitly
     public void RegisterMappings(IProfileExpression configuration) =>
         configuration.CreateMap<ContestCategory, ContestCategoryInListModel>()
             .ForMember(d => d.Parent, opt
-                => opt.MapFrom(c => c.Parent!.Name));
+                => opt.MapFrom(c => c.Parent!.Name))
+            .ForMember(d => d.HasChildren, opt
+                => opt.MapFrom(c => c.Children.Count != 0));
 }

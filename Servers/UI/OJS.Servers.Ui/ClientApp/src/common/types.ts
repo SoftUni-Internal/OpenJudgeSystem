@@ -282,6 +282,7 @@ interface IIndexContestCategoriesType {
     name: string;
     parent: string;
     parentId: number;
+    hasChildren: boolean;
     isDeleted: boolean;
     isVisible: boolean;
     orderBy: number;
@@ -832,6 +833,16 @@ interface IMentorPromptTemplateInListModel {
     modifiedOne: Date;
 }
 
+interface IContestsBulkEdit {
+    startTime: Date | null;
+    endTime: Date | null;
+    practiceStartTime: Date | null;
+    practiceEndTime: Date | null;
+    type: string | null;
+    limitBetweenSubmissions: number | null;
+    categoryId: number;
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export type {
     IIndexContestsType,
@@ -920,6 +931,7 @@ export type {
     IAccessLogInListModel,
     IDropdownItemBase,
     IDropdownItem,
+    IContestsBulkEdit,
     IFilterColumn,
     IFilterEnum,
 };
