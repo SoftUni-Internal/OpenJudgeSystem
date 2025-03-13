@@ -1,23 +1,20 @@
-﻿namespace OJS.Workers.Common.Exceptions
+﻿namespace OJS.Workers.Common.Exceptions;
+
+using System;
+
+public class InvalidProcessExecutionOutputException : SolutionException
 {
-    using System;
+    private const string MessageTitle = "The process did not produce any valid output!";
 
-    public class InvalidProcessExecutionOutputException : Exception
+    private const string DefaultMessage = $"{MessageTitle} Please try again later or contact an administrator if the problem persists.";
+
+    public InvalidProcessExecutionOutputException()
+        : base(DefaultMessage)
     {
-        private const string CustomMessageTitle = "The process did not produce any valid output!";
+    }
 
-        private const string CustomMessage =
-            CustomMessageTitle +
-            " Please try again later or contact an administrator if the problem persists.";
-
-        public InvalidProcessExecutionOutputException()
-            : base(CustomMessage)
-        {
-        }
-
-        public InvalidProcessExecutionOutputException(string message)
-            : base(CustomMessageTitle + Environment.NewLine + message)
-        {
-        }
+    public InvalidProcessExecutionOutputException(string message)
+        : base(MessageTitle + Environment.NewLine + message)
+    {
     }
 }
