@@ -117,6 +117,16 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
     },
     {
+        field: 'allowMentor',
+        headerName: 'Allow Mentor',
+        headerAlign: 'center',
+        type: 'boolean',
+        flex: 0,
+        filterable: false,
+        align: 'center',
+        sortable: false,
+    },
+    {
         field: 'deletedOn',
         headerName: 'Deleted On',
         headerAlign: 'center',

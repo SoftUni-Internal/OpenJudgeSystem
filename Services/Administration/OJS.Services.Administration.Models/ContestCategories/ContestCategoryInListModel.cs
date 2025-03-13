@@ -23,6 +23,8 @@ public class ContestCategoryInListModel : IMapExplicitly
 
     public bool HasChildren { get; set; }
 
+    public bool AllowMentor { get; set; }
+
     public DateTime? DeletedOn { get; set; }
 
     public DateTime? ModifiedOn { get; set; }
