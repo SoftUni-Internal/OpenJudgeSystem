@@ -1,7 +1,7 @@
 /* eslint-disable import/group-exports */
 /* eslint-disable import/prefer-default-export */
 
-export const UNEXPECTED_ERROR_MESSAGE = 'Unexpected error. Please contact an administrator.';
+export const UNEXPECTED_ERROR_MESSAGE = 'Try again later or contact an administrator if the problem persists.';
 export const SOMETHING_WENT_WRONG_MESSAGE = 'Something went wrong.';
 export const DELETE_CONFIRMATION_MESSAGE = 'Are you sure that you want to delete the record?';
 export const CLEAR_SELECTION = 'Clear selection';
