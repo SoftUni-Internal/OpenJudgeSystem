@@ -1,4 +1,7 @@
+/* eslint-disable @typescript-eslint/ban-types */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { getContestsDetailsPageUrl } from 'src/common/urls/compose-client-urls';
+import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
 
 import { CREATED_ON, MODIFIED_ON } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
@@ -52,6 +55,15 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 2,
         filterable: false,
         sortable: false,
+        renderCell: (params) => (
+            <ExternalLink
+              to={getContestsDetailsPageUrl({
+                  contestId: params.row.contestId,
+                  contestName: params.row.contestName,
+              })}
+              text={params.value.toString()}
+            />
+        ),
     },
     {
         field: 'isOfficial',
@@ -122,7 +134,10 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnparticipantsNonFilterableColumns = (onSuccessFullDelete: () => void) => [
+export const returnparticipantsNonFilterableColumns = (
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -139,7 +154,8 @@ export const returnparticipantsNonFilterableColumns = (onSuccessFullDelete: () =
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteParticipantMutation}
-                  onSuccess={onSuccessFullDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

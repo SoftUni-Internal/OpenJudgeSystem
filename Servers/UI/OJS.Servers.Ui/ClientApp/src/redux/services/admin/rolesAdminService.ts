@@ -21,7 +21,10 @@ const rolesAdminService = createApi({
             keepUnusedDataFor: 5,
         }),
 
-        getRoleById: builder.query<IRoleAdministrationModel, string>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }) }),
+        getRoleById: builder.query<IRoleAdministrationModel, string>({
+            query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }),
+            keepUnusedDataFor: 0,
+        }),
 
         getIdByName: builder.query<string, string>({ query: (name) => ({ url: `/GetIdByName?roleName=${name}` }) }),
 

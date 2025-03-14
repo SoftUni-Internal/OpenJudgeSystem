@@ -37,9 +37,10 @@ enum ProblemResourceType
 enum SettingTypeEnums {
     Numeric = 1,
     ShortString = 2,
-    LongString= 3,
-    DateTime= 4,
-    Boolean= 5,
+    LongString = 3,
+    DateTime = 4,
+    Boolean = 5,
+    Json = 6,
 }
 
 enum CheckboxSearchValues {

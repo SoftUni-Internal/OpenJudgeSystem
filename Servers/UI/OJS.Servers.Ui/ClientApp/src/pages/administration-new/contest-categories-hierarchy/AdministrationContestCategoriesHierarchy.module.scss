@@ -20,7 +20,7 @@
   .cardContainer {
     align-items: center;
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
   }
 
   .icon {
@@ -122,4 +122,19 @@
 
 .lightRed {
   color: #f8bbd0;
+}
+
+.administrationModal {
+  outline: none !important;
+  border: none !important;
+}
+
+.iconButton {
+  &:hover {
+    background-color: rgba(68, 169, 248, 0.1) !important;
+  }
+
+  .MuiSvgIcon-root {
+    color: inherit !important;
+  }
 }

@@ -13,7 +13,7 @@ interface IProblemSearchCardProps {
 }
 const ProblemSearchCard = (props: IProblemSearchCardProps) => {
     const { problem } = props;
-    const { contest, id, name } = problem;
+    const { contest, id, name, orderBy } = problem;
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
 
     const textColorClassName = getColorClassName(themeColors.textColor);
@@ -33,8 +33,22 @@ const ProblemSearchCard = (props: IProblemSearchCardProps) => {
                 <div className={styles.contestName}>{contest.name}</div>
             </div>
             <div className={styles.buttonsWrapper}>
-                <ContestButton isCompete isDisabled={!contest.canBeCompeted} id={contest.id} problemId={id} name={name} />
-                <ContestButton isCompete={false} isDisabled={!contest.canBePracticed} id={contest.id} problemId={id} name={name} />
+                <ContestButton
+                  isCompete
+                  isDisabled={!contest.canBeCompeted}
+                  id={contest.id}
+                  problemId={id}
+                  orderBy={orderBy}
+                  name={name}
+                />
+                <ContestButton
+                  isCompete={false}
+                  isDisabled={!contest.canBePracticed}
+                  id={contest.id}
+                  problemId={id}
+                  orderBy={orderBy}
+                  name={name}
+                />
             </div>
         </div>
     );

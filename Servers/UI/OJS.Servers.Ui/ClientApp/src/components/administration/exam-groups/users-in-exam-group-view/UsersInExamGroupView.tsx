@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-hooks/exhaustive-deps,@typescript-eslint/ban-types */
 import { useState } from 'react';
 import QueueIcon from '@mui/icons-material/Queue';
 import { IconButton, Tooltip } from '@mui/material';
@@ -24,10 +24,11 @@ import DeleteUserFromGroupButton from '../delete-user-from-group-button/DeleteUs
 interface IUsersInExamGroupViewProps {
     examGroupId: number;
     isAllowedToAddUsers: boolean;
+    setParentSuccessMessage: Function;
 }
 
 const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
-    const { examGroupId, isAllowedToAddUsers } = props;
+    const { examGroupId, isAllowedToAddUsers, setParentSuccessMessage } = props;
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd));
     const { themeMode } = useAdministrationTheme();
@@ -123,7 +124,11 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
               setOpenShowAddUserModal(!openShowAddUserModal);
           }}
         >
-            <AddUserInExamGroupModal examGroupId={examGroupId} />
+            <AddUserInExamGroupModal
+              examGroupId={examGroupId}
+              setParentSuccessMessage={setParentSuccessMessage}
+              onSuccess={() => setOpenShowAddUserModal(false)}
+            />
         </AdministrationModal>
     );
 
@@ -137,7 +142,11 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
               setOpenShowAddBulkUsersModal(!openShowAddBulkUsersModal);
           }}
         >
-            <AddBulkUsersInGroupModal examGroupId={examGroupId} />
+            <AddBulkUsersInGroupModal
+              examGroupId={examGroupId}
+              setParentSuccessMessage={setParentSuccessMessage}
+              onSuccess={() => setOpenShowAddBulkUsersModal(false)}
+            />
         </AdministrationModal>
     );
     const renderActions = () => (

@@ -65,8 +65,7 @@ const ExamGroupEdit = (props: IExamGroupEditProps) => {
         updateExamGroup, {
             data: updateData,
             isLoading: isUpdating,
-            isSuccess:
-                isSuccessfullyUpdated,
+            isSuccess: isSuccessfullyUpdated,
             error: updateError,
         } ] = useUpdateExamGroupMutation();
 

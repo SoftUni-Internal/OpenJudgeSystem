@@ -58,7 +58,8 @@ const settingsFilterableColumns: AdministrationGridColDef[] = [
 export const returnSettingsNonFilterableColumns = (
     onEditClick: Function,
     deleteMutation: any,
-    onDeleteSuccess?:() => void,
+    onSuccessfulDelete:() => void,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -77,7 +78,8 @@ export const returnSettingsNonFilterableColumns = (
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={deleteMutation}
-                  onSuccess={onDeleteSuccess}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

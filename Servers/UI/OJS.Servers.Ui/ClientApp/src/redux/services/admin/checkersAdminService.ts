@@ -1,7 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { ICheckerAdministrationModel, ICheckerInListModel, IFileModel, IGetAllAdminParams, IPagedResultType } from '../../../common/types';
-import { CREATE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
+import {
+    CREATE_ENDPOINT,
+    EXCEL_RESULTS_ENDPOINT,
+    GET_ENDPOINT,
+    UPDATE_ENDPOINT,
+} from '../../../common/urls/administration-urls';
 import customBaseQuery from '../../middlewares/customBaseQuery';
 
 const checkerAdminService = createApi({
@@ -22,7 +27,7 @@ const checkerAdminService = createApi({
             keepUnusedDataFor: 5,
         }),
         getCheckerById: builder.query<ICheckerAdministrationModel, number>({
-            query: (id) => ({ url: `/Get/${id}` }),
+            query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }),
             keepUnusedDataFor: 0,
         }),
         deleteChecker: builder.mutation<string, number>({ query: (id) => ({ url: `/Delete/${id}`, method: 'DELETE' }) }),

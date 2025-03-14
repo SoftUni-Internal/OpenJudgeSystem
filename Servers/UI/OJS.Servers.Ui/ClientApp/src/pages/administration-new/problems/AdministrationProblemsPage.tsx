@@ -135,6 +135,7 @@ const AdministrationProblemsPage = () => {
               notFilterableGridColumnDef={
                 returnProblemsNonFilterableColumns(
                     onEditClick,
+                    setSuccessMessage,
                     openCopyModal,
                     openRetestModal,
                     retakeProblems,

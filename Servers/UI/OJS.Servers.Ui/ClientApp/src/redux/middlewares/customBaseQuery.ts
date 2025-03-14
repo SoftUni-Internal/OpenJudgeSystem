@@ -11,7 +11,7 @@ import { ExceptionData } from '../../common/types';
 
 type ExtraOptionsType = object
 type ResultError = {
-    data: Array<ExceptionData>;
+    data: Array<ExceptionData> | ExceptionData | string;
 }
 
 const errorStatusCodes = [ 400, 401, 403, 422, 500 ];
@@ -26,8 +26,8 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
             const contentType = response.headers.get('Content-Type');
 
             if (contentType?.includes('application/octet-stream') ||
-            contentType?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
-            contentType?.includes('application/zip')) {
+                contentType?.includes('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') ||
+                contentType?.includes('application/zip')) {
                 const contentDisposition = response.headers.get('Content-Disposition');
                 let filename = 'file.zip';
                 if (contentDisposition) {
@@ -53,16 +53,37 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
     const response = result.meta?.response;
 
     if (response && errorStatusCodes.some((status) => status === response.status)) {
-        const errorsArray = result.error as ResultError;
+        const errorResult = result.error as ResultError;
         let data = [] as Array<ExceptionData>;
+
         try {
-            data = errorsArray.data as Array<ExceptionData>;
-            data.forEach((x) => {
-                if (!x.message) {
-                    // eslint-disable-next-line no-param-reassign
-                    x.message = UNEXPECTED_ERROR_MESSAGE;
-                }
-            });
+            if (typeof errorResult.data === 'string') {
+                // Handle case where error.data is a string (especially for 422)
+                data = [ {
+                    message: errorResult.data,
+                    name: '',
+                    status: response.status,
+                } ];
+            } else if (errorResult.data && !Array.isArray(errorResult.data)) {
+                // Handle case where error.data is a single ExceptionData object
+                const singleError = errorResult.data as ExceptionData;
+                data = [ {
+                    message: singleError.message || UNEXPECTED_ERROR_MESSAGE,
+                    name: singleError.name || '',
+                    status: response.status,
+                } ];
+            } else if (Array.isArray(errorResult.data)) {
+                // Handle case where error.data is an array of ExceptionData
+                data = errorResult.data as Array<ExceptionData>;
+                data.forEach((x) => {
+                    if (!x.message) {
+                        // eslint-disable-next-line no-param-reassign
+                        x.message = UNEXPECTED_ERROR_MESSAGE;
+                    }
+                });
+            } else {
+                data = [ { name: 'The error response could not be parsed.', message: UNEXPECTED_ERROR_MESSAGE } ];
+            }
         } catch {
             const errorData = result?.error?.data as ExceptionData;
             const message = response.status === 401
