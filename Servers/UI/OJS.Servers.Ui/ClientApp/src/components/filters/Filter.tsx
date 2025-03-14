@@ -7,7 +7,7 @@ import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { Box, Button, Popper, TextField } from '@mui/material';
+import { Box, Button, Popper, TextField, Typography } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { IDictionary } from 'src/common/common-types';
@@ -15,7 +15,6 @@ import { FilterColumnTypeEnum } from 'src/common/enums';
 import { IEnumType, IFilterColumn } from 'src/common/types';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import Dropdown from 'src/components/guidelines/dropdown/Dropdown';
-import concatClassNames from 'src/utils/class-names';
 import { getDateAsLocal } from 'src/utils/dates';
 
 import useTheme from '../../hooks/use-theme';
@@ -289,6 +288,14 @@ const Filter = (props: IFilterProps) => {
 
     const renderInputField = (idx: number) => {
         const selectedFilter = selectedFilters[idx];
+        const commonTextFieldSx = {
+            width: '100%',
+            '& .MuiInputBase-root': {
+                fontSize: '0.9rem',
+                width: '100%',
+            },
+            '& .MuiInputLabel-root': { fontSize: '0.9rem' },
+        };
 
         const filterType = filterColumn.columnType;
 
@@ -298,7 +305,8 @@ const Filter = (props: IFilterProps) => {
                   dropdownItems={BOOL_DROPDOWN_VALUES}
                   value={BOOL_DROPDOWN_VALUES.find((v) => v.name.toLowerCase() === (selectedFilter?.value ?? 'True')) ?? { id: '', name: '', value: '' }}
                   handleDropdownItemClick={(newValue) => updateFilterColumnData(idx, newValue?.value || '', 'value')}
-                  minWidth={250}
+                  minWidth={0}
+                  placeholder="Select value"
                 />
             );
         }
@@ -309,7 +317,8 @@ const Filter = (props: IFilterProps) => {
                   dropdownItems={filterColumn.enumValues ?? []}
                   value={filterColumn.enumValues?.find((v) => v.name === selectedFilter?.value) ?? { id: '', name: '' }}
                   handleDropdownItemClick={(newValue) => updateFilterColumnData(idx, newValue?.name || '', 'value')}
-                  minWidth={250}
+                  minWidth={0}
+                  placeholder="Select value"
                 />
             );
         }
@@ -330,7 +339,15 @@ const Filter = (props: IFilterProps) => {
                   views={[ 'year', 'month', 'day', 'hours', 'minutes', 'seconds' ]}
                   format="YYYY-MM-DD HH:mm:ss"
                   disabled={!selectedFilter.operator || idx > 0}
-                  slots={{ textField: TextField }}
+                  slots={{
+                      textField: (params) => (
+                          <TextField
+                            {...params}
+                            variant="standard"
+                            sx={commonTextFieldSx}
+                          />
+                      ),
+                  }}
                   slotProps={{
                       textField: {
                           variant: 'standard',
@@ -343,6 +360,7 @@ const Filter = (props: IFilterProps) => {
                       },
                       desktopPaper: {
                           sx: {
+                              position: 'fixed',
                               backgroundColor: isDarkMode
                                   ? '#212328'
                                   : '#ffffff',
@@ -408,11 +426,24 @@ const Filter = (props: IFilterProps) => {
                                   ? '#212328'
                                   : '#ffffff',
                               border: '2px solid #42abf8',
+                              borderRadius: '12px',
+                              '& .MuiPickersLayout-root': { borderRadius: '12px' },
                           },
                       },
                       popper: {
+                          sx: { zIndex: 1500 },
                           placement: 'bottom-start',
-                          disablePortal: true,
+                          modifiers: [
+                              {
+                                  name: 'preventOverflow',
+                                  enabled: false,
+                              },
+                              {
+                                  name: 'flip',
+                                  enabled: true,
+                                  options: { fallbackPlacements: [ 'top-start', 'bottom-start' ] },
+                              },
+                          ],
                       },
                   }}
                 />
@@ -426,50 +457,169 @@ const Filter = (props: IFilterProps) => {
               type={selectedFilter.inputType}
               onChange={(e) => updateFilterColumnData(idx, e.target.value, 'value')}
               disabled={!selectedFilter.operator || idx > 0}
+              sx={commonTextFieldSx}
+              placeholder={`Enter ${filterColumn.name}`}
             />
         );
     };
 
     const renderFilter = (idx: number) => (
-        <Box style={{ display: 'flex', margin: '5px 0' }} key={`admin-filter-${idx}`} className={styles.fieldsContainer}>
-            <div className={styles.title}>
-                Filter #
-                {selectedFilters.length - idx}
-                <DeleteIcon
-                  color="error"
-                  onClick={() => removeSingleFilter(idx)}
-                  className={concatClassNames(idx !== 0
-                      ? ''
-                      : styles.hidden, styles.removeFilterButton)}
+        <Box
+          sx={{
+              backgroundColor: isDarkMode
+                  ? 'rgba(243, 241, 241, 0.03)'
+                  : 'rgba(62, 76, 93, 0.03)',
+              borderRadius: '0.5rem',
+              padding: '1rem',
+              marginBottom: '0.75rem',
+              border: `1px solid ${isDarkMode
+                  ? 'rgba(243, 241, 241, 0.1)'
+                  : 'rgba(62, 76, 93, 0.1)'}`,
+              position: 'relative',
+          }}
+          key={`admin-filter-${idx}`}
+          className={styles.fieldsContainer}
+        >
+            <Box sx={{
+                display: 'grid',
+                gridTemplateColumns: {
+                    xs: '1fr',
+                    sm: '1fr 1fr',
+                    md: '1fr 1fr 1fr 2.5rem',
+                },
+                gap: '0.75rem',
+                alignItems: 'center',
+                '& > *': {
+                    minWidth: 'unset',
+                    width: '100%',
+                },
+            }}
+            >
+                <TextField
+                  value={filterColumn.name}
+                  variant="standard"
+                  disabled
+                  sx={{
+                      '& .MuiInputBase-root': {
+                          fontSize: '0.875rem',
+                          color: isDarkMode
+                              ? '#f3f1f1'
+                              : '#3e4c5d',
+                          '&.Mui-disabled': {
+                              color: isDarkMode
+                                  ? '#f3f1f1'
+                                  : '#3e4c5d',
+                          },
+                      },
+                  }}
                 />
-            </div>
 
-            <Dropdown<IFilterColumn>
-              dropdownItems={selectedFilters[idx].availableColumns}
-              value={filterColumn}
-              minWidth={250}
-              isDisabled
-            />
+                <Dropdown<IFiltersColumnOperators>
+                  dropdownItems={selectedFilters[idx]?.availableOperators ?? []}
+                  value={selectedFilters[idx].availableOperators?.find((op) => op.value === selectedFilters[idx].operator) ?? { id: '', name: '', value: '' }}
+                  handleDropdownItemClick={(newValue) => updateFilterColumnData(idx, newValue?.value || '', 'operator')}
+                  isDisabled={idx > 0}
+                  minWidth={0}
+                  placeholder="Select operator"
+                />
 
-            <Dropdown<IFiltersColumnOperators>
-              dropdownItems={selectedFilters[idx]?.availableOperators ?? []}
-              value={selectedFilters[idx].availableOperators?.find((op) => op.value === selectedFilters[idx].operator) ?? { id: '', name: '', value: '' }}
-              handleDropdownItemClick={(newValue) => updateFilterColumnData(idx, newValue?.value || '', 'operator')}
-              isDisabled={idx > 0}
-              minWidth={250}
-            />
+                {renderInputField(idx)}
 
-            {renderInputField(idx)}
-            {idx < selectedFilters.length - 1 && <hr className={styles.divider} />}
+                <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100%',
+                    width: '2.5rem !important',
+                }}
+                >
+                    {idx !== 0 && (
+                        <DeleteIcon
+                          sx={{
+                              color: '#ef5350',
+                              cursor: 'pointer',
+                              fontSize: '1.25rem',
+                              '&:hover': { color: '#f44336' },
+                          }}
+                          onClick={() => removeSingleFilter(idx)}
+                        />
+                    )}
+                </Box>
+            </Box>
         </Box>
     );
 
     return (
         <Box>
-            <Box sx={{ display: 'inline-flex', alignItems: 'center', cursor: 'pointer' }} onClick={handleOpenClick}>
-                <FilterAltIcon sx={{ margin: '10px 0' }} />
-                {' '}
-                {selectedFilters.length > 1 && `(${selectedFilters.length - 1})`}
+            <Box
+              sx={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                  padding: '0.375rem 0.75rem',
+                  borderRadius: '0.375rem',
+                  transition: 'all 0.2s ease',
+                  border: `2px solid ${isDarkMode
+                      ? 'transparent'
+                      : selectedFilters.length > 1
+                          ? '#42abf8'
+                          : '#e6e6e6'}`,
+                  backgroundColor: isDarkMode
+                      ? 'transparent'
+                      : selectedFilters.length > 1
+                          ? 'rgba(66, 171, 248, 0.08)'
+                          : 'transparent',
+                  '&:hover': {
+                      backgroundColor: isDarkMode
+                          ? 'rgba(255, 255, 255, 0.05)'
+                          : 'rgba(66, 171, 248, 0.12)',
+                      border: `2px solid ${isDarkMode
+                          ? 'transparent'
+                          : '#42abf8'}`,
+                      transform: 'translateY(-1px)',
+                  },
+              }}
+              onClick={handleOpenClick}
+            >
+                <FilterAltIcon
+                  sx={{
+                      margin: '0.25rem',
+                      fontSize: '1.25rem',
+                      color: isDarkMode
+                          ? selectedFilters.length > 1
+                              ? '#42abf8'
+                              : '#f3f1f1'
+                          : '#f3f1f1',
+                      transition: 'all 0.2s ease',
+                      transform: isOpen
+                          ? 'rotate(180deg)'
+                          : 'rotate(0)',
+                  }}
+                />
+                {selectedFilters.length > 1 && (
+                    <Box
+                      sx={{
+                          backgroundColor: isDarkMode
+                              ? '#42abf8'
+                              : 'white',
+                          color: isDarkMode
+                              ? 'white'
+                              : '#42abf8',
+                          border: isDarkMode
+                              ? 'none'
+                              : '1px solid #42abf8',
+                          borderRadius: '0.75rem',
+                          padding: '0.125rem 0.5rem',
+                          fontSize: '0.75rem',
+                          marginLeft: '0.25rem',
+                          minWidth: '1.25rem',
+                          textAlign: 'center',
+                          fontWeight: 600,
+                      }}
+                    >
+                        {selectedFilters.length - 1}
+                    </Box>
+                )}
             </Box>
             <Popper
               className={`${styles.popupContainer} ${isDarkMode
@@ -482,10 +632,17 @@ const Filter = (props: IFilterProps) => {
               placement="bottom-start"
               modifiers={[
                   {
+                      name: 'computeStyles',
+                      options: {
+                          adaptive: false,
+                          gpuAcceleration: false,
+                      },
+                  },
+                  {
                       name: 'preventOverflow',
                       options: {
                           boundary: 'window',
-                          padding: 10,
+                          padding: '1rem',
                       },
                   },
                   {
@@ -496,31 +653,126 @@ const Filter = (props: IFilterProps) => {
                       name: 'shift',
                       options: {
                           boundary: 'viewport',
-                          padding: 5,
+                          padding: '1rem',
                       },
                   },
               ]}
+              transition={false}
+              sx={{
+                  maxWidth: {
+                      xs: 'calc(100vw - 2rem)',
+                      sm: '31.25rem',
+                      md: '37.5rem',
+                  },
+                  width: '100%',
+              }}
             >
-                <Box>
-                    <CloseIcon className={styles.closeIcon} onClick={handleCloseClick} />
-                    <Box style={{ display: 'flex', flexDirection: 'column' }}>
+                <Box sx={{
+                    width: '100%',
+                    backgroundColor: isDarkMode
+                        ? '#212328'
+                        : '#ffffff',
+                    borderRadius: '0.5rem',
+                    boxShadow: '0 0.25rem 1.25rem rgba(0, 0, 0, 0.15)',
+                    border: `1px solid ${isDarkMode
+                        ? 'rgba(243, 241, 241, 0.1)'
+                        : 'rgba(62, 76, 93, 0.1)'}`,
+                }}
+                >
+                    <Box sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '0.75rem 1rem',
+                        borderBottom: `1px solid ${isDarkMode
+                            ? 'rgba(243, 241, 241, 0.1)'
+                            : 'rgba(62, 76, 93, 0.1)'}`,
+                    }}
+                    >
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                              fontWeight: 600,
+                              color: isDarkMode
+                                  ? '#f3f1f1'
+                                  : '#3e4c5d',
+                              fontSize: '0.875rem',
+                          }}
+                        >
+                            {filterColumn.name}
+                            {' '}
+                            Filters
+                        </Typography>
+                        <CloseIcon
+                          className={styles.closeIcon}
+                          onClick={handleCloseClick}
+                          sx={{
+                              cursor: 'pointer',
+                              fontSize: '1.25rem',
+                          }}
+                        />
+                    </Box>
+                    <Box sx={{
+                        padding: '1rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.5rem',
+                        maxHeight: '60vh',
+                        overflowY: 'auto',
+                    }}
+                    >
                         {selectedFilters.map((filter, idx) => renderFilter(idx))}
                     </Box>
-                    <Box className={styles.buttonsSection}>
-                        <Button onClick={removeAllFilters} className={styles.removeAllFilters}>Remove All</Button>
+                    <Box
+                      className={styles.buttonsSection}
+                      sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          padding: '0.75rem 1rem',
+                          borderTop: `1px solid ${isDarkMode
+                              ? 'rgba(243, 241, 241, 0.1)'
+                              : 'rgba(62, 76, 93, 0.1)'}`,
+                          gap: '0.5rem',
+                      }}
+                    >
+                        <Button
+                          onClick={removeAllFilters}
+                          className={styles.removeAllFilters}
+                          startIcon={<DeleteIcon />}
+                          sx={{
+                              color: '#ef5350',
+                              fontSize: '0.875rem',
+                              '&:hover': { backgroundColor: 'rgba(239, 83, 80, 0.08)' },
+                          }}
+                        >
+                            Remove All
+                        </Button>
                         <Button
                           onClick={addFilter}
                           disabled={selectedFilters.length
                               ? !selectedFilters[0].value
                               : false}
                           className={styles.addFilter}
+                          sx={{
+                              backgroundColor: '#42abf8',
+                              color: 'white',
+                              fontSize: '0.875rem',
+                              '&:hover': { backgroundColor: '#3b9ae0' },
+                              '&:disabled': {
+                                  backgroundColor: isDarkMode
+                                      ? 'rgba(243, 241, 241, 0.1)'
+                                      : 'rgba(62, 76, 93, 0.1)',
+                                  color: isDarkMode
+                                      ? '#f3f1f1'
+                                      : '#3e4c5d',
+                              },
+                          }}
                         >
                             Add filter
                         </Button>
                     </Box>
                 </Box>
             </Popper>
-
         </Box>
     );
 };
