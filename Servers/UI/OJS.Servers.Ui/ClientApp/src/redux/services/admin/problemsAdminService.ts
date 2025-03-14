@@ -11,7 +11,12 @@ import {
     ITestsDropdownData,
 } from '../../../common/types';
 import { IGetByContestId, IGetByProblemId, IProblemUrlById } from '../../../common/url-types';
-import { CREATE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
+import {
+    CREATE_ENDPOINT,
+    EXCEL_RESULTS_ENDPOINT,
+    GET_ENDPOINT,
+    UPDATE_ENDPOINT,
+} from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
 const problemsAdminService = createApi({
@@ -32,7 +37,7 @@ const problemsAdminService = createApi({
         }),
 
         getProblemById: builder.query<IProblemAdministration, IProblemUrlById>({
-            query: ({ id }) => ({ url: `/Get/${id}` }),
+            query: ({ id }) => ({ url: `/${GET_ENDPOINT}/${id}` }),
             keepUnusedDataFor: 0,
         }),
 

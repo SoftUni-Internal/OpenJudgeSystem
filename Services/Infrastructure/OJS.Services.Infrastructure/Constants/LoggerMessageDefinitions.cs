@@ -26,6 +26,12 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(22, LogLevel.Error, "Message bus health check failed. Current status: {BusHealthStatus}. Please verify that the message bus server is running correctly.")]
     public static partial void LogMessageBusHealthCheckFailed(this ILogger logger, string? busHealthStatus);
 
+    [LoggerMessage(23, LogLevel.Error, "Error occured while trying to measure the ratio of busy workers.")]
+    public static partial void LogErrorMeasuringBusyWorkersRatio(this ILogger logger, Exception ex);
+
+    [LoggerMessage(24, LogLevel.Error, "Error occured while trying to adjust time between submissions for active contests.")]
+    public static partial void LogErrorAdjustingContestsLimitBetweenSubmissions(this ILogger logger, Exception ex);
+
     [LoggerMessage(51, LogLevel.Information, "Stopping {HostedServiceName}")]
     public static partial void LogStoppingHostedService(this ILogger logger, string hostedServiceName);
 

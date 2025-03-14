@@ -4,49 +4,63 @@ using Microsoft.EntityFrameworkCore;
 using OJS.Data.Models;
 using OJS.Services.Administration.Models.Settings;
 using OJS.Services.Common.Data;
+using OJS.Services.Infrastructure.Cache;
+using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Extensions;
+using System.Globalization;
 using System.Threading.Tasks;
 
-public class SettingsBusinessService : AdministrationOperationService<Setting, int, SettingAdministrationModel>, ISettingsBusinessService
+public class SettingsBusinessService(
+    IDataService<Setting> settingsService,
+    ICacheService cache)
+    : AdministrationOperationService<Setting, int, SettingAdministrationModel>, ISettingsBusinessService
 {
-    private readonly IDataService<Setting> settingsService;
-
-    public SettingsBusinessService(IDataService<Setting> settingsService) => this.settingsService = settingsService;
-
     public override async Task<SettingAdministrationModel> Get(int id)
-        => await this.settingsService.GetByIdQuery(id).FirstAsync().Map<SettingAdministrationModel>();
+        => await settingsService.GetByIdQuery(id).FirstAsync().Map<SettingAdministrationModel>();
 
     public override async Task<SettingAdministrationModel> Create(SettingAdministrationModel model)
     {
         var setting = model.Map<Setting>();
 
-        await this.settingsService.Add(setting);
-        await this.settingsService.SaveChanges();
+        await settingsService.Add(setting);
+        await settingsService.SaveChanges();
 
         return model;
     }
 
     public override async Task<SettingAdministrationModel> Edit(SettingAdministrationModel model)
     {
-        var setting = await this.settingsService.GetByIdQuery(model.Id).FirstAsync();
+        var setting = await settingsService.GetByIdQuery(model.Id).FirstAsync();
 
         setting = setting.MapFrom(model);
 
-        this.settingsService.Update(setting);
-        await this.settingsService.SaveChanges();
+        settingsService.Update(setting);
+        await settingsService.SaveChanges();
+
+        await cache.Remove(GetCacheKey(setting));
 
         return model;
     }
 
     public override async Task Delete(int id)
     {
-        await this.settingsService.DeleteById(id);
-        await this.settingsService.SaveChanges();
+        var setting = await settingsService.Find(id);
+        if (setting == null)
+        {
+            return;
+        }
+
+        settingsService.Delete(setting);
+        await settingsService.SaveChanges();
+        await cache.Remove(GetCacheKey(setting));
     }
 
     public Task<SettingAdministrationModel> GetByKey(string settingKey)
-        => this.settingsService
+        => settingsService
             .GetQuery(s => s.Name == settingKey)
             .FirstOrDefaultAsync()
             .Map<SettingAdministrationModel>();
+
+    private static string GetCacheKey(Setting setting)
+        => string.Format(CultureInfo.InvariantCulture, CacheConstants.SettingsFormat, setting.Name);
 }

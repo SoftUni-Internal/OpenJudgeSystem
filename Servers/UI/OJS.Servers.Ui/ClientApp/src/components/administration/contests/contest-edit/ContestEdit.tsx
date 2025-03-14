@@ -1,7 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Autocomplete, Box, Checkbox, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Select, TextareaAutosize, TextField, Typography } from '@mui/material';
+import {
+    Autocomplete,
+    Box,
+    Checkbox,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    InputLabel,
+    MenuItem,
+    Select,
+    TextareaAutosize,
+    TextField,
+    Tooltip,
+    Typography,
+} from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import isNaN from 'lodash/isNaN';
 
@@ -105,6 +119,7 @@ const ContestEdit = (props:IContestEditProps) => {
         isVisible: false,
         visibleFrom: null,
         limitBetweenSubmissions: 0,
+        autoChangeLimitBetweenSubmissions: false,
         newIpPassword: null,
         orderBy: 0,
         practiceEndTime: null,
@@ -244,6 +259,7 @@ const ContestEdit = (props:IContestEditProps) => {
             name: contestName,
             type: contestType,
             limitBetweenSubmissions,
+            autoChangeLimitBetweenSubmissions,
             orderBy,
             contestPassword,
             practicePassword,
@@ -374,6 +390,10 @@ const ContestEdit = (props:IContestEditProps) => {
             isVisible = checked;
             break;
         }
+        case 'autoChangeLimitBetweenSubmissions': {
+            autoChangeLimitBetweenSubmissions = checked;
+            break;
+        }
         case 'visibleFrom': {
             visibleFrom = null;
             if (value) {
@@ -421,6 +441,7 @@ const ContestEdit = (props:IContestEditProps) => {
             name: contestName,
             type: contestType,
             limitBetweenSubmissions,
+            autoChangeLimitBetweenSubmissions,
             orderBy,
             contestPassword,
             practicePassword,
@@ -721,25 +742,39 @@ const ContestEdit = (props:IContestEditProps) => {
                     <div className={formStyles.fieldBoxDivider} />
                     <Box className={formStyles.fieldBoxElement}>
                         <Box className={formStyles.row}>
-                            <TextField
-                              className={formStyles.inputRow}
-                              type="number"
-                              name="limitBetweenSubmissions"
-                              label={LIMIT_BETWEEN_SUBMISSIONS}
-                              variant="standard"
-                              onChange={(e) => onChange(e)}
-                              value={contest.limitBetweenSubmissions}
-                              InputLabelProps={{ shrink: true }}
-                              color={contestValidations.isLimitBetweenSubmissionsValid &&
-                            contestValidations.isLimitBetweenSubmissionsTouched
-                                  ? 'success'
-                                  : 'primary'}
-                              error={(contestValidations.isLimitBetweenSubmissionsTouched &&
-                                !contestValidations.isLimitBetweenSubmissionsValid)}
-                              helperText={(contestValidations.isLimitBetweenSubmissionsTouched &&
-                                    !contestValidations.isLimitBetweenSubmissionsValid) &&
-                                CONTEST_LIMIT_BETWEEN_SUBMISSIONS_VALIDATION}
-                            />
+                            <Box className={formStyles.row}>
+                                <TextField
+                                  className={formStyles.inputRow}
+                                  type="number"
+                                  name="limitBetweenSubmissions"
+                                  disabled={contest.autoChangeLimitBetweenSubmissions}
+                                  label={`${LIMIT_BETWEEN_SUBMISSIONS}`}
+                                  variant="standard"
+                                  onChange={(e) => onChange(e)}
+                                  value={contest.limitBetweenSubmissions}
+                                  InputLabelProps={{ shrink: true }}
+                                  color={contestValidations.isLimitBetweenSubmissionsValid &&
+                                    contestValidations.isLimitBetweenSubmissionsTouched
+                                      ? 'success'
+                                      : 'primary'}
+                                  error={(contestValidations.isLimitBetweenSubmissionsTouched &&
+                                        !contestValidations.isLimitBetweenSubmissionsValid)}
+                                  helperText={(contestValidations.isLimitBetweenSubmissionsTouched &&
+                                            !contestValidations.isLimitBetweenSubmissionsValid) &&
+                                        CONTEST_LIMIT_BETWEEN_SUBMISSIONS_VALIDATION}
+                                />
+                                <Tooltip
+                                  title="Automatically adjust the limit between submissions during a contest,
+                                    based on the number of submissions."
+                                >
+                                    <FormControlLabel
+                                      control={<Checkbox checked={contest.autoChangeLimitBetweenSubmissions} />}
+                                      label="Auto"
+                                      name="autoChangeLimitBetweenSubmissions"
+                                      onChange={(e) => onChange(e)}
+                                    />
+                                </Tooltip>
+                            </Box>
                             <TextField
                               className={formStyles.inputRow}
                               type="number"
@@ -808,6 +843,7 @@ const ContestEdit = (props:IContestEditProps) => {
                   onSuccess={onDelete}
                   mutation={useDeleteContestMutation}
                   text={DELETE_CONFIRMATION_MESSAGE}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </Box>
         </Box>

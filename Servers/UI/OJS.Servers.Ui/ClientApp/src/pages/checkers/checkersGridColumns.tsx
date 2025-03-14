@@ -93,7 +93,8 @@ const checkersFilterableColumns: AdministrationGridColDef[] = [
 export const returnCheckersNonFilterableColumns = (
     onEditClick: Function,
     deleteMutation: any,
-    onSuccessFullDelete: () => void,
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -112,7 +113,8 @@ export const returnCheckersNonFilterableColumns = (
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={deleteMutation}
-                  onSuccess={onSuccessFullDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

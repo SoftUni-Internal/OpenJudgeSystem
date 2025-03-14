@@ -68,7 +68,10 @@ const submissionTypeDocumentsFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnNonFilterableColumns = (onSuccessfulDelete: () => void) => [
+export const returnNonFilterableColumns = (
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -97,6 +100,7 @@ export const returnNonFilterableColumns = (onSuccessfulDelete: () => void) => [
                   text={`${DELETE_CONFIRMATION_MESSAGE} ${SUBMISSION_TYPE_DOCUMENT_DELETE_CONFIRMATION_MESSAGE}`}
                   mutation={useDeleteSubmissionTypeDocumentByIdAndSubmissionTypeIdMutation}
                   onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

@@ -89,7 +89,7 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
             {renderSuccessfullAlert(successMessage)}
             <AdministrationGridView
               filterableGridColumnDef={problemResourceFilterableColumns}
-              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, retakeData)}
+              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, retakeData, setSuccessMessage)}
               data={resourcesData}
               error={resourcesError}
               queryParams={queryParams}

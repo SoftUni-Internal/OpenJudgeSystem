@@ -93,43 +93,6 @@ public class GridDataService<TEntity>
         return this.excelService.ExportResults<TModel?>(new Dictionary<string, IEnumerable<TModel?>> { ["Results"] = results });
     }
 
-    private static IEnumerable<FilteringModel> MapFilterStringToCollection<T>(PaginationRequestModel paginationRequestModel)
-    {
-        var filteringCollection = new List<FilteringModel>();
-        if (string.IsNullOrEmpty(paginationRequestModel.Filter))
-        {
-            return filteringCollection;
-        }
-
-        var conditions = paginationRequestModel.Filter!.Split("&&;", StringSplitOptions.RemoveEmptyEntries);
-
-        foreach (var condition in conditions)
-        {
-            var filterParts = condition.Split('~', StringSplitOptions.RemoveEmptyEntries);
-            if (filterParts.Length != 3)
-            {
-                throw new ArgumentOutOfRangeException($"Filter {condition} must contain key, operator and value");
-            }
-
-            var key = filterParts[0];
-            var operatorTypeAsString = filterParts[1];
-            var value = filterParts[2];
-
-            var isParsed = Enum.TryParse(operatorTypeAsString, true, out OperatorType operatorType);
-
-            if (!isParsed)
-            {
-                throw new ArgumentException($"Operator with type {operatorTypeAsString} is not supported.");
-            }
-
-            var filteringProperty = PropertyInfoCache.GetPropertyInfo<T>(key);
-
-            filteringCollection.Add(new FilteringModel(filteringProperty, operatorType, value));
-        }
-
-        return filteringCollection;
-    }
-
     private async Task<PagedResult<TModel>> GetPagedResultFromQuery<TModel>(PaginationRequestModel paginationRequestModel, IQueryable<TEntity> query)
         => await this.ApplyFiltersAndSorters<TModel>(paginationRequestModel, query)
             .ToPagedResultAsync(paginationRequestModel.ItemsPerPage, paginationRequestModel.Page);
@@ -141,7 +104,7 @@ public class GridDataService<TEntity>
 
     private IQueryable<TModel> ApplyFiltersAndSorters<TModel>(PaginationRequestModel paginationRequestModel, IQueryable<TEntity> query)
     {
-        var filterAsCollection = MapFilterStringToCollection<TModel>(paginationRequestModel).ToList();
+        var filterAsCollection = this.filteringService.MapFilterStringToCollection<TModel>(paginationRequestModel).ToList();
 
         var mappedQuery = this.filteringService.ApplyFiltering<TEntity, TModel>(query.AsNoTracking(), filterAsCollection);
 

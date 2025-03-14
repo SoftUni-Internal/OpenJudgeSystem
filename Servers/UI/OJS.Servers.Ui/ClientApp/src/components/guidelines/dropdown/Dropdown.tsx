@@ -12,10 +12,12 @@ interface IDropdownProps<T = object> {
     dropdownItems: Array<IDropdownItem<T>>;
     value: IDropdownItem<T> | null;
     handleDropdownItemClick?: (item: IDropdownItem<T> | undefined) => void;
+    handleDropdownItemClear?: () => void;
     placeholder?: string;
     isDisabled?: boolean;
     noOptionsFoundText?: string;
     isSearchable?: boolean;
+    minWidth?: number;
 }
 
 const StyledPopper = (popperProps: any) => (
@@ -40,10 +42,12 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
         dropdownItems,
         value,
         handleDropdownItemClick,
+        handleDropdownItemClear,
         isDisabled = false,
         placeholder = 'Select element',
         noOptionsFoundText = 'No options found',
         isSearchable = false,
+        minWidth = 280,
     } = props;
 
     const { isDarkMode } = useTheme();
@@ -83,6 +87,7 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
 
     return (
         <Autocomplete
+          sx={{ minWidth: `${minWidth}px !important` }}
           options={dropdownItems}
           getOptionLabel={(option) => option.name}
           value={value ?? undefined}
@@ -127,6 +132,9 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
                                           event.stopPropagation();
                                           setInputValue('');
                                           handleDropdownItemClick?.(undefined);
+                                          if (handleDropdownItemClear) {
+                                              handleDropdownItemClear();
+                                          }
                                       }}
                                       edge="end"
                                       size="small"

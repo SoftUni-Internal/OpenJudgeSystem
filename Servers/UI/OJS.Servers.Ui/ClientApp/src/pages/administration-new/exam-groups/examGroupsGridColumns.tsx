@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { getContestsDetailsPageUrl } from 'src/common/urls/compose-client-urls';
+import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
 
 import { EDIT } from '../../../common/labels';
 import { EXAM_GROUPS_PATH, NEW_ADMINISTRATION_PATH } from '../../../common/urls/administration-urls';
@@ -42,6 +44,25 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         flex: 2,
+        renderCell: (params) => (
+            <ExternalLink
+              to={getContestsDetailsPageUrl({
+                  contestId: params.row.contestId,
+                  contestName: params.row.contestName,
+              })}
+              text={params.value.toString()}
+            />
+        ),
+    },
+    {
+        field: 'contestId',
+        headerName: 'Contest Id',
+        headerAlign: 'center',
+        align: 'center',
+        type: 'string',
+        filterable: false,
+        sortable: false,
+        flex: 0.5,
     },
     {
         field: 'externalAppId',
@@ -66,7 +87,11 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnExamGroupsNonFilterableColumns = (onEditClick: Function) => [
+export const returnExamGroupsNonFilterableColumns = (
+    onEditClick: Function,
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -88,6 +113,8 @@ export const returnExamGroupsNonFilterableColumns = (onEditClick: Function) => [
                   name={params.row.name}
                   text="Are you sure that you want to delete the exam group."
                   mutation={useDeleteExamGroupMutation}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

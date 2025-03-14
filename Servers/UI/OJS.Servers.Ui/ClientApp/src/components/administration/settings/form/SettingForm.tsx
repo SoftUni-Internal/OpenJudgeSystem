@@ -137,6 +137,7 @@ const SettingForm = (props: ISettingFormProps) => {
                           onSuccess={() => navigate(`/${NEW_ADMINISTRATION_PATH}/${SETTINGS_PATH}`)}
                           mutation={useDeleteSettingMutation}
                           text={DELETE_CONFIRMATION_MESSAGE}
+                          setParentSuccessMessage={setParentSuccessMessage}
                         />
                     </Box>
                 </>
@@ -188,6 +189,20 @@ const SettingForm = (props: ISettingFormProps) => {
                     <TextField
                       label={VALUE}
                       value={setting?.value}
+                      variant="filled"
+                      name="value"
+                      onChange={(e) => onChange(e)}
+                      multiline
+                      rows={15}
+                    />
+                </FormControl>
+            );
+        case getEnumMemberName(SettingTypeEnums, SettingTypeEnums.Json).toString():
+            return (
+                <FormControl className={formStyles.inputRow}>
+                    <TextField
+                      label={VALUE}
+                      value={JSON.stringify(JSON.parse(setting?.value), null, 2)}
                       variant="filled"
                       name="value"
                       onChange={(e) => onChange(e)}
