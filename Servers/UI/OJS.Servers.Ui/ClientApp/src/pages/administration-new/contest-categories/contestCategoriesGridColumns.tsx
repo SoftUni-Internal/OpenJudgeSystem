@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
+import BallotIcon from '@mui/icons-material/Ballot';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -37,6 +38,16 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
     {
         field: 'isVisible',
         headerName: 'Is Visible',
+        headerAlign: 'center',
+        type: 'boolean',
+        flex: 0,
+        filterable: false,
+        align: 'center',
+        sortable: false,
+    },
+    {
+        field: 'hasChildren',
+        headerName: 'Has Children',
         headerAlign: 'center',
         type: 'boolean',
         flex: 0,
@@ -106,6 +117,16 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
     },
     {
+        field: 'allowMentor',
+        headerName: 'Allow Mentor',
+        headerAlign: 'center',
+        type: 'boolean',
+        flex: 0,
+        filterable: false,
+        align: 'center',
+        sortable: false,
+    },
+    {
         field: 'deletedOn',
         headerName: 'Deleted On',
         headerAlign: 'center',
@@ -139,6 +160,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
 
 export const returnCategoriesNonFilterableColumns = (
     onEditClick: Function,
+    onContestsBulkEditClick: Function,
     onSuccessfulDelete: () => void,
     setParentSuccessMessage: Function,
 ) => [
@@ -164,6 +186,12 @@ export const returnCategoriesNonFilterableColumns = (
                   onSuccess={onSuccessfulDelete}
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
+                <IconButton onClick={() => onContestsBulkEditClick(params.row.id, params.row.name)} disabled={params.row.hasChildren}>
+                    <BallotIcon color={params.row.hasChildren
+                        ? 'disabled'
+                        : 'primary'}
+                    />
+                </IconButton>
             </div>
         ),
     },

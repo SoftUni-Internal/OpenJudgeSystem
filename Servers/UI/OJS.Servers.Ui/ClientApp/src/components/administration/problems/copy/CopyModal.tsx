@@ -159,7 +159,9 @@ const CopyModal = (props: ICopyModalProps) => {
     }, [ isSuccessfullyCopied, isSuccessfullyCopiedAll, setShowModal, onClose ]);
 
     const onInputChange = debounce((e: any) => {
-        setContestSearchString(e.target.value);
+        if (e?.target) {
+            setContestSearchString(e.target.value);
+        }
     }, 300);
 
     const onSubmit = () => {

@@ -1,8 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { IContestActivity, IContestAdministration, IContestAutocomplete, IFileModel, IGetAllAdminParams,
+import {
+    IContestActivity, IContestAdministration, IContestAutocomplete, IContestsBulkEdit, IFileModel, IGetAllAdminParams,
     IIndexContestsType,
-    IPagedResultType } from '../../../common/types';
+    IPagedResultType,
+} from '../../../common/types';
 import { IContestDetailsUrlParams } from '../../../common/url-types';
 import { CREATE_ENDPOINT, DELETE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, GET_ALL_ENDPOINT, GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import { SimillarityType } from '../../../pages/administration-new/submissions-simillarity/SubmissionsSimillarity';
@@ -111,6 +113,14 @@ const contestService = createApi({
                 method: 'PATCH',
             }),
         }),
+
+        bulkEditContests: builder.mutation<string, IContestsBulkEdit>({
+            query: (model) => ({
+                url: '/BulkEditContests',
+                method: 'POST',
+                body: model,
+            }),
+        }),
     }),
 });
 
@@ -128,5 +138,6 @@ export const {
     useGetContestActivityQuery,
     useExportSimilaritiesToExcelMutation,
     useTransferParticipantsMutation,
+    useBulkEditContestsMutation,
 } = contestService;
 export default contestService;

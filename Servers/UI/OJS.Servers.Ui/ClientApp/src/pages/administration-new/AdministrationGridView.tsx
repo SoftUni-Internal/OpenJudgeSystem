@@ -65,6 +65,7 @@ const defaultNotVisibleColumns: AdjacencyList<string, boolean> = {
     contestPassword: false,
     limitBetweenSubmissions: false,
     allowParallelSubmissionsInTasks: false,
+    hasChildren: false,
 };
 
 const defaultFilterToAdd = 'isdeleted~equals~false';

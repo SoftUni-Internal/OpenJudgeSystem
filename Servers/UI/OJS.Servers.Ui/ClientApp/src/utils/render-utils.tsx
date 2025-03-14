@@ -8,6 +8,7 @@ const renderAlert = (
     autoHideDuration?: number | undefined,
 ) => (
     <Alert
+      key={index}
       autoHideDuration={autoHideDuration}
       variant={AlertVariant.Filled}
       vertical={AlertVerticalOrientation.Top}
