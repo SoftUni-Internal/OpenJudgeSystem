@@ -5,7 +5,7 @@ using System;
 
 public class FullExecutionResultResponseModel
 {
-    public ExceptionModel? Exception { get; set; }
+    public LegacyExceptionModel? Exception { get; set; }
 
     public ExecutionResultResponseModel? ExecutionResult { get; set; }
 
@@ -19,9 +19,9 @@ public class FullExecutionResultResponseModel
         this.Exception = null;
     }
 
-    public void SetException(Exception exception, bool includeStackTrace)
+    public void SetException(Exception exception, bool includeStackTrace, ExceptionType? exceptionType = null)
     {
-        this.Exception = new ExceptionModel(exception, includeStackTrace);
+        this.Exception = new LegacyExceptionModel(exception, includeStackTrace, exceptionType);
         this.ExecutionResult = null;
     }
 

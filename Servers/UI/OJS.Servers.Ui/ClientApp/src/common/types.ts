@@ -282,6 +282,7 @@ interface IIndexContestCategoriesType {
     name: string;
     parent: string;
     parentId: number;
+    hasChildren: boolean;
     isDeleted: boolean;
     isVisible: boolean;
     orderBy: number;
@@ -431,6 +432,7 @@ interface IContestAdministration {
     contestPassword: string | null;
     practicePassword: string | null;
     limitBetweenSubmissions: number;
+    autoChangeLimitBetweenSubmissions: boolean;
     isVisible: boolean;
     visibleFrom: Date | null;
     newIpPassword: string | null;
@@ -545,7 +547,8 @@ interface IProblemSubmissionType{
 interface IIndexExamGroupsType {
     id: number;
     name: string;
-    contest: string;
+    contestName: string;
+    contestId: number;
     externalAppId: string;
     externalExamGroupId: string;
 }
@@ -830,6 +833,16 @@ interface IMentorPromptTemplateInListModel {
     modifiedOne: Date;
 }
 
+interface IContestsBulkEdit {
+    startTime: Date | null;
+    endTime: Date | null;
+    practiceStartTime: Date | null;
+    practiceEndTime: Date | null;
+    type: string | null;
+    limitBetweenSubmissions: number | null;
+    categoryId: number;
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export type {
     IIndexContestsType,
@@ -918,6 +931,7 @@ export type {
     IAccessLogInListModel,
     IDropdownItemBase,
     IDropdownItem,
+    IContestsBulkEdit,
     IFilterColumn,
     IFilterEnum,
 };

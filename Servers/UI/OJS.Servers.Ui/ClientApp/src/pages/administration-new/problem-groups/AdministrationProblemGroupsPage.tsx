@@ -90,7 +90,7 @@ const AdministrationProblemGroupsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             {renderErrorMessagesAlert(errorMessages)}
             <AdministrationGridView
               filterableGridColumnDef={filterableColumns}

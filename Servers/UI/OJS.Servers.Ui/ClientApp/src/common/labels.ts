@@ -37,6 +37,7 @@ export const VALUE = 'Value';
 
 // Contests
 export const LIMIT_BETWEEN_SUBMISSIONS = 'Limit between submissions';
+export const AUTO_CHANGE_LIMIT_BETWEEN_SUBMISSIONS = 'Auto change limit between submissions';
 export const CONTEST_NAME = 'Contest Name';
 export const NUMBER_OF_PROBLEM_GROUPS = 'Number of problem groups';
 export const COMPETE_PASSWORD = 'Compete Password';

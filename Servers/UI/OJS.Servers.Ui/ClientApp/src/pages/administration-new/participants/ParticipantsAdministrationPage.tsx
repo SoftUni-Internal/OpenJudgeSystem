@@ -62,10 +62,10 @@ const ParticipantsAdministrationPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               filterableGridColumnDef={participantsFilteringColumns}
-              notFilterableGridColumnDef={returnparticipantsNonFilterableColumns(retakeParticipants)}
+              notFilterableGridColumnDef={returnparticipantsNonFilterableColumns(retakeParticipants, setSuccessMessage)}
               data={participantsData}
               error={error}
               queryParams={queryParams}

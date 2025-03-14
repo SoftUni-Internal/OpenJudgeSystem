@@ -1,0 +1,66 @@
+@use 'src/styles/colors.scss';
+
+.backToTop {
+    position: fixed;
+    bottom: 40px;
+    right: 40px;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 9999;
+    background-color: colors.$primary-blue;
+
+    &.lightTheme {
+        opacity: 0.9;
+        box-shadow: 0 4px 12px rgb(68 169 248 / 20%);
+
+        &:hover {
+            opacity: 1;
+            box-shadow: 0 6px 16px rgb(68 169 248 / 30%);
+        }
+
+        &:focus {
+            box-shadow: 0 0 0 3px rgb(68 169 248 / 30%);
+        }
+    }
+
+    &.darkTheme {
+        opacity: 0.8;
+        box-shadow: 0 4px 12px rgb(68 169 248 / 15%);
+
+        &:hover {
+            opacity: 1;
+            box-shadow: 0 6px 16px rgb(68 169 248 / 25%);
+        }
+
+        &:focus {
+            box-shadow: 0 0 0 3px rgb(68 169 248 / 20%);
+        }
+    }
+
+    &:hover {
+        transform: translateY(-3px);
+    }
+
+    &:focus {
+        outline: none;
+    }
+
+    &:active {
+        transform: translateY(-1px);
+    }
+
+    svg {
+        transition: transform 0.2s ease;
+    }
+
+    &:hover svg {
+        transform: translateY(-2px);
+    }
+}

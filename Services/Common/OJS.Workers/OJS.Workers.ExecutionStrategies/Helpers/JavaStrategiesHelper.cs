@@ -29,7 +29,7 @@
         /// <param name="processReceivedOutput">The received output from the process executor.</param>
         public static void ValidateJvmInitialization(string processReceivedOutput)
         {
-            const string errorMessageAppender = " Please contact an administrator.";
+            const string errorMessageAppender = " Please contact a developer.";
 
             if (processReceivedOutput.Contains(JvmInsufficientMemoryMessage))
             {

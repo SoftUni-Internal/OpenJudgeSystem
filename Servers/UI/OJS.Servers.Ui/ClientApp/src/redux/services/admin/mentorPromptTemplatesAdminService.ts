@@ -6,7 +6,7 @@ import {
     IMentorPromptTemplateInListModel,
     IPagedResultType,
 } from '../../../common/types';
-import { UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
+import { GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
 const mentorPromptTemplatesAdminService = createApi({
@@ -26,7 +26,7 @@ const mentorPromptTemplatesAdminService = createApi({
             keepUnusedDataFor: 5,
         }),
         getMentorPromptTemplateById: builder.query<IMentorPromptTemplateAdministrationModel, number>({
-            query: (id) => ({ url: `/Get/${id}` }),
+            query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }),
             keepUnusedDataFor: 0,
         }),
         deleteMentorPromptTemplate: builder.mutation<number, number>({ query: (id) => ({ url: `/Delete/${id}`, method: 'DELETE' }) }),

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 import CheckBox from 'src/components/guidelines/checkbox/CheckBox';
 import Mentor from 'src/components/mentor/Mentor';
 
-import { sortTestRunsByTrialTest } from '../../../common/submissions-utils';
+import { getExceptionTypeMessage, sortTestRunsByTrialTest } from '../../../common/submissions-utils';
 import { getContestsDetailsPageUrl, getContestsSolutionSubmitPageUrl } from '../../../common/urls/compose-client-urls';
 import CodeEditor from '../../../components/code-editor/CodeEditor';
 import MultiLineTextDisplay from '../../../components/common/MultiLineTextDisplay';
@@ -106,6 +107,7 @@ const SubmissionDetailsPage = () => {
         maxPoints,
         processingComment,
         allowMentor,
+        exceptionType,
     } = data || {};
 
     const categoryName = useMemo(() => breadcrumbItems.at(-1)?.name ?? undefined, [ breadcrumbItems ]);
@@ -393,10 +395,10 @@ const SubmissionDetailsPage = () => {
                 : '',
         )}
         >
-            <div>A processing error occurred:</div>
+            <div>{getExceptionTypeMessage(exceptionType)}</div>
             <MultiLineTextDisplay text={processingComment} maxVisibleLines={50} />
         </div>
-    ), [ isDarkMode, processingComment, textColorClassName ]);
+    ), [ exceptionType, isDarkMode, processingComment, textColorClassName ]);
 
     if (isLoading || retestIsLoading) {
         return (
@@ -433,6 +435,7 @@ const SubmissionDetailsPage = () => {
                     Submission retest started!
                 </div>
             )}
+            <BackToTop />
             <ContestBreadcrumbs />
             <Mentor
               problemId={problem?.id}

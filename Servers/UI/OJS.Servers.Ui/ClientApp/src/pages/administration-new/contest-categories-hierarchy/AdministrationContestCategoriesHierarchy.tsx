@@ -1,10 +1,20 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Tree } from 'react-arborist';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Typography } from '@mui/material';
+import AdministrationModal from 'src/components/administration/common/modals/administration-modal/AdministrationModal';
 import { useAdministrationTheme } from 'src/hooks/use-administration-theme-provider';
+import ContestsBulkEdit from 'src/pages/administration-new/contest-categories/contests-bulk-edit/ContestsBulkEdit';
+import { useAppSelector } from 'src/redux/store';
+import { CONTESTS_BULK_EDIT } from 'src/utils/constants';
 
 import { ThemeMode } from '../../../common/enums';
-import { AdjacencyList, IContestCategoryHierarchy, IContestCategoryHierarchyEdit } from '../../../common/types';
+import {
+    AdjacencyList,
+    IContestCategory,
+    IContestCategoryHierarchy,
+    IContestCategoryHierarchyEdit,
+} from '../../../common/types';
 import ConfirmDialog from '../../../components/guidelines/dialog/ConfirmDialog';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
 import useSuccessMessageEffect from '../../../hooks/common/use-success-message-effect';
@@ -23,6 +33,9 @@ import ResizableContainer from './ResizeableContainer/ResizableContainer';
 import styles from './AdministrationContestCategoriesHierarchy.module.scss';
 
 const AdministrationContestCategoriesHierarchy = () => {
+    const [ searchParams ] = useSearchParams();
+    const navigate = useNavigate();
+
     const {
         refetch: refetchInitialContestCategories,
         data: initialContestCategories,
@@ -39,11 +52,15 @@ const AdministrationContestCategoriesHierarchy = () => {
         isError: updateError,
     } ] = useEditContestCategoriesHierarchyMutation();
 
+    const { contestCategories: contestCategoriesData } = useAppSelector((state) => state.contests);
     const [ successMessage, setSuccessMessage ] = useState <string | null>(null);
     const [ errorMessages, setErrorMessages ] = useState<string[]>([]);
     const [ contestCategories, setContestCategories ] = useState<IContestCategoryHierarchy[]>([]);
     const [ showConfirmSave, setShowConfirmSave ] = useState<boolean>(false);
     const [ showConfirmClear, setShowConfirmClear ] = useState<boolean>(false);
+    const [ showContestsBulkEditModal, setShowContestsBulkEditModal ] = useState<boolean>(false);
+    const [ contestCategoryId, setContestCategoryId ] = useState<number>();
+    const [ contestCategoryName, setContestCategoryName ] = useState<string>();
 
     // A collection to store the initial state of all nodes
     const initialCategoriesAdjacencyList = useRef<AdjacencyList<string, IContestCategoryHierarchy>>({});
@@ -95,33 +112,40 @@ const AdministrationContestCategoriesHierarchy = () => {
         }
     }, [ depthFirstSearch, initialContestCategories, areCategoriesFetching, areCategoriesLoading ]);
 
-    if (areCategoriesLoading || areCategoriesFetching) {
-        return (
-            <div className={styles.loaderContainer}>
-                <SpinningLoader />
-            </div>
-        );
-    }
+    const onContestsBulkEditClick = (id: number, name: string) => {
+        setShowContestsBulkEditModal(true);
+        setContestCategoryId(id);
+        setContestCategoryName(name);
+    };
 
-    if (!contestCategories || contestCategories.length === 0) {
-        return (
-            <div className={styles.notFoundContainer}>
-                <Typography variant="h4">No categories have been found.</Typography>
-            </div>
-        );
-    }
+    const renderContestsBulkEditModal = () => (
+        <AdministrationModal
+          index={1}
+          open={showContestsBulkEditModal}
+          onClose={() => setShowContestsBulkEditModal(false)}
+          className={styles.administrationModal}
+        >
+            <ContestsBulkEdit
+              categoryId={contestCategoryId}
+              categoryName={contestCategoryName}
+              setParentSuccessMessage={setSuccessMessage}
+              onSuccess={() => setShowContestsBulkEditModal(false)}
+            />
+        </AdministrationModal>
+    );
 
     // A recursive function to find a given node
-    const findNode = (nodes: IContestCategoryHierarchy[], id: string): IContestCategoryHierarchy | null => nodes
-        .reduce<IContestCategoryHierarchy | null>((found, node) => {
-            // If the node has already been found, skip further checks
+    const findNode = useCallback(
+        // eslint-disable-next-line max-len
+        (nodes: IContestCategoryHierarchy[] | IContestCategory[], id: string): IContestCategoryHierarchy | IContestCategory | null => nodes.reduce<IContestCategoryHierarchy | IContestCategory | null>((found, node) => {
+        // If the node has already been found, skip further checks
             if (found) {
                 return found;
             }
 
             // We have found the node, return it
             if (node.id.toString() === id) {
-                // This will be the value of 'found'
+            // This will be the value of 'found'
                 return node;
             }
 
@@ -129,7 +153,23 @@ const AdministrationContestCategoriesHierarchy = () => {
             return node.children
                 ? findNode(node.children, id)
                 : null;
-        }, null);
+        }, null),
+        [],
+    );
+
+    useEffect(() => {
+        const categoryId = searchParams.get(CONTESTS_BULK_EDIT);
+        if (categoryId) {
+            onContestsBulkEditClick(
+                Number(categoryId),
+                findNode(contestCategoriesData, categoryId)?.name ?? '',
+            );
+
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete(CONTESTS_BULK_EDIT);
+            navigate({ search: newParams.toString() }, { replace: true });
+        }
+    }, [ contestCategoriesData, findNode, navigate, searchParams ]);
 
     const removeNode = (nodes: IContestCategoryHierarchy[], id: string): IContestCategoryHierarchy | null => {
         // In case the node is within the main categories ( nodes at level 0 )
@@ -308,6 +348,22 @@ const AdministrationContestCategoriesHierarchy = () => {
         setShowConfirmClear(!showConfirmClear);
     };
 
+    if (areCategoriesLoading || areCategoriesFetching) {
+        return (
+            <div className={styles.loaderContainer}>
+                <SpinningLoader />
+            </div>
+        );
+    }
+
+    if (!contestCategories || contestCategories.length === 0) {
+        return (
+            <div className={styles.notFoundContainer}>
+                <Typography variant="h4">No categories have been found.</Typography>
+            </div>
+        );
+    }
+
     return (
         <ResizableContainer
           onSaveButtonClick={onSaveClick}
@@ -348,7 +404,14 @@ const AdministrationContestCategoriesHierarchy = () => {
                             style,
                             dragHandle,
                             tree,
-                        }) => Node({ node, style, dragHandle, tree, isActive: !!updatedCategoriesAdjacencyList.current[node.id] })}
+                        }) => Node({
+                            node,
+                            style,
+                            dragHandle,
+                            tree,
+                            isActive: !!updatedCategoriesAdjacencyList.current[node.id],
+                            onContestsBulkEditClick,
+                        })}
                     </Tree>
                     {showConfirmSave && (
                         <ConfirmDialog
@@ -370,6 +433,7 @@ const AdministrationContestCategoriesHierarchy = () => {
                           confirmFunction={() => onClear()}
                         />
                     )}
+                    {showContestsBulkEditModal && renderContestsBulkEditModal()}
                 </div>
             )}
         </ResizableContainer>

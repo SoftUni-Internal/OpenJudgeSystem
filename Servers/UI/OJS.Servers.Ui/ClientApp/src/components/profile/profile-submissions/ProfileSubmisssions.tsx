@@ -16,7 +16,7 @@ interface IProfileSubmissionsProps {
 }
 
 const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSubmissionsProps) => {
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(applyDefaultQueryValues(searchParams));
     const [ shouldRender, setShouldRender ] = useState<boolean>(false);
 

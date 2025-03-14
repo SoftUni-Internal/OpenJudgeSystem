@@ -10,7 +10,7 @@ import {
     IPagedResultType,
 } from '../../../common/types';
 import { IExamGroupUrlParams } from '../../../common/url-types';
-import { EXCEL_RESULTS_ENDPOINT } from '../../../common/urls/administration-urls';
+import { EXCEL_RESULTS_ENDPOINT, GET_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
 // eslint-disable-next-line import/group-exports
@@ -51,7 +51,7 @@ export const examGroupsService = createApi({
                 body: bulkAddUsersToExamGroupModel,
             }),
         }),
-        getExamGroupById: builder.query<IExamGroupAdministration, IExamGroupUrlParams>({ query: ({ id }) => ({ url: `/Get/${id}` }), keepUnusedDataFor: 10 }),
+        getExamGroupById: builder.query<IExamGroupAdministration, IExamGroupUrlParams>({ query: ({ id }) => ({ url: `/${GET_ENDPOINT}/${id}` }), keepUnusedDataFor: 0 }),
         deleteExamGroup: builder.mutation<string, number >({ query: (id) => ({ url: `/Delete/${id}`, method: 'DELETE' }) }),
         updateExamGroup: builder.mutation<string, IExamGroupAdministration >({ query: ({ ...examGroupAdministrationModel }) => ({ url: '/Edit', method: 'PATCH', body: examGroupAdministrationModel }) }),
         createExamGroup: builder.mutation<string, IExamGroupUrlParams & IExamGroupAdministration >({ query: ({ ...examGroupAdministrationModel }) => ({ url: '/Create', method: 'POST', body: examGroupAdministrationModel }) }),

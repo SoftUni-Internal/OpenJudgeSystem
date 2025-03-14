@@ -59,13 +59,14 @@ const AdministrationTestsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               filterableGridColumnDef={testsFilterableColums}
               notFilterableGridColumnDef={
                     returnTestsNonFilterableColumns(
                         onEditClick,
                         onSuccessDelete,
+                        setSuccessMessage,
                     )
                 }
               data={testsData}

@@ -10,6 +10,7 @@ using OJS.Common;
 using OJS.Common.Exceptions;
 using OJS.Data;
 using OJS.Data.Models.Users;
+using OJS.Servers.Administration.Consumers;
 using OJS.Servers.Administration.Middleware;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Services.Administration.Business.Contests.Validators;
@@ -52,6 +53,7 @@ internal static class ServiceCollectionExtensions
             .AddOptionsWithValidation<ApplicationConfig>()
             .AddOptionsWithValidation<ApplicationUrlsConfig>()
             .AddOptionsWithValidation<EmailServiceConfig>()
+            .AddHostedService<ContestLimitBetweenSubmissionsHostedService>()
             .AddHealthChecksDashboard(environment, configuration)
             .AddControllers()
             .ConfigureApiBehaviorOptions(options =>

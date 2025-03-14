@@ -15,7 +15,6 @@ import useTheme from '../../../hooks/use-theme';
 import {
     setContestCategories,
     setContestCategory,
-    setContestStrategy,
     updateContestCategoryBreadcrumbItem,
 } from '../../../redux/features/contestsSlice';
 import { useGetContestCategoriesQuery } from '../../../redux/services/contestsService';
@@ -122,10 +121,6 @@ const ContestCategories = (props: IContestCategoriesProps) => {
                 <TreeItem2
                   itemId={`${category.id}`}
                   key={category.id}
-                  onClick={(ev) => {
-                      ev.stopPropagation();
-                      dispatch(setContestStrategy(null));
-                  }}
                   label={category.name}
                   className={categoryListItemClassNames}
                   classes={{ content: categoryListItemContentClassNames }}

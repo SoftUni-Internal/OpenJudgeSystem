@@ -1,7 +1,6 @@
 ﻿#nullable disable
 namespace OJS.Workers.ExecutionStrategies.Extensions
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -10,6 +9,7 @@ namespace OJS.Workers.ExecutionStrategies.Extensions
     using Microsoft.Build.Evaluation;
 
     using OJS.Workers.Common;
+    using OJS.Workers.Common.Exceptions;
 
     internal static class CSharpProjectExtensions
     {
@@ -68,7 +68,7 @@ namespace OJS.Workers.ExecutionStrategies.Extensions
             var assemblyNameProperty = project.AllEvaluatedProperties.FirstOrDefault(x => x.Name == "AssemblyName");
             if (assemblyNameProperty == null)
             {
-                throw new ArgumentException("Project file does not contain Assembly Name property!");
+                throw new SolutionException("The .csproj file is missing or it does not contain the 'Assembly Name' property!");
             }
 
             var csProjFullpath = project.FullPath;
@@ -80,7 +80,7 @@ namespace OJS.Workers.ExecutionStrategies.Extensions
         {
             foreach (var reference in references)
             {
-                var referenceName = reference.Substring(0, reference.IndexOf(","));
+                var referenceName = reference[..reference.IndexOf(',')];
                 var existingReference = project.Items.FirstOrDefault(x => x.EvaluatedInclude.Contains(referenceName));
                 if (existingReference != null)
                 {
@@ -96,7 +96,13 @@ namespace OJS.Workers.ExecutionStrategies.Extensions
             var namespaceManager = new XmlNamespaceManager(csprojXml.NameTable);
             namespaceManager.AddNamespace("msns", MicrosoftCsProjXmlNamespace);
 
-            XmlNode rootNode = csprojXml.DocumentElement;
+            var rootNode = csprojXml.DocumentElement;
+
+            if (rootNode is null)
+            {
+                throw new SolutionException("The .csproj file is empty or its structure is incorrect / corrupted.");
+            }
+
             var targetNode = rootNode.SelectSingleNode(xpathExpression, namespaceManager);
             rootNode.RemoveChild(targetNode);
             csprojXml.Save(csprojPath);

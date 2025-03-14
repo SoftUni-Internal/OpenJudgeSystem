@@ -227,6 +227,9 @@ namespace OJS.Data.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("AutoChangeLimitBetweenSubmissions")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("AutoChangeTestsFeedbackVisibility")
                         .HasColumnType("bit");
 
@@ -909,6 +912,9 @@ namespace OJS.Data.Migrations
 
                     b.Property<DateTime?>("DeletedOn")
                         .HasColumnType("datetime2");
+
+                    b.Property<int?>("ExceptionType")
+                        .HasColumnType("int");
 
                     b.Property<string>("FileExtension")
                         .HasColumnType("nvarchar(max)");

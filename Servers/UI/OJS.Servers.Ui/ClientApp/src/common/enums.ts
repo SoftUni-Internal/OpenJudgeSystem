@@ -37,9 +37,10 @@ enum ProblemResourceType
 enum SettingTypeEnums {
     Numeric = 1,
     ShortString = 2,
-    LongString= 3,
-    DateTime= 4,
-    Boolean= 5,
+    LongString = 3,
+    DateTime = 4,
+    Boolean = 5,
+    Json = 6,
 }
 
 enum CheckboxSearchValues {
@@ -149,6 +150,14 @@ enum ChatMessageRole {
     Information = 5,
 }
 
+enum ExceptionType {
+    Solution = 0,
+    Configuration = 1,
+    Strategy = 2,
+    Remote = 3,
+    Other = 4,
+}
+
 export {
     ThemeMode,
     FilterColumnTypeEnum,
@@ -162,4 +171,5 @@ export {
     CompilerType,
     CheckboxSearchValues,
     ChatMessageRole,
+    ExceptionType,
 };
