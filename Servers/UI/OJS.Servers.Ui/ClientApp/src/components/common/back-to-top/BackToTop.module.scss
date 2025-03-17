@@ -1,9 +1,9 @@
 @use 'src/styles/colors.scss';
+@use 'src/styles/spacings';
 
 .backToTop {
     position: fixed;
-    bottom: 40px;
-    right: 40px;
+    bottom: spacings.$sp-32;
     width: 45px;
     height: 45px;
     border-radius: 50%;

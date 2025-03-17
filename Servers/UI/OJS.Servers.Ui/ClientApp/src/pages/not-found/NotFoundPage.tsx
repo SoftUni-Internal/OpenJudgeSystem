@@ -1,3 +1,5 @@
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
+
 import { LinkButton } from '../../components/guidelines/buttons/Button';
 import Heading, { HeadingType } from '../../components/guidelines/headings/Heading';
 import setLayout from '../shared/set-layout';
@@ -13,6 +15,7 @@ interface INotFoundPageProps {
 
 const NotFoundPage = ({ message }: INotFoundPageProps) => (
     <div className={styles.container}>
+        <BackToTop />
         <img
           className={styles.image}
           src={image}

@@ -4,7 +4,11 @@ import useTheme from '../../../hooks/use-theme';
 
 import styles from './BackToTop.module.scss';
 
-const BackToTop = () => {
+interface IBackToTopProps {
+    rightPosition?: number;
+}
+
+const BackToTop = ({ rightPosition = 20 }: IBackToTopProps) => {
     const [ isVisible, setIsVisible ] = useState(false);
     const { isDarkMode } = useTheme();
 
@@ -37,7 +41,9 @@ const BackToTop = () => {
 
     return (
         <button
+          id="back-to-top"
           type="button"
+          style={{ right: `${rightPosition}px` }}
           className={`${styles.backToTop} ${isDarkMode
               ? styles.darkTheme
               : styles.lightTheme}`}

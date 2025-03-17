@@ -8,6 +8,7 @@ import { ContestVariation } from '../../../common/contest-types';
 import { IProblemResourceType } from '../../../common/types';
 import { CONTESTS_PATH, PROBLEM_GROUPS_PATH } from '../../../common/urls/administration-urls';
 import { getAllContestsPageUrl, getContestsResultsPageUrl } from '../../../common/urls/compose-client-urls';
+import BackToTop from '../../../components/common/back-to-top/BackToTop';
 import MetaTags from '../../../components/common/MetaTags';
 import ContestBreadcrumbs from '../../../components/contests/contest-breadcrumbs/ContestBreadcrumbs';
 import ContestButton from '../../../components/contests/contest-button/ContestButton';
@@ -220,6 +221,7 @@ const ContestDetailsPage = () => {
                     'compete with others, and enhance your coding skills. Explore contest details.'
                 }
             />
+            <BackToTop />
             <ContestBreadcrumbs />
             <Heading className={styles.heading} type={HeadingType.primary}>{name}</Heading>
             { isLoggedIn &&
