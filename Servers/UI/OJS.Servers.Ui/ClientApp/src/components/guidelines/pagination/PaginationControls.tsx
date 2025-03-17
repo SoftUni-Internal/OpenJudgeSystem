@@ -46,11 +46,13 @@ const PaginationControls = ({
 
     const handleEllipsisClick = (type: string) => {
         let newPage;
+
         if (type === 'start-ellipsis') {
             newPage = Math.max(1, page - PAGE_JUMP_COUNT);
         } else {
             newPage = Math.min(count, page + PAGE_JUMP_COUNT);
         }
+
         if (newPage !== page) {
             onChange(newPage);
         }
