@@ -7,7 +7,7 @@ import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { Box, Button, Popper, TextField, Typography } from '@mui/material';
+import { Box, Button, Popper, TextField, TextFieldProps, Typography } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { IDictionary } from 'src/common/common-types';
@@ -286,6 +286,14 @@ const Filter = (props: IFilterProps) => {
         setSelectedFilters({ ...filter, [updateProperty]: value }, indexToUpdate);
     };
 
+    const renderTextField = (params: TextFieldProps, commonTextFieldSx: object) => (
+        <TextField
+          {...params}
+          variant="standard"
+          sx={commonTextFieldSx}
+        />
+    );
+
     const renderInputField = (idx: number) => {
         const selectedFilter = selectedFilters[idx];
         const commonTextFieldSx = {
@@ -339,15 +347,7 @@ const Filter = (props: IFilterProps) => {
                   views={[ 'year', 'month', 'day', 'hours', 'minutes', 'seconds' ]}
                   format="YYYY-MM-DD HH:mm:ss"
                   disabled={!selectedFilter.operator || idx > 0}
-                  slots={{
-                      textField: (params) => (
-                          <TextField
-                            {...params}
-                            variant="standard"
-                            sx={commonTextFieldSx}
-                          />
-                      ),
-                  }}
+                  slots={{ textField: (params) => renderTextField(params, commonTextFieldSx) }}
                   slotProps={{
                       textField: {
                           variant: 'standard',
