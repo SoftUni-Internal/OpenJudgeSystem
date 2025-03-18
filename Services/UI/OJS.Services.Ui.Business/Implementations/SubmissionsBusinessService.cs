@@ -521,71 +521,60 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         SubmissionStatus status,
         PaginationRequestModel requestModel)
     {
-        var stopwatch = Stopwatch.StartNew();
-        try
+        if (requestModel.ItemsPerPage <= 0)
         {
-            if (requestModel.ItemsPerPage <= 0)
-            {
-                throw new BusinessServiceException("Invalid submissions per page count");
-            }
+            throw new BusinessServiceException("Invalid submissions per page count");
+        }
 
-            IQueryable<Submission> query;
+        IQueryable<Submission> query;
 
-            if (status == SubmissionStatus.Enqueued)
+        if (status == SubmissionStatus.Enqueued)
+        {
+            query = this.submissionsCommonData.GetAllEnqueued();
+        }
+        else if (status == SubmissionStatus.Processing)
+        {
+            query = this.submissionsCommonData.GetAllProcessing();
+        }
+        else if (status == SubmissionStatus.Pending)
+        {
+            query = this.submissionsCommonData.GetAllPending();
+        }
+        else
+        {
+            if (!this.userProviderService.GetCurrentUser().IsAdminOrLecturer)
             {
-                query = this.submissionsCommonData.GetAllEnqueued();
-            }
-            else if (status == SubmissionStatus.Processing)
-            {
-                query = this.submissionsCommonData.GetAllProcessing();
-            }
-            else if (status == SubmissionStatus.Pending)
-            {
-                query = this.submissionsCommonData.GetAllPending();
-            }
-            else
-            {
-                if (!this.userProviderService.GetCurrentUser().IsAdminOrLecturer)
-                {
-                    return await this.cache.Get(
-                        CacheConstants.LatestPublicSubmissions,
-                        async () =>
+                return await this.cache.Get(
+                    CacheConstants.LatestPublicSubmissions,
+                    async () =>
+                    {
+                        var submissions = await this.submissionsData
+                            .GetLatestSubmissions<TServiceModel>(DefaultSubmissionsPerPage)
+                            .ToListAsync();
+
+                        var totalItemsCount = await this.GetTotalCount();
+
+                        // Public submissions do not have pagination, but PagedResult is used for consistency.
+                        return new PagedResult<TServiceModel>
                         {
-                            var submissions = await this.submissionsData
-                                .GetLatestSubmissions<TServiceModel>(DefaultSubmissionsPerPage)
-                                .ToListAsync();
-
-                            var totalItemsCount = await this.GetTotalCount();
-
-                            // Public submissions do not have pagination, but PagedResult is used for consistency.
-                            return new PagedResult<TServiceModel>
-                            {
-                                Items = submissions,
-                                TotalItemsCount = totalItemsCount,
-                                PageNumber = 1,
-                            };
-                        },
-                        CacheConstants.TwoMinutesInSeconds);
-                }
-
-                query = this.submissionsData.GetQuery(
-                    orderBy: s => s.Id,
-                    descending: true);
+                            Items = submissions,
+                            TotalItemsCount = totalItemsCount,
+                            PageNumber = 1,
+                        };
+                    },
+                    CacheConstants.TwoMinutesInSeconds);
             }
 
-            var s2 = Stopwatch.StartNew();
-            var result = await
-                this.ApplyFiltersAndSorters<TServiceModel>(requestModel, query)
-                    .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
-            var e2 = s2.Elapsed;
+            query = this.submissionsData.GetQuery(
+                orderBy: s => s.Id,
+                descending: true);
+        }
 
-            return result;
-        }
-        finally
-        {
-            var time = stopwatch.Elapsed;
-            stopwatch.Reset();
-        }
+        var result = await
+            this.ApplyFiltersAndSorters<TServiceModel>(requestModel, query)
+                .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
+
+        return result;
     }
 
     private static void ProcessTestsExecutionResult(
@@ -670,10 +659,10 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
     private IQueryable<TModel> ApplyFiltersAndSorters<TModel>(PaginationRequestModel paginationRequestModel, IQueryable<Submission> query)
     {
-        // if (string.IsNullOrWhiteSpace(paginationRequestModel.Filter) && string.IsNullOrWhiteSpace(paginationRequestModel.Sorting))
-        // {
-        //     return query.MapCollection<TModel>();
-        // }
+        if (string.IsNullOrWhiteSpace(paginationRequestModel.Filter) && string.IsNullOrWhiteSpace(paginationRequestModel.Sorting))
+        {
+            return query.MapCollection<TModel>();
+        }
 
         var filterAsCollection = this.filteringService.MapFilterStringToCollection<TModel>(paginationRequestModel).ToList();
 

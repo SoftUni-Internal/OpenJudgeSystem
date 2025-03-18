@@ -339,8 +339,10 @@ const Filter = (props: IFilterProps) => {
                   closeOnSelect={false}
                   onAccept={(newValue) => {
                       if (newValue) {
-                          const formattedDate = newValue.toISOString();
-                          updateFilterColumnData(idx, formattedDate, 'value');
+                          setTimeout(() => {
+                              const formattedDate = newValue.toISOString();
+                              updateFilterColumnData(idx, formattedDate, 'value');
+                          }, 300);
                       }
                   }}
                   ampm={false}
@@ -429,21 +431,6 @@ const Filter = (props: IFilterProps) => {
                               borderRadius: '12px',
                               '& .MuiPickersLayout-root': { borderRadius: '12px' },
                           },
-                      },
-                      popper: {
-                          sx: { zIndex: 1500 },
-                          placement: 'bottom-start',
-                          modifiers: [
-                              {
-                                  name: 'preventOverflow',
-                                  enabled: false,
-                              },
-                              {
-                                  name: 'flip',
-                                  enabled: true,
-                                  options: { fallbackPlacements: [ 'top-start', 'bottom-start' ] },
-                              },
-                          ],
                       },
                   }}
                 />
@@ -559,23 +546,11 @@ const Filter = (props: IFilterProps) => {
                   padding: '0.375rem 0.75rem',
                   borderRadius: '0.375rem',
                   transition: 'all 0.2s ease',
-                  border: `2px solid ${isDarkMode
-                      ? 'transparent'
-                      : selectedFilters.length > 1
-                          ? '#42abf8'
-                          : '#e6e6e6'}`,
-                  backgroundColor: isDarkMode
-                      ? 'transparent'
-                      : selectedFilters.length > 1
-                          ? 'rgba(66, 171, 248, 0.08)'
-                          : 'transparent',
+                  border: '2px solid transparent',
+                  backgroundColor: 'transparent',
                   '&:hover': {
-                      backgroundColor: isDarkMode
-                          ? 'rgba(255, 255, 255, 0.05)'
-                          : 'rgba(66, 171, 248, 0.12)',
-                      border: `2px solid ${isDarkMode
-                          ? 'transparent'
-                          : '#42abf8'}`,
+                      backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                      border: '2px solid transparent',
                       transform: 'translateY(-1px)',
                   },
               }}
