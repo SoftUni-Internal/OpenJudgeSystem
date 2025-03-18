@@ -19,13 +19,11 @@ public class SubmissionsDataService(OjsDbContext db) : DataService<Submission>(d
             .MapCollection<TServiceModel>()
             .FirstOrDefaultAsync();
 
-    public IQueryable<TServiceModel> GetLatestSubmissions<TServiceModel>(int? limit = null)
+    public IQueryable<Submission> GetLatestSubmissions(int? limit = null)
         => this.GetQuery(
                 orderBy: s => s.Id,
                 descending: true,
-                take: limit)
-            .IgnoreQueryFilters()
-            .MapCollection<TServiceModel>();
+                take: limit);
 
     public IQueryable<Submission> GetLatestSubmissionsByUserParticipations(IEnumerable<int> userParticipantsIds)
         => this.GetQuery(

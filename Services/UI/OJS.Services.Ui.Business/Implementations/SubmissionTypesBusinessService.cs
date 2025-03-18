@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentExtensions.Extensions;
 using Microsoft.EntityFrameworkCore;
+using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.SubmissionTypes;
 
@@ -47,8 +48,8 @@ public class SubmissionTypesBusinessService : ISubmissionTypesBusinessService
     private async Task<IEnumerable<SubmissionTypeFilterServiceModel>> GetAllOrderedByLatestUsage()
     {
         var latestSubmissions = await this.submissionsData
-            .GetLatestSubmissions<SubmissionForSubmissionTypesFilterServiceModel>(
-                LatestSubmissionsCountForSubmissionTypesUsage)
+            .GetLatestSubmissions(LatestSubmissionsCountForSubmissionTypesUsage)
+            .MapCollection<SubmissionForSubmissionTypesFilterServiceModel>()
             .ToListAsync();
 
         var allSubmissionTypes = await this.submissionTypesData

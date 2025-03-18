@@ -5,13 +5,12 @@ using OJS.Services.Common.Data;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using OJS.Services.Infrastructure.Models;
 
 public interface ISubmissionsDataService : IDataService<Submission>
 {
     Task<TServiceModel?> GetSubmissionById<TServiceModel>(int id);
 
-    IQueryable<TServiceModel> GetLatestSubmissions<TServiceModel>(int? limit = null);
+    IQueryable<Submission> GetLatestSubmissions(int? limit = null);
 
     IQueryable<Submission> GetLatestSubmissionsByUserParticipations(IEnumerable<int> userParticipantsIds);
 
