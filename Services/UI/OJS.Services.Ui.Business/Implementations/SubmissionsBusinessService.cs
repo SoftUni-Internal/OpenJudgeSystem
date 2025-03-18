@@ -568,7 +568,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
             query = this.submissionsData.GetQuery(
                 orderBy: s => s.Id,
-                descending: true);
+                descending: true)
+                .IgnoreQueryFilters();
         }
 
         return await
