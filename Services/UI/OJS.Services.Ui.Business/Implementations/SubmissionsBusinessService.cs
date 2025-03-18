@@ -494,9 +494,11 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             {
                 submission.ExceptionType = exception?.ExceptionType ?? ExceptionType.Other;
                 submission.IsCompiledSuccessfully = false;
+
                 var errorMessage = exception?.Message ?? "Invalid execution result received. Please contact an administrator.";
-                submission.ProcessingComment = errorMessage;
-                submission.CompilerComment = exception?.ExceptionType == ExceptionType.Solution ? exception.Message : ProcessingExceptionCompilerComment;
+                var isRegularUserError = exception?.ExceptionType == ExceptionType.Solution;
+                submission.ProcessingComment = isRegularUserError ? "See the compiler comment for more details." : errorMessage;
+                submission.CompilerComment = isRegularUserError ? errorMessage : ProcessingExceptionCompilerComment;
             }
 
             await this.submissionsForProcessingData.SetProcessingState(submissionForProcessing, SubmissionProcessingState.Processed);
