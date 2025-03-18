@@ -24,6 +24,7 @@ public class SubmissionsDataService(OjsDbContext db) : DataService<Submission>(d
                 orderBy: s => s.Id,
                 descending: true,
                 take: limit)
+            .IgnoreQueryFilters()
             .MapCollection<TServiceModel>();
 
     public IQueryable<Submission> GetLatestSubmissionsByUserParticipations(IEnumerable<int> userParticipantsIds)
