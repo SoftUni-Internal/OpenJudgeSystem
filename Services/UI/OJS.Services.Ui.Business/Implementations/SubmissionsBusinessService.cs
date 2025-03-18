@@ -590,7 +590,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                             PageNumber = 1,
                         };
                     },
-                    CacheConstants.TwoMinutesInSeconds);
+                    cacheSeconds: 2);
             }
 
             query = this.submissionsData.GetQuery(
