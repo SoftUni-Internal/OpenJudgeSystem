@@ -339,6 +339,15 @@ const Filter = (props: IFilterProps) => {
                   closeOnSelect={false}
                   onAccept={(newValue) => {
                       if (newValue) {
+                          /*
+                            Тhe 'setTimeout' is used due to a bug in the 'DateTimePicker', when a date is picked and the "OK"
+                            button is clicked, the calendar dialog window changes its position on the screen and the closes.
+                            This is due to the component re-rendering from the 'updateFilterColumnData' function. After
+                            timing the closing animation of the 'DateTimePicker', if the state is updated after about 300ms,
+                            the dialog will close first and then the state will be updated and the dialog itself will not
+                            move around. This is a non-deterministic solution and a proper fix should be found if the
+                            problem persists.
+                           */
                           setTimeout(() => {
                               const formattedDate = newValue.toISOString();
                               updateFilterColumnData(idx, formattedDate, 'value');
@@ -714,6 +723,7 @@ const Filter = (props: IFilterProps) => {
                           onClick={removeAllFilters}
                           className={styles.removeAllFilters}
                           startIcon={<DeleteIcon />}
+                          disabled={selectedFilters.length === 1}
                           sx={{
                               color: '#ef5350',
                               fontSize: '0.875rem',

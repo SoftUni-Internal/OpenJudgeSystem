@@ -145,7 +145,6 @@
   &.lightTheme {
     background-color: colors.$white-color;
     color: colors.$primary-dark-grey-color;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 
     :global {
       .MuiInputBase-input {
@@ -162,15 +161,15 @@
         color: colors.$primary-dark-grey-color;
       }
 
-      .MuiInput-underline:before {
+      .MuiInput-underline::before {
         border-bottom-color: colors.$light-base-color-500;
       }
 
-      .MuiInput-underline:hover:before {
+      .MuiInput-underline:hover::before {
         border-bottom-color: colors.$primary-blue;
       }
 
-      .MuiInput-underline:after {
+      .MuiInput-underline::after {
         border-bottom-color: colors.$primary-blue;
       }
     }
