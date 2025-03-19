@@ -1,0 +1,42 @@
+name: Playwright Tests (Real Environment)
+
+on:
+    schedule:
+        - cron: "0 0 * * *" # Runs every night at 12:00 AM UTC
+    workflow_dispatch: # Allows manual trigger
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: 18
+
+            - name: Install Dependencies
+              working-directory: ./Servers/UI/OJS.Servers.Ui/ClientApp
+              run: yarn install --frozen-lockfile
+
+            - name: Install Playwright Browsers
+              working-directory: ./Servers/UI/OJS.Servers.Ui/ClientApp
+              run: yarn playwright install --with-deps
+
+            - name: Run Playwright Tests Against Real Environment
+              working-directory: ./Servers/UI/OJS.Servers.Ui/ClientApp
+              run: yarn test:e2e:real # Uses script from package.json
+              env:
+                  TEST_USER_USERNAME: ${{ secrets.TEST_USER_USERNAME }}
+                  TEST_USER_PASSWORD: ${{ secrets.TEST_USER_PASSWORD }}
+
+            - name: Upload Playwright Reports
+              uses: actions/upload-artifact@v4
+              if: always()
+              with:
+                  name: playwright-report
+                  path: ./Servers/UI/OJS.Servers.Ui/ClientApp/playwright-report/
+                  retention-days: 7
