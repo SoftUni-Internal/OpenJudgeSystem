@@ -9,7 +9,7 @@ test('has title', async ({ page }) => {
 });
 
 authTest('can log in', async ({ page, auth }) => {
-    await auth.login('judge_test', 'judge_test');
+    await auth.loginDefaultTestUser();
     const response = await page.goto('/profile');
     expect(response?.status()).toBe(200);
     await expect(page).toHaveURL('/profile');

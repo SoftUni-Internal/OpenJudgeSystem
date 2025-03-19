@@ -1,7 +1,12 @@
 import { test as base } from '@playwright/test';
 import { URL_CONFIG } from '../config/url-config';
 
-export const authTest = base.extend<{ auth: { login: (email: string, password: string) => Promise<void> } }>({
+export const authTest = base.extend<{
+    auth: {
+        login: (email: string, password: string) => Promise<void>;
+        loginDefaultTestUser: () => Promise<void>;
+    }
+}>({
     auth: async ({ request, browser, context }, use) => {
         const login = async (username: string, password: string) => {
             const response = await request.post(`${URL_CONFIG.API_BASE_URL}/account/login`, {
@@ -9,10 +14,9 @@ export const authTest = base.extend<{ auth: { login: (email: string, password: s
             });
 
             if (!response.ok()) {
-                 throw new Error(`Login failed: ${response.status()}`);
+                 throw new Error(`Login failed: ${response.status()} - ${response.statusText()}`);
             }
 
-            // Extract cookies from response
             const cookies = response.headersArray()
                 .filter(header => header.name.toLowerCase() === 'set-cookie')
                 .map(header => header.value)
@@ -29,7 +33,18 @@ export const authTest = base.extend<{ auth: { login: (email: string, password: s
             await context.addCookies(cookies);
         };
 
-        await use({ login });
+        const loginDefaultTestUser = async () => {
+            const username = process.env.TEST_USER_USERNAME;
+            const password = process.env.TEST_USER_PASSWORD;
+
+            if (!username || !password) {
+                throw new Error("TEST_USER_USERNAME and TEST_USER_PASSWORD must be set in the environment.");
+            }
+
+            await login(username, password);
+        };
+
+        await use({ login, loginDefaultTestUser });
     }
 });
 
