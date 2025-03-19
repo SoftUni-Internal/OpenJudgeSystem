@@ -30,7 +30,7 @@ export default defineConfig({
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: process.env.TEST_ENV === 'real'
-      ? 'https://e2e.alpha.judge.softuni.org'
+      ? 'https://dev.alpha.judge.softuni.org'
       : 'http://localhost:5002',
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
@@ -76,7 +76,7 @@ export default defineConfig({
   ],
 
   /* Run your local dev server before starting the tests */
-  webServer: [
+  webServer: process.env.TEST_ENV === 'real' ? undefined : [
     {
       command: 'vite',
       url: 'http://localhost:5002',

@@ -59,6 +59,7 @@
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.4.7",
     "eslint": "^8.56.0",
     "eslint-config-airbnb": "^19.0.4",
@@ -94,7 +95,7 @@
     "lint": "yarn run lint:eslint && yarn run lint:stylelint",
     "analyze": "source-map-explorer 'build/static/js/*.js'",
     "test:e2e:local": "yarn start:backend && yarn playwright test",
-    "test:e2e:real": "ENV=real yarn playwright test"
+    "test:e2e:real": "cross-env TEST_ENV=real yarn playwright test"
   },
   "engines": {
     "node": ">=10.0.0"
