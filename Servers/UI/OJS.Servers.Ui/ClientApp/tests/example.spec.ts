@@ -1,18 +1,16 @@
-import { test, expect } from '@playwright/test';
+import { test } from '@playwright/test';
+import { authTest, expect } from './fixtures/auth.fixture';
 
 test('has title', async ({ page }) => {
-  await page.goto('/');
+  await page.goto('/') ;
 
   // Expect a title "to contain" a substring.
   await expect(page).toHaveTitle(/SoftUni Judge Platform/);
 });
 
-test('get started link', async ({ page }) => {
-  await page.goto('https://playwright.dev/');
-
-  // Click the get started link.
-  await page.getByRole('link', { name: 'Get started' }).click();
-
-  // Expects page to have a heading with the name of Installation.
-  await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+authTest('can log in', async ({ page, auth }) => {
+    await auth.login('judge_test', 'judge_test');
+    const response = await page.goto('/profile');
+    expect(response?.status()).toBe(200);
+    await expect(page).toHaveURL('/profile');
 });
