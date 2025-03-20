@@ -11,6 +11,7 @@ import {
     IGetContestParticipationsForUserQueryParams,
     IIndexContestsType,
     IPagedResultType,
+    IProfilePageContests,
     IRegisterUserForContestResponseType,
 } from '../../common/types';
 import { IContestResultsType } from '../../hooks/contests/types';
@@ -83,7 +84,7 @@ export const contestsService = createApi({
         getContestsParticipationsForUser: builder.query<
             IPagedResultType<IIndexContestsType>,
             IGetContestParticipationsForUserQueryParams>({
-                query: ({ username, sortType, sortTypeDirection, page, itemsPerPage, category, strategy }) => ({
+                query: ({ username, sortType, sortTypeDirection, page, itemsPerPage, category, strategy, contestId, categoryId }) => ({
                     url: `/Contests/GetParticipatedByUser?username=${username}`,
                     params: {
                         sortType,
@@ -92,6 +93,8 @@ export const contestsService = createApi({
                         page,
                         category,
                         strategy,
+                        contestId,
+                        categoryId,
                     },
                 }),
             }),
@@ -172,6 +175,12 @@ export const contestsService = createApi({
                     },
                 }),
             }),
+        getAllParticipatedContests: builder.query<IProfilePageContests[], { username: string }>({
+            query: ({ username }) => ({
+                url: '/Contests/GetAllParticipatedContests',
+                params: { username },
+            }),
+        }),
         downloadContestProblemResource: builder.query<{ blob: Blob; fileName: string }, { id: number }>({
             query: ({ id }) => ({
                 url: `/ProblemResources/GetResource/${id}`,
@@ -195,4 +204,5 @@ export const {
     useGetContestResultsQuery,
     useLazyDownloadContestProblemResourceQuery,
     useGetRegisteredUserForContestQuery,
+    useGetAllParticipatedContestsQuery,
 } = contestsService;

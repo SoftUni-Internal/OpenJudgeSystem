@@ -24,6 +24,8 @@ public class ContestForListingResponseModel : IMapFrom<ContestForListingServiceM
 
     public string Category { get; set; } = null!;
 
+    public int? CategoryId { get; set; }
+
     public int NumberOfProblems { get; set; }
 
     public int CompeteResults { get; set; }
