@@ -19,6 +19,7 @@ const Layout = ({ children, isWide }: ILayoutProps) => {
 
     return (
         <div className={className}>
+            <div style={{ height: '18px', backgroundColor: 'rebeccapurple', color: 'white' }}>Testing environment</div>
             {children}
         </div>
     );

@@ -1,5 +1,6 @@
 namespace OJS.Services.Ui.Business.Implementations;
 
+using AutoMapper.QueryableExtensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -551,7 +552,33 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                     async () =>
                     {
                         var submissions = await this.submissionsData
-                            .GetLatestSubmissions<TServiceModel>(DefaultSubmissionsPerPage)
+                            .GetLatestSubmissions(DefaultSubmissionsPerPage)
+                            .Select(s => new PublicSubmissionsServiceModel
+                            {
+                                Id = s.Id,
+                                CreatedOn = s.CreatedOn,
+                                StrategyName = s.SubmissionType!.Name,
+                                IsOfficial = s.Participant!.IsOfficial,
+                                IsCompiledSuccessfully = s.IsCompiledSuccessfully,
+                                Processed = s.Processed,
+                                User = s.Participant!.User.UserName!,
+                                Problem = new ProblemForPublicSubmissionsServiceModel
+                                {
+                                    Id = s.Problem.Id,
+                                    Name = s.Problem.Name,
+                                    Contest = new ContestForPublicSubmissionsServiceModel
+                                    {
+                                        Id = s.Problem.ProblemGroup.Contest.Id,
+                                        Name = s.Problem.ProblemGroup.Contest.Name!,
+                                    },
+                                    OrderBy = s.Problem.OrderBy,
+                                },
+                                Result = new ResultForPublicSubmissionsServiceModel
+                                {
+                                    Points = s.Points,
+                                    MaxPoints = s.Problem.MaximumPoints,
+                                },
+                            })
                             .ToListAsync();
 
                         var totalItemsCount = await this.GetTotalCount();
@@ -559,17 +586,18 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                         // Public submissions do not have pagination, but PagedResult is used for consistency.
                         return new PagedResult<TServiceModel>
                         {
-                            Items = submissions,
+                            Items = submissions as IEnumerable<TServiceModel>,
                             TotalItemsCount = totalItemsCount,
                             PageNumber = 1,
                         };
                     },
-                    CacheConstants.TwoMinutesInSeconds);
+                    cacheSeconds: 2);
             }
 
             query = this.submissionsData.GetQuery(
                 orderBy: s => s.Id,
-                descending: true);
+                descending: true)
+                .IgnoreQueryFilters();
         }
 
         var result = await
