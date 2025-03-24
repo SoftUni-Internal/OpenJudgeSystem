@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import MetaTags from '../../../components/common/MetaTags';
 import { IAuthorizationReduxState } from '../../../redux/features/authorizationSlice';
@@ -20,6 +21,7 @@ const RegisterPage = () => {
 
     return (
         <>
+            <BackToTop />
             <MetaTags
               title="Register - SoftUni Judge"
               description={

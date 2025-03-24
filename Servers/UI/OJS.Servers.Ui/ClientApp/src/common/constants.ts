@@ -1,6 +1,7 @@
 const FileValidationError = 'Invalid file extension.';
-const PAGE_SIBLING_COUNT = 2;
+const PAGE_SIBLING_COUNT = 4;
 const PAGE_BOUNDARY_COUNT = 0;
+const PAGE_JUMP_COUNT = 10;
 const EmptyUsernameErrorMessage = 'Username is required.';
 const UsernameLengthErrorMessage = 'The username must be between 5 and 32 characters long.';
 const UsernameFormatErrorMessage = 'The username can contain only Latin letters, numbers, and the symbols \'.\' or \'_\'. ' +
@@ -43,4 +44,5 @@ export {
     EmptyPasswordErrorMessage,
     PasswordLengthErrorMessage,
     LECTURER,
+    PAGE_JUMP_COUNT,
 };

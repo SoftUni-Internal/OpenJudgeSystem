@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router';
 import isNil from 'lodash/isNil';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import { ContestParticipationType, ContestResultType } from '../../common/constants';
 import { contestParticipationType } from '../../common/contest-helpers';
@@ -95,6 +96,7 @@ const ContestResultsPage = () => {
             ? !isLoading
                 ? (
                     <>
+                        <BackToTop />
                         <div>
                             <ContestBreadcrumbs />
                         </div>

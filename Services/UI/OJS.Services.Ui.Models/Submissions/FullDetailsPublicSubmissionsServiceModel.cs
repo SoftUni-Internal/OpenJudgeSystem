@@ -1,7 +1,6 @@
 namespace OJS.Services.Ui.Models.Submissions;
 
 using AutoMapper;
-using FluentExtensions.Extensions;
 using OJS.Data.Models.Submissions;
 using OJS.Services.Infrastructure.Models.Mapping;
 using System;
@@ -38,6 +37,9 @@ public class FullDetailsPublicSubmissionsServiceModel : IMapExplicitly
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<Submission, FullDetailsPublicSubmissionsServiceModel>()
             .ForMember(
+                x => x.Result,
+                opt => opt.MapFrom(s => s))
+            .ForMember(
                 x => x.StrategyName,
                 opt => opt.MapFrom(
                     y => y.SubmissionType!.Name))
@@ -45,17 +47,6 @@ public class FullDetailsPublicSubmissionsServiceModel : IMapExplicitly
                 x => x.User,
                 opt => opt.MapFrom(
                     y => y.Participant!.User.UserName))
-            .ForMember(
-                x => x.Result,
-                opt => opt.MapFrom(
-                    y => new ResultForPublicSubmissionsServiceModel
-                    {
-                        Points = y.Points,
-                        MaxPoints =
-                            y.Problem.IsNull()
-                                ? 0
-                                : y.Problem!.MaximumPoints,
-                    }))
             .ForMember(
                 x => x.IsOfficial,
                 opt => opt.MapFrom(

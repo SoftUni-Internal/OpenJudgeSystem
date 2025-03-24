@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import isNil from 'lodash/isNil';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import MetaTags from '../../components/common/MetaTags';
 import ErrorWithActionButtons from '../../components/error/ErrorWithActionButtons';
@@ -92,6 +93,7 @@ const ProfilePage = () => {
 
     return (
         <>
+            <BackToTop />
             <MetaTags
               title={`${currentUserIsProfileOwner
                   ? 'My'

@@ -114,6 +114,16 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
         },
     ];
 
+    const onAddUserSuccess = () => {
+        setOpenShowAddUserModal(false);
+        refetch();
+    };
+
+    const onAddBulkUsersSuccess = () => {
+        setOpenShowAddBulkUsersModal(false);
+        refetch();
+    };
+
     const renderAddUserModal = (index: number) => (
         <AdministrationModal
           index={index}
@@ -127,7 +137,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
             <AddUserInExamGroupModal
               examGroupId={examGroupId}
               setParentSuccessMessage={setParentSuccessMessage}
-              onSuccess={() => setOpenShowAddUserModal(false)}
+              onSuccess={onAddUserSuccess}
             />
         </AdministrationModal>
     );
@@ -145,7 +155,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
             <AddBulkUsersInGroupModal
               examGroupId={examGroupId}
               setParentSuccessMessage={setParentSuccessMessage}
-              onSuccess={() => setOpenShowAddBulkUsersModal(false)}
+              onSuccess={onAddBulkUsersSuccess}
             />
         </AdministrationModal>
     );

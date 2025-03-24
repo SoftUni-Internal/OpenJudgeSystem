@@ -37,6 +37,7 @@ import {
     getContestsResultsPageUrl,
 } from '../../../common/urls/compose-client-urls';
 import CodeEditor from '../../../components/code-editor/CodeEditor';
+import BackToTop from '../../../components/common/back-to-top/BackToTop';
 import ContestBreadcrumbs from '../../../components/contests/contest-breadcrumbs/ContestBreadcrumbs';
 import ContestProblems from '../../../components/contests/contest-problems/ContestProblems';
 import ErrorWithActionButtons from '../../../components/error/ErrorWithActionButtons';
@@ -770,6 +771,10 @@ const ContestSolutionSubmitPage = () => {
         <div className={`${styles.contestSolutionSubmitWrapper} ${textColorClassName}`}>
             {renderSuccessfullAlert(successMessage)}
             <ContestBreadcrumbs />
+            <BackToTop rightPosition={allowMentor
+                ? 110
+                : 20}
+            />
             <div className={styles.nameWrapper}>
                 <div className={styles.contestNameAndAdminButtons}>
                     <Link
