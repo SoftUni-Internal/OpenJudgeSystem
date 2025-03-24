@@ -224,7 +224,7 @@ const SubmissionsGrid = ({
                         </div>
                     </td>
                     )}
-                    {areItemsAvailable && <td />}
+                    {areItemsAvailable && <td>Actions</td>}
                 </tr>
             </thead>
             <tbody>
