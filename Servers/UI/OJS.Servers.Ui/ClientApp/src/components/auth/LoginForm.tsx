@@ -29,6 +29,7 @@ import Heading, { HeadingType } from '../guidelines/headings/Heading';
 import SpinningLoader from '../guidelines/spinning-loader/SpinningLoader';
 
 import styles from './LoginForm.module.scss';
+import CheckBox from '../guidelines/checkbox/CheckBox';
 
 const LoginForm = () => {
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
@@ -230,12 +231,10 @@ const LoginForm = () => {
                       shouldDisableLabel
                     />
                     <div className={styles.loginFormControls}>
-                        <FormControl
+                        <CheckBox
                           id="auth-password-checkbox"
-                          name="RememberMe"
-                          labelText="Remember me"
-                          type={FormControlType.checkbox}
-                          checked={rememberMe}
+                          label="Remember me"
+                          initialChecked={rememberMe}
                           onChange={() => setRememberMe(!rememberMe)}
                         />
                         <div>
