@@ -23,13 +23,13 @@ import { getErrorMessage } from '../../utils/http-utils';
 import { flexCenterObjectStyles } from '../../utils/object-utils';
 import { getPlatformForgottenPasswordUrl } from '../../utils/urls';
 import { LinkButton, LinkButtonType } from '../guidelines/buttons/Button';
+import CheckBox from '../guidelines/checkbox/CheckBox';
 import Form from '../guidelines/forms/Form';
 import FormControl, { FormControlType, IFormControlOnChangeValueType } from '../guidelines/forms/FormControl';
 import Heading, { HeadingType } from '../guidelines/headings/Heading';
 import SpinningLoader from '../guidelines/spinning-loader/SpinningLoader';
 
 import styles from './LoginForm.module.scss';
-import CheckBox from '../guidelines/checkbox/CheckBox';
 
 const LoginForm = () => {
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
