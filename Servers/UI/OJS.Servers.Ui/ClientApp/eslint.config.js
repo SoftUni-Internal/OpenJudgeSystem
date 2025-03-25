@@ -1,66 +1,66 @@
+import { defineConfig } from "eslint/config";
+import globals from "globals";
+import js from "@eslint/js";
+import tseslint from "typescript-eslint";
+import reactPlugin from 'eslint-plugin-react';
+import reactHooks from 'eslint-plugin-react-hooks';
+import importPlugin from 'eslint-plugin-import';
+import promisePlugin from 'eslint-plugin-promise';
+import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
+import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort';
+import reduxConfig from './src/redux/eslint.redux.config.js';
 
-module.exports = {
-    env: {
-        browser: true,
-        es2021: true,
+export default defineConfig([
+  tseslint.configs.recommendedTypeChecked,
+  reactPlugin.configs.flat.recommended,
+  importPlugin.flatConfigs.recommended,
+  reactHooks.configs['recommended-latest'],
+  promisePlugin.configs['flat/recommended'],
+  {
+    files: ["**/*.{js,mjs,cjs,ts,jsx,tsx}"],
+    settings: {
+      'import/resolver': {
+        typescript: {},
+      },
+      'react': {
+        version: 'detect',
+      },
     },
-    globals: { Promise: true },
+    languageOptions: {
+        globals: globals.browser,
+        parser: tseslint.parser,
+        parserOptions: {
+            ecmaFeatures: { jsx: true },
+            sourceType: 'module',
+            projectService: true,
+            tsconfigRootDir: import.meta.dirname,
+        },
+    },
+    plugins: {
+        'js': js,
+        'jsx-a11y': jsxA11yPlugin,
+        'simple-import-sort': simpleImportSortPlugin,
+        '@typescript-eslint': tseslint.plugin,
+    },
     extends: [
-        'eslint:recommended',
-        'plugin:@typescript-eslint/recommended',
-        'plugin:@typescript-eslint/eslint-recommended',
-        'plugin:react/recommended',
-        'airbnb',
-        'plugin:css-modules/recommended',
-        // 'stylelint',
-    ],
-    parser: '@typescript-eslint/parser',
-    parserOptions: {
-        project: './tsconfig.json',
-        ecmaFeatures: { jsx: true },
-        ecmaVersion: 2021,
-        sourceType: 'module',
-    },
-    plugins: [
-        'react',
-        '@typescript-eslint',
-        'react-hooks',
-        'promise',
-        'babel',
-        'css-modules',
-        'simple-import-sort',
-    ],
-    settings: { 'import/resolver': { typescript: {} } },
-    ignorePatterns: [
-        '*.cjs',
-        'vite.config.js'
+        "js/recommended",
     ],
     rules: {
-        "jsx-a11y/click-events-have-key-events": "off",
-        "jsx-a11y/no-static-element-interactions": "off",
+        'no-unused-vars': 'off',
+        'no-undefined': 'off',
+        'no-use-before-define': 'off',
         'prefer-destructuring': 'off',
         'react/no-array-index-key': 'off',
-        'no-undefined': 'off',
         'react/react-in-jsx-scope': 'off',
 
-        'node/no-missing-import': 0,
-        'sort-imports': 0,
-        'no-confusing-arrow': 0,
-        'node/no-unsupported-features/es-syntax': 0,
-        '@typescript-eslint/naming-convention': [
-            'error',
-            {
-                selector: 'interface',
-                format: [ 'PascalCase' ],
-                custom: {
-                    regex: '^I[A-Z]',
-                    match: true,
-                },
-            },
-        ],
-        'no-use-before-define': 'off',
-        '@typescript-eslint/no-use-before-define': [ 'error' ],
+        '@typescript-eslint/no-unused-vars': 'error',
         '@typescript-eslint/no-explicit-any': 'warn',
+        '@typescript-eslint/no-unsafe-assignment': 'warn',
+        '@typescript-eslint/no-unsafe-member-access': 'warn',
+        '@typescript-eslint/no-unsafe-call': 'warn',
+        '@typescript-eslint/no-unsafe-return': 'warn',
+        '@typescript-eslint/no-use-before-define': [ 'error' ],
+
         'react/jsx-filename-extension': [ 'warn', { extensions: [ '.tsx' ] } ],
         'react/jsx-props-no-spreading': ['warn', { custom: 'ignore' }],
         'import/extensions': [
@@ -111,7 +111,7 @@ module.exports = {
         // make sure for-in loops have an if statement (off by default)
         'guard-for-in': 'error',
         // indent is 4 spaces
-        indent: [
+        'indent': [
             'error',
             4,
             {
@@ -254,9 +254,6 @@ module.exports = {
         'no-unreachable': 'error',
         // disallow usage of expressions in statement position
         'no-unused-expressions': 'error',
-        // disallow declaration of variables that are not used in the code
-        'no-unused-vars': 'off',
-        '@typescript-eslint/no-unused-vars': 'error',
         // enforce consistent line breaks inside braces
         'object-curly-newline': [
             'error', {
@@ -288,106 +285,40 @@ module.exports = {
         // Disallow spaces inside of parentheses
         'space-in-parens': [ 'error', 'never' ],
 
-        /* import */
-        'import/first': 'error',
-        'import/prefer-default-export': 'error',
-        'import/exports-last': 'error',
-        'import/group-exports': 'error',
-        'import/no-unused-modules': [ 'error', {
-            unusedExports: true,
-            missingExports: true,
-        } ],
-        // "import/dynamic-import-chunkname": ["error"],
-
-        /* react rules */
-        'react/jsx-indent': [ 'error', 4 ],
-        // No sense in TypeScript context
-        'react/prop-types': 'off',
-        // No sense in TypeScript context
-        'react/require-default-props': 'off',
-
-        /* promise rules */
-        'promise/always-return': 'error',
-        'promise/no-return-wrap': 'error',
-        'promise/param-names': 'error',
-        'promise/catch-or-return': 'error',
-        'promise/no-native': 'off',
-        'promise/no-nesting': 'error',
-        'promise/no-promise-in-callback': 'error',
-        'promise/no-callback-in-promise': 'warn',
-        'promise/avoid-new': 'off',
-        'promise/no-new-statics': 'error',
-        'promise/no-return-in-finally': 'warn',
-        'promise/valid-params': 'warn',
-        'promise/prefer-await-to-then': 'error',
-        'promise/prefer-await-to-callbacks': 'error',
-
-        /* babel */
-        'babel/semi': 'error',
-
-        /* html elements */
-        'jsx-a11y/label-has-associated-control': [
-            'error',
-            { required: { some: [ 'nesting', 'id' ] } } ],
-        'jsx-a11y/label-has-for': [ 'error', { required: { some: [ 'nesting', 'id' ] } } ],
-        'simple-import-sort/imports': [
-            'error',
-            {
-                groups: [
-                    // Packages `react` related packages come first.
-                    [ '^react', '^@?\\w' ],
-                    // Internal packages.
-                    [ '^(@|components)(/.*|$)' ],
-                    // Side effect imports.
-                    [ '^\\u0000' ],
-                    // Parent imports. Put `..` last.
-                    [ '^\\.\\.(?!/?$)', '^\\.\\./?$' ],
-                    // Other relative imports. Put same-folder imports and `.` last.
-                    [ '^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$' ],
-                    // Style imports.
-                    [ '^.+\\.?(css)$' ],
-                ],
-            },
-        ],
-        'no-restricted-imports': [
-            2,
-            {
-                paths: [
-                    {
-                        name: 'lodash',
-                        message:
-                            'Do not import from `lodash` directly, as we don\'t support tree-shaking for it.' +
-                            ' Instead, import the function you\'re trying to use, e.g. `import debounce from \'lodash/debounce\'`',
-                    },
-                    {
-                        name: 'react-icons/all',
-                        message:
-                            'Do not import from `react-icons/all` directly, but use concrete file:' +
-                            ' i.e. instead of `import {...} from \'react-icons/all\'` use `import { ... } from \'react-icons/md\'`',
-                    },
-                    // { name: '@mui/material' },
-                ],
-            },
-        ],
-        '@typescript-eslint/explicit-module-boundary-types': 0,
-        '@typescript-eslint/member-delimiter-style': [
-            'error',
-            {
-                multiline: {
-                    delimiter: 'semi',
-                    requireLast: true,
-                },
-                singleline: {
-                    delimiter: 'semi',
-                    requireLast: false,
-                },
-            },
-        ],
+        // /* import */
+        // 'import/first': 'error',
+        // 'import/prefer-default-export': 'error',
+        // 'import/exports-last': 'error',
+        // 'import/group-exports': 'error',
+        // 'import/no-unused-modules': [ 'error', {
+        //     unusedExports: true,
+        //     missingExports: true,
+        // } ],
+        // // "import/dynamic-import-chunkname": ["error"],
+        //
+        // /* react rules */
+        // 'react/jsx-indent': [ 'error', 4 ],
+        // // No sense in TypeScript context
+        // 'react/prop-types': 'off',
+        // // No sense in TypeScript context
+        // 'react/require-default-props': 'off',
+        //
+        // /* promise rules */
+        // 'promise/always-return': 'error',
+        // 'promise/no-return-wrap': 'error',
+        // 'promise/param-names': 'error',
+        // 'promise/catch-or-return': 'error',
+        // 'promise/no-native': 'off',
+        // 'promise/no-nesting': 'error',
+        // 'promise/no-promise-in-callback': 'error',
+        // 'promise/no-callback-in-promise': 'warn',
+        // 'promise/avoid-new': 'off',
+        // 'promise/no-new-statics': 'error',
+        // 'promise/no-return-in-finally': 'warn',
+        // 'promise/valid-params': 'warn',
+        // 'promise/prefer-await-to-then': 'error',
+        // 'promise/prefer-await-to-callbacks': 'error',
     },
-    overrides: [
-        {
-            files: ['src/redux/features/**/*.ts'],
-            extends: ['./src/redux/.eslintrc.cjs'],
-        },
-    ],
-};
+  },
+  ...reduxConfig,
+]);
