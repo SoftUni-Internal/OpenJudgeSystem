@@ -7,6 +7,7 @@ export default [
             'import/exports-last': 'off',
             'no-unused-expressions': 'off',
             '@typescript-eslint/ban-ts-comment': 'off',
+            '@typescript-eslint/no-unnecessary-type-assertions': 'off',
         },
     },
 ];

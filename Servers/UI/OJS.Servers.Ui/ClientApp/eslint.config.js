@@ -53,13 +53,31 @@ export default defineConfig([
         'react/no-array-index-key': 'off',
         'react/react-in-jsx-scope': 'off',
 
+        'node/no-missing-import': 0,
+        'sort-imports': 0,
+        'no-confusing-arrow': 0,
+        'node/no-unsupported-features/es-syntax': 0,
+
         '@typescript-eslint/no-unused-vars': 'error',
         '@typescript-eslint/no-explicit-any': 'warn',
         '@typescript-eslint/no-unsafe-assignment': 'warn',
         '@typescript-eslint/no-unsafe-member-access': 'warn',
         '@typescript-eslint/no-unsafe-call': 'warn',
         '@typescript-eslint/no-unsafe-return': 'warn',
+        '@typescript-eslint/no-unsafe-function-type': 'warn',
+        '@typescript-eslint/only-throw-error': 'warn',
         '@typescript-eslint/no-use-before-define': [ 'error' ],
+        '@typescript-eslint/naming-convention': [
+            'error',
+            {
+                selector: 'interface',
+                format: [ 'PascalCase' ],
+                custom: {
+                    regex: '^I[A-Z]',
+                    match: true,
+                },
+            },
+        ],
 
         'react/jsx-filename-extension': [ 'warn', { extensions: [ '.tsx' ] } ],
         'react/jsx-props-no-spreading': ['warn', { custom: 'ignore' }],
@@ -285,39 +303,82 @@ export default defineConfig([
         // Disallow spaces inside of parentheses
         'space-in-parens': [ 'error', 'never' ],
 
-        // /* import */
+        /* import */
         // 'import/first': 'error',
         // 'import/prefer-default-export': 'error',
-        // 'import/exports-last': 'error',
-        // 'import/group-exports': 'error',
-        // 'import/no-unused-modules': [ 'error', {
+        // 'import/no-unused-modules': ['error', {
         //     unusedExports: true,
         //     missingExports: true,
-        // } ],
-        // // "import/dynamic-import-chunkname": ["error"],
-        //
+        // }],
+
         // /* react rules */
-        // 'react/jsx-indent': [ 'error', 4 ],
-        // // No sense in TypeScript context
-        // 'react/prop-types': 'off',
-        // // No sense in TypeScript context
-        // 'react/require-default-props': 'off',
-        //
-        // /* promise rules */
-        // 'promise/always-return': 'error',
-        // 'promise/no-return-wrap': 'error',
-        // 'promise/param-names': 'error',
-        // 'promise/catch-or-return': 'error',
-        // 'promise/no-native': 'off',
-        // 'promise/no-nesting': 'error',
-        // 'promise/no-promise-in-callback': 'error',
-        // 'promise/no-callback-in-promise': 'warn',
-        // 'promise/avoid-new': 'off',
-        // 'promise/no-new-statics': 'error',
-        // 'promise/no-return-in-finally': 'warn',
-        // 'promise/valid-params': 'warn',
-        // 'promise/prefer-await-to-then': 'error',
-        // 'promise/prefer-await-to-callbacks': 'error',
+        'react/jsx-indent': [ 'error', 4 ],
+        // No sense in TypeScript context
+        'react/prop-types': 'off',
+        // No sense in TypeScript context
+        'react/require-default-props': 'off',
+
+        /* promise rules */
+        'promise/always-return': 'error',
+        'promise/no-return-wrap': 'error',
+        'promise/param-names': 'error',
+        'promise/catch-or-return': 'error',
+        'promise/no-native': 'off',
+        'promise/no-nesting': 'error',
+        'promise/no-promise-in-callback': 'error',
+        'promise/no-callback-in-promise': 'warn',
+        'promise/avoid-new': 'off',
+        'promise/no-new-statics': 'error',
+        'promise/no-return-in-finally': 'warn',
+        'promise/valid-params': 'warn',
+        'promise/prefer-await-to-then': 'error',
+        'promise/prefer-await-to-callbacks': 'error',
+
+        /* html elements */
+        'jsx-a11y/label-has-associated-control': [
+            'error',
+            { required: { some: [ 'nesting', 'id' ] } } ],
+        'jsx-a11y/label-has-for': [ 'error', { required: { some: [ 'nesting', 'id' ] } } ],
+        'simple-import-sort/imports': [
+            'error',
+            {
+                groups: [
+                    // Packages `react` related packages come first.
+                    [ '^react', '^@?\\w' ],
+                    // Internal packages.
+                    [ '^(@|components)(/.*|$)' ],
+                    // Side effect imports.
+                    [ '^\\u0000' ],
+                    // Parent imports. Put `..` last.
+                    [ '^\\.\\.(?!/?$)', '^\\.\\./?$' ],
+                    // Other relative imports. Put same-folder imports and `.` last.
+                    [ '^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$' ],
+                    // Style imports.
+                    [ '^.+\\.?(css)$' ],
+                ],
+            },
+        ],
+        'no-restricted-imports': [
+            2,
+            {
+                paths: [
+                    {
+                        name: 'lodash',
+                        message:
+                            'Do not import from `lodash` directly, as we don\'t support tree-shaking for it.' +
+                            ' Instead, import the function you\'re trying to use, e.g. `import debounce from \'lodash/debounce\'`',
+                    },
+                    {
+                        name: 'react-icons/all',
+                        message:
+                            'Do not import from `react-icons/all` directly, but use concrete file:' +
+                            ' i.e. instead of `import {...} from \'react-icons/all\'` use `import { ... } from \'react-icons/md\'`',
+                    },
+                    // { name: '@mui/material' },
+                ],
+            },
+        ],
+        '@typescript-eslint/explicit-module-boundary-types': 0,
     },
   },
   ...reduxConfig,
