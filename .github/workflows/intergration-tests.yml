@@ -7,7 +7,6 @@ on:
 
 jobs:
   integration-tests:
-    name: Integration Worker Tests
     runs-on: ubuntu-latest
 
     steps:
