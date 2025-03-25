@@ -55,18 +55,18 @@ const ConfirmDialog = (props: IConfirmDialogProps) => {
               onClose={handleClose}
               aria-labelledby="responsive-dialog-title"
             >
-                {title && (
+                {title && 
                     <DialogTitle id="responsive-dialog-title">
                         {title}
                     </DialogTitle>
-                )}
+                }
                 <DialogContent>
                     <DialogContentText>
                         {text}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    {declineButtonText && (
+                    {declineButtonText && 
                         <Button
                           autoFocus
                           onClick={handleDecline}
@@ -74,8 +74,8 @@ const ConfirmDialog = (props: IConfirmDialogProps) => {
                         >
                             {declineButtonText}
                         </Button>
-                    )}
-                    {confirmButtonText && (
+                    }
+                    {confirmButtonText && 
                         <Button
                           autoFocus
                           onClick={handleConfirmation}
@@ -83,7 +83,7 @@ const ConfirmDialog = (props: IConfirmDialogProps) => {
                         >
                             {confirmButtonText}
                         </Button>
-                    )}
+                    }
                 </DialogActions>
             </Dialog>
         </div>

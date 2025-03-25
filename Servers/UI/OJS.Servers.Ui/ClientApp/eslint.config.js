@@ -65,7 +65,10 @@ export default defineConfig([
         '@typescript-eslint/no-unsafe-call': 'warn',
         '@typescript-eslint/no-unsafe-return': 'warn',
         '@typescript-eslint/no-unsafe-function-type': 'warn',
+        '@typescript-eslint/no-unsafe-argument': 'warn',
         '@typescript-eslint/only-throw-error': 'warn',
+        '@typescript-eslint/no-misused-promises': 'warn',
+        '@typescript-eslint/no-floating-promises': 'warn',
         '@typescript-eslint/no-use-before-define': [ 'error' ],
         '@typescript-eslint/naming-convention': [
             'error',
@@ -79,6 +82,7 @@ export default defineConfig([
             },
         ],
 
+        'react/display-name': 'warn',
         'react/jsx-filename-extension': [ 'warn', { extensions: [ '.tsx' ] } ],
         'react/jsx-props-no-spreading': ['warn', { custom: 'ignore' }],
         'import/extensions': [
@@ -156,7 +160,7 @@ export default defineConfig([
         // linebreak unix (LF) is better than Windows (CRLF)
         'linebreak-style': [ 'error', 'unix' ],
         // max 140 characters for code, and 100 for comments
-        'max-len': [ 'error', {
+        'max-len': [ 'warn', {
             tabWidth: 4,
             code: 140,
             comments: 100,

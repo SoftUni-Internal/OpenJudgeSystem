@@ -13,13 +13,13 @@ const JavaIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IJavaIconProps) => (
+}: IJavaIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={FaJava}
     />
-);
+;
 
 export default memo(JavaIcon);

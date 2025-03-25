@@ -10,13 +10,11 @@ const AdministrationSubmissionTypeDocumentPage = () => {
 
     const params = new URLSearchParams(location.search);
 
-    const isEditMode = params.get('isEditMode') === 'true'
-        ? true
-        : false ?? false;
+    const isEditMode = params.get('isEditMode') === 'true';
 
-    const renderSubmissionTypeDocumentForm = () => (
+    const renderSubmissionTypeDocumentForm = () =>
         <SubmissionTypeDocumentForm id={Number(submissionTypeDocumentId)} isEditMode={isEditMode} />
-    );
+    ;
 
     return (
         <TabsInView form={renderSubmissionTypeDocumentForm} />

@@ -1,5 +1,5 @@
-/* eslint-disable max-len */
-/* eslint-disable no-useless-return */
+ 
+ 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import isEmpty from 'lodash/isEmpty';
@@ -102,7 +102,7 @@ const LoginForm = () => {
             return;
         }
 
-        if (isSuccess && (isNil(loginData) || (shouldConfirmContinue && hasClickedContinueButton))) {
+        if (isSuccess && (isNil(loginData) || shouldConfirmContinue && hasClickedContinueButton)) {
             refetchGetUserInfo();
             const returnUrl = location.state !== null
                 ? `${location.state?.from?.pathname}${location.state?.from?.search}`
@@ -163,16 +163,15 @@ const LoginForm = () => {
     };
 
     const renderLoginErrorMessage = useCallback(
-        () => (!isNil(loginErrorMessage)
-            ? (
-                <span className={shouldConfirmContinue
-                    ? styles.warningMessage
-                    : styles.errorMessage}
+        () => !isNil(loginErrorMessage)
+            ? <span className={shouldConfirmContinue
+                ? styles.warningMessage
+                : styles.errorMessage}
                 >
-                    {loginErrorMessage}
-                </span>
-            )
-            : null),
+                {loginErrorMessage}
+            </span>
+            
+            : null,
         [ shouldConfirmContinue, loginErrorMessage ],
     );
 
@@ -249,13 +248,13 @@ const LoginForm = () => {
                             </LinkButton>
                         </div>
                     </div>
-                    {isLoading && (
+                    {isLoading && 
                     <div className={styles.loginFormLoader}>
                         <div style={{ ...flexCenterObjectStyles }}>
                             <SpinningLoader />
                         </div>
                     </div>
-                    )}
+                    }
                 </Form>
                 <span className={styles.registerHeader}>
                     {'You don\'t have an account yet? '}

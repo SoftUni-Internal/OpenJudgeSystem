@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Autocomplete, FormControl, MenuItem, TextField, Typography } from '@mui/material';
 
 import FormActionButton from '../../../form-action-button/FormActionButton';
 import { autocompleteNameIdFormatFilterOptions } from '../../../utils/mui-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../styles/FormStyles.module.scss';
 
 interface ILecturerFormProps {
@@ -36,17 +35,17 @@ const LecturerForm = (props: ILecturerFormProps) => {
                           onInputChange(event);
                       }
                   }}
-                  options={data!}
+                  options={data}
                   renderInput={(params) => <TextField {...params} label={label} key={params.id} />}
                   getOptionLabel={(option) => option?.name}
-                  renderOption={(properties, option) => (
+                  renderOption={(properties, option) =>
                       <MenuItem {...properties} key={option.id} value={option.id}>
                           #
                           {option.id}
                           {' '}
                           {option.name}
                       </MenuItem>
-                  )}
+                  }
                 />
             </FormControl>
             <FormActionButton

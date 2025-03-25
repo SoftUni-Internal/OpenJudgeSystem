@@ -13,13 +13,13 @@ const SqlServerIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: ISqlServerIconProps) => (
+}: ISqlServerIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={SiMicrosoftsqlserver}
     />
-);
+;
 
 export default memo(SqlServerIcon);

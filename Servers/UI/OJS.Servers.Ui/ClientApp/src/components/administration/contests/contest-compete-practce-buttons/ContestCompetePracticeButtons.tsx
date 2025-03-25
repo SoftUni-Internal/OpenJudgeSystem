@@ -1,7 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from '@mui/material';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IContestCompetePracticeButtonsProps{

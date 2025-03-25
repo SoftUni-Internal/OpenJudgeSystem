@@ -76,10 +76,10 @@ const ContestResultsPage = () => {
         if (!contestDetails || contestDetails?.id !== contestResults?.id) {
             dispatch(setContestDetails({
                 contest: {
-                    id: contestResults!.id,
-                    name: contestResults!.name,
-                    categoryId: contestResults!.categoryId,
-                    isAdminOrLecturerInContest: contestResults!.userIsInRoleForContest,
+                    id: contestResults.id,
+                    name: contestResults.name,
+                    categoryId: contestResults.categoryId,
+                    isAdminOrLecturerInContest: contestResults.userIsInRoleForContest,
                 } as IContestDetailsResponseType,
             }));
         }
@@ -94,28 +94,27 @@ const ContestResultsPage = () => {
     return (
         isNil(contestResultsError)
             ? !isLoading
-                ? (
-                    <>
-                        <BackToTop />
-                        <div>
-                            <ContestBreadcrumbs />
-                        </div>
-                        <Heading
+                ? <>
+                    <BackToTop />
+                    <div>
+                        <ContestBreadcrumbs />
+                    </div>
+                    <Heading
                           type={HeadingType.primary}
                           className={styles.contestResultsHeading}
                         >
-                            {capitalizeFirstLetter(participationType)}
-                            {' '}
-                            Results For
-                            {' '}
-                            <LinkButton
+                        {capitalizeFirstLetter(participationType)}
+                        {' '}
+                        Results For
+                        {' '}
+                        <LinkButton
                               to={getContestsDetailsPageUrl({ contestId: Number(contestId!), contestName: contestResults?.name })}
                               text={contestResults?.name}
                               type={LinkButtonType.plain}
                               className={styles.contestName}
                             />
-                        </Heading>
-                        <PaginationControls
+                    </Heading>
+                    <PaginationControls
                           count={contestResults?.pagedResults.pagesCount ?? 0}
                           page={selectedPage}
                           onChange={(page:number) => {
@@ -124,10 +123,10 @@ const ContestResultsPage = () => {
                           }}
                           className={`${styles.paginationControlsUpper}`}
                         />
-                        <ContestResultsGrid
+                    <ContestResultsGrid
                           items={contestResults ?? null}
                         />
-                        <PaginationControls
+                    <PaginationControls
                           count={contestResults?.pagedResults.pagesCount ?? 0}
                           page={selectedPage}
                           onChange={(page:number) => {
@@ -136,18 +135,16 @@ const ContestResultsPage = () => {
                           }}
                           className={`${styles.paginationControlsLower}`}
                         />
-                    </>
-                )
-                : (
-                    <div style={{ ...flexCenterObjectStyles }}>
-                        <SpinningLoader />
-                    </div>
-                )
-            : (
-                <ErrorWithActionButtons
+                </>
+                
+                : <div style={{ ...flexCenterObjectStyles }}>
+                    <SpinningLoader />
+                </div>
+                
+            : <ErrorWithActionButtons
                   message={getErrorMessage(contestResultsError)}
                 />
-            )
+            
 
     );
 };

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect, useState } from 'react';
 import { IconButton } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';

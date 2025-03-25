@@ -46,7 +46,7 @@ const AdministrationCheckersPage = () => {
         retakeCheckers();
     };
 
-    const renderModal = (index: number, isEditMode: boolean) => (
+    const renderModal = (index: number, isEditMode: boolean) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -62,15 +62,15 @@ const AdministrationCheckersPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () => 
         <CreateButton
           showModal={openCreateModal}
           showModalFunc={setOpenCreateModal}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
     if (isLoadingCheckers) {
         return <SpinningLoader />;

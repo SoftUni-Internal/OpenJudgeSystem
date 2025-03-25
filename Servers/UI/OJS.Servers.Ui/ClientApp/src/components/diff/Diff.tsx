@@ -1,4 +1,4 @@
-/* eslint-disable react/no-danger */
+ 
 
 import React, { useCallback } from 'react';
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer';
@@ -40,7 +40,7 @@ const Diff = ({ expectedStr, actualStr } : ITestsRunDiffProps) => {
 
     return (
         <>
-            { expectedStr !== actualStr && (
+            { expectedStr !== actualStr && 
                 <>
                     <div className={styles.diffDetailsText}>
                         <h4>Expected output:</h4>
@@ -49,7 +49,7 @@ const Diff = ({ expectedStr, actualStr } : ITestsRunDiffProps) => {
                         <h4>Your output:</h4>
                     </div>
                 </>
-            )}
+            }
             <div className={concatClassNames(
                 styles.diffWrapper,
                 isDarkMode

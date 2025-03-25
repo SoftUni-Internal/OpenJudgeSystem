@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+ 
 
 enum StrategyType {
     // Code strategies

@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 import React, { useEffect, useState } from 'react';
 import ReactJson from 'react-json-view';
 import { useLocation } from 'react-router-dom';
@@ -35,80 +35,77 @@ const AdministrationSubmissionForProcessing = () => {
 
     return (
         !isNil(submission)
-            ? (
-                <Box className={`${styles.fieldBox}`}>
-                    <TextField
+            ? <Box className={`${styles.fieldBox}`}>
+                <TextField
                       className={styles.inputRow}
                       label="Submission Id"
                       variant="standard"
                       value={submission.submissionId}
                       disabled
                     />
-                    <TextField
+                <TextField
                       className={styles.inputRow}
                       label="Is Processed"
                       variant="standard"
                       value={submission.processed}
                       disabled
                     />
-                    <TextField
+                <TextField
                       className={styles.inputRow}
                       label="Is Processing"
                       variant="standard"
                       value={submission.processing}
                       disabled
                     />
-                    <FormControl className={styles.inputRow}>
-                        <FormLabel>Serialized Exception</FormLabel>
-                        {isNil(submission.serializedException)
-                            ? 'No Value'
-                            : (
-                                <ReactJson
+                <FormControl className={styles.inputRow}>
+                    <FormLabel>Serialized Exception</FormLabel>
+                    {isNil(submission.serializedException)
+                        ? 'No Value'
+                        : <ReactJson
                                   src={JSON.parse(submission.serializedException)}
                                   theme="summerfruit:inverted"
                                   collapsed={false}
                                   quotesOnKeys
                                 />
-                            )}
-                    </FormControl>
-                    <FormControl className={styles.inputRow}>
-                        <FormLabel>Serialized Execution Details</FormLabel>
-                        <ReactJson
+                            }
+                </FormControl>
+                <FormControl className={styles.inputRow}>
+                    <FormLabel>Serialized Execution Details</FormLabel>
+                    <ReactJson
                           src={JSON.parse(submission.serializedExecutionDetails)}
                           theme="summerfruit:inverted"
                           collapsed={false}
                           quotesOnKeys
                         />
-                    </FormControl>
-                    <FormControl className={styles.inputRow}>
-                        <FormLabel>Serialized Execution Result</FormLabel>
-                        {isNil(submission.serializedExecutionResult)
-                            ? 'No Value'
-                            : (
-                                <ReactJson
+                </FormControl>
+                <FormControl className={styles.inputRow}>
+                    <FormLabel>Serialized Execution Result</FormLabel>
+                    {isNil(submission.serializedExecutionResult)
+                        ? 'No Value'
+                        : <ReactJson
                                   src={JSON.parse(submission.serializedExecutionResult)}
                                   theme="summerfruit:inverted"
                                   collapsed={false}
                                   quotesOnKeys
                                 />
-                            )}
-                    </FormControl>
-                    <TextField
+                            }
+                </FormControl>
+                <TextField
                       className={styles.inputRow}
                       label="Created On"
                       variant="standard"
                       value={preciseFormatDate(submission.createdOn)}
                       disabled
                     />
-                    <TextField
+                <TextField
                       className={styles.inputRow}
                       label="Modified On"
                       variant="standard"
                       value={preciseFormatDate(submission.modifiedOn)}
                       disabled
                     />
-                </Box>
-            )
+            </Box>
+            
             : null
     );
 };

@@ -92,7 +92,7 @@ const ContestProblems = (props: IContestProblemsProps) => {
                             >
                                 <div className={styles.problemName}>
                                     {problem.name}
-                                    {problem.isExcludedFromHomework && (
+                                    {problem.isExcludedFromHomework && 
                                     <div
                                       style={{ display: 'inline' }}
                                       onMouseEnter={(e) => setExcludedFromHomeworkAnchorElement(e.currentTarget)}
@@ -121,7 +121,7 @@ const ContestProblems = (props: IContestProblemsProps) => {
                                             </div>
                                         </Popover>
                                     </div>
-                                    )}
+                                    }
                                 </div>
                                 <div>
                                     {problem.points || 0}

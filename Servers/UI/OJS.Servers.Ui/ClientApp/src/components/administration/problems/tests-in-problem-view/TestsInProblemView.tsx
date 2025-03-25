@@ -22,7 +22,6 @@ import SubmitSolution from '../../common/submit-solution/SubmitSolution';
 import FormActionButton from '../../form-action-button/FormActionButton';
 import TestForm from '../../tests/test-form/TestForm';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface ITestsInProblemsViewProps {
@@ -139,7 +138,7 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
             reExportZip();
         }
     };
-    const renderGridSettings = () => (
+    const renderGridSettings = () =>
         <>
             <CreateButton
               showModal={openCreateModal}
@@ -164,9 +163,9 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
 
             <SubmitSolution canBeCompeted={canBeCompeted} contestId={contestId} />
         </>
-    );
+    ;
 
-    const renderDeleteAllModal = (index: number) => (
+    const renderDeleteAllModal = (index: number) =>
         <ConfirmDialog
           key={index}
           text={`Are you sure you want to delete all tests for ${testsData?.items
@@ -181,7 +180,7 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
               setShowDeleteAllConfirm(!showDeleteAllConfirm);
           }}
         />
-    );
+    ;
 
     const onClose = (isEditMode: boolean) => {
         if (isEditMode) {
@@ -196,7 +195,7 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
         retakeTests();
     };
 
-    const renderModal = (index: number, isEditMode: boolean) => (
+    const renderModal = (index: number, isEditMode: boolean) =>
         <AdministrationModal
           key={index}
           index={index}
@@ -216,9 +215,9 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderImportModal = (index: number) => (
+    const renderImportModal = (index: number) =>
         <AdministrationModal
           index={index}
           key={index}
@@ -275,7 +274,7 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
                 />
             </form>
         </AdministrationModal>
-    );
+    ;
 
     if (isGettingData || isDeletingAll || isImporting) {
         return <SpinningLoader />;

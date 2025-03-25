@@ -16,7 +16,7 @@ const defaultErrorMessage = 'Something went wrong, please try again!';
 
 const getErrorMessage = (
     err: FetchBaseQueryError | SerializedError | ExceptionData[] | undefined,
-    defaultMessage = defaultErrorMessage,
+    defaultMessage: string = defaultErrorMessage,
 ): string => {
     if (isNil(err) || !err) {
         return defaultMessage;

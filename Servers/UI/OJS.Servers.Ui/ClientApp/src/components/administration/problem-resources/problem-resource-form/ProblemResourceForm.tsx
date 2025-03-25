@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { SyntheticEvent, useEffect, useState } from 'react';
 import { Box, Divider, FormControl, FormGroup, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import isNaN from 'lodash/isNaN';
@@ -22,7 +22,6 @@ import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
 import FileUpload from '../../common/file-upload/FileUpload';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 enum PROBLEM_RESOURCE_LISTED_DATA {
@@ -186,7 +185,7 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
         }
     };
 
-    const renderLinkForm = () => (
+    const renderLinkForm = () =>
         <FormControl className={formStyles.inputRow}>
             <TextField
               variant="standard"
@@ -198,9 +197,9 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
               onChange={(e) => onChange(e)}
             />
         </FormControl>
-    );
+    ;
 
-    const renderFileForm = () => (
+    const renderFileForm = () =>
         <FormControl className={formStyles.inputRow}>
             <Typography variant="h4">File</Typography>
             <Divider />
@@ -214,7 +213,7 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
               disableClearButton={currentResource.file === null}
             />
         </FormControl>
-    );
+    ;
 
     if (isDownloadingFiles || isUpdating || isCreating || isGetting) {
         return <SpinningLoader />;
@@ -256,11 +255,10 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
                             >
                                 {Object.keys(ProblemResourceType)
                                     .filter((key) => isNaN(Number(key)))
-                                    .map((key) => (
+                                    .map((key) =>
                                         <MenuItem key={key} value={ProblemResourceType[key as keyof typeof ProblemResourceType]}>
                                             {key}
-                                        </MenuItem>
-                                    ))}
+                                        </MenuItem>)}
                             </Select>
                         </FormGroup>
                         <FormControl className={formStyles.inputRow}>

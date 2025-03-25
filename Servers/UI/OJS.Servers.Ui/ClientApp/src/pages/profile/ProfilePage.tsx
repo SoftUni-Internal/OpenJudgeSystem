@@ -109,15 +109,13 @@ const ProfilePage = () => {
                 isProfileInfoLoading ||
                 !isGetUserInfoCompleted ||
                 // Wait until currentUserIsProfileOwner is set as render operations depend on it
-                (isLoggedIn && isNil(currentUserIsProfileOwner))
-                    ? (
-                        <SpinningLoader />
-                    )
+                isLoggedIn && isNil(currentUserIsProfileOwner)
+                    ? <SpinningLoader />
+                    
                     : isNil(profile)
                         ? renderError()
-                        : (
-                            <div className={getColorClassName(themeColors.textColor)}>
-                                <Breadcrumbs
+                        : <div className={getColorClassName(themeColors.textColor)}>
+                            <Breadcrumbs
                                   keyPrefix="profile"
                                   items={[
                                 {
@@ -127,14 +125,14 @@ const ProfilePage = () => {
                                 } as IPageBreadcrumbsItem,
                                   ]}
                                 />
-                                <ProfileAboutInfo
+                            <ProfileAboutInfo
                                   userProfile={profile}
                                   isUserAdmin={internalUser.isAdmin}
                                   isUserLecturer={internalUser.isInRole}
                                   isUserProfileOwner={currentUserIsProfileOwner}
                                 />
-                                {currentUserIsProfileOwner && <LegacyInfoMessage />}
-                                {(currentUserIsProfileOwner || internalUser.canAccessAdministration) && (
+                            {currentUserIsProfileOwner && <LegacyInfoMessage />}
+                            {(currentUserIsProfileOwner || internalUser.canAccessAdministration) && 
                                 <div className={styles.submissionsAndParticipationsToggle}>
                                     <Button
                                       type={toggleValue === 1
@@ -157,17 +155,17 @@ const ProfilePage = () => {
                                       onClick={() => setToggleValue(2)}
                                     />
                                 </div>
-                                )}
-                                <ProfileSubmissions
+                                }
+                            <ProfileSubmissions
                                   userIsProfileOwner={currentUserIsProfileOwner}
                                   isChosenInToggle={toggleValue === 1}
                                 />
-                                <ProfileContestParticipations
+                            <ProfileContestParticipations
                                   userIsProfileOwner={currentUserIsProfileOwner}
                                   isChosenInToggle={toggleValue === 2}
                                 />
-                            </div>
-                        )
+                        </div>
+                        
 }
         </>
     );

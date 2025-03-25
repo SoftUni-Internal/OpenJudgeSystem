@@ -120,18 +120,21 @@ const SearchPage = () => {
     // initiate the search for each of the selected search types
     useEffect(() => {
         if (searchValue.trim().length >= 3 && selectedTerms.includes(CheckboxSearchValues.contests)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             getContestsSearch({ searchTerm: searchValue, page: selectedContestsPage, itemsPerPage: ITEMS_PER_SEARCH });
         }
     }, [ searchValue, selectedTerms, selectedContestsPage, getContestsSearch ]);
 
     useEffect(() => {
         if (searchValue.trim().length >= 3 && selectedTerms.includes(CheckboxSearchValues.problems)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             getProblemsSearch({ searchTerm: searchValue, page: selectedProblemsPage, itemsPerPage: ITEMS_PER_SEARCH });
         }
     }, [ searchValue, selectedTerms, selectedProblemsPage, getProblemsSearch ]);
 
     useEffect(() => {
         if (searchValue.trim().length >= 3 && selectedTerms.includes(CheckboxSearchValues.users)) {
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             getUsersSearch({ searchTerm: searchValue, page: selectedUsersPage, itemsPerPage: USER_ITEMS_PER_SEARCH });
         }
     }, [ searchValue, selectedTerms, selectedUsersPage, getUsersSearch ]);
@@ -156,14 +159,15 @@ const SearchPage = () => {
         isError: boolean,
         error: any,
     ) => {
-        const renderErrorFragment = () => (
+        const renderErrorFragment = () =>
             <div>
                 <div className={styles.errorTextWrapper}>
+                    {/* eslint-disable-next-line @typescript-eslint/no-unsafe-argument */}
                     {getErrorMessage(error)}
                 </div>
-                { searchName !== SearchTypeEnums.USERS && (<hr className={styles.line} />)}
+                { searchName !== SearchTypeEnums.USERS && <hr className={styles.line} />}
             </div>
-        );
+        ;
 
         const selectedPageValue = () => {
             if (searchName === SearchTypeEnums.CONTESTS) {
@@ -196,13 +200,12 @@ const SearchPage = () => {
                         ? <div>No items found</div>
                         : searchName === SearchTypeEnums.USERS
                             ? <ProfileSearchList data={(data.items as IIndexContestsType[])} />
-                            : (
-                                <List
+                            : <List
                                   values={data.items}
                                   itemFunc={renderFunction}
                                   orientation={Orientation.vertical}
                                 />
-                            )}
+                            }
                 </div>
             );
         };
@@ -221,13 +224,12 @@ const SearchPage = () => {
                 { isError
                     ? renderErrorFragment()
                     : isLoading
-                        ? (
-                            <div className={styles.spinningLoader} style={{ minHeight: `${contentHeight}px` }}>
-                                <SpinningLoader />
-                            </div>
-                        )
+                        ? <div className={styles.spinningLoader} style={{ minHeight: `${contentHeight}px` }}>
+                            <SpinningLoader />
+                        </div>
+
                         : renderData()}
-                { data && data.totalItemsCount > 0 && (
+                { data && data.totalItemsCount > 0 &&
                     <PaginationControls
                       count={data?.pagesCount || 0}
                       page={selectedPageValue()}
@@ -235,8 +237,8 @@ const SearchPage = () => {
                           onPaginationChange(page, searchName);
                       }}
                     />
-                )}
-                { searchName !== SearchTypeEnums.USERS && (<hr className={styles.line} />)}
+                }
+                { searchName !== SearchTypeEnums.USERS && <hr className={styles.line} />}
             </div>
         );
     }, [
@@ -261,21 +263,20 @@ const SearchPage = () => {
             />
             {searchValue.length < 3
                 ? <div>The search term must be at least 3 characters!</div>
-                : (
-                    <>
-                        <div className={styles.searchTextHeader}>
-                            Search results for &quot;
-                            {searchValue}
-                            &quot;
-                        </div>
-                        {shouldIncludeContests &&
+                : <>
+                    <div className={styles.searchTextHeader}>
+                        Search results for &quot;
+                        {searchValue}
+                        &quot;
+                    </div>
+                    {shouldIncludeContests &&
                             renderSearchFragmentResults(SearchTypeEnums.CONTESTS, contestsSearchData, isContestsSearchFetching, areContestsSearchError, contestsSearchError)}
-                        {shouldIncludeProblems &&
+                    {shouldIncludeProblems &&
                             renderSearchFragmentResults(SearchTypeEnums.PROBLEMS, problemsSearchData, isProblemsSearchFetching, areProblemsSearchError, problemsSearchError)}
-                        {shouldIncludeUsers &&
+                    {shouldIncludeUsers &&
                             renderSearchFragmentResults(SearchTypeEnums.USERS, usersSearchData, isUsersSearchFetching, areUsersSearchError, usersSearchError)}
-                    </>
-                )}
+                </>
+                }
         </div>
     );
 };

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import BallotIcon from '@mui/icons-material/Ballot';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
@@ -65,7 +65,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsByCategoryUrl({
                   categoryId: params.row.id,
@@ -73,7 +73,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'orderBy',
@@ -95,7 +95,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         type: 'string',
         filterable: false,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsByCategoryUrl({
                   categoryId: params.row.parentId,
@@ -103,7 +103,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'parentId',
@@ -173,7 +173,7 @@ export const returnCategoriesNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <IconButton onClick={() => onEditClick(params.row.id)}>
                     <EditIcon color="warning" />
@@ -193,7 +193,7 @@ export const returnCategoriesNonFilterableColumns = (
                     />
                 </IconButton>
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

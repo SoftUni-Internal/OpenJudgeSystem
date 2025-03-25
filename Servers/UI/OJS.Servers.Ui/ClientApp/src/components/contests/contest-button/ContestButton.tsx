@@ -41,7 +41,7 @@ const ContestButton = (props: IContestButtonProps) => {
     const { navigateInNewWindow } = useNavigation();
     const { isDarkMode } = useTheme();
 
-    const onButtonClick = async () => {
+    const onButtonClick = () => {
         dispatch(setSelectedContestDetailsProblem({ selectedProblem: null }));
         if (onClick) {
             onClick();

@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable import/group-exports */
+ 
 import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react';
 import { SetURLSearchParams } from 'react-router-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Unstable_Popup as BasePopup } from '@mui/base/Unstable_Popup';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -176,7 +175,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                 return;
             }
 
-            // eslint-disable-next-line consistent-return, max-len
+            // eslint-disable-next-line consistent-return
             return `${filter.column}${filterParamsSeparator}${filter.operator}${filterParamsSeparator}${filter.value}`.toLowerCase();
         };
 
@@ -366,14 +365,13 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                       disabled={!selectedFilters[idx].operator || idx > 0}
                     >
 
-                        { BOOL_DROPDOWN_VALUES.map((column) => (
+                        { BOOL_DROPDOWN_VALUES.map((column) => 
                             <MenuItem
                               key={`s-c-${column.value}`}
                               value={column.value}
                             >
                                 {column.name}
-                            </MenuItem>
-                        ))}
+                            </MenuItem>)}
                     </Select>
                 </FormControl>
             );
@@ -393,14 +391,13 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                       disabled={!selectedFilters[idx].operator || idx > 0}
                     >
 
-                        { column.enumValues?.map((value) => (
+                        { column.enumValues?.map((value) => 
                             <MenuItem
                               key={`s-c-${value}`}
                               value={value}
                             >
                                 {value}
-                            </MenuItem>
-                        ))}
+                            </MenuItem>)}
                     </Select>
                 </FormControl>
             );
@@ -408,17 +405,15 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
         return (
 
             selectedFilter.inputType === FilterColumnTypeEnum.DATE
-                ? (
-                    <DateTimePicker
+                ? <DateTimePicker
                       orientation="landscape"
                       label={FilterColumnTypeEnum.DATE}
                       value={getDateAsLocal(selectedFilters[idx]?.value)}
                       onChange={(newValue) => handleDateTimePickerChange(idx, newValue, 'value')}
                       disabled={!selectedFilters[idx].operator || idx > 0}
                     />
-                )
-                : (
-                    <TextField
+                
+                : <TextField
                       label="Value"
                       variant="standard"
                       type={selectedFilter.inputType}
@@ -426,7 +421,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                       onChange={(e) => updateFilterColumnData(idx, e, 'value')}
                       disabled={!selectedFilters[idx].operator || idx > 0}
                     />
-                )
+                
         );
     };
 
@@ -504,12 +499,12 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
         }
     };
 
-    const renderFilter = (idx: number) => (
+    const renderFilter = (idx: number) => 
         <Box style={{ display: 'flex', margin: '5px 0' }} key={`admin-filter-${idx}`}>
             <CloseIcon className={styles.closeIcon} onClick={() => setFilterAnchor(null)} />
-            { idx !== 0 && (
+            { idx !== 0 && 
                 <DeleteIcon color="error" className={styles.removeFilterButton} onClick={() => removeSingleFilter(idx)} />
-            )}
+            }
             <FormControl sx={{ width: '140px', marginRight: '10px' }} variant="standard">
                 <InputLabel id="column-select-label">Column</InputLabel>
                 <Select
@@ -519,14 +514,13 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                   onChange={(e) => updateFilterColumnData(idx, e, 'column')}
                   disabled={idx > 0}
                 >
-                    { selectedFilters[idx]?.availableColumns?.map((column) => (
+                    { selectedFilters[idx]?.availableColumns?.map((column) => 
                         <MenuItem
                           key={`s-c-${column.columnName}`}
                           value={column.columnName}
                         >
                             {column.columnName}
-                        </MenuItem>
-                    ))}
+                        </MenuItem>)}
                 </Select>
             </FormControl>
             <FormControl sx={{ width: '140px', marginRight: '10px' }} variant="standard">
@@ -538,20 +532,20 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                   onChange={(e) => updateFilterColumnData(idx, e, 'operator')}
                   disabled={!selectedFilters[idx].column || idx > 0}
                 >
-                    { selectedFilters[idx].availableOperators?.map((operator) => (
-                        <MenuItem key={`s-o-${operator.value}`} value={operator.value}>{operator.name}</MenuItem>)) }
+                    { selectedFilters[idx].availableOperators?.map((operator) => 
+                        <MenuItem key={`s-o-${operator.value}`} value={operator.value}>{operator.name}</MenuItem>) }
                 </Select>
             </FormControl>
             {renderInputField(idx)}
         </Box>
-    );
+    ;
 
-    const renderSorter = (idx: number) => (
+    const renderSorter = (idx: number) => 
         <Box className={styles.sortWrapper} key={`a-s-w-${idx}`}>
             <CloseIcon className={styles.closeIcon} onClick={() => setSortersAnchor(null)} />
-            { idx !== 0 && (
+            { idx !== 0 && 
                 <DeleteIcon color="error" className={styles.removeSorterButton} onClick={() => removeSingleSorter(idx)} />
-            )}
+            }
             <FormControl sx={{ width: '140px', marginRight: '10px' }} variant="standard">
                 <InputLabel id="column-sorting-label">Sort by</InputLabel>
                 <Select
@@ -561,8 +555,8 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                   onChange={(e) => updateSorterColumnData(idx, e, 'columnName')}
                   disabled={idx > 0}
                 >
-                    { selectedSorters[idx].availableColumns.map((sortOption) => (
-                        <MenuItem key={`a-s-e-${sortOption}`} value={sortOption}>{sortOption}</MenuItem>)) }
+                    { selectedSorters[idx].availableColumns.map((sortOption) => 
+                        <MenuItem key={`a-s-e-${sortOption}`} value={sortOption}>{sortOption}</MenuItem>) }
                 </Select>
             </FormControl>
             <FormControl sx={{ width: '140px', marginRight: '10px' }} variant="standard">
@@ -574,12 +568,12 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                   onChange={(e) => updateSorterColumnData(idx, e, 'orderBy')}
                   disabled={!selectedSorters[idx]?.columnName || idx > 0}
                 >
-                    { orderByOptions.map((orderByOption) => (
-                        <MenuItem key={`s-o-o-${orderByOption.name}`} value={orderByOption.value}>{orderByOption.name}</MenuItem>)) }
+                    { orderByOptions.map((orderByOption) => 
+                        <MenuItem key={`s-o-o-${orderByOption.name}`} value={orderByOption.value}>{orderByOption.name}</MenuItem>) }
                 </Select>
             </FormControl>
         </Box>
-    );
+    ;
     return (
         <>
             <Box>

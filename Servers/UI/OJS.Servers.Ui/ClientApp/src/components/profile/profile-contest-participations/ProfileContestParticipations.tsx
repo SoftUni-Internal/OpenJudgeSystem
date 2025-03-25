@@ -66,7 +66,7 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
     );
 
     useEffect(() => {
-        if (((userIsProfileOwner || internalUser.canAccessAdministration) && !isChosenInToggle) ||
+        if ((userIsProfileOwner || internalUser.canAccessAdministration) && !isChosenInToggle ||
             areContestParticipationsLoading ||
             isNil(userContestParticipations)) {
             setShouldRender(false);
@@ -88,16 +88,18 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
         setUserContestParticipationsPage(page);
     }, []);
 
-    const renderContestCard = useCallback((contest: IIndexContestsType) => (
-        <ContestCard
+    const renderContestCard = useCallback(
+        (contest: IIndexContestsType) => 
+            <ContestCard
           contest={contest}
           showPoints={userIsProfileOwner || internalUser.isAdmin}
         />
-    ), [ internalUser, userIsProfileOwner ]);
+        , [ internalUser, userIsProfileOwner ],
+    );
 
     const render = useCallback(() => {
         if (areContestParticipationsLoading) {
-            return (<div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>);
+            return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;
         }
 
         if (!isNil(contestParticipationsQueryError)) {
@@ -110,27 +112,27 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
 
         return (
             <div>
-                { ((!isLoggedIn || (isLoggedIn && !userIsProfileOwner && !internalUser.canAccessAdministration)) &&
+                { ((!isLoggedIn || isLoggedIn && !userIsProfileOwner && !internalUser.canAccessAdministration) &&
                     userContestParticipations !== undefined &&
                     !isNilOrEmpty(userContestParticipations.items) &&
                     <h2 className={styles.participationsHeading}>Participated In:</h2>)}
                 <List
-                  values={userContestParticipations!.items!}
+                  values={userContestParticipations!.items}
                   itemFunc={renderContestCard}
                   orientation={Orientation.vertical}
                   fullWidth
                 />
-                {!isEmpty(userContestParticipations) && userContestParticipations.pagesCount > 1 && (
+                {!isEmpty(userContestParticipations) && userContestParticipations.pagesCount > 1 && 
                     <PaginationControls
                       count={userContestParticipations.pagesCount}
                       page={userContestParticipations.pageNumber}
                       onChange={onPageChange}
                     />
-                )}
+                }
                 { isChosenInToggle &&
                     userContestParticipations !== undefined &&
                     isNilOrEmpty(userContestParticipations.items) &&
-                    (
+                    
                         <div className={concatClassNames(
                             styles.noParticipationsText,
                             getColorClassName(themeColors.textColor),
@@ -138,7 +140,7 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
                         >
                             No participations in contests yet
                         </div>
-                    )}
+                    }
             </div>
         );
     }, [

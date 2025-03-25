@@ -13,13 +13,13 @@ const GoIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IGoIconProps) => (
+}: IGoIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={TbBrandGolang}
     />
-);
+;
 
 export default memo(GoIcon);

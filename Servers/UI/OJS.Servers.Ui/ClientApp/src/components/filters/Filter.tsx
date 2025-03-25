@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
-/* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable import/group-exports */
+ 
+ 
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -430,7 +429,7 @@ const Filter = (props: IFilterProps) => {
         );
     };
 
-    const renderFilter = (idx: number) => (
+    const renderFilter = (idx: number) => 
         <Box style={{ display: 'flex', margin: '5px 0' }} key={`admin-filter-${idx}`} className={styles.fieldsContainer}>
             <div className={styles.title}>
                 Filter #
@@ -462,7 +461,7 @@ const Filter = (props: IFilterProps) => {
             {renderInputField(idx)}
             {idx < selectedFilters.length - 1 && <hr className={styles.divider} />}
         </Box>
-    );
+    ;
 
     return (
         <Box>

@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/self-closing-comp */
+
+
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { ProblemGroupTypes } from '../../../common/enums';
@@ -115,7 +115,7 @@ export const returnNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton
@@ -131,7 +131,7 @@ export const returnNonFilterableColumns = (
                   mutation={useDeleteProblemGroupMutation}
                 />
             </div>
-        ),
+        ,
     } ] as GridColDef[];
 
 export default filterableColumns;

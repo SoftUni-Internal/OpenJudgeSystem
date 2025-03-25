@@ -23,11 +23,11 @@ const AdministrationRole = () => {
 
     useScrollToTab({ hash, tabName, setTabName, tabNames: Object.values(ROLE_LISTED_DATA) });
 
-    const returnRoleForm = () => (
+    const returnRoleForm = () => 
         <RoleForm id={roleId} isEditMode getRoleName={(role:string) => setRoleName(role)} />
-    );
+    ;
 
-    const returnUsersInRoleView = (key:string) => (
+    const returnUsersInRoleView = (key:string) => 
         <div id={ROLE_LISTED_DATA.USERS}>
             <UsersInRoleView
               key={key}
@@ -35,7 +35,7 @@ const AdministrationRole = () => {
               roleName={roleName}
             />
         </div>
-    );
+    ;
 
     return (
         <TabsInView

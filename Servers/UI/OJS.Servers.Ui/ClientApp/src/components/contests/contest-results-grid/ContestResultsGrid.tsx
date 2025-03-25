@@ -55,24 +55,22 @@ const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
         const bestSubmission = problemResult?.bestSubmission;
 
         return (items!.userIsInRoleForContest || participantResult.participantUsername === internalUser.userName) && !isNil(bestSubmission)
-            ? (
-                <td key={`p-r-i-${problemId}`}>
-                    <LinkButton
+            ? <td key={`p-r-i-${problemId}`}>
+                <LinkButton
                       className={styles.resultLink}
                       type={LinkButtonType.plain}
                       size={ButtonSize.small}
                       text={`${bestSubmission.points}`}
                       to={`/submissions/${bestSubmission.id}/details`}
                     />
-                </td>
-            )
-            : (
-                <td
+            </td>
+            
+            : <td
                   key={`p-r-i-${problemId}`}
                 >
-                    {bestSubmission?.points || '-'}
-                </td>
-            );
+                {bestSubmission?.points || '-'}
+            </td>
+        ;
     }, [ items, internalUser.userName ]);
 
     return (
@@ -92,14 +90,14 @@ const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
                                 );
                             }
 
-                            return (<td key={`t-r-i-${idx}`}>{column}</td>);
+                            return <td key={`t-r-i-${idx}`}>{column}</td>;
                         })
                     }
                     </tr>
                 </thead>
                 <tbody>
                     {
-                    !isNil(items) && !isEmpty(items) && (items.pagedResults.items ?? []).map((participantResult, index) => (
+                    !isNil(items) && !isEmpty(items) && (items.pagedResults.items ?? []).map((participantResult, index) => 
                         <tr
                           key={`t-r-i-${participantResult.participantUsername}`}
                           className={concatClassNames(
@@ -109,7 +107,7 @@ const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
                                   : '',
                           )}
                         >
-                            <td>{(items.pagedResults.itemsPerPage * (items.pagedResults.pageNumber - 1)) + index + 1}</td>
+                            <td>{items.pagedResults.itemsPerPage * (items.pagedResults.pageNumber - 1) + index + 1}</td>
                             <td>{participantResult.participantUsername}</td>
                             {
                                     items?.problems
@@ -120,8 +118,7 @@ const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
                                         ? <td>0</td>
                                         : <td>{participantResult.total}</td>
                                 }
-                        </tr>
-                    ))
+                        </tr>)
                     }
                 </tbody>
             </table>

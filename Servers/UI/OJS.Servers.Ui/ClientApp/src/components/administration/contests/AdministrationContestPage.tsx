@@ -41,7 +41,7 @@ const AdministrationContestPage = () => {
         getAndSetExceptionMessage([ activityError, error ], setErrorMessages);
     }, [ activityError, error ]);
 
-    const renderContestEdit = () => (
+    const renderContestEdit = () => 
         <ContestEdit
           contestId={Number(contestId)}
           currentContest={data}
@@ -49,9 +49,9 @@ const AdministrationContestPage = () => {
           setParentSuccessMessage={setSuccessMessage}
           skipGettingContest
         />
-    );
+    ;
 
-    const renderProblemsInContestView = (key: string) => (
+    const renderProblemsInContestView = (key: string) => 
         <div key={key} id={CONTEST_LISTED_DATA.PROBLEMS}>
             <ProblemsInContestView
               key={key}
@@ -61,9 +61,9 @@ const AdministrationContestPage = () => {
               canContestBeCompeted={activityData?.canBeCompeted || false}
             />
         </div>
-    );
+    ;
 
-    const renderParticipantsInContestView = (key: string) => (
+    const renderParticipantsInContestView = (key: string) => 
         <div key={key} id={CONTEST_LISTED_DATA.PARTICIPANTS}>
             <ParticipantsInContestView
               key={key}
@@ -73,10 +73,10 @@ const AdministrationContestPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </div>
-    );
+    ;
 
     if (!successMessage && (isFetching || isLoading || isLoadingActivity || isFetchingActivity)) {
-        return (<SpinningLoader />);
+        return <SpinningLoader />;
     }
 
     return (

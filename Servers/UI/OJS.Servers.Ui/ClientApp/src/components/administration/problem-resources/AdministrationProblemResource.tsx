@@ -8,9 +8,9 @@ import ProblemResourceForm from './problem-resource-form/ProblemResourceForm';
 const AdministrationProblemResource = () => {
     const { pathname } = useLocation();
     const [ , , , problemId ] = pathname.split('/');
-    const returnProblemForm = () => (
+    const returnProblemForm = () => 
         <ProblemResourceForm id={Number(problemId)} />
-    );
+    ;
 
     return (
         <TabsInView

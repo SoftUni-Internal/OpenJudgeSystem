@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Box, Button } from '@mui/material';
 
 interface IFormActionButton {

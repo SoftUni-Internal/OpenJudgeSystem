@@ -91,7 +91,7 @@ const UserActions: FC<IUserActionsProps> = ({
         window.open('/', '_blank');
     };
 
-    const actions = (
+    const actions = 
         <>
             <FormControlLabel
               control={(
@@ -124,9 +124,9 @@ const UserActions: FC<IUserActionsProps> = ({
                 </Tooltip>
             </div>
         </>
-    );
+    ;
 
-    const dropdownActions = (
+    const dropdownActions = 
         <div className={styles.dropdown}>
             <IconButton
               className={styles.dropdownIcon}
@@ -174,14 +174,14 @@ const UserActions: FC<IUserActionsProps> = ({
                 </div>
             </Menu>
         </div>
-    );
+    ;
 
     return (
         <>
             {isDropdown
                 ? dropdownActions
                 : actions}
-            {showConfirmLogout && (
+            {showConfirmLogout && 
                 <ConfirmDialog
                   title="Logout"
                   text="Are you sure you want to logout?"
@@ -190,7 +190,7 @@ const UserActions: FC<IUserActionsProps> = ({
                   onClose={onLogoutClick}
                   confirmFunction={onLogout}
                 />
-            )}
+            }
         </>
     );
 };

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
@@ -100,11 +100,11 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) =>
             <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
                 {params.row.problemName}
             </Link>
-        ),
+        ,
     },
     {
         field: 'isDeleted',
@@ -150,7 +150,7 @@ export const returnProblemResourceNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton
@@ -171,6 +171,6 @@ export const returnProblemResourceNonFilterableColumns = (
                   disabled={!!params.row.link}
                 />
             </div>
-        ),
+        ,
     } ] as GridColDef[];
 export default problemResourceFilterableColumns;
