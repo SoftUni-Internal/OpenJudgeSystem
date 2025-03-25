@@ -7,7 +7,7 @@ import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
-import { Box, Button, Popper, TextField, TextFieldProps, Typography } from '@mui/material';
+import { Box, Button, ClickAwayListener, Popper, TextField, TextFieldProps, Typography } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { IDictionary } from 'src/common/common-types';
@@ -651,112 +651,114 @@ const Filter = (props: IFilterProps) => {
                   width: '100%',
               }}
             >
-                <Box sx={{
-                    width: '100%',
-                    backgroundColor: isDarkMode
-                        ? '#212328'
-                        : '#ffffff',
-                    borderRadius: '0.5rem',
-                    boxShadow: '0 0.25rem 1.25rem rgba(0, 0, 0, 0.15)',
-                    border: `1px solid ${isDarkMode
-                        ? 'rgba(243, 241, 241, 0.1)'
-                        : 'rgba(62, 76, 93, 0.1)'}`,
-                }}
-                >
+                <ClickAwayListener onClickAway={handleCloseClick}>
                     <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '0.75rem 1rem',
-                        borderBottom: `1px solid ${isDarkMode
+                        width: '100%',
+                        backgroundColor: isDarkMode
+                            ? '#212328'
+                            : '#ffffff',
+                        borderRadius: '0.5rem',
+                        boxShadow: '0 0.25rem 1.25rem rgba(0, 0, 0, 0.15)',
+                        border: `1px solid ${isDarkMode
                             ? 'rgba(243, 241, 241, 0.1)'
                             : 'rgba(62, 76, 93, 0.1)'}`,
                     }}
                     >
-                        <Typography
-                          variant="subtitle1"
-                          sx={{
-                              fontWeight: 600,
-                              color: isDarkMode
-                                  ? '#f3f1f1'
-                                  : '#3e4c5d',
-                              fontSize: '0.875rem',
-                          }}
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '0.75rem 1rem',
+                            borderBottom: `1px solid ${isDarkMode
+                                ? 'rgba(243, 241, 241, 0.1)'
+                                : 'rgba(62, 76, 93, 0.1)'}`,
+                        }}
                         >
-                            {filterColumn.name}
-                            {' '}
-                            Filters
-                        </Typography>
-                        <CloseIcon
-                          className={styles.closeIcon}
-                          onClick={handleCloseClick}
-                          sx={{
-                              cursor: 'pointer',
-                              fontSize: '1.25rem',
-                          }}
-                        />
-                    </Box>
-                    <Box sx={{
-                        padding: '1rem',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '0.5rem',
-                        maxHeight: '60vh',
-                        overflowY: 'auto',
-                    }}
-                    >
-                        {selectedFilters.map((filter, idx) => renderFilter(idx))}
-                    </Box>
-                    <Box
-                      className={styles.buttonsSection}
-                      sx={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          padding: '0.75rem 1rem',
-                          borderTop: `1px solid ${isDarkMode
-                              ? 'rgba(243, 241, 241, 0.1)'
-                              : 'rgba(62, 76, 93, 0.1)'}`,
-                          gap: '0.5rem',
-                      }}
-                    >
-                        <Button
-                          onClick={removeAllFilters}
-                          className={styles.removeAllFilters}
-                          startIcon={<DeleteIcon />}
-                          disabled={selectedFilters.length === 1}
-                          sx={{
-                              color: '#ef5350',
-                              fontSize: '0.875rem',
-                              '&:hover': { backgroundColor: 'rgba(239, 83, 80, 0.08)' },
-                          }}
-                        >
-                            Remove All
-                        </Button>
-                        <Button
-                          onClick={addFilter}
-                          disabled={selectedFilters.length
-                              ? !selectedFilters[0].value
-                              : false}
-                          className={styles.addFilter}
-                          sx={{
-                              backgroundColor: '#42abf8',
-                              color: 'white',
-                              fontSize: '0.875rem',
-                              '&:hover': { backgroundColor: '#3b9ae0' },
-                              '&:disabled': {
-                                  backgroundColor: isDarkMode
-                                      ? 'rgba(243, 241, 241, 0.1)'
-                                      : 'rgba(62, 76, 93, 0.1)',
+                            <Typography
+                              variant="subtitle1"
+                              sx={{
+                                  fontWeight: 600,
                                   color: isDarkMode
                                       ? '#f3f1f1'
                                       : '#3e4c5d',
-                              },
+                                  fontSize: '0.875rem',
+                              }}
+                            >
+                                {filterColumn.name}
+                                {' '}
+                                Filters
+                            </Typography>
+                            <CloseIcon
+                              className={styles.closeIcon}
+                              onClick={handleCloseClick}
+                              sx={{
+                                  cursor: 'pointer',
+                                  fontSize: '1.25rem',
+                              }}
+                            />
+                        </Box>
+                        <Box sx={{
+                            padding: '1rem',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '0.5rem',
+                            maxHeight: '60vh',
+                            overflowY: 'auto',
+                        }}
+                        >
+                            {selectedFilters.map((filter, idx) => renderFilter(idx))}
+                        </Box>
+                        <Box
+                          className={styles.buttonsSection}
+                          sx={{
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              padding: '0.75rem 1rem',
+                              borderTop: `1px solid ${isDarkMode
+                                  ? 'rgba(243, 241, 241, 0.1)'
+                                  : 'rgba(62, 76, 93, 0.1)'}`,
+                              gap: '0.5rem',
                           }}
                         >
-                            Add filter
-                        </Button>
+                            <Button
+                              onClick={removeAllFilters}
+                              className={styles.removeAllFilters}
+                              startIcon={<DeleteIcon />}
+                              disabled={selectedFilters.length === 1}
+                              sx={{
+                                  color: '#ef5350 !important',
+                                  fontSize: '0.875rem',
+                                  '&:hover': { backgroundColor: 'rgba(239, 83, 80, 0.08)' },
+                              }}
+                            >
+                                Remove All
+                            </Button>
+                            <Button
+                              onClick={addFilter}
+                              disabled={selectedFilters.length
+                                  ? !selectedFilters[0].value
+                                  : false}
+                              className={styles.addFilter}
+                              sx={{
+                                  backgroundColor: '#42abf8',
+                                  color: 'white',
+                                  fontSize: '0.875rem',
+                                  '&:hover': { backgroundColor: '#3b9ae0' },
+                                  '&:disabled': {
+                                      backgroundColor: isDarkMode
+                                          ? 'rgba(243, 241, 241, 0.1)'
+                                          : 'rgba(62, 76, 93, 0.1)',
+                                      color: isDarkMode
+                                          ? '#f3f1f1'
+                                          : '#3e4c5d',
+                                  },
+                              }}
+                            >
+                                Add filter
+                            </Button>
+                        </Box>
                     </Box>
-                </Box>
+                </ClickAwayListener>
             </Popper>
         </Box>
     );
