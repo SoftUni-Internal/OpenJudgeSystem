@@ -146,6 +146,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                     opt.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
                     opt.Cookie.Domain = sharedAuthCookieDomain;
                     opt.ExpireTimeSpan = TimeSpan.FromDays(7); // Set the cookie to expire after a week of inactivity
+                    opt.SlidingExpiration = true; // Halfway through the expiration period, reset the expiration time if the user is still active
                     opt.Events.OnRedirectToAccessDenied = ForbiddenResponse;
                     opt.Events.OnRedirectToLogin = UnauthorizedResponse;
                 });
