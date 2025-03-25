@@ -1,10 +1,10 @@
-﻿@use 'src/styles/components';
+@use 'src/styles/components';
 @use 'src/styles/spacings';
 @use 'src/styles/colors';
 
 .mentor {
-  position: fixed;
   bottom: spacings.$sp-16;
+  position: fixed;
   right: spacings.$sp-16;
   z-index: 1000;
 
@@ -15,37 +15,37 @@
 }
 
 .mentorMessageAvatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
   background-color: #fff;
+  border-radius: 50%;
+  display: flex;
+  height: 38px;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  width: 38px;
 
   img {
-    width: 100%;
     height: 100%;
     object-fit: contain;
     position: relative;
+    width: 100%;
   }
 
   @media (width <= 768px) {
-    width: 32px;
     height: 32px;
+    width: 32px;
   }
 
   @media (width <= 480px) {
-    width: 28px;
     height: 28px;
+    width: 28px;
   }
 }
 
 .mentorTitleContainer {
-  display: flex;
   align-items: center;
+  display: flex;
   gap: 1rem;
 
   @media (width <= 768px) {
@@ -63,9 +63,9 @@
 }
 
 .mentorTitleText {
+  color: colors.$white-color;
   font-size: 24px;
   font-weight: bold;
-  color: colors.$white-color;
 
   @media (width <= 768px) {
     font-size: 20px;
@@ -77,8 +77,8 @@
 }
 
 .problemNameText {
-  font-size: 16px;
   color: colors.$light-base-color-100;
+  font-size: 16px;
   font-weight: bold;
 
   @media (width <= 768px) {
@@ -91,51 +91,51 @@
 }
 
 .mentorTitleAvatar {
-  width: 61px;
-  height: 61px;
-  border-radius: 50%;
-  overflow: hidden;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  position: relative;
   background-color: #fff;
+  border-radius: 50%;
+  display: flex;
+  height: 61px;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  width: 61px;
 
   img {
-    width: 100%;
     height: 100%;
     object-fit: contain;
     position: relative;
+    width: 100%;
   }
 
   @media (width <= 768px) {
-    width: 48px;
     height: 48px;
+    width: 48px;
   }
 
   @media (width <= 480px) {
-    width: 42px;
     height: 42px;
+    width: 42px;
   }
 }
 
 .bubbleMessage {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  right: 0.5rem;
+  align-items: center;
+  animation: fadeIn 0.3s ease-in;
   background-color: #fff;
-  padding: spacings.$sp-8 spacings.$sp-16;
   border: colors.$dark-base-color-400 1px solid;
   border-radius: 16px;
-  font-size: 18px;
+  bottom: calc(100% + 8px);
   box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
-  animation: fadeIn 0.3s ease-in;
-  white-space: nowrap;
+  color: colors.$dark-base-color-500;
   display: flex;
   flex-direction: column;
+  font-size: 18px;
   justify-content: center;
-  align-items: center;
-  color: colors.$dark-base-color-500;
+  padding: spacings.$sp-8 spacings.$sp-16;
+  position: absolute;
+  right: 0.5rem;
+  white-space: nowrap;
 
   .primaryText {
     font-weight: 500;
@@ -147,17 +147,17 @@
   }
 
   &::after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    right: 22px;
-    width: 12px;
-    height: 12px;
     background-color: #fff;
-    transform: rotate(45deg);
-    box-shadow: 2px 2px 3px rgb(0 0 0 / 5%);
     border-bottom: colors.$dark-base-color-400 1px solid;
     border-right: colors.$dark-base-color-400 1px solid;
+    bottom: -6px;
+    box-shadow: 2px 2px 3px rgb(0 0 0 / 5%);
+    content: '';
+    height: 12px;
+    position: absolute;
+    right: 22px;
+    transform: rotate(45deg);
+    width: 12px;
   }
 }
 
@@ -178,47 +178,47 @@
 }
 
 .mentorButton {
-  position: absolute;
-  bottom: 0;
-  border-radius: 50% !important;
-  width: 90px !important;
-  height: 90px !important;
-  min-width: 48px !important;
-  min-height: 48px !important;
-  padding: 0 !important;
-  display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
-  z-index: 1000 !important;
   background-color: colors.$primary-blue !important;
+  border-radius: 50% !important;
+  bottom: 0;
   box-shadow: colors.$box-shadow-color !important;
+  display: flex !important;
+  height: 90px !important;
+  justify-content: center !important;
+  min-height: 48px !important;
+  min-width: 48px !important;
   overflow: hidden;
+  padding: 0 !important;
+  position: absolute;
+  width: 90px !important;
+  z-index: 1000 !important;
 
   img {
-    width: 100%;
     height: 100%;
     object-fit: contain;
     position: relative;
+    width: 100%;
   }
 
   @media (width <= 1200px) {
-    width: 80px !important;
     height: 80px !important;
+    width: 80px !important;
   }
 
   @media (width <= 1000px) {
-    width: 70px !important;
     height: 70px !important;
+    width: 70px !important;
   }
 
   @media (width <= 768px) {
-    width: 60px !important;
     height: 60px !important;
+    width: 60px !important;
   }
 
   @media (width <= 480px) {
-    width: 50px !important;
     height: 50px !important;
+    width: 50px !important;
   }
 }
 
@@ -228,16 +228,16 @@
 }
 
 .dialogPaper {
-  pointer-events: auto;
-  height: 600px;
-  width: 690px;
+  border-radius: spacings.$sp-16 !important;
+  bottom: 7.5rem !important;
   display: flex;
   flex-direction: column;
-  border-radius: spacings.$sp-16 !important;
   font-size: 18px !important;
-  position: absolute !important;
-  bottom: 7.5rem !important;
+  height: 600px;
   margin: 0 !important;
+  pointer-events: auto;
+  position: absolute !important;
+  width: 690px;
 
   @media (height <= 800px) {
     height: 550px;
@@ -260,61 +260,68 @@
   }
 
   @media (width <= 1200px) {
+    bottom: 7rem !important;
     height: 550px;
     width: 590px;
-    bottom: 7rem !important;
   }
 
   @media (width <= 1000px) {
+    bottom: 6rem !important;
     height: 550px;
     width: 590px;
-    bottom: 6rem !important;
   }
 
   @media (width <= 768px) {
+    bottom: 5rem !important;
     height: 450px;
     width: 480px;
-    bottom: 5rem !important;
   }
 
   @media (width <= 480px) {
-    height: 350px;
-    width: 100%;
     bottom: 4rem !important;
+    height: 350px;
     right: 0 !important;
+    width: 100%;
   }
 }
 
 .dialogTitle {
+  align-items: center;
   background-color: colors.$primary-blue;
   color: colors.$white-color;
-  padding: spacings.$sp-16;
   display: flex;
-  justify-content: start;
-  align-items: center;
-  gap: 1rem;
-  max-height: 50px;
   font-size: 24px !important;
+  gap: 1rem;
+  justify-content: start;
+  max-height: 50px;
+  padding: spacings.$sp-16;
 
   @media (width <= 768px) {
     font-size: 20px !important;
-    padding: spacings.$sp-12;
     max-height: 80px;
+    padding: spacings.$sp-12;
   }
 
   @media (width <= 480px) {
     font-size: 18px !important;
-    padding: spacings.$sp-8;
     max-height: 70px;
+    padding: spacings.$sp-8;
   }
 }
 
 .dialogContent {
-  flex-grow: 1;
-  padding: spacings.$sp-16 !important;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: spacings.$sp-16 !important;
+  scrollbar-color: colors.$primary-blue rgb(colors.$primary-blue 0.1);
+  scrollbar-width: thin;
+
+  &::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
 
   @media (width <= 768px) {
     padding: spacings.$sp-12 !important;
@@ -323,14 +330,6 @@
   @media (width <= 480px) {
     padding: spacings.$sp-8 !important;
   }
-
-  &::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-
-  scrollbar-color: colors.$primary-blue rgba(colors.$primary-blue, 0.1);
-  scrollbar-width: thin;
 }
 
 .darkDialogContent {
@@ -351,62 +350,62 @@
 }
 
 .messageContainer {
-  display: flex;
   align-items: center;
-  margin-bottom: spacings.$sp-12;
+  display: flex;
   gap: 1rem;
+  margin-bottom: spacings.$sp-12;
 
   @media (width <= 768px) {
-    margin-bottom: spacings.$sp-8;
     gap: 0.75rem;
+    margin-bottom: spacings.$sp-8;
   }
 
   @media (width <= 480px) {
-    margin-bottom: spacings.$sp-8;
     gap: 0.5rem;
+    margin-bottom: spacings.$sp-8;
   }
 }
 
 .conversationStartDate {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  margin-bottom: spacings.$sp-16;
   color: colors.$light-base-color-100;
+  display: flex;
   font-size: 14px;
+  justify-content: center;
+  margin-bottom: spacings.$sp-16;
 
   @media (width <= 768px) {
-    margin-bottom: spacings.$sp-12;
     font-size: 12px;
+    margin-bottom: spacings.$sp-12;
   }
 
   @media (width <= 480px) {
-    margin-bottom: spacings.$sp-8;
     font-size: 11px;
+    margin-bottom: spacings.$sp-8;
   }
 }
 
 .message {
-  font: inherit;
-  padding: spacings.$sp-8 spacings.$sp-12;
   border-radius: 8px;
-  max-width: 70%;
-  word-break: break-word;
-  white-space: pre-wrap;
-  word-wrap: break-word;
+  font: inherit;
   line-height: 1.4rem;
+  max-width: 70%;
+  padding: spacings.$sp-8 spacings.$sp-12;
+  white-space: pre-wrap;
+  word-break: break-word;
+  word-wrap: break-word;
 
   @media (width <= 768px) {
-    padding: spacings.$sp-8 spacings.$sp-12;
-    line-height: 1.3rem;
     font-size: 16px;
+    line-height: 1.3rem;
+    padding: spacings.$sp-8 spacings.$sp-12;
   }
 
   @media (width <= 480px) {
-    padding: spacings.$sp-4 spacings.$sp-8;
-    line-height: 1.2rem;
     font-size: 14px;
+    line-height: 1.2rem;
     max-width: 85%;
+    padding: spacings.$sp-4 spacings.$sp-8;
   }
 }
 
@@ -422,26 +421,27 @@
 }
 
 .dialogActions {
-  padding: spacings.$sp-16 !important;
-  gap: spacings.$sp-8;
   border-top: 1px solid colors.$wrappers-border-color;
+  gap: spacings.$sp-8;
   max-height: 70px;
+  padding: spacings.$sp-16 !important;
 
   @media (width <= 768px) {
-    padding: spacings.$sp-12 !important;
     max-height: 65px;
+    padding: spacings.$sp-12 !important;
   }
 
   @media (width <= 480px) {
-    padding: spacings.$sp-8 !important;
-    max-height: 60px;
     gap: spacings.$sp-4;
+    max-height: 60px;
+    padding: spacings.$sp-8 !important;
   }
 }
 
 .typingField {
   & :global(.MuiInput-underline) {
-    &::before, &::after {
+    &::before,
+    &::after {
       border-bottom: none !important;
     }
   }
@@ -451,22 +451,22 @@
   }
 
   & :global(.MuiInputBase-input) {
-    padding: 8px 12px;
-    color: colors.$dark-base-color-500 !important;
     border-radius: 4px;
+    color: colors.$dark-base-color-500 !important;
     font-size: 18px;
     max-height: 70px;
+    padding: 8px 12px;
 
     @media (width <= 768px) {
-      padding: 6px 10px;
       font-size: 16px;
       max-height: 65px;
+      padding: 6px 10px;
     }
 
     @media (width <= 480px) {
-      padding: 4px 8px;
       font-size: 14px;
       max-height: 60px;
+      padding: 4px 8px;
     }
   }
 
@@ -476,8 +476,8 @@
 }
 
 .typingIndicator {
-  display: flex;
   align-items: center;
+  display: flex;
   gap: 8px;
 
   @media (width <= 768px) {
@@ -489,19 +489,19 @@
   }
 
   .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
     animation: grow-shrink 1.2s infinite ease-in-out;
+    border-radius: 50%;
+    height: 8px;
+    width: 8px;
 
     @media (width <= 768px) {
-      width: 6px;
       height: 6px;
+      width: 6px;
     }
 
     @media (width <= 480px) {
-      width: 4px;
       height: 4px;
+      width: 4px;
     }
   }
 
@@ -540,7 +540,7 @@
 }
 
 .sendIconDisabled {
-  color: rgba(colors.$primary-blue, 0.5);
+  color: rgb(colors.$primary-blue 0.5);
   font-size: 28px;
 
   @media (width <= 768px) {
@@ -553,7 +553,8 @@
 }
 
 @keyframes grow-shrink {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
 
@@ -563,68 +564,75 @@
 }
 
 .errorMessage {
+  align-items: center;
+  bottom: 0;
   color: colors.$primary-red;
   display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  bottom: 0;
   font-weight: bold;
+  justify-content: center;
+  text-align: center;
 }
 
 .markdownContent {
+  display: flex;
+  flex-direction: column;
   font-family: inherit;
   line-height: 1.4;
   word-wrap: break-word;
-  display: flex;
-  flex-direction: column;
 
-  h1, h2, h3, h4, h5, h6 {
-    margin-top: spacings.$sp-4;
-    margin-bottom: spacings.$sp-4;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-weight: bold;
     line-height: 1.4;
+    margin-bottom: spacings.$sp-4;
+    margin-top: spacings.$sp-4;
   }
 
-  ul, ol {
-    padding: 1rem 0 1rem spacings.$sp-24;
-    list-style-position: inside;
+  ul,
+  ol {
     display: flex;
     flex-direction: column;
+    list-style-position: inside;
     list-style-type: decimal !important;
+    padding: 1rem 0 1rem spacings.$sp-24;
 
     li {
+      line-height: 1.4;
       margin: 0;
       padding-left: spacings.$sp-4;
-      line-height: 1.4;
 
       &::marker {
         font-weight: bold;
       }
     }
 
-    ul, ol {
-      padding-left: spacings.$sp-48;
-      margin: 0;
+    ul,
+    ol {
       list-style-type: disc !important;
+      margin: 0;
+      padding-left: spacings.$sp-48;
     }
   }
 
   code {
     background-color: colors.$dark-base-color-300;
-    color: colors.$light-base-color-100;
-    padding: spacings.$sp-4 spacings.$sp-8;
     border-radius: 4px;
+    color: colors.$light-base-color-100;
     font-size: 14px;
+    padding: spacings.$sp-4 spacings.$sp-8;
   }
 
   pre {
     background-color: colors.$dark-base-color-300;
-    color: colors.$light-base-color-100;
-    padding: spacings.$sp-12;
     border-radius: 8px;
-    overflow-x: auto;
+    color: colors.$light-base-color-100;
     font-size: 14px;
+    overflow-x: auto;
+    padding: spacings.$sp-12;
   }
 
   a {
@@ -638,18 +646,19 @@
 
   blockquote {
     border-left: 4px solid colors.$primary-blue;
-    padding-left: spacings.$sp-16;
-    margin: spacings.$sp-16 0;
-    font-style: italic;
     color: colors.$dark-base-color-300;
+    font-style: italic;
+    margin: spacings.$sp-16 0;
+    padding-left: spacings.$sp-16;
   }
 
   table {
-    width: 100%;
     border-collapse: collapse;
     margin: spacings.$sp-16 0;
+    width: 100%;
 
-    th, td {
+    th,
+    td {
       border: 1px solid colors.$dark-base-color-200;
       padding: spacings.$sp-8;
       text-align: left;
@@ -667,8 +676,8 @@
 }
 
 .sendButtonContainer {
-  position: relative;
   display: inline-block;
+  position: relative;
 
   &:hover .errorBubble {
     display: block;
