@@ -9,6 +9,7 @@ import promisePlugin from 'eslint-plugin-promise';
 import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 import simpleImportSortPlugin from 'eslint-plugin-simple-import-sort';
 import reduxConfig from './src/redux/eslint.redux.config.js';
+import playwrightConfig from './tests/eslint.playwright.config.js';
 
 export default defineConfig([
   tseslint.configs.recommendedTypeChecked,
@@ -385,5 +386,6 @@ export default defineConfig([
         '@typescript-eslint/explicit-module-boundary-types': 0,
     },
   },
-  ...reduxConfig,
+  playwrightConfig,
+  reduxConfig,
 ]);
