@@ -9,6 +9,9 @@ export default {
     plugins: { playwright },
     rules: {
         ...playwright.configs['flat/recommended'].rules,
+        'no-extra-parens': 'off',
+        'react-hooks/rules-of-hooks': 'off',
+        '@typescript-eslint/no-unused-vars': 'off',
         // Add your custom rules here
     },
 };

@@ -315,7 +315,7 @@
   flex-grow: 1;
   overflow-y: auto;
   padding: spacings.$sp-16 !important;
-  scrollbar-color: colors.$primary-blue rgb(colors.$primary-blue 0.1);
+  scrollbar-color: colors.$primary-blue rgb(colors.$primary-blue, 0.1);
   scrollbar-width: thin;
 
   &::-webkit-scrollbar {
@@ -540,7 +540,7 @@
 }
 
 .sendIconDisabled {
-  color: rgb(colors.$primary-blue 0.5);
+  color: rgb(colors.$primary-blue, 0.5);
   font-size: 28px;
 
   @media (width <= 768px) {
