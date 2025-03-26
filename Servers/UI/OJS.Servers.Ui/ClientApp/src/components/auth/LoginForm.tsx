@@ -23,6 +23,7 @@ import { getErrorMessage } from '../../utils/http-utils';
 import { flexCenterObjectStyles } from '../../utils/object-utils';
 import { getPlatformForgottenPasswordUrl } from '../../utils/urls';
 import { LinkButton, LinkButtonType } from '../guidelines/buttons/Button';
+import CheckBox from '../guidelines/checkbox/CheckBox';
 import Form from '../guidelines/forms/Form';
 import FormControl, { FormControlType, IFormControlOnChangeValueType } from '../guidelines/forms/FormControl';
 import Heading, { HeadingType } from '../guidelines/headings/Heading';
@@ -229,12 +230,10 @@ const LoginForm = () => {
                       shouldDisableLabel
                     />
                     <div className={styles.loginFormControls}>
-                        <FormControl
+                        <CheckBox
                           id="auth-password-checkbox"
-                          name="RememberMe"
-                          labelText="Remember me"
-                          type={FormControlType.checkbox}
-                          checked={rememberMe}
+                          label="Remember me"
+                          initialChecked={rememberMe}
                           onChange={() => setRememberMe(!rememberMe)}
                         />
                         <div>

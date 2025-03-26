@@ -13,7 +13,7 @@ public class ProblemForPublicSubmissionsServiceModel
 {
     public int Id { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string Name { get; set; } = string.Empty;
 
     public ContestForPublicSubmissionsServiceModel Contest { get; set; } = null!;
 
@@ -21,10 +21,10 @@ public class ProblemForPublicSubmissionsServiceModel
 
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<Problem, ProblemForPublicSubmissionsServiceModel>()
-            .ForMember(
-                x => x.Contest,
-                opt => opt.MapFrom(
-                    y => y.ProblemGroup.Contest));
+    .ForMember(
+        x => x.Contest,
+        opt => opt.MapFrom(
+            y => y.ProblemGroup.Contest));
 }
 
 public class ContestForPublicSubmissionsServiceModel : IMapFrom<Contest>
@@ -34,11 +34,16 @@ public class ContestForPublicSubmissionsServiceModel : IMapFrom<Contest>
     public string Name { get; set; } = null!;
 }
 
-public class ResultForPublicSubmissionsServiceModel
+public class ResultForPublicSubmissionsServiceModel : IMapExplicitly
 {
     public int Points { get; set; }
 
-    public int MaxPoints { get; set; }
+    public short MaxPoints { get; set; }
+
+    public void RegisterMappings(IProfileExpression configuration)
+        => configuration.CreateMap<Submission, ResultForPublicSubmissionsServiceModel>()
+            .ForMember(dest => dest.Points, opt => opt.MapFrom(src => src.Points))
+            .ForMember(dest => dest.MaxPoints, opt => opt.MapFrom(src => src.Problem!.MaximumPoints));
 }
 
 public class PublicSubmissionsServiceModel : IMapExplicitly
@@ -66,6 +71,9 @@ public class PublicSubmissionsServiceModel : IMapExplicitly
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<Submission, PublicSubmissionsServiceModel>()
             .ForMember(
+                x => x.Result,
+                opt => opt.MapFrom(s => s))
+            .ForMember(
                 x => x.StrategyName,
                 opt => opt.MapFrom(
                     y => y.SubmissionType!.Name))
@@ -73,17 +81,6 @@ public class PublicSubmissionsServiceModel : IMapExplicitly
                 x => x.User,
                 opt => opt.MapFrom(
                     y => y.Participant!.User.UserName))
-            .ForMember(
-                x => x.Result,
-                opt => opt.MapFrom(
-                    y => new ResultForPublicSubmissionsServiceModel
-                    {
-                        Points = y.Points,
-                        MaxPoints =
-                            y.Problem.IsNull()
-                                ? 0
-                                : y.Problem!.MaximumPoints,
-                    }))
             .ForMember(
                 x => x.IsOfficial,
                 opt => opt.MapFrom(
