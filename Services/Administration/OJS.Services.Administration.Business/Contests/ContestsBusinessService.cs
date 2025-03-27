@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Common.Extensions.Strings;
+using OJS.Common.Utils;
 using OJS.Data.Models;
 using OJS.Data.Models.Contests;
 using OJS.Data.Models.Participants;
@@ -12,6 +13,7 @@ using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Data.Excel;
+using OJS.Services.Administration.Models;
 using OJS.Services.Administration.Models.Contests;
 using OJS.Services.Administration.Models.Participants;
 using OJS.Services.Administration.Models.Problems;
@@ -32,6 +34,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Resource = OJS.Common.Resources.ContestsGeneral;
 using static OJS.Common.GlobalConstants.FileExtensions;
+using static OJS.Common.GlobalConstants.Settings;
 
 public class ContestsBusinessService : AdministrationOperationService<Contest, int, ContestAdministrationModel>, IContestsBusinessService
 {
@@ -49,6 +52,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
     private readonly ISubmissionsDataService submissionsDataService;
     private readonly IZipArchivesService zipArchivesService;
     private readonly IDataService<LecturerInContest> lecturerInContestDataService;
+    private readonly ISettingsCacheService settingsCache;
 
     public ContestsBusinessService(
         IContestsDataService contestsData,
@@ -64,7 +68,8 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         IParticipantScoresDataService participantScoresDataService,
         ISubmissionsDataService submissionsDataService,
         IZipArchivesService zipArchivesService,
-        IDataService<LecturerInContest> lecturerInContestDataService)
+        IDataService<LecturerInContest> lecturerInContestDataService,
+        ISettingsCacheService settingsCache)
     {
         this.contestsData = contestsData;
         this.ipsData = ipsData;
@@ -80,6 +85,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         this.submissionsDataService = submissionsDataService;
         this.zipArchivesService = zipArchivesService;
         this.lecturerInContestDataService = lecturerInContestDataService;
+        this.settingsCache = settingsCache;
     }
 
     public async Task<IEnumerable<LecturerInContestActionsModel>> GetForLecturerInContest(string userId)
@@ -374,6 +380,85 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
 
         this.participantsData.DeleteMany(participantsForDeletion);
         await this.participantsData.SaveChanges();
+    }
+
+    public async Task BulkEdit(ContestsBulkEditModel model)
+    {
+        var contests = await this.contestsData
+            .GetQuery(c => c.CategoryId == model.CategoryId)
+            .ToListAsync();
+
+        foreach (var contest in contests)
+        {
+            if (model.LimitBetweenSubmissions is not null)
+            {
+                contest.LimitBetweenSubmissions = model.LimitBetweenSubmissions.Value;
+            }
+
+            if (model.Type is not null)
+            {
+                contest.Type = Enum.Parse<ContestType>(model.Type);
+            }
+
+            contest.StartTime = model.StartTime;
+            contest.EndTime = model.EndTime;
+            contest.PracticeStartTime = model.PracticeStartTime;
+            contest.PracticeEndTime = model.PracticeEndTime;
+        }
+
+        this.contestsData.UpdateMany(contests);
+        await this.contestsData.SaveChanges();
+    }
+       
+    public async Task AdjustLimitBetweenSubmissions(WorkersBusyRatioServiceModel model)
+    {
+        var settings = await this.settingsCache.GetRequiredValue<ContestLimitBetweenSubmissionsAdjustSettings>(ContestLimitBetweenSubmissionsAdjustmentSettings);
+
+        var combinedRatio = (model.ExponentialMovingAverageRatio + model.RollingAverageRatio) / 2.0;
+
+        double ratioFactor;
+        if (combinedRatio < settings.BusyRatioModerateThreshold)
+        {
+            // Decrease the factor -> decrease limit between submissions
+            ratioFactor = 1.0 / settings.BusyRatioMaxFactor;
+        }
+        else
+        {
+            // Smoothly scale factor from 1.0 up to max factor -> increase limit between submissions linearly
+            ratioFactor = Calculator.LinearInterpolate(
+                combinedRatio,
+                settings.BusyRatioModerateThreshold,
+                settings.BusyRatioCriticalThreshold,
+                targetMin: 1.0,
+                targetMax: settings.BusyRatioMaxFactor,
+                clamp: true);
+        }
+
+        // Smoothly scale from 1.0 up to max factor as queue length grows between moderate and critical thresholds
+        var queueFactor = Calculator.LinearInterpolate(
+            model.SubmissionsAwaitingExecution,
+            model.WorkersTotalCount * settings.QueueLenghtModerateThresholdMultiplier,
+            model.WorkersTotalCount * settings.QueueLenghtCriticalThresholdMultiplier,
+            targetMin: 1.0,
+            targetMax: settings.QueueLenghtMaxFactor,
+            clamp: true);
+
+        var adjustingFactor = ratioFactor * queueFactor;
+
+        await this.contestsData
+            .GetAllVisible()
+            .Where(c => c.AutoChangeLimitBetweenSubmissions)
+            .UpdateFromQueryAsync(c => new Contest
+            {
+                // Will be clamped between 0 and max allowed limit
+                LimitBetweenSubmissions = Math.Clamp(
+                    (int)((c.LimitBetweenSubmissions <= 0 && adjustingFactor > 1
+                              ? 1
+                              : c.LimitBetweenSubmissions) // If the limit is 0, and we want to increase it, start from 1 or else it will stay 0 indefinitely
+                        * adjustingFactor),
+                    0,
+                    settings.MaxLimitBetweenSubmissionsInSeconds),
+            });
     }
 
     private static void RemoveCircularReferences(Contest contest)

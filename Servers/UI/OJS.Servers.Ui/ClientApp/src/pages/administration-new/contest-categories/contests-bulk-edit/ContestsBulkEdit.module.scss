@@ -1,0 +1,72 @@
+﻿@use 'src/styles/colors';
+
+@mixin underline-color($color) {
+  :global {
+    .MuiInput-underline::before {
+      border-bottom-color: $color !important;
+    }
+
+    .MuiInput-underline:hover:not(.Mui-disabled)::before {
+      border-bottom-color: $color !important;
+    }
+
+    .MuiInput-underline::after {
+      border-bottom-color: $color !important;
+    }
+
+    .MuiInput-underline:hover:not(.Mui-disabled)::after {
+      border-bottom-color: $color !important;
+    }
+  }
+}
+
+@mixin border-color($color) {
+  :global {
+    flex-grow: 1;
+
+    .MuiOutlinedInput-notchedOutline {
+      border-color: $color !important;
+    }
+
+    .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline {
+      border-color: $color !important;
+    }
+
+    .MuiInputBase-root,
+    .MuiFormLabel-root {
+      margin-top: 20px;
+    }
+  }
+}
+
+.competeUnderline {
+  @include underline-color(colors.$secondary-green);
+}
+
+.practiceUnderline {
+  @include underline-color(colors.$success-background-color);
+}
+
+.competeBorder {
+  @include border-color(colors.$secondary-green);
+}
+
+.practiceBorder {
+  @include border-color(colors.$success-background-color);
+}
+
+.flex {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 1rem auto;
+}
+
+.confirmationImportant {
+  color: colors.$primary-red;
+}
+
+.confirmationUnderlined {
+  text-decoration: underline;
+}

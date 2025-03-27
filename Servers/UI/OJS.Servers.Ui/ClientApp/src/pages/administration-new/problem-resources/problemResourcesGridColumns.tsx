@@ -136,7 +136,11 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnProblemResourceNonFilterableColumns = (onEditClick: Function, onSuccessFullyDeleted:Function) => [
+export const returnProblemResourceNonFilterableColumns = (
+    onEditClick: Function,
+    onSuccessfulDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -158,7 +162,8 @@ export const returnProblemResourceNonFilterableColumns = (onEditClick: Function,
                   name={`${PROBLEM_RESOURCE}`}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteProblemResourceMutation}
-                  onSuccess={() => onSuccessFullyDeleted()}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 <DownloadIconButton
                   args={params.row.id}

@@ -45,7 +45,7 @@ const usersAdminService = createApi({
         }),
 
         getUserById:
-        builder.query<IUserAdministrationModel, string>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }) }),
+        builder.query<IUserAdministrationModel, string>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }), keepUnusedDataFor: 0 }),
 
         getUsersByRole: builder.query<IPagedResultType<IUserInListModel>, IGetByRoleId>({
             query: ({ roleId, filter, page, itemsPerPage, sorting }) => ({

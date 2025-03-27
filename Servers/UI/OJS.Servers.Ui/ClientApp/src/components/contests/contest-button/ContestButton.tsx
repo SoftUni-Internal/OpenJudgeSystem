@@ -15,6 +15,7 @@ interface IContestButtonProps extends IHaveOptionalClassName {
     isDisabled: boolean;
     id: number;
     problemId?: number;
+    orderBy?: number;
     onClick?: () => void;
     name: string;
 }
@@ -28,6 +29,7 @@ const ContestButton = (props: IContestButtonProps) => {
         isDisabled,
         id,
         problemId,
+        orderBy,
         onClick,
         name,
         className,
@@ -51,6 +53,7 @@ const ContestButton = (props: IContestButtonProps) => {
             contestId: id,
             contestName: name,
             problemId,
+            orderBy,
         }));
     };
 

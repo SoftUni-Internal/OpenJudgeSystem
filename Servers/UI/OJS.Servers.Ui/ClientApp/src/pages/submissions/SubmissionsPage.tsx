@@ -1,4 +1,5 @@
 import React from 'react';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import MetaTags from '../../components/common/MetaTags';
 import Breadcrumbs, { IPageBreadcrumbsItem } from '../../components/guidelines/breadcrumb/Breadcrumbs';
@@ -7,6 +8,7 @@ import setLayout from '../shared/set-layout';
 
 const SubmissionsPage = () => (
     <>
+        <BackToTop />
         <MetaTags
           title="Recent Submissions - SoftUni Judge"
           description={

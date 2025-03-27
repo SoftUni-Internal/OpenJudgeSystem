@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
+import { CONTEST_CATEGORIES_HIERARCHY_PATH } from 'src/common/urls/administration-urls';
+import AdministrationLink from 'src/components/guidelines/buttons/AdministrationLink';
+import { CONTESTS_BULK_EDIT } from 'src/utils/constants';
 
 import { SortType } from '../../common/contest-types';
 import { IContestsSortAndFilterOptions, IIndexContestsType } from '../../common/types';
@@ -27,16 +30,16 @@ import styles from './ContestsPage.module.scss';
 const ContestsPage = () => {
     const dispatch = useAppDispatch();
     const { categoryId } = useParams();
-    const { breadcrumbItems } = useAppSelector((state) => state.contests);
     const { themeColors, getColorClassName } = useTheme();
     const {
         contests,
         contestsCacheIsReset,
         selectedCategory,
         selectedStrategy,
+        breadcrumbItems,
     } = useAppSelector((state) => state.contests);
 
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
 
     const textColorClassName = getColorClassName(themeColors.textColor);
 
@@ -151,7 +154,18 @@ const ContestsPage = () => {
                             ? selectedCategory.name
                             : 'All Categories'}
                     </div>
-                    <ContestStrategies />
+                    <div className={styles.headingActions}>
+                        {selectedCategory?.id && selectedCategory?.children.length === 0 && (
+                            <AdministrationLink
+                              text="Edit Contests"
+                              to={`/${CONTEST_CATEGORIES_HIERARCHY_PATH}?${CONTESTS_BULK_EDIT}=${selectedCategory?.id}`}
+                            />
+                        )}
+                        <ContestStrategies
+                          searchParams={searchParams}
+                          setSearchParams={setSearchParams}
+                        />
+                    </div>
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls

@@ -138,7 +138,7 @@ const AdministrationRolesPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               filterableGridColumnDef={rolesFilterableColumns}
               notFilterableGridColumnDef={returnRolesNonFilterableColumns(
@@ -148,6 +148,7 @@ const AdministrationRolesPage = () => {
                   onAddLecturerToContest,
                   onRemoveLecturerFromContest,
                   onDeleteSuccess,
+                  setSuccessMessage,
               )}
               data={data}
               error={error}

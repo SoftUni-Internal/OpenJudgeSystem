@@ -37,7 +37,7 @@ const AdministrationCheckersPage = () => {
         setOpenEditModal(true);
     };
 
-    const closeModal = (isEditMode: boolean) => {
+    const onCloseModal = (isEditMode: boolean) => {
         if (isEditMode) {
             setOpenEditModal(false);
         } else {
@@ -53,12 +53,12 @@ const AdministrationCheckersPage = () => {
           open={isEditMode
               ? openEditModal
               : openCreateModal}
-          onClose={() => closeModal(isEditMode)}
+          onClose={() => onCloseModal(isEditMode)}
         >
             <CheckerForm
               id={checkerId}
               isEditMode={isEditMode}
-              onSuccess={() => closeModal(isEditMode)}
+              onSuccess={() => onCloseModal(isEditMode)}
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
@@ -78,7 +78,7 @@ const AdministrationCheckersPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               data={checkersData}
               error={checkersError}
@@ -86,7 +86,12 @@ const AdministrationCheckersPage = () => {
               setQueryParams={setQueryParams}
               renderActionButtons={renderGridSettings}
               filterableGridColumnDef={checkersFilterableColumns}
-              notFilterableGridColumnDef={returnCheckersNonFilterableColumns(onEditClick, useDeleteCheckerMutation, retakeCheckers)}
+              notFilterableGridColumnDef={returnCheckersNonFilterableColumns(
+                  onEditClick,
+                  useDeleteCheckerMutation,
+                  retakeCheckers,
+                  setSuccessMessage,
+              )}
               modals={[
                   { showModal: openEditModal, modal: (i) => renderModal(i, true) },
                   { showModal: openCreateModal, modal: (i) => renderModal(i, false) },

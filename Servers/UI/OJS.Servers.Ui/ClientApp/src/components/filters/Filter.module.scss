@@ -1,0 +1,266 @@
+﻿@use 'src/styles/colors.scss';
+@use 'src/styles/spacings';
+
+.popupContainer {
+  border-radius: 12px;
+  padding: spacings.$sp-24;
+  width: auto;
+  min-width: 320px;
+  z-index: 1300;
+  box-shadow: colors.$box-shadow-color;
+  border: 2px solid colors.$background-color-btn-primary;
+  transform-origin: top left;
+  opacity: 0;
+  transform: scale(0.95);
+  pointer-events: none;
+
+  &.open {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  & .closeIcon {
+    cursor: pointer;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+    }
+  }
+
+  & .fieldsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1.5rem !important;
+    padding: 0.5rem;
+
+    & .title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(colors.$background-color-btn-primary, 0.1);
+    }
+
+    & .hidden {
+      visibility: hidden;
+    }
+
+    & .removeFilterButton {
+      cursor: pointer;
+      transition: transform 0.2s ease;
+
+      &:hover {
+        transform: scale(1.1);
+      }
+    }
+
+    :global {
+      .MuiInputLabel-root {
+        color: colors.$background-color-btn-primary;
+        font-size: 0.9rem;
+        transform: translate(0, -1.5px) scale(0.85);
+      }
+
+      .MuiInput-underline::before {
+        border-bottom-color: colors.$background-color-btn-primary;
+      }
+
+      .MuiInput-underline:hover::before {
+        border-bottom-color: colors.$background-color-btn-primary;
+      }
+
+      .MuiInput-underline::after {
+        border-bottom-color: colors.$background-color-btn-primary;
+      }
+
+      .Mui-disabled {
+        & .MuiInput-underline::before {
+          border-bottom-style: solid;
+          border-bottom-color: colors.$background-color-btn-primary;
+          opacity: 0.6;
+        }
+      }
+
+      .MuiSelect-select {
+        padding: 8px 0;
+      }
+
+      .MuiFormControl-root {
+        margin: 8px 0;
+      }
+    }
+  }
+
+  & .buttonsSection {
+    display: flex;
+    justify-content: space-between;
+    margin-top: spacings.$sp-24;
+    padding-top: spacings.$sp-16;
+    border-top: 1px solid rgba(colors.$background-color-btn-primary, 0.1);
+
+    button {
+      min-width: 120px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-1px);
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  & .removeAllFilters {
+    color: colors.$primary-red;
+
+    &:hover {
+      background-color: rgba(colors.$primary-red, 0.1);
+    }
+  }
+
+  & .addFilter {
+    background-color: rgba(colors.$background-color-btn-primary, 0.1);
+
+    &:hover:not(:disabled) {
+      background-color: rgba(colors.$background-color-btn-primary, 0.2);
+    }
+  }
+
+  &.lightTheme {
+    background-color: colors.$white-color;
+    color: colors.$primary-dark-grey-color;
+
+    :global {
+      .MuiInputBase-input {
+        color: colors.$primary-dark-grey-color !important;
+      }
+
+      .MuiInputBase-input.Mui-disabled {
+        -webkit-text-fill-color: colors.$primary-dark-grey-color !important;
+        color: colors.$primary-dark-grey-color !important;
+        opacity: 0.7;
+      }
+
+      .MuiInputLabel-root {
+        color: colors.$primary-dark-grey-color;
+      }
+
+      .MuiInput-underline::before {
+        border-bottom-color: colors.$light-base-color-500;
+      }
+
+      .MuiInput-underline:hover::before {
+        border-bottom-color: colors.$primary-blue;
+      }
+
+      .MuiInput-underline::after {
+        border-bottom-color: colors.$primary-blue;
+      }
+    }
+
+    & .addFilter {
+      color: colors.$primary-dark-grey-color;
+      background-color: colors.$light-base-color-200;
+
+      &:hover:not(:disabled) {
+        background-color: colors.$light-base-color-300;
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        background-color: colors.$light-base-color-200;
+      }
+    }
+
+    .MuiSvgIcon-root {
+      color: colors.$primary-dark-grey-color;
+    }
+
+    .option {
+      color: colors.$primary-dark-grey-color;
+      background-color: colors.$white-color;
+
+      &:hover,
+      &[aria-selected='true'] {
+        background-color: colors.$light-base-color-200 !important;
+      }
+    }
+
+    & .title {
+      color: colors.$primary-dark-grey-color;
+      border-bottom-color: colors.$light-base-color-300;
+    }
+
+    & .buttonsSection {
+      border-top-color: colors.$light-base-color-300;
+    }
+  }
+
+  &.darkTheme {
+    background-color: colors.$dark-base-color-400;
+    color: colors.$dark-text-color;
+
+    :global {
+      .MuiInputBase-input.Mui-disabled {
+        -webkit-text-fill-color: colors.$dark-text-color !important;
+        color: colors.$dark-text-color !important;
+      }
+    }
+
+    & .addFilter {
+      color: colors.$dark-text-color;
+
+      &:disabled {
+        opacity: 0.6;
+      }
+    }
+
+    .MuiSvgIcon-root {
+      color: colors.$dark-text-color;
+    }
+
+    .option {
+      color: colors.$dark-text-color;
+      background-color: colors.$dark-base-color-400;
+
+      &:hover,
+      &[aria-selected='true'] {
+        background-color: colors.$dark-base-color-300 !important;
+      }
+    }
+  }
+}
+
+.divider {
+  border: 0;
+  height: 1px;
+  width: 100%;
+  background-color: rgba(colors.$background-color-btn-primary, 0.1) !important;
+  border-radius: 1rem;
+  margin: 16px 0;
+}
+
+.input {
+  font-size: spacings.$sp-16;
+}
+
+.textField {
+  width: 100%;
+  margin: 8px 0;
+}

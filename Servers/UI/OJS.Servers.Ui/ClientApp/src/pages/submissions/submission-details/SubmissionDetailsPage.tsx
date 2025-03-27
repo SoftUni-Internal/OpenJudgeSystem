@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { Link } from 'react-router-dom';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 import CheckBox from 'src/components/guidelines/checkbox/CheckBox';
 import Mentor from 'src/components/mentor/Mentor';
 
@@ -434,6 +435,7 @@ const SubmissionDetailsPage = () => {
                     Submission retest started!
                 </div>
             )}
+            <BackToTop />
             <ContestBreadcrumbs />
             <Mentor
               problemId={problem?.id}

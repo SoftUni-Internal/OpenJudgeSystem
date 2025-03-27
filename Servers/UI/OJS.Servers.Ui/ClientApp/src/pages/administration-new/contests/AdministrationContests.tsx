@@ -49,7 +49,6 @@ const AdministrationContestsPage = () => {
     const [ excelExportType, setExcelExportType ] = useState<number>(0);
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
-
     const [ errorMessages, setErrorMessages ] = useState<Array<string>>([]);
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
 
@@ -241,7 +240,7 @@ const AdministrationContestsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(successMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             {renderErrorMessagesAlert(errorMessages)}
             <AdministrationGridView
               data={data}
@@ -253,6 +252,7 @@ const AdministrationContestsPage = () => {
                   onExcelClick,
                   onDownloadSubmissionClick,
                   onTransferParticipantsClick,
+                  setSuccessMessage,
               )}
               renderActionButtons={renderGridActions}
               queryParams={queryParams}

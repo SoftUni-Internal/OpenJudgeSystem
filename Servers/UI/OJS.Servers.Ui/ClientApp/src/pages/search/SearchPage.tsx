@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import { CheckboxSearchValues } from '../../common/enums';
 import {
@@ -42,7 +43,7 @@ const USER_ITEMS_PER_SEARCH = 35;
 
 const SearchPage = () => {
     const dispatch = useAppDispatch();
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'contestsPage', 'problemsPage', 'usersPage' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const { getColorClassName, themeColors } = useTheme();
     const { searchValue, selectedTerms } = useAppSelector((state) => state.search);
     const [ selectedContestsPage, setSelectedContestsPage ] = useState(1);
@@ -250,6 +251,7 @@ const SearchPage = () => {
 
     return (
         <div className={`${styles.searchPageWrapper} ${textColorClassName}`}>
+            <BackToTop />
             <MetaTags
               title={`Search results for "${searchParams.get('searchTerm')}" - SoftUni Judge`}
               description={

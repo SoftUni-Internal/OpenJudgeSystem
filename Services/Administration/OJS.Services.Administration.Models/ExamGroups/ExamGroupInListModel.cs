@@ -11,6 +11,8 @@ public class ExamGroupInListModel : IMapFrom<ExamGroup>
 
     public string? ContestName { get; set; }
 
+    public int? ContestId { get; set; }
+
     public string? ExternalAppId { get; set; }
 
     public int? ExternalExamGroupId { get; set; }

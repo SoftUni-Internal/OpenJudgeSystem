@@ -4,6 +4,7 @@ import { IoIosArrowDown } from 'react-icons/io';
 import isNilOrEmpty from 'src/utils/check-utils';
 
 import {
+    CONTEST_CATEGORIES_HIERARCHY_PATH,
     CONTEST_CATEGORIES_PATH,
     CONTESTS_PATH,
     EXAM_GROUPS_PATH,
@@ -82,6 +83,8 @@ const AdministrationMenu = ({ buttonType, items, isUsedInPageHeader = false }: I
                 <span onClick={() => onClickNavigate(SUBMISSIONS_PATH)}>Submissions</span>
                 {user.isAdmin && (
                     <span onClick={() => onClickNavigate(CONTEST_CATEGORIES_PATH)}>Categories</span>)}
+                {user.isAdmin && (
+                    <span onClick={() => onClickNavigate(CONTEST_CATEGORIES_HIERARCHY_PATH)}>Categories Hierarchy</span>)}
                 {user.isAdmin && (
                     <span onClick={() => onClickNavigate(PARTICIPANTS_PATH)}>Participants</span>)}
             </div>

@@ -27,6 +27,7 @@ const dataColumns: AdministrationGridColDef[] = [
         renderCell: (params: GridRenderCellParams) => (
             <ExternalLink to={`/submissions/${Number(params.row.id)}/details`} text={params.row.id.toString()} />
         ),
+        hidden: false,
     },
     {
         field: 'participantName',
@@ -40,7 +41,7 @@ const dataColumns: AdministrationGridColDef[] = [
     },
     {
         field: 'problemId',
-        headerName: 'ProblemId',
+        headerName: 'Problem Id',
         type: 'number',
         align: 'center',
         headerAlign: 'center',
@@ -208,7 +209,8 @@ const dataColumns: AdministrationGridColDef[] = [
 export const returnSubmissionsNonFilterableColumns = (
     retest: Function,
     downloadClicked: Function,
-    onSuccessFullyDelete:() => void,
+    onSuccessfulDelete:() => void,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -233,7 +235,8 @@ export const returnSubmissionsNonFilterableColumns = (
                   name="Submission"
                   text={`Are you sure that you want to delete submission #${params.row.id}?`}
                   mutation={useDeleteSubmissionMutation}
-                  onSuccess={onSuccessFullyDelete}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 <Tooltip title="Download">
                     <span>
