@@ -132,7 +132,11 @@ const submissionTypesFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnNonFilterableColumns = (onEditClick: Function, onSuccessFullDelete: () => void) => [
+export const returnNonFilterableColumns = (
+    onEditClick: Function,
+    onSuccessFullDelete: () => void,
+    setParentSuccessMessage: Function,
+) => [
     {
         field: 'actions',
         headerName: 'Actions',
@@ -151,6 +155,7 @@ export const returnNonFilterableColumns = (onEditClick: Function, onSuccessFullD
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteSubmissionTypeMutation}
                   onSuccess={onSuccessFullDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
         ),

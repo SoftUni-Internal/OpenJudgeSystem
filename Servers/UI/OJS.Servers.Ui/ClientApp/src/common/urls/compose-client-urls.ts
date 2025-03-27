@@ -1,5 +1,6 @@
 import {
     IAllContestsPageUrlParams,
+    IContestsByCategoryUrl,
     IContestsDetailsPageUrlParams,
     IContestsRegisterPageUrlParams,
     IContestsResultsPageUrlParams,
@@ -69,10 +70,16 @@ const getContestsRegisterPageUrl = ({
     ? ContestParticipationType.Compete
     : ContestParticipationType.Practice}/register`;
 
+const getContestsByCategoryUrl = ({
+    categoryId,
+    categoryName,
+} : IContestsByCategoryUrl) => `/contests/by-category${createUrlFriendlyPath(categoryName)}/${categoryId}`;
+
 export {
     getContestsResultsPageUrl,
     getAllContestsPageUrl,
     getContestsSolutionSubmitPageUrl,
     getContestsDetailsPageUrl,
     getContestsRegisterPageUrl,
+    getContestsByCategoryUrl,
 };

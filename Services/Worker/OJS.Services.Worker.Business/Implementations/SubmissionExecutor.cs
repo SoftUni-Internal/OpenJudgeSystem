@@ -8,6 +8,7 @@
     using OJS.Workers.Common.Models;
     using OJS.Workers.ExecutionStrategies.Models;
     using System.Threading.Tasks;
+    using OJS.Workers.Common.Exceptions;
 
     public class SubmissionExecutor(
         IExecutionStrategyFactory executionStrategyFactory,
@@ -67,7 +68,7 @@
             }
         }
 
-        private Task<IExecutionResult<TResult>> ExecuteSubmission<TInput, TResult>(
+        private async Task<IExecutionResult<TResult>> ExecuteSubmission<TInput, TResult>(
             IExecutionStrategy executionStrategy,
             IExecutionContext<TInput> executionContext,
             IOjsSubmission submission)
@@ -75,13 +76,11 @@
         {
             try
             {
-                return executionStrategy.SafeExecute<TInput, TResult>(executionContext, submission);
+                return await executionStrategy.SafeExecute<TInput, TResult>(executionContext, submission);
             }
-            catch (Exception ex)
+            catch (Exception exception) when (exception is not ConfigurationException and not SolutionException)
             {
-                submission.ProcessingComment = $"Exception in executing the submission: {ex.Message}";
-                submission.ExceptionType = ExceptionType.Strategy;
-                throw new Exception($"Exception in {nameof(this.ExecuteSubmission)}", ex);
+                throw new StrategyException(exception);
             }
         }
     }

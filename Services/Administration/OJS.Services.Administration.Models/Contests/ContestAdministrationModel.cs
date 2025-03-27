@@ -35,6 +35,8 @@ public class ContestAdministrationModel : BaseAdministrationModel<int>, IMapExpl
 
     public int LimitBetweenSubmissions { get; set; }
 
+    public bool AutoChangeLimitBetweenSubmissions { get; set; }
+
     public bool IsVisible { get; set; }
 
     public DateTime? VisibleFrom { get; set; }

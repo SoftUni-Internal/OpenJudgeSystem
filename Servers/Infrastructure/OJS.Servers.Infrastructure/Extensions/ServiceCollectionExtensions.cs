@@ -146,6 +146,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                     opt.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.None;
                     opt.Cookie.Domain = sharedAuthCookieDomain;
                     opt.ExpireTimeSpan = TimeSpan.FromDays(7); // Set the cookie to expire after a week of inactivity
+                    opt.SlidingExpiration = true; // Halfway through the expiration period, reset the expiration time if the user is still active
                     opt.Events.OnRedirectToAccessDenied = ForbiddenResponse;
                     opt.Events.OnRedirectToLogin = UnauthorizedResponse;
                 });
@@ -227,6 +228,7 @@ namespace OJS.Servers.Infrastructure.Extensions
             IConfiguration configuration)
         {
             services.AddTransient<IPublisherService, PublisherService>();
+            services.AddOptionsWithValidation<MessageQueueConfig>();
 
             var consumers = typeof(TStartup).Assembly
                 .GetExportedTypes()
@@ -381,6 +383,7 @@ namespace OJS.Servers.Infrastructure.Extensions
 
             services.AddHttpClient<IHttpClientService, HttpClientService>(ConfigureHttpClient);
             services.AddHttpClient<ISulsPlatformHttpClientService, SulsPlatformHttpClientService>(ConfigureHttpClient);
+            services.AddHttpClient<IRabbitMqHttpClient, RabbitMqHttpClient>(ConfigureHttpClient);
             services.AddHttpClient(ServerConstants.SvnHttpClientName, client =>
             {
                 client.BaseAddress = new Uri(svnConfig.BaseUrl);

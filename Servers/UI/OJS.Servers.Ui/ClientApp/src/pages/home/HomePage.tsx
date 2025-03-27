@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Outlet, useLocation, useParams } from 'react-router-dom';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import ContestBreadcrumbs from '../../components/contests/contest-breadcrumbs/ContestBreadcrumbs';
 import { ContestCategories } from '../../components/contests/contest-categories/ContestCategories';
@@ -35,6 +36,7 @@ const HomePage = () => {
             <div className={styles.homePageWrapper}>
                 <ContestCategories />
                 <Outlet />
+                <BackToTop />
             </div>
         </div>
     );

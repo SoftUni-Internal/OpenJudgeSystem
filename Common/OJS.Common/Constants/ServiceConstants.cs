@@ -2,6 +2,8 @@
 {
     public static class ServiceConstants
     {
+        public const string WorkersQueueName = "OJS.Servers.Worker.Consumers.SubmissionsForProcessingConsumer";
+
         public static class CheckerTypes
         {
             public const string ExactMatch = "exact";

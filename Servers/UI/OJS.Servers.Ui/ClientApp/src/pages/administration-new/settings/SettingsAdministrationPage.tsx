@@ -18,7 +18,7 @@ const AdministrationSettingsPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', defaultSorterToAdd, searchParams));
 
-    const [ sucessMessage, setSuccessMessage ] = useState<string | null>(null);
+    const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ showEditModal, setShowEditModal ] = useState<boolean>(false);
     const [ settingId, setSettingId ] = useState<number | undefined>(undefined);
 
@@ -70,13 +70,14 @@ const AdministrationSettingsPage = () => {
 
     return (
         <>
-            {renderSuccessfullAlert(sucessMessage)}
+            {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               filterableGridColumnDef={settingsFilterableColumns}
               notFilterableGridColumnDef={returnSettingsNonFilterableColumns(
                   onEditClick,
                   useDeleteSettingMutation,
-                  () => refetch(),
+                  refetch,
+                  setSuccessMessage,
               )}
               data={settingsData}
               error={error}

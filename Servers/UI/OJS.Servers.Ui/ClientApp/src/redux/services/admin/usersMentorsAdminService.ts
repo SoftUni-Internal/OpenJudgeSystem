@@ -6,7 +6,7 @@ import {
     IUserMentorAdministrationModel,
     IUserMentorInListModel,
 } from '../../../common/types';
-import { UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
+import { GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
 const usersMentorsAdminService = createApi({
@@ -26,7 +26,7 @@ const usersMentorsAdminService = createApi({
             keepUnusedDataFor: 5,
         }),
         getUserMentorById: builder.query<IUserMentorAdministrationModel, string>({
-            query: (id) => ({ url: `/Get/${id}` }),
+            query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }),
             keepUnusedDataFor: 0,
         }),
         deleteUserMentor: builder.mutation<string, number>({ query: (id) => ({ url: `/Delete/${id}`, method: 'DELETE' }) }),

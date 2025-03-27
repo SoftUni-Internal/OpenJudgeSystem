@@ -48,7 +48,8 @@ export const returnRolesNonFilterableColumns = (
     onRemoveLecturerFromCategory: Function,
     onAddLecturerToContest: Function,
     onRemoveLecturerFromContest: Function,
-    onDeleteSuccess?:() => void,
+    onSuccessfulDelete:() => void,
+    setParentSuccessMessage: Function,
 ) => [
     {
         field: 'actions',
@@ -68,7 +69,8 @@ export const returnRolesNonFilterableColumns = (
                   name={params.row.name}
                   text={DELETE_CONFIRMATION_MESSAGE}
                   mutation={useDeleteRolesMutation}
-                  onSuccess={onDeleteSuccess}
+                  onSuccess={onSuccessfulDelete}
+                  setParentSuccessMessage={setParentSuccessMessage}
                 />
                 {params.row.name === 'Lecturer' && (
                     <>

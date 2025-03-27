@@ -2,7 +2,10 @@ const DEFAULT_ITEMS_PER_PAGE = 13;
 
 const DEFAULT_ROWS_PER_PAGE = [ 13, 25, 50, 100 ];
 
+const CONTESTS_BULK_EDIT = 'contestsBulkEdit';
+
 export {
     DEFAULT_ROWS_PER_PAGE,
     DEFAULT_ITEMS_PER_PAGE,
+    CONTESTS_BULK_EDIT,
 };

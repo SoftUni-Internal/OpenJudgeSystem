@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router';
 import isNil from 'lodash/isNil';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import { ContestParticipationType, ContestResultType } from '../../common/constants';
 import { contestParticipationType } from '../../common/contest-helpers';
@@ -30,7 +31,7 @@ import styles from './ContestResultPage.module.scss';
 const ContestResultsPage = () => {
     const params = useParams();
     const { contestId, participationType: participationUrlType, resultType } = params;
-    const [ searchParams, setSearchParams ] = usePreserveScrollOnSearchParamsChange([ 'page' ]);
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
     const official = participationUrlType === ContestParticipationType.Compete;
     const full = resultType === ContestResultType.Full;
 
@@ -95,6 +96,7 @@ const ContestResultsPage = () => {
             ? !isLoading
                 ? (
                     <>
+                        <BackToTop />
                         <div>
                             <ContestBreadcrumbs />
                         </div>

@@ -1,201 +1,198 @@
 ﻿#nullable disable
-namespace OJS.Workers.ExecutionStrategies.Java
+namespace OJS.Workers.ExecutionStrategies.Java;
+
+using Microsoft.Extensions.Logging;
+using System;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Xml;
+using OJS.Workers.Common;
+using OJS.Workers.Common.Exceptions;
+using OJS.Workers.Common.Helpers;
+using OJS.Workers.Common.Models;
+using OJS.Workers.Compilers;
+using OJS.Workers.ExecutionStrategies.Models;
+using OJS.Workers.Executors;
+using static OJS.Workers.Common.Constants;
+using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
+
+public class JavaSpringAndHibernateProjectExecutionStrategy<TSettings> : JavaProjectTestsExecutionStrategy<TSettings>
+    where TSettings : JavaSpringAndHibernateProjectExecutionStrategySettings
 {
-    using Microsoft.Extensions.Logging;
-    using System;
-    using System.IO;
-    using System.Linq;
-    using System.Text;
-    using System.Text.RegularExpressions;
-    using System.Xml;
-    using OJS.Workers.Common;
-    using OJS.Workers.Common.Helpers;
-    using OJS.Workers.Compilers;
-    using OJS.Workers.ExecutionStrategies.Models;
-    using OJS.Workers.Executors;
-    using static OJS.Workers.Common.Constants;
-    using static OJS.Workers.ExecutionStrategies.Helpers.JavaStrategiesHelper;
+    private const string PomXmlFileNameAndExtension = "pom.xml";
+    private const string ApplicationPropertiesFileName = "application.properties";
+    private const string IntelliJProjectTemplatePattern = "src/main/java";
+    private const string IntelliJTestProjectTemplatePattern = "src/test/java";
+    private const string PropertySourcePattern = @"(@PropertySources?\((?:.*?)\))";
+    private const string PomXmlNamespace = @"http://maven.apache.org/POM/4.0.0";
+    private const string StartClassNodeXPath = @"//pomns:properties/pomns:start-class";
+    private const string MavenTestCommand = "-o test -f {0} -Dtest=\"{1}\"";
+    private const string MavenBuild = "-o compile";
+    private const string TestsFolderPattern = @"src/test/java/*";
+    private const string MainCodeFolderPattern = @"src/main/java/";
+    private const string MavenErrorFailurePattern = @"\[ERROR\]";
 
-    public class JavaSpringAndHibernateProjectExecutionStrategy<TSettings> : JavaProjectTestsExecutionStrategy<TSettings>
-        where TSettings : JavaSpringAndHibernateProjectExecutionStrategySettings
+    public JavaSpringAndHibernateProjectExecutionStrategy(
+        IOjsSubmission submission,
+        IProcessExecutorFactory processExecutorFactory,
+        ICompilerFactory compilerFactory,
+        IExecutionStrategySettingsProvider settingsProvider,
+        ILogger<BaseExecutionStrategy<TSettings>> logger)
+        : base(submission, processExecutorFactory, compilerFactory, settingsProvider, logger)
     {
-        private const string PomXmlFileNameAndExtension = "pom.xml";
-        private const string ApplicationPropertiesFileName = "application.properties";
-        private const string IntelliJProjectTemplatePattern = "src/main/java";
-        private const string IntelliJTestProjectTemplatePattern = "src/test/java";
-        private const string PropertySourcePattern = @"(@PropertySources?\((?:.*?)\))";
-        private const string PomXmlNamespace = @"http://maven.apache.org/POM/4.0.0";
-        private const string StartClassNodeXPath = @"//pomns:properties/pomns:start-class";
-        private const string MavenTestCommand = "-o test -f {0} -Dtest=\"{1}\"";
-        private const string MavenBuild = "-o compile";
-        private const string TestsFolderPattern = @"src/test/java/*";
-        private const string MainCodeFolderPattern = @"src/main/java/";
+    }
 
-        private static readonly string MavenErrorFailurePattern =
-            $@"\[ERROR\]";
+    protected string PackageName { get; set; }
 
-        public JavaSpringAndHibernateProjectExecutionStrategy(
-            IOjsSubmission submission,
-            IProcessExecutorFactory processExecutorFactory,
-            ICompilerFactory compilerFactory,
-            IExecutionStrategySettingsProvider settingsProvider,
-            ILogger<BaseExecutionStrategy<TSettings>> logger)
-            : base(submission, processExecutorFactory, compilerFactory, settingsProvider, logger)
+    protected string MainClassFileName { get; set; }
+
+    protected string ProjectRootDirectoryInSubmissionZip { get; set; }
+
+    protected string ProjectTestDirectoryInSubmissionZip { get; set; }
+
+    protected override string ClassPathArgument
+        => $"-cp {this.Settings.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}{Path.DirectorySeparatorChar}target{Path.DirectorySeparatorChar}* ";
+
+    protected void PreparePomXml(string submissionFilePath)
+    {
+        var extractionDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
+
+        var pomXmlFilePath = FileHelpers.ExtractFileFromZip(
+            submissionFilePath,
+            PomXmlFileNameAndExtension,
+            extractionDirectory);
+
+        if (string.IsNullOrEmpty(pomXmlFilePath))
         {
+            throw new SolutionException($"A {PomXmlFileNameAndExtension} file was not found in the submission!");
         }
 
-        protected string PackageName { get; set; }
+        this.ReplacePom(pomXmlFilePath);
+        var mainClassFolderPathInZip = Path.GetDirectoryName(FileHelpers
+            .GetFilePathsFromZip(submissionFilePath)
+            .FirstOrDefault(f => f.EndsWith(PomXmlFileNameAndExtension)));
 
-        protected string MainClassFileName { get; set; }
+        FileHelpers.AddFilesToZipArchive(submissionFilePath, mainClassFolderPathInZip, pomXmlFilePath);
+        DirectoryHelpers.SafeDeleteDirectory(extractionDirectory, true);
+    }
 
-        protected string ProjectRootDirectoryInSubmissionZip { get; set; }
-
-        protected string ProjectTestDirectoryInSubmissionZip { get; set; }
-
-        protected override string ClassPathArgument
-            => $"-cp {this.Settings.JavaLibrariesPath}*{ClassPathArgumentSeparator}{this.WorkingDirectory}{Path.DirectorySeparatorChar}target{Path.DirectorySeparatorChar}* ";
-
-        protected void PreparePomXml(string submissionFilePath)
+    protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
+        IExecutionContext<TestsInputModel> executionContext,
+        IExecutionResult<TestResult> result)
+    {
+        string submissionFilePath;
+        try
         {
-            var extractionDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
-
-            var pomXmlFilePath = FileHelpers.ExtractFileFromZip(
-                submissionFilePath,
-                PomXmlFileNameAndExtension,
-                extractionDirectory);
-
-            if (string.IsNullOrEmpty(pomXmlFilePath))
-            {
-                throw new FileNotFoundException("Pom.xml not found in submission!");
-            }
-
-            this.ReplacePom(pomXmlFilePath);
-            var mainClassFolderPathInZip = Path.GetDirectoryName(FileHelpers
-                .GetFilePathsFromZip(submissionFilePath)
-                .FirstOrDefault(f => f.EndsWith(PomXmlFileNameAndExtension)));
-
-            FileHelpers.AddFilesToZipArchive(submissionFilePath, mainClassFolderPathInZip, pomXmlFilePath);
-            DirectoryHelpers.SafeDeleteDirectory(extractionDirectory, true);
+            submissionFilePath = this.CreateSubmissionFile(executionContext);
         }
-
-        protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
-            IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+        catch (SolutionException exception)
         {
-            // Create a temp file with the submission code
-            string submissionFilePath;
-            try
-            {
-                submissionFilePath = this.CreateSubmissionFile(executionContext);
-            }
-            catch (ArgumentException exception)
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = exception.Message;
-
-                return result;
-            }
-
-            FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
-
-            var pomXmlPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, PomXmlFileNameAndExtension);
-
-            var mavenArgs = new[] { MavenBuild };
-
-            var mavenExecutor = this.CreateRestrictedExecutor();
-
-            var packageExecutionResult = await mavenExecutor.Execute(
-              this.Settings.MavenPath,
-              executionContext.TimeLimit,
-              executionContext.MemoryLimit,
-              executionArguments: mavenArgs,
-              workingDirectory: this.WorkingDirectory);
-
-            var mavenBuildFailureRegex = new Regex(MavenErrorFailurePattern);
-
-            result.IsCompiledSuccessfully = !mavenBuildFailureRegex.IsMatch(packageExecutionResult.ReceivedOutput);
-
-            if (!result.IsCompiledSuccessfully)
-            {
-                result.CompilerComment = GetMavenErrorsComment(packageExecutionResult.ReceivedOutput);
-                return result;
-            }
-
-            var executor = this.CreateRestrictedExecutor();
-
-            var checker = executionContext.Input.GetChecker();
-            var testIndex = 0;
-
-            foreach (var test in executionContext.Input.Tests)
-            {
-                var testFile = this.TestNames[testIndex++];
-                mavenArgs = new[] { string.Format(MavenTestCommand, pomXmlPath, testFile) };
-
-                var processExecutionResult = await executor.Execute(
-                this.Settings.MavenPath,
-                executionContext.TimeLimit,
-                executionContext.MemoryLimit,
-                executionArguments: mavenArgs,
-                workingDirectory: this.WorkingDirectory);
-
-                ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
-
-                if (processExecutionResult.ReceivedOutput.Contains($"Could not find class: {testFile}"))
-                {
-                    throw new FileLoadException("Tests could not be loaded, project structure is incorrect");
-                }
-
-                var message = EvaluateMavenTestOutput(processExecutionResult.ReceivedOutput, mavenBuildFailureRegex);
-
-                var testResult = CheckAndGetTestResult(
-                    test,
-                    processExecutionResult,
-                    checker,
-                    message);
-
-                result.Results.Add(testResult);
-            }
+            result.IsCompiledSuccessfully = false;
+            result.CompilerComment = exception.Message;
 
             return result;
         }
 
-        protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
+        FileHelpers.UnzipFile(submissionFilePath, this.WorkingDirectory);
+
+        var pomXmlPath = FileHelpers.FindFileMatchingPattern(this.WorkingDirectory, PomXmlFileNameAndExtension);
+
+        var mavenArgs = new[] { MavenBuild };
+
+        var mavenExecutor = this.CreateRestrictedExecutor();
+
+        var packageExecutionResult = await mavenExecutor.Execute(
+          this.Settings.MavenPath,
+          executionContext.TimeLimit,
+          executionContext.MemoryLimit,
+          executionArguments: mavenArgs,
+          workingDirectory: this.WorkingDirectory);
+
+        var mavenBuildFailureRegex = new Regex(MavenErrorFailurePattern);
+
+        result.IsCompiledSuccessfully = !mavenBuildFailureRegex.IsMatch(packageExecutionResult.ReceivedOutput);
+
+        if (!result.IsCompiledSuccessfully)
         {
-            var submissionFilePath = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{SubmissionFileName}";
-            File.WriteAllBytes(submissionFilePath, context.FileContent);
-            FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
-
-            this.ExtractPackageAndDirectoryNames(submissionFilePath);
-            this.ValidateSubmissionFile(submissionFilePath);
-            this.OverwriteApplicationProperties(submissionFilePath);
-            this.RemovePropertySourceAnnotationsFromMainClass(submissionFilePath);
-            this.AddTestsToUserSubmission(context, submissionFilePath);
-            this.PreparePomXml(submissionFilePath);
-
-            return submissionFilePath;
+            result.CompilerComment = GetMavenErrorsComment(packageExecutionResult.ReceivedOutput);
+            return result;
         }
 
-        protected void ExtractPackageAndDirectoryNames(string submissionFilePath)
+        var executor = this.CreateRestrictedExecutor();
+
+        var checker = executionContext.Input.GetChecker();
+        var testIndex = 0;
+
+        foreach (var test in executionContext.Input.Tests)
         {
-            this.MainClassFileName = this.ExtractEntryPointFromPomXml(submissionFilePath);
+            var testFile = this.TestNames[testIndex++];
+            mavenArgs = [string.Format(MavenTestCommand, pomXmlPath, testFile)];
 
-            this.PackageName = this.MainClassFileName
-                .Substring(0, this.MainClassFileName.LastIndexOf(".", StringComparison.Ordinal));
+            var processExecutionResult = await executor.Execute(
+            this.Settings.MavenPath,
+            executionContext.TimeLimit,
+            executionContext.MemoryLimit,
+            executionArguments: mavenArgs,
+            workingDirectory: this.WorkingDirectory);
 
-            var normalizedPath = this.PackageName.Replace(".", "/");
+            ValidateJvmInitialization(processExecutionResult.ReceivedOutput);
 
-            this.ProjectRootDirectoryInSubmissionZip = $"{IntelliJProjectTemplatePattern}/{normalizedPath}/";
-            this.ProjectTestDirectoryInSubmissionZip = $"{IntelliJTestProjectTemplatePattern}/{normalizedPath}/";
+            if (processExecutionResult.ReceivedOutput.Contains($"Could not find class: {testFile}"))
+            {
+                throw new SolutionException("The tests could not be loaded, the project structure is incorrect.");
+            }
 
-            var fileNameWithoutExtension = this.MainClassFileName.Substring(
-                this.MainClassFileName.LastIndexOf(".", StringComparison.Ordinal) + 1);
+            var message = EvaluateMavenTestOutput(processExecutionResult.ReceivedOutput, mavenBuildFailureRegex);
 
-            this.MainClassFileName = fileNameWithoutExtension + javaSourceFileExtension;
+            var testResult = CheckAndGetTestResult(
+                test,
+                processExecutionResult,
+                checker,
+                message);
+
+            result.Results.Add(testResult);
         }
 
-        protected void OverwriteApplicationProperties(string submissionZipFilePath)
-        {
-            var fakeApplicationPropertiesText = @"
+        return result;
+    }
+
+    protected override string PrepareSubmissionFile(IExecutionContext<TestsInputModel> context)
+    {
+        var submissionFilePath = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{SubmissionFileName}";
+        File.WriteAllBytes(submissionFilePath, context.FileContent);
+        FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
+
+        this.ExtractPackageAndDirectoryNames(submissionFilePath);
+        this.ValidateSubmissionFile(submissionFilePath);
+        this.OverwriteApplicationProperties(submissionFilePath);
+        this.RemovePropertySourceAnnotationsFromMainClass(submissionFilePath);
+        this.AddTestsToUserSubmission(context, submissionFilePath);
+        this.PreparePomXml(submissionFilePath);
+
+        return submissionFilePath;
+    }
+
+    protected void ExtractPackageAndDirectoryNames(string submissionFilePath)
+    {
+        this.MainClassFileName = this.ExtractEntryPointFromPomXml(submissionFilePath);
+
+        this.PackageName = this.MainClassFileName[..this.MainClassFileName.LastIndexOf('.')];
+
+        var normalizedPath = this.PackageName.Replace(".", "/");
+
+        this.ProjectRootDirectoryInSubmissionZip = $"{IntelliJProjectTemplatePattern}/{normalizedPath}/";
+        this.ProjectTestDirectoryInSubmissionZip = $"{IntelliJTestProjectTemplatePattern}/{normalizedPath}/";
+
+        var fileNameWithoutExtension = this.MainClassFileName[(this.MainClassFileName.LastIndexOf('.') + 1)..];
+
+        this.MainClassFileName = fileNameWithoutExtension + javaSourceFileExtension;
+    }
+
+    protected void OverwriteApplicationProperties(string submissionZipFilePath)
+    {
+        var fakeApplicationPropertiesText = @"
                 spring.jpa.properties.hibernate.show_sql= false
                 spring.jpa.properties.hibernate.use_sql_comments=false
                 spring.jpa.properties.hibernate.format_sql=false
@@ -207,192 +204,196 @@ namespace OJS.Workers.ExecutionStrategies.Java
                 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
                 spring.jpa.hibernate.ddl-auto=create-drop";
 
-            var fakeApplicationPropertiesPath = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{ApplicationPropertiesFileName}";
-            File.WriteAllText(fakeApplicationPropertiesPath, fakeApplicationPropertiesText);
+        var fakeApplicationPropertiesPath = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{ApplicationPropertiesFileName}";
+        File.WriteAllText(fakeApplicationPropertiesPath, fakeApplicationPropertiesText);
 
-            var pathsInZip = FileHelpers.GetFilePathsFromZip(submissionZipFilePath);
+        var pathsInZip = FileHelpers.GetFilePathsFromZip(submissionZipFilePath);
 
-            var resourceDirectory = Path.GetDirectoryName(pathsInZip.FirstOrDefault(f => f.EndsWith(ApplicationPropertiesFileName)));
+        var resourceDirectory = Path.GetDirectoryName(pathsInZip.FirstOrDefault(f => f.EndsWith(ApplicationPropertiesFileName)));
 
-            if (string.IsNullOrEmpty(resourceDirectory))
-            {
-                throw new FileNotFoundException(
-                    $"Resource directory not found in the project!");
-            }
-
-            FileHelpers.AddFilesToZipArchive(submissionZipFilePath, resourceDirectory, fakeApplicationPropertiesPath);
-            File.Delete(fakeApplicationPropertiesPath);
+        if (string.IsNullOrEmpty(resourceDirectory))
+        {
+            throw new SolutionException("The resource directory was not found in the project!");
         }
 
-        protected void RemovePropertySourceAnnotationsFromMainClass(string submissionFilePath)
+        FileHelpers.AddFilesToZipArchive(submissionZipFilePath, resourceDirectory, fakeApplicationPropertiesPath);
+        File.Delete(fakeApplicationPropertiesPath);
+    }
+
+    protected void RemovePropertySourceAnnotationsFromMainClass(string submissionFilePath)
+    {
+        var extractionDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
+
+        var mainClassFilePath = FileHelpers.ExtractFileFromZip(
+            submissionFilePath,
+            this.MainClassFileName,
+            extractionDirectory);
+
+        var mainClassContent = File.ReadAllText(mainClassFilePath);
+
+        var propertySourceMatcher = new Regex(PropertySourcePattern);
+        while (propertySourceMatcher.IsMatch(mainClassContent))
         {
-            var extractionDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
-
-            var mainClassFilePath = FileHelpers.ExtractFileFromZip(
-                submissionFilePath,
-                this.MainClassFileName,
-                extractionDirectory);
-
-            var mainClassContent = File.ReadAllText(mainClassFilePath);
-
-            var propertySourceMatcher = new Regex(PropertySourcePattern);
-            while (propertySourceMatcher.IsMatch(mainClassContent))
-            {
-                mainClassContent = Regex.Replace(mainClassContent, PropertySourcePattern, string.Empty);
-            }
-
-            File.WriteAllText(mainClassFilePath, mainClassContent);
-            var pomXmlFolderPathInZip = Path.GetDirectoryName(FileHelpers
-                .GetFilePathsFromZip(submissionFilePath)
-                .FirstOrDefault(f => f.EndsWith(this.MainClassFileName)));
-
-            FileHelpers.AddFilesToZipArchive(submissionFilePath, pomXmlFolderPathInZip, mainClassFilePath);
-            DirectoryHelpers.SafeDeleteDirectory(extractionDirectory, true);
+            mainClassContent = Regex.Replace(mainClassContent, PropertySourcePattern, string.Empty);
         }
 
-        protected override void AddTestsToUserSubmission(
-            IExecutionContext<TestsInputModel> context,
-            string submissionZipFilePath)
+        File.WriteAllText(mainClassFilePath, mainClassContent);
+        var pomXmlFolderPathInZip = Path.GetDirectoryName(FileHelpers
+            .GetFilePathsFromZip(submissionFilePath)
+            .FirstOrDefault(f => f.EndsWith(this.MainClassFileName)));
+
+        if (pomXmlFolderPathInZip is null)
         {
-            var testNumber = 0;
-            var filePaths = new string[context.Input.Tests.Count()];
-
-            FileHelpers.RemoveFilesFromZip(
-                submissionZipFilePath,
-                TestsFolderPattern);
-
-            foreach (var test in context.Input.Tests)
-            {
-                var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
-                var testFileName =
-                    $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{className}{javaSourceFileExtension}";
-                File.WriteAllText(testFileName, $"package {this.PackageName};{Environment.NewLine}{test.Input}");
-                filePaths[testNumber] = testFileName;
-                this.TestNames.Add($"{this.PackageName}.{className}");
-                testNumber++;
-            }
-
-            FileHelpers.AddFilesToZipArchive(
-                submissionZipFilePath,
-                this.ProjectTestDirectoryInSubmissionZip,
-                filePaths);
-            FileHelpers.DeleteFiles(filePaths);
+            throw new SolutionException($"A {PomXmlFileNameAndExtension} file was not found in the submission!");
         }
 
-        protected override void ExtractUserClassNames(string submissionFilePath) =>
-            this.UserClassNames.AddRange(FileHelpers
-                .GetFilePathsFromZip(submissionFilePath)
-                .Where(x => !x.EndsWith("/") && x.EndsWith(javaSourceFileExtension))
-                .Select(x => x.Contains(IntelliJProjectTemplatePattern)
-                    ? x.Substring(x.LastIndexOf(
-                                      IntelliJProjectTemplatePattern,
-                                      StringComparison.Ordinal)
-                                  + IntelliJProjectTemplatePattern.Length
-                                  + 1)
-                    : x)
-                .Select(x => x.Contains(".") ? x.Substring(0, x.LastIndexOf(".", StringComparison.Ordinal)) : x)
-                .Select(x => x.Replace("/", ".")));
+        FileHelpers.AddFilesToZipArchive(submissionFilePath, pomXmlFolderPathInZip, mainClassFilePath);
+        DirectoryHelpers.SafeDeleteDirectory(extractionDirectory, true);
+    }
 
-        private static string GetMavenErrorsComment(string testOutput)
+    protected override void AddTestsToUserSubmission(
+        IExecutionContext<TestsInputModel> context,
+        string submissionZipFilePath)
+    {
+        var testNumber = 0;
+        var filePaths = new string[context.Input.Tests.Count()];
+
+        FileHelpers.RemoveFilesFromZip(
+            submissionZipFilePath,
+            TestsFolderPattern);
+
+        foreach (var test in context.Input.Tests)
         {
-            var sb = new StringBuilder();
+            var className = JavaCodePreprocessorHelper.GetPublicClassName(test.Input);
+            var testFileName = $"{this.WorkingDirectory}{Path.DirectorySeparatorChar}{className}{javaSourceFileExtension}";
 
-            foreach (var line in testOutput.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
-                         .Where(x => x
-                             .StartsWith("[ERROR]") || x.StartsWith("[FAILURE]")))
-            {
-                sb.Append("\t" + line);
-            }
+            File.WriteAllText(testFileName, $"package {this.PackageName};{Environment.NewLine}{test.Input}");
 
-            return sb.ToString();
+            filePaths[testNumber] = testFileName;
+            this.TestNames.Add($"{this.PackageName}.{className}");
+            testNumber++;
         }
 
-        private static string EvaluateMavenTestOutput(string testOutput, Regex testErrorMatcher)
+        FileHelpers.AddFilesToZipArchive(
+            submissionZipFilePath,
+            this.ProjectTestDirectoryInSubmissionZip,
+            filePaths);
+        FileHelpers.DeleteFiles(filePaths);
+    }
+
+    protected override void ExtractUserClassNames(string submissionFilePath) =>
+        this.UserClassNames.AddRange(FileHelpers
+            .GetFilePathsFromZip(submissionFilePath)
+            .Where(x => !x.EndsWith("/") && x.EndsWith(javaSourceFileExtension))
+            .Select(x => x.Contains(IntelliJProjectTemplatePattern)
+                ? x.Substring(x.LastIndexOf(
+                                  IntelliJProjectTemplatePattern,
+                                  StringComparison.Ordinal)
+                              + IntelliJProjectTemplatePattern.Length
+                              + 1)
+                : x)
+            .Select(x => x.Contains(".") ? x.Substring(0, x.LastIndexOf(".", StringComparison.Ordinal)) : x)
+            .Select(x => x.Replace("/", ".")));
+
+    private static string GetMavenErrorsComment(string testOutput)
+    {
+        var sb = new StringBuilder();
+
+        foreach (var line in testOutput.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                     .Where(x => x
+                         .StartsWith("[ERROR]") || x.StartsWith("[FAILURE]")))
         {
-            var message = TestPassedMessage;
-            var errorMatch = testErrorMatcher.Match(testOutput);
-
-            if (!errorMatch.Success)
-            {
-                return message;
-            }
-
-            return GetMavenErrorsComment(testOutput);
+            sb.Append("\t" + line);
         }
 
-        private void ValidateSubmissionFile(string submissionFilePath)
-        {
-            // Main class is validated against the value in pom.xml.
-            // If package names don't correspond,
-            // then the tests are saved in a different folder structure (see how this.PackageName is exported)
-            // and when ran, tests are unable to find their correct configuration.
-            if (!this.ValidateMainClassFileName(submissionFilePath))
-            {
-                throw new ArgumentException($"Submission does not contain start class at: {this.GetMainClassFilePath()}. Check your folder structure and pom.xml start-class definition.");
-            }
+        return sb.ToString();
+    }
 
-            if (!ValidateFolderStructure(submissionFilePath))
-            {
-                throw new ArgumentException($"Folder structure is invalid! The zip folder structure must contain files with path: {MainCodeFolderPattern} and pom.xml start-class definition.");
-            }
+    private static string EvaluateMavenTestOutput(string testOutput, Regex testErrorMatcher)
+    {
+        var message = TestPassedMessage;
+        var errorMatch = testErrorMatcher.Match(testOutput);
+
+        if (!errorMatch.Success)
+        {
+            return message;
         }
 
-        private static bool ValidateFolderStructure(string submissionFilePath)
-        {
-            var paths = FileHelpers.GetFilePathsFromZip(submissionFilePath).ToList();
+        return GetMavenErrorsComment(testOutput);
+    }
 
-            return paths.Any(x => x.StartsWith(MainCodeFolderPattern)) && paths.Any(x => x.StartsWith(PomXmlFileNameAndExtension));
+    private void ValidateSubmissionFile(string submissionFilePath)
+    {
+        // Main class is validated against the value in pom.xml.
+        // If package names don't correspond,
+        // then the tests are saved in a different folder structure (see how this.PackageName is exported)
+        // and when ran, tests are unable to find their correct configuration.
+        if (!this.ValidateMainClassFileName(submissionFilePath))
+        {
+            throw new SolutionException($"The submission does not contain a start class at '{this.GetMainClassFilePath()}'. Check your folder structure and {PomXmlFileNameAndExtension} start-class definition.");
         }
 
-        private bool ValidateMainClassFileName(string submissionFilePath) => FileHelpers.FileExistsInZip(submissionFilePath, this.GetMainClassFilePath());
-
-        private string GetMainClassFilePath() => FileHelpers.BuildPath(this.ProjectRootDirectoryInSubmissionZip, this.MainClassFileName);
-
-        private void ReplacePom(string pomXmlFilePath)
+        if (!ValidateFolderStructure(submissionFilePath))
         {
-            FileHelpers.DeleteFiles(pomXmlFilePath);
-
-            var newPomFileContent = File.ReadAllText(this.Settings.JavaSpringAndHibernateStrategyPomFilePath);
-            FileHelpers.WriteAllText(pomXmlFilePath, newPomFileContent);
-        }
-
-        private string ExtractEntryPointFromPomXml(string submissionFilePath)
-        {
-            var pomXmlPath = FileHelpers.ExtractFileFromZip(submissionFilePath, "pom.xml", this.WorkingDirectory);
-
-            if (string.IsNullOrEmpty(pomXmlPath))
-            {
-                throw new ArgumentException($"{nameof(pomXmlPath)} was not found in submission!");
-            }
-
-            var pomXml = new XmlDocument();
-            pomXml.Load(pomXmlPath);
-
-            var namespaceManager = new XmlNamespaceManager(pomXml.NameTable);
-            namespaceManager.AddNamespace("pomns", PomXmlNamespace);
-
-            XmlNode rootNode = pomXml.DocumentElement;
-
-            var packageName = rootNode?.SelectSingleNode(StartClassNodeXPath, namespaceManager);
-
-            if (packageName == null)
-            {
-                throw new ArgumentException($"Starter path not defined in pom.xml!");
-            }
-
-            FileHelpers.DeleteFiles(pomXmlPath);
-            return packageName.InnerText.Trim();
+            throw new SolutionException($"The folder structure is invalid! The zip folder structure must contain files with paths: '{MainCodeFolderPattern}' and '{PomXmlFileNameAndExtension}' start-class definition.");
         }
     }
 
-    public record JavaSpringAndHibernateProjectExecutionStrategySettings(
-        int BaseTimeUsed,
-        int BaseMemoryUsed,
-        string JavaExecutablePath,
-        string JavaLibrariesPath,
-        int BaseUpdateTimeOffset,
-        string MavenPath,
-        string JavaSpringAndHibernateStrategyPomFilePath)
-        : JavaProjectTestsExecutionStrategySettings(BaseTimeUsed, BaseMemoryUsed, JavaExecutablePath, JavaLibrariesPath,
-            BaseUpdateTimeOffset);
+    private static bool ValidateFolderStructure(string submissionFilePath)
+    {
+        var paths = FileHelpers.GetFilePathsFromZip(submissionFilePath).ToList();
+
+        return paths.Any(x => x.StartsWith(MainCodeFolderPattern)) && paths.Any(x => x.StartsWith(PomXmlFileNameAndExtension));
+    }
+
+    private bool ValidateMainClassFileName(string submissionFilePath) => FileHelpers.FileExistsInZip(submissionFilePath, this.GetMainClassFilePath());
+
+    private string GetMainClassFilePath() => FileHelpers.BuildPath(this.ProjectRootDirectoryInSubmissionZip, this.MainClassFileName);
+
+    private void ReplacePom(string pomXmlFilePath)
+    {
+        FileHelpers.DeleteFiles(pomXmlFilePath);
+
+        var newPomFileContent = File.ReadAllText(this.Settings.JavaSpringAndHibernateStrategyPomFilePath);
+        FileHelpers.WriteAllText(pomXmlFilePath, newPomFileContent);
+    }
+
+    private string ExtractEntryPointFromPomXml(string submissionFilePath)
+    {
+        var pomXmlPath = FileHelpers.ExtractFileFromZip(submissionFilePath, PomXmlFileNameAndExtension, this.WorkingDirectory);
+
+        if (string.IsNullOrEmpty(pomXmlPath))
+        {
+            throw new SolutionException($"A {PomXmlFileNameAndExtension} file was not found in the submission!");
+        }
+
+        var pomXml = new XmlDocument();
+        pomXml.Load(pomXmlPath);
+
+        var namespaceManager = new XmlNamespaceManager(pomXml.NameTable);
+        namespaceManager.AddNamespace("pomns", PomXmlNamespace);
+
+        XmlNode rootNode = pomXml.DocumentElement;
+
+        var packageName = rootNode?.SelectSingleNode(StartClassNodeXPath, namespaceManager);
+
+        if (packageName == null)
+        {
+            throw new SolutionException($"Missing entry point: No start-class defined in {PomXmlFileNameAndExtension}. Ensure your submission specifies a valid main class.");
+        }
+
+        FileHelpers.DeleteFiles(pomXmlPath);
+        return packageName.InnerText.Trim();
+    }
 }
+
+public record JavaSpringAndHibernateProjectExecutionStrategySettings(
+    int BaseTimeUsed,
+    int BaseMemoryUsed,
+    string JavaExecutablePath,
+    string JavaLibrariesPath,
+    int BaseUpdateTimeOffset,
+    string MavenPath,
+    string JavaSpringAndHibernateStrategyPomFilePath)
+    : JavaProjectTestsExecutionStrategySettings(BaseTimeUsed, BaseMemoryUsed, JavaExecutablePath, JavaLibrariesPath,
+        BaseUpdateTimeOffset);

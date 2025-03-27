@@ -10,10 +10,16 @@ import Popover from '@mui/material/Popover';
 import isNil from 'lodash/isNil';
 import moment from 'moment';
 import { SUBMISSION_SENT } from 'src/common/messages';
+import { IGetSubmissionsUrlParams } from 'src/common/url-types';
+import {
+    applyDefaultQueryValues,
+    handlePageChange,
+} from 'src/components/filters/Filter';
 import CheckBox from 'src/components/guidelines/checkbox/CheckBox';
 import Dropdown from 'src/components/guidelines/dropdown/Dropdown';
 import Mentor from 'src/components/mentor/Mentor';
 import useSuccessMessageEffect from 'src/hooks/common/use-success-message-effect';
+import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 import isNilOrEmpty from 'src/utils/check-utils';
 import { renderSuccessfullAlert } from 'src/utils/render-utils';
 
@@ -31,6 +37,7 @@ import {
     getContestsResultsPageUrl,
 } from '../../../common/urls/compose-client-urls';
 import CodeEditor from '../../../components/code-editor/CodeEditor';
+import BackToTop from '../../../components/common/back-to-top/BackToTop';
 import ContestBreadcrumbs from '../../../components/contests/contest-breadcrumbs/ContestBreadcrumbs';
 import ContestProblems from '../../../components/contests/contest-problems/ContestProblems';
 import ErrorWithActionButtons from '../../../components/error/ErrorWithActionButtons';
@@ -72,6 +79,8 @@ const ContestSolutionSubmitPage = () => {
     const location = useLocation();
     const dispatch = useAppDispatch();
     const { themeColors, getColorClassName } = useTheme();
+    const { searchParams, setSearchParams } = usePreserveScrollOnSearchParamsChange();
+    const [ queryParams, setQueryParams ] = useState<IGetSubmissionsUrlParams>(applyDefaultQueryValues(searchParams));
     const { contestId, participationType, slug } = useParams();
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ isSubmitButtonDisabled, setIsSubmitButtonDisabled ] = useState<boolean>(true);
@@ -79,7 +88,6 @@ const ContestSolutionSubmitPage = () => {
     const [ remainingTimeForCompete, setRemainingTimeForCompete ] = useState<string | null>();
     const [ submissionCode, setSubmissionCode ] = useState<string>();
     const [ anchorEl, setAnchorEl ] = useState<HTMLElement | null>(null);
-    const [ selectedSubmissionsPage, setSelectedSubmissionsPage ] = useState<number>(1);
     const [ uploadedFile, setUploadedFile ] = useState<File | null>(null);
     const [ fileUploadError, setFileUploadError ] = useState<string>('');
     const [ isRotating, setIsRotating ] = useState<boolean>(false);
@@ -127,9 +135,9 @@ const ContestSolutionSubmitPage = () => {
         isLoading: submissionsDataLoading,
         refetch: getSubmissionsData,
     } = useGetSubmissionResultsByProblemQuery({
-        id: Number(selectedContestDetailsProblem?.id),
-        page: selectedSubmissionsPage,
+        problemId: Number(selectedContestDetailsProblem?.id),
         isOfficial: isCompete,
+        ...queryParams,
     }, { skip: !selectedContestDetailsProblem });
 
     const textColorClassName = getColorClassName(themeColors.textColor);
@@ -763,6 +771,10 @@ const ContestSolutionSubmitPage = () => {
         <div className={`${styles.contestSolutionSubmitWrapper} ${textColorClassName}`}>
             {renderSuccessfullAlert(successMessage)}
             <ContestBreadcrumbs />
+            <BackToTop rightPosition={allowMentor
+                ? 110
+                : 20}
+            />
             <div className={styles.nameWrapper}>
                 <div className={styles.contestNameAndAdminButtons}>
                     <Link
@@ -809,7 +821,7 @@ const ContestSolutionSubmitPage = () => {
             <div className={styles.problemsAndEditorWrapper}>
                 <ContestProblems
                   problems={updatedProblems || problems || []}
-                  onContestProblemChange={() => setSelectedSubmissionsPage(1)}
+                  onContestProblemChange={() => handlePageChange(setQueryParams, setSearchParams, 1)}
                   totalParticipantsCount={participantsCount}
                   sumMyPoints={sumMyPoints}
                   sumTotalPoints={sumAllContestPoints}
@@ -859,14 +871,16 @@ const ContestSolutionSubmitPage = () => {
                         <SubmissionsGrid
                           isDataLoaded={!submissionsDataLoading}
                           submissions={submissionsData ?? undefined}
-                          handlePageChange={(page: number) => setSelectedSubmissionsPage(page)}
                           options={{
                               showDetailedResults: true,
                               showTaskDetails: false,
-                              showCompeteMarker: true,
+                              showCompeteMarker: false,
                               showSubmissionTypeInfo: true,
                               showParticipantUsername: false,
                           }}
+                          searchParams={searchParams}
+                          setSearchParams={setSearchParams}
+                          setQueryParams={setQueryParams}
                         />
                     )}
             </div>

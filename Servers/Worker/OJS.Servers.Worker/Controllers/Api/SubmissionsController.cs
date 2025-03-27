@@ -13,7 +13,8 @@ using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Extensions;
 using System;
 using System.Threading.Tasks;
-
+using OJS.Workers.Common.Exceptions;
+using OJS.Workers.Common.Models;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 public class SubmissionsController : BaseApiController
@@ -70,10 +71,18 @@ public class SubmissionsController : BaseApiController
 
             result.SetExecutionResult(executionResultResponseModel);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            this.logger.LogErrorProcessingSubmission(submission.Id, this.hostInfoService.GetHostIp(), ex);
-            result.SetException(ex, ex is not BusinessServiceException && withStackTrace);
+            var exceptionType = exception switch
+            {
+                StrategyException => ExceptionType.Strategy,
+                SolutionException => ExceptionType.Solution,
+                ConfigurationException => ExceptionType.Configuration,
+                _ => ExceptionType.Other
+            };
+
+            this.logger.LogErrorProcessingSubmission(submission.Id, this.hostInfoService.GetHostIp(), exception);
+            result.SetException(exception, exception is not BusinessServiceException && withStackTrace, exceptionType);
         }
         finally
         {

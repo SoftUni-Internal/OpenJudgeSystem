@@ -22,7 +22,7 @@ const settingsAdminService = createApi({
         }),
 
         getSettingById:
-        builder.query<ISettingAdministrationModel, number>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }) }),
+        builder.query<ISettingAdministrationModel, number>({ query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }), keepUnusedDataFor: 0 }),
 
         updateSetting: builder.mutation<string, ISettingAdministrationModel >({
             query: (setting) => ({

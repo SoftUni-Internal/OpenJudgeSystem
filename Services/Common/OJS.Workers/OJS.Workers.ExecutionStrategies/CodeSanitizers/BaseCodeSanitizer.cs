@@ -49,28 +49,22 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
 
                 foreach (var zipEntry in zipFile.Entries.Where(e => !e.IsDirectory))
                 {
-                    using (var memoryInputStream = new MemoryStream())
-                    {
-                        zipEntry.Extract(memoryInputStream);
+                    using var memoryInputStream = new MemoryStream();
+                    zipEntry.Extract(memoryInputStream);
 
-                        memoryInputStream.Seek(0, SeekOrigin.Begin);
+                    memoryInputStream.Seek(0, SeekOrigin.Begin);
 
-                        using (var streamReader = new StreamReader(memoryInputStream))
-                        {
-                            var sanitizedText = sanitizingFunc(streamReader.ReadToEnd());
+                    using var streamReader = new StreamReader(memoryInputStream);
+                    var sanitizedText = sanitizingFunc(streamReader.ReadToEnd());
 
-                            sanitizedZipFile.AddEntry(zipEntry.FileName, sanitizedText);
-                        }
-                    }
+                    sanitizedZipFile.AddEntry(zipEntry.FileName, sanitizedText);
                 }
             }
 
-            using (var outputStream = new MemoryStream())
-            {
-                sanitizedZipFile.Save(outputStream);
+            using var outputStream = new MemoryStream();
+            sanitizedZipFile.Save(outputStream);
 
-                return outputStream.ToArray();
-            }
+            return outputStream.ToArray();
         }
 
         private static bool ExecutionContextContainsZipFile<TInput>(IExecutionContext<TInput> executionContext) =>

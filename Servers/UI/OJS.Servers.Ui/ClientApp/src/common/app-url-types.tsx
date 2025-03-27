@@ -36,6 +36,11 @@ interface IContestsRegisterPageUrlParams {
     contestName?: string | null;
 }
 
+interface IContestsByCategoryUrl {
+    categoryId?: number;
+    categoryName?: string;
+}
+
 export type {
     ISubmissionDetailsUrlParams,
     IContestsResultsPageUrlParams,
@@ -43,4 +48,5 @@ export type {
     IContestsSolutionSubmitPageUrlParams,
     IContestsDetailsPageUrlParams,
     IContestsRegisterPageUrlParams,
+    IContestsByCategoryUrl,
 };

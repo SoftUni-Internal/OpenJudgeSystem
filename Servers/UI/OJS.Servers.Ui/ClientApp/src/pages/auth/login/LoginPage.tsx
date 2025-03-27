@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import LoginForm from '../../../components/auth/LoginForm';
 import MetaTags from '../../../components/common/MetaTags';
@@ -23,6 +24,7 @@ const LoginPage = () => {
 
     return (
         <>
+            <BackToTop />
             <MetaTags
               title="Login - SoftUni Judge"
               description={

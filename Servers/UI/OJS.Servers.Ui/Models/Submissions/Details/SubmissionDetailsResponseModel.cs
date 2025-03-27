@@ -7,6 +7,7 @@
     using OJS.Servers.Ui.Models.Users;
     using OJS.Services.Ui.Models.Submissions;
     using OJS.Services.Infrastructure.Models.Mapping;
+    using OJS.Workers.Common.Models;
 
     public class SubmissionDetailsResponseModel : IMapExplicitly
     {
@@ -63,6 +64,8 @@
         public int? ContestCategoryId { get; set; }
 
         public bool AllowMentor { get; set; }
+
+        public ExceptionType? ExceptionType { get; set; }
 
         public void RegisterMappings(IProfileExpression configuration)
             => configuration

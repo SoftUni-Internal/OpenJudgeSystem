@@ -65,6 +65,7 @@ const defaultNotVisibleColumns: AdjacencyList<string, boolean> = {
     contestPassword: false,
     limitBetweenSubmissions: false,
     allowParallelSubmissionsInTasks: false,
+    hasChildren: false,
 };
 
 const defaultFilterToAdd = 'isdeleted~equals~false';
@@ -168,11 +169,11 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
 
     const notVisibleIdColumns: IVisibleColumns = filterableGridColumnDef.reduce((acc, column) => {
         const headerName = column.headerName ?? '';
-        const isHidden = column.hidden ?? false;
+        const isHidden = typeof column.hidden === 'boolean'
+            ? column.hidden
+            : idColumnPattern.test(headerName);
 
-        if (isHidden || idColumnPattern.test(headerName)) {
-            acc[column.field] = false;
-        }
+        acc[column.field] = !isHidden;
 
         return acc;
     }, {} as IVisibleColumns);
