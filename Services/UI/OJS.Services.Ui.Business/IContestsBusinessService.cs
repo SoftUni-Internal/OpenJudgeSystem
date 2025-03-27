@@ -29,7 +29,9 @@ namespace OJS.Services.Ui.Business
 
         Task<PagedResult<ContestForListingServiceModel>> GetParticipatedByUserByFiltersAndSorting(
             string username,
-            ContestFiltersServiceModel? sortAndFilterModel);
+            ContestFiltersServiceModel? sortAndFilterModel,
+            int? contestId = null,
+            int? categoryId = null);
 
         Task<PagedResult<ContestForListingServiceModel>> GetAllByFiltersAndSorting(ContestFiltersServiceModel? model);
 
@@ -41,5 +43,7 @@ namespace OJS.Services.Ui.Business
             ICollection<int> contestIds);
 
         Task<IEnumerable<string?>> GetEmailsOfParticipantsInContest(int contestId);
+
+        Task<IEnumerable<ContestForListingServiceModel>> GetAllParticipatedContests(string username);
     }
 }

@@ -9,7 +9,8 @@
   align-items: center;
   display: flex;
   justify-content: center;
-  margin-top: spacings.$sp-18;
+  margin-top: 2rem;
+  text-align: center;
 }
 
 .participationsHeading {
@@ -18,4 +19,14 @@
   font-size: variables.$f-size-24;
   font-weight: font-weights.$font-weight-regular;
   padding: spacings.$sp-16 0 !important;
+  margin-bottom: 1rem;
+}
+
+.filterContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
