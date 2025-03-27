@@ -36,7 +36,6 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
     private IChannel publisherChannel;
     private IChannel consumerChannel;
     private int rabbitMqPort;
-    private ConnectionFactory connectionFactory;
     private bool consumerInitialized;
 
     public RabbitMqAndWorkerFixture()
@@ -113,7 +112,7 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
 
         await this.workerContainer.StartAsync();
 
-        this.connectionFactory = new ConnectionFactory()
+        var connectionFactory = new ConnectionFactory
         {
             HostName = "localhost",
             VirtualHost = this.rabbitMqVirtualHost,
@@ -122,7 +121,7 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
             Port = this.rabbitMqPort,
         };
 
-        this.rabbitMqConnection = await this.connectionFactory.CreateConnectionAsync();
+        this.rabbitMqConnection = await connectionFactory.CreateConnectionAsync();
         this.publisherChannel = await this.rabbitMqConnection.CreateChannelAsync();
         this.consumerChannel = await this.rabbitMqConnection.CreateChannelAsync();
 
@@ -162,7 +161,7 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
     {
         var consumer = new AsyncEventingBasicConsumer(this.consumerChannel);
 
-        consumer.ReceivedAsync += async (model, ea) =>
+        consumer.ReceivedAsync += async (_, ea) =>
         {
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
