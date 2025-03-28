@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import { useCallback, useEffect, useRef, useState } from 'react';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import { CheckboxSearchValues } from '../../common/enums';
 import {
@@ -250,6 +251,7 @@ const SearchPage = () => {
 
     return (
         <div className={`${styles.searchPageWrapper} ${textColorClassName}`}>
+            <BackToTop />
             <MetaTags
               title={`Search results for "${searchParams.get('searchTerm')}" - SoftUni Judge`}
               description={

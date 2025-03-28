@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { useNavigate } from 'react-router-dom';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import { ContestParticipationType } from '../../../common/constants';
 import { getAllContestsPageUrl, getContestsSolutionSubmitPageUrl } from '../../../common/urls/compose-client-urls';
@@ -171,9 +172,12 @@ const ContestRegister = () => {
     }
 
     return (
-        <div className={styles.contestRegisterWrapper}>
-            {renderContestRegisterBody()}
-        </div>
+        <>
+            <BackToTop />
+            <div className={styles.contestRegisterWrapper}>
+                {renderContestRegisterBody()}
+            </div>
+        </>
     );
 };
 

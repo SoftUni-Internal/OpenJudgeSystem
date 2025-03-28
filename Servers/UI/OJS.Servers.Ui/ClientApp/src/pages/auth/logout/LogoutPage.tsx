@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
+import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
 import useTheme from '../../../hooks/use-theme';
 import cacheService from '../../../redux/cacheService';
@@ -35,9 +36,12 @@ const LogoutPage = () => {
     }, [ logout ]);
 
     return (
-        <div className={concatClassNames(getColorClassName(themeColors.textColor), styles.logout)}>
-            You are now successfully logged out and will be redirected to home page shortly.
-        </div>
+        <>
+            <BackToTop />
+            <div className={concatClassNames(getColorClassName(themeColors.textColor), styles.logout)}>
+                You are now successfully logged out and will be redirected to home page shortly.
+            </div>
+        </>
     );
 };
 

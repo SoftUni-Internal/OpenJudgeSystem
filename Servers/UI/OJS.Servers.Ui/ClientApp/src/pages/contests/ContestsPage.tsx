@@ -166,10 +166,6 @@ const ContestsPage = () => {
                           setSearchParams={setSearchParams}
                         />
                     </div>
-                    <ContestStrategies
-                      setSearchParams={setSearchParams}
-                      searchParams={searchParams}
-                    />
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls

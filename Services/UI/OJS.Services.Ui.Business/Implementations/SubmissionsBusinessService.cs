@@ -26,6 +26,7 @@ using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using OJS.Data.Models.Problems;
@@ -494,9 +495,11 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             {
                 submission.ExceptionType = exception?.ExceptionType ?? ExceptionType.Other;
                 submission.IsCompiledSuccessfully = false;
+
                 var errorMessage = exception?.Message ?? "Invalid execution result received. Please contact an administrator.";
-                submission.ProcessingComment = errorMessage;
-                submission.CompilerComment = exception?.ExceptionType == ExceptionType.Solution ? exception.Message : ProcessingExceptionCompilerComment;
+                var isRegularUserError = exception?.ExceptionType == ExceptionType.Solution;
+                submission.ProcessingComment = isRegularUserError ? "See the compiler comment for more details." : errorMessage;
+                submission.CompilerComment = isRegularUserError ? errorMessage : ProcessingExceptionCompilerComment;
             }
 
             await this.submissionsForProcessingData.SetProcessingState(submissionForProcessing, SubmissionProcessingState.Processed);
@@ -569,9 +572,11 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 descending: true);
         }
 
-        return await
+        var result = await
             this.ApplyFiltersAndSorters<TServiceModel>(requestModel, query)
-            .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
+                .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
+
+        return result;
     }
 
     private static void ProcessTestsExecutionResult(
@@ -656,6 +661,11 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
     private IQueryable<TModel> ApplyFiltersAndSorters<TModel>(PaginationRequestModel paginationRequestModel, IQueryable<Submission> query)
     {
+        if (string.IsNullOrWhiteSpace(paginationRequestModel.Filter) && string.IsNullOrWhiteSpace(paginationRequestModel.Sorting))
+        {
+            return query.MapCollection<TModel>();
+        }
+
         var filterAsCollection = this.filteringService.MapFilterStringToCollection<TModel>(paginationRequestModel).ToList();
 
         var mappedQuery = this.filteringService.ApplyFiltering<Submission, TModel>(query.AsNoTracking(), filterAsCollection);
