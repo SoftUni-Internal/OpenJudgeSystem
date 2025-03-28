@@ -40,7 +40,6 @@ public class RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests<TSettings>
         : base(submission, processExecutorFactory, settingsProvider, logger)
     {
     }
-
     private static string NginxFileContent => $@"
 worker_processes  1;
 
@@ -72,8 +71,6 @@ http {{
     }}
 }}";
 
-    private int PortNumber { get; set; }
-
     private string TestsPath => FileHelpers.BuildPath(this.WorkingDirectory, TestsDirectoryName);
 
     private string UserApplicationPath => FileHelpers.BuildPath(this.WorkingDirectory, UserApplicationDirectoryName);
@@ -86,6 +83,7 @@ http {{
 import docker
 import shutil
 import tarfile
+import uuid
 
 from os import chdir, remove
 from os.path import basename, join, dirname
@@ -95,16 +93,17 @@ image_name = 'nginx'
 path_to_project = '{this.UserApplicationPath}'
 path_to_nginx_conf = '{this.NginxConfFileDirectory}/nginx.conf'
 path_to_node_modules = '{this.Settings.JsProjNodeModulesPath}'
-
+network_name = 'ojs_workers'
 
 class DockerExecutor:
     def __init__(self):
         self.client = docker.from_env()
+        self.container_name = f""nginx-container-{{uuid.uuid4().hex[:8]}}""
         self.__ensure_image_is_present()
         self.container = self.client.containers.create(
             image=image_name,
-            ports={{'80/tcp': '0'}},
-            labels = ['js-apps'],
+            name=self.container_name,
+            labels=['js-apps'],
             volumes={{
                 path_to_nginx_conf: {{
                     'bind': '/etc/nginx/nginx.conf',
@@ -115,6 +114,7 @@ class DockerExecutor:
                     'mode': 'rw',
                 }},
             }},
+            network=network_name
         )
 
     def start(self):
@@ -128,9 +128,6 @@ class DockerExecutor:
 
     def get_container(self):
         return self.container
-
-    def get_container_by_name(self, name):
-        return self.client.containers.get(name)
 
     def copy_to_container(self, source, destination):
         chdir(dirname(source))
@@ -150,7 +147,6 @@ class DockerExecutor:
         self.container.put_archive(dirname(destination), data)
 
         remove(tar_path)
-        # remove(local_dest_name)
 
     def __ensure_image_is_present(self):
         def is_latest_image_present(name):
@@ -165,48 +161,31 @@ class DockerExecutor:
 executor = DockerExecutor()
 
 try:
-    # code for cleaning up old js-apps containers
+    # Cleanup old running js-apps containers
     datetime_now = datetime.now(timezone.utc)
     client = docker.from_env()
-    js_apps_containers = client.containers.list(all=True, filters={{""label"":""js-apps"", ""status"": ""running""}})
+    js_apps_containers = client.containers.list(all=True, filters={{""label"": ""js-apps"", ""status"": ""running""}})
 
     for apps_container in js_apps_containers:
         container_info = client.api.inspect_container(apps_container.name)
         started_at_string = container_info['State']['StartedAt']
 
-        # Python 3.6 does not support a ton of datetime stuff, also docker provides 9 symbols for ticks
-        # while python expects 6
         processed_time_str = started_at_string[0:-4]
         start_at_date = datetime.strptime(processed_time_str, ""%Y-%m-%dT%H:%M:%S.%f"").replace(tzinfo=timezone.utc)
         time_diff = datetime_now - start_at_date
 
-        # check if container is older than 1 hour (1 hour was arbitrarily chosen)
+        # Remove container if older than 1 hour
         if time_diff.total_seconds() > 3600:
             apps_container.stop()
             apps_container.wait()
             apps_container.remove()
 
-
     executor.start()
 
-    #get created container config so we can get the container name (note this config does not get ports automatically populated)
+    # Print container name for direct network communication
     container = executor.get_container()
-    name = container.name
+    print(f'{{container.name}},{{client.api.inspect_container(container.name)[""NetworkSettings""][""Networks""][network_name][""IPAddress""]}}')
 
-    # need to get container by name from docker again, so we can get info about the dynamically assigned port
-    current_container = executor.get_container_by_name(name)
-    if current_container.ports and list(current_container.ports):
-        first_element = list(current_container.ports)[0]
-        if current_container.ports[first_element]:
-            # get container host port
-            host_port = current_container.ports[first_element][0]['HostPort']
-            print(f'Container port: {{host_port}};Container name: {{name}};')
-        else:
-            print(""No ports assigned to the container."")
-            print(""Container logs:"", current_container.logs().decode('utf-8'))
-    else:
-        print(""No port information available."")
-        print(""Container logs:"", current_container.logs().decode('utf-8'))
 except Exception as e:
     print(e)
     executor.stop()
@@ -216,7 +195,6 @@ except Exception as e:
 import docker
 import subprocess
 
-
 mocha_path = '{this.Settings.MochaModulePath}'
 tests_path = '{TestFilePathPlaceholder}'
 container_name = '{ContainerNamePlaceholder}'
@@ -225,6 +203,7 @@ kill_container = {KillContainerPlaceholder}
 try:
     docker_client = docker.from_env()
     container = docker_client.containers.get(container_name)
+
     commands = [mocha_path, tests_path, '-R', 'json']
 
     process = subprocess.run(
@@ -232,16 +211,19 @@ try:
     )
 
     print(process.stdout)
+
 except Exception as e:
     print(e)
 finally:
-    if kill_container == True:
+    if kill_container:
         container.stop()
         container.wait()
         container.remove()
 ";
 
-    private string ContainerName { get; set; } = string.Empty;
+        private string NginxContainerName { get; set; } = string.Empty;
+
+        private string NginxIpAddress { get; set; } = string.Empty;
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
@@ -270,11 +252,12 @@ finally:
             var executor = this.CreateStandardExecutor();
         var checker = executionContext.Input.GetChecker();
         var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
-        var match = Regex.Match(preExecutionResult.ReceivedOutput, @"Container port: (\d+);Container name: ([a-zA-Z-_]+);");
-        if (match.Success)
+            var output = preExecutionResult.ReceivedOutput.Trim().Split(',');
+
+            if (output.Length == 2)
         {
-            this.PortNumber = int.Parse(match.Groups[1].Value);
-            this.ContainerName = match.Groups[2].Value;
+                this.NginxContainerName = output[0];
+                this.NginxIpAddress = output[1];
         }
         else
         {
@@ -297,7 +280,7 @@ finally:
         // pass in container name in order to close container after execution
         // pass test file path to mocha so it executes only this test file, and not all test files each run
         var processedPythonCodeTemplate = this.PythonCodeTemplate
-            .Replace(ContainerNamePlaceholder, this.ContainerName)
+                .Replace(ContainerNamePlaceholder, this.NginxContainerName)
             .Replace(TestFilePathPlaceholder, filePath)
             .Replace(KillContainerPlaceholder, "True");
 
@@ -418,7 +401,7 @@ finally:
 
     private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, IEnumerable<TestContext> tests)
     {
-        JsonExecutionResult mochaResult = JsonExecutionResult.Parse(PreproccessReceivedExecutionOutput(receivedOutput));
+            var mochaResult = JsonExecutionResult.Parse(PreproccessReceivedExecutionOutput(receivedOutput));
         if (mochaResult.TotalTests == 0)
         {
             return tests
@@ -429,7 +412,7 @@ finally:
                     ResultType = TestRunResultType.WrongAnswer,
                     CheckerDetails = new CheckerDetails
                     {
-                        UserOutputFragment = receivedOutput,
+                            UserOutputFragment = string.IsNullOrWhiteSpace(mochaResult.Error) ? receivedOutput : "An error occurred while processing the submission, please contact and administrator.",
                     },
                 })
                 .ToList();
@@ -524,9 +507,9 @@ finally:
     private string PreprocessTestInput(string testInput)
     {
         testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
-            .Replace(UserApplicationHttpPortPlaceholder, this.PortNumber.ToString());
+                .Replace(UserApplicationHttpPortPlaceholder, "");
 
-        return testInput.Replace("localhost", "host.docker.internal");
+            return testInput.Replace("localhost:", this.NginxIpAddress);
     }
 
     private string BuildTestPath(string fileName) => FileHelpers.BuildPath(this.TestsPath, $"{fileName}{JavaScriptFileExtension}");
