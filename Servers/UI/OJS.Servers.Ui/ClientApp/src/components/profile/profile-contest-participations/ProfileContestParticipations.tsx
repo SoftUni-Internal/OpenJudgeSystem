@@ -251,7 +251,10 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
                       handleDropdownItemClear={handleCategoryClear}
                       placeholder="Filter by category"
                       isSearchable
-                      isDisabled={selectedContest !== null && (selectedCategory === null || selectedCategory.id === 0)}
+                      isDisabled={
+                        (selectedContest !== null && selectedContest.id !== 0) &&
+                          (selectedCategory === null || selectedCategory.id === 0)
+                        }
                     />
                 </div>
             )}
