@@ -7,6 +7,7 @@ import {
     applyDefaultQueryValues,
 } from 'src/components/filters/Filter';
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
+import { useSyncQueryParamsFromUrl } from 'src/utils/url-utils';
 
 import { IDictionary } from '../../../common/common-types';
 import { IPagedResultType, IPublicSubmission } from '../../../common/types';
@@ -74,6 +75,8 @@ const RecentSubmissions = () => {
             data: inRoleData,
         },
     ] = useLazyGetLatestSubmissionsInRoleQuery();
+
+    useSyncQueryParamsFromUrl(searchParams, setQueryParams);
 
     const areSubmissionsLoading =
         loggedInUserInRole
