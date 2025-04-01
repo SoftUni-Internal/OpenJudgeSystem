@@ -1,7 +1,6 @@
-import { useEffect, useMemo } from 'react';
-import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import { IDropdownItem } from 'src/common/types';
 import { setContestStrategy } from 'src/redux/features/contestsSlice';
+import { useDropdownUrlSync } from 'src/utils/url-utils';
 
 import { IContestStrategyFilter } from '../../../common/contest-types';
 import { useGetContestStrategiesQuery } from '../../../redux/services/contestsService';
@@ -10,16 +9,10 @@ import Dropdown from '../../guidelines/dropdown/Dropdown';
 
 import styles from './ContestStrategies.module.scss';
 
-interface IContestStrategiesProps {
-    setSearchParams: (newParams: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void;
-    searchParams: URLSearchParams;
-}
-
-const ContestStrategies = ({ setSearchParams, searchParams }: IContestStrategiesProps) => {
+const ContestStrategies = () => {
     const { selectedCategory } = useAppSelector((state) => state.contests);
-    const dispatch = useAppDispatch();
     const { selectedStrategy } = useAppSelector((state) => state.contests);
-    const selectedId = useMemo(() => searchParams.get('strategy'), [ searchParams ]);
+    const dispatch = useAppDispatch();
 
     const {
         data: contestStrategies,
@@ -27,47 +20,28 @@ const ContestStrategies = ({ setSearchParams, searchParams }: IContestStrategies
         error: strategiesError,
     } = useGetContestStrategiesQuery({ contestCategoryId: selectedCategory?.id ?? 0 });
 
+    const { updateUrl } = useDropdownUrlSync<IContestStrategyFilter>(
+        'strategy',
+        contestStrategies,
+        setContestStrategy,
+    );
+
     const handleStrategySelect = (item: IDropdownItem | undefined) => {
-        if (item) {
-            const strategy = contestStrategies?.find((s) => s.id === item.id);
-            if (strategy) {
-                dispatch(setContestStrategy(strategy));
-                searchParams.set('page', '1');
-                setSearchParams(searchParams);
-            }
-        } else {
-            dispatch(setContestStrategy(null));
-        }
+        const strategy = item
+            ? contestStrategies?.find((s) => s.id === item.id)
+            : undefined;
+
+        dispatch(setContestStrategy(strategy ?? null));
+        updateUrl(strategy);
     };
 
     const handleStrategyClear = () => {
         dispatch(setContestStrategy(null));
-        searchParams.set('page', '1');
-        setSearchParams(searchParams);
+        updateUrl(undefined);
     };
 
-    useEffect(() => {
-        if (selectedId && contestStrategies) {
-            const selected = contestStrategies.find((s) => s.id.toString() === selectedId);
-
-            if (selected) {
-                dispatch(setContestStrategy(selected));
-                searchParams.set('page', '1');
-                setSearchParams(searchParams);
-            } else {
-                dispatch(setContestStrategy(null));
-            }
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ selectedId, contestStrategies, dispatch ]);
-
-    if (strategiesError) {
-        return <div>Error loading strategies...</div>;
-    }
-
-    if (areStrategiesLoading) {
-        return <div>Loading strategies...</div>;
-    }
+    if (strategiesError) { return <div>Error loading strategies...</div>; }
+    if (areStrategiesLoading) { return <div>Loading strategies...</div>; }
 
     return (
         <div className={styles.selectWrapper}>
