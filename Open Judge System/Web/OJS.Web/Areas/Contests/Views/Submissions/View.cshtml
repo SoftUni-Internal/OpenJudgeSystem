@@ -87,15 +87,17 @@ else
     if (!string.IsNullOrWhiteSpace(Model.ExecutionComment))
     {
         <h2>@Resource.Execution_result:</h2>
-        if (Model.ExceptionType == ExceptionType.UnprocessableSubmission)
+        if (string.IsNullOrWhiteSpace(Model.CompilerComment))
         {
-            <pre>The submission cannot be processed at the moment.</pre>
+            if (Model.ExceptionType == ExceptionType.UnprocessableSubmission)
+            {
+                <pre>The submission cannot be processed at the moment. Please contact an Administrator.</pre>
+            }
+            else
+            {
+                <pre>Unexpected error. Please contact an Administrator.</pre>
+            }
         }
-        else
-        {
-            <pre>Unexpected error.</pre>
-        }
-        <pre>Please contact an Administrator.</pre>
 
         if (Model.UserHasAdminPermission)
         {
@@ -103,7 +105,7 @@ else
 
             if (Model.ExceptionType == ExceptionType.Solution)
             {
-                message = "An error related to the user's submission occurred";
+                message = "An error related to the user's submission occurred.";
             }
             else if (Model.ExceptionType == ExceptionType.Configuration)
             {
