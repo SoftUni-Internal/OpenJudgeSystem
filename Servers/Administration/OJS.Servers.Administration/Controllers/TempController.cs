@@ -14,6 +14,8 @@ using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.Data.Models.Tests;
 using OJS.Servers.Infrastructure.Controllers;
+using OJS.Services.Administration.Business.ProblemGroups;
+using OJS.Services.Administration.Business.Problems;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Contests;
 using OJS.Services.Infrastructure.Configurations;
@@ -34,7 +36,9 @@ public class TempController(
     IContestCategoriesDataService contestCategoriesData,
     ICheckersDataService checkersData,
     ISubmissionTypesDataService submissionTypesData,
-    ITestRunsDataService testRunsData)
+    ITestRunsDataService testRunsData,
+    IProblemsBusinessService problemsBusiness,
+    IProblemGroupsBusinessService problemGroupsBusiness)
     : BaseApiController
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
@@ -348,6 +352,9 @@ public class TempController(
             }
         }
 
+        contestsData.Update(existingContest);
+        await contestsData.SaveChanges();
+
         // Remove problem groups and problems that weren't in the source
         var sourceGroupOrderByValues = sourceContest.ProblemGroups
             .Select(pg => pg.OrderBy)
@@ -365,7 +372,7 @@ public class TempController(
 
         foreach (var problemGroup in problemGroupsToRemove)
         {
-            existingContest.ProblemGroups.Remove(problemGroup);
+            await problemGroupsBusiness.Delete(problemGroup.Id);
         }
 
         foreach (var problemGroup in existingContest.ProblemGroups)
@@ -376,11 +383,8 @@ public class TempController(
 
             foreach (var problem in problemsToRemove)
             {
-                problemGroup.Problems.Remove(problem);
+                await problemsBusiness.Delete(problem.Id);
             }
         }
-
-        contestsData.Update(existingContest);
-        await contestsData.SaveChanges();
     }
 }
