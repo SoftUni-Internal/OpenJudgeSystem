@@ -1,3 +1,4 @@
+import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import { IDropdownItem } from 'src/common/types';
 import { setContestStrategy } from 'src/redux/features/contestsSlice';
 import { useDropdownUrlSync } from 'src/utils/url-utils';
@@ -9,7 +10,12 @@ import Dropdown from '../../guidelines/dropdown/Dropdown';
 
 import styles from './ContestStrategies.module.scss';
 
-const ContestStrategies = () => {
+interface IContestStrategiesProps {
+    setSearchParams: (newParams: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void;
+    searchParams: URLSearchParams;
+}
+
+const ContestStrategies = ({ setSearchParams, searchParams }: IContestStrategiesProps) => {
     const { selectedCategory } = useAppSelector((state) => state.contests);
     const { selectedStrategy } = useAppSelector((state) => state.contests);
     const dispatch = useAppDispatch();
@@ -24,6 +30,8 @@ const ContestStrategies = () => {
         'strategy',
         contestStrategies,
         setContestStrategy,
+        setSearchParams,
+        searchParams,
     );
 
     const handleStrategySelect = (item: IDropdownItem | undefined) => {
@@ -40,8 +48,13 @@ const ContestStrategies = () => {
         updateUrl(undefined);
     };
 
-    if (strategiesError) { return <div>Error loading strategies...</div>; }
-    if (areStrategiesLoading) { return <div>Loading strategies...</div>; }
+    if (strategiesError) {
+        return <div>Error loading strategies...</div>;
+    }
+
+    if (areStrategiesLoading) {
+        return <div>Loading strategies...</div>;
+    }
 
     return (
         <div className={styles.selectWrapper}>

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { Dispatch, SetStateAction, useEffect } from 'react';
-import { NavigateOptions, URLSearchParamsInit, useSearchParams } from 'react-router-dom';
+import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import { useAppDispatch } from 'src/redux/store';
@@ -103,6 +103,8 @@ type DropdownUrlSyncHook<T> = {
  * @param key - The query param key used in the URL.
  * @param items - Available items for selection.
  * @param setReduxState - Redux action creator that accepts the matched item.
+ * @param setSearchParams - React Router's setSearchParams function.
+ * @param searchParams - Current URLSearchParams.
  * @param batchMode - Whether to return batch URL update functionality.
  * @returns Object containing searchParams, updateUrl, and optionally batchUpdateUrl.
  */
@@ -110,10 +112,11 @@ const useDropdownUrlSync = <T extends { id: number | string }>(
     key: string,
     items: T[] | undefined,
     setReduxState: ActionCreatorWithPayload<T | null>,
+    setSearchParams: (newParams: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void,
+    searchParams: URLSearchParams,
     batchMode = false,
 ): DropdownUrlSyncHook<T> => {
     const dispatch = useAppDispatch();
-    const [ searchParams, setSearchParams ] = useSearchParams();
     const selectedId = searchParams.get(key);
 
     useEffect(() => {

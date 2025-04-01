@@ -163,7 +163,10 @@ const ContestsPage = () => {
                               to={`/${CONTEST_CATEGORIES_HIERARCHY_PATH}?${CONTESTS_BULK_EDIT}=${selectedCategory?.id}`}
                             />
                         )}
-                        <ContestStrategies />
+                        <ContestStrategies
+                          setSearchParams={setSearchParams}
+                          searchParams={searchParams}
+                        />
                     </div>
                 </div>
                 <div className={styles.contestsListContainer}>
