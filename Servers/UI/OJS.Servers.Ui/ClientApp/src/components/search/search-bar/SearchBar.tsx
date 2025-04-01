@@ -28,6 +28,7 @@ const SearchBar = () => {
     const { isDarkMode, themeColors, getColorClassName } = useTheme();
     const [ inputValue, setInputValue ] = useState<string>('');
     const isNavigating = useRef(false);
+    const hasInitialized = useRef(false);
 
     const { searchValue, selectedTerms, isVisible } = useAppSelector((state) => state.search);
 
@@ -41,11 +42,19 @@ const SearchBar = () => {
         const params = new URLSearchParams(location.search);
         const urlSearchTerm = params.get('searchTerm') || '';
         const urlSelectedTerms = CHECKBOXES.filter((term) => params.get(term) === 'true');
-
         const urlVisible = params.get('isVisible') === 'true';
 
-        setInputValue(urlSearchTerm);
-        dispatch(setSearchValue(urlSearchTerm));
+        if (!hasInitialized.current) {
+            // First time load: set all states
+            setInputValue(urlSearchTerm);
+            dispatch(setSearchValue(urlSearchTerm));
+            hasInitialized.current = true;
+        } else if (inputValue !== urlSearchTerm) {
+            // After that: update state only if it has changed
+            setInputValue(urlSearchTerm);
+            dispatch(setSearchValue(urlSearchTerm));
+        }
+
         dispatch(setSelectedTerms(urlSelectedTerms.length > 0 || !location.pathname.includes('/search')
             ? urlSelectedTerms
             : []));
