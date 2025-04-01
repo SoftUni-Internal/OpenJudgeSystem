@@ -30,7 +30,12 @@ interface IProfileContestParticipationsProps {
     searchParams: URLSearchParams;
 }
 
-const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle, setSearchParams, searchParams }: IProfileContestParticipationsProps) => {
+const ProfileContestParticipations = ({
+    userIsProfileOwner,
+    isChosenInToggle,
+    setSearchParams,
+    searchParams,
+}: IProfileContestParticipationsProps) => {
     const [ shouldRender, setShouldRender ] = useState<boolean>(false);
     const [ userContestParticipationsPage, setUserContestParticipationsPage ] = useState<number>(1);
     const [ selectedContest, setSelectedContest ] = useState<IDropdownItem | undefined>({ id: 0, name: '' });

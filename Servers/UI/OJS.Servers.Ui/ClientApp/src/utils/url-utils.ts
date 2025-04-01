@@ -1,4 +1,4 @@
-﻿/* eslint-disable max-len */
+/* eslint-disable max-len */
 import { Dispatch, SetStateAction, useEffect } from 'react';
 import { NavigateOptions, URLSearchParamsInit, useSearchParams } from 'react-router-dom';
 import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
