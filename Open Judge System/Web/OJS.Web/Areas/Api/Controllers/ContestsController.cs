@@ -35,6 +35,21 @@ namespace OJS.Web.Areas.Api.Controllers
                 .Include(c => c.ProblemGroups.Select(pg => pg.Problems.Select(p => p.Resources)))
                 .FirstOrDefault(c => c.Id == id);
 
+            contest.ProblemGroups = contest.ProblemGroups
+                .Where(pg => !pg.IsDeleted)
+                .Select(pg =>
+                {
+                    pg.Problems = pg.Problems
+                        .Where(p => !p.IsDeleted)
+                        .Select(p =>
+                        {
+                            p.Resources = p.Resources.Where(r => !r.IsDeleted).ToList();
+                            return p;
+                        }).ToList();
+                    return pg;
+                })
+                .ToList();
+
             if (contest == null)
             {
                 return this.HttpNotFound($"Contest with id {id} not found.");
@@ -55,6 +70,16 @@ namespace OJS.Web.Areas.Api.Controllers
         {
             var existingContestIds = this.dbContext.Contests
                 .Where(c => !c.IsDeleted && ids.Contains(c.Id))
+                .Select(c => c.Id)
+                .ToList();
+
+            return this.Content(JsonConvert.SerializeObject(existingContestIds));
+        }
+
+        public ActionResult GetExistingIdsForCategory(int contestCategoryId)
+        {
+            var existingContestIds = this.dbContext.Contests
+                .Where(c => !c.IsDeleted && c.CategoryId == contestCategoryId)
                 .Select(c => c.Id)
                 .ToList();
 
