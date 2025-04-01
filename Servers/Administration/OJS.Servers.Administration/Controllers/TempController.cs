@@ -107,8 +107,7 @@ public class TempController(
             {
                 result.AppendLine(existingContest == null
                     ? $"<p><b>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
-                    : $"<p><b>Replace:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be replaced.</p>");
-                continue;
+                    : $"<p><b>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be updated.</p>");
             }
 
             var checkers = await checkersData.All().ToListAsync();
@@ -116,13 +115,11 @@ public class TempController(
 
             if (existingContest == null)
             {
-                await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes);
-                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>Imported:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> imported successfully.</p>");
+                await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes, result, dryRun);
             }
             else
             {
-                await this.ReplaceContest(existingContest, contest, checkers, submissionTypes);
-                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>Replaced:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> replaced successfully.</p>");
+                await this.UpdateContest(existingContest, contest, checkers, submissionTypes, result, dryRun);
             }
         }
 
@@ -144,7 +141,9 @@ public class TempController(
         int destinationContestCategoryId,
         ContestLegacyExportServiceModel contest,
         List<Checker> checkers,
-        List<SubmissionType> submissionTypes)
+        List<SubmissionType> submissionTypes,
+        StringBuilder result,
+        bool dryRun)
     {
         var newContest = new Contest
         {
@@ -213,15 +212,23 @@ public class TempController(
             }).ToList(),
         };
 
-        await contestsData.Add(newContest);
-        await contestsData.SaveChanges();
+        if (!dryRun)
+        {
+            await contestsData.Add(newContest);
+            await contestsData.SaveChanges();
+        }
+
+        result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{contest.Name}\"</b> was imported successfully.</p>");
+        result.AppendLine("<hr>");
     }
 
-    private async Task ReplaceContest(
+    private async Task UpdateContest(
         Contest existingContest,
         ContestLegacyExportServiceModel sourceContest,
         List<Checker> checkers,
-        List<SubmissionType> submissionTypes)
+        List<SubmissionType> submissionTypes,
+        StringBuilder result,
+        bool dryRun)
     {
         // Update basic contest properties
         existingContest.Name = sourceContest.Name;
@@ -275,12 +282,14 @@ public class TempController(
                 if (existingProblem == null)
                 {
                     // Create new problem if no match found
+                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Add:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be added.</p>");
                     existingProblem = new Problem();
                     existingProblemGroup.Problems.Add(existingProblem);
                 }
                 else
                 {
                     // Clear existing collections to update them
+                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Update:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be updated. Tests will be replaced. Test runs will be deleted.</p>");
                     existingProblem.Tests.Clear();
                     existingProblem.Resources.Clear();
                     existingProblem.SubmissionTypesInProblems.Clear();
@@ -352,10 +361,13 @@ public class TempController(
             }
         }
 
-        contestsData.Update(existingContest);
-        await contestsData.SaveChanges();
+        if (!dryRun)
+        {
+            contestsData.Update(existingContest);
+            await contestsData.SaveChanges();
+        }
 
-        // Remove problem groups and problems that weren't in the source
+        // Remove problem groups and problems that aren't in the source
         var sourceGroupOrderByValues = sourceContest.ProblemGroups
             .Select(pg => pg.OrderBy)
             .ToList();
@@ -372,7 +384,12 @@ public class TempController(
 
         foreach (var problemGroup in problemGroupsToRemove)
         {
-            await problemGroupsBusiness.Delete(problemGroup.Id);
+            result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> will be deleted.</p>");
+
+            if (!dryRun)
+            {
+                await problemGroupsBusiness.Delete(problemGroup.Id);
+            }
         }
 
         foreach (var problemGroup in existingContest.ProblemGroups)
@@ -383,8 +400,16 @@ public class TempController(
 
             foreach (var problem in problemsToRemove)
             {
-                await problemsBusiness.Delete(problem.Id);
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> will be deleted.</p>");
+
+                if (!dryRun)
+                {
+                    await problemsBusiness.Delete(problem.Id);
+                }
             }
         }
+
+        result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{sourceContest.Name}\"</b> updated successfully.</p>");
+        result.AppendLine("<hr>");
     }
 }
