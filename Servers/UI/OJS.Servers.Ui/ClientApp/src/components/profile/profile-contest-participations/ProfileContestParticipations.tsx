@@ -209,13 +209,15 @@ const ProfileContestParticipations = ({
 
     const handleCategoryClear = useCallback(() => {
         setSelectedCategory(undefined);
-        updateCategoryUrl(undefined);
+        setSelectedContest(undefined);
+
         batchUpdateCategoryUrl?.([
             { key: 'contestId', value: undefined },
             { key: 'categoryId', value: undefined },
         ]);
+
         setUserContestParticipationsPage(1);
-    }, [ batchUpdateCategoryUrl, updateCategoryUrl ]);
+    }, [ batchUpdateCategoryUrl ]);
 
     const renderContestCard = useCallback((contest: IIndexContestsType) => (
         <ContestCard

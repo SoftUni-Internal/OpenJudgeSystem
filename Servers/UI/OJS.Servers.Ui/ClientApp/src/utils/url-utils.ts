@@ -81,7 +81,11 @@ const batchUrlUpdates = (
     });
 
     newParams.set(pageParam, defaultPageParamValue);
-    setSearchParams(newParams, { replace: false });
+    /*
+        When we do batch updates, we want all params to be set at once ( a single browser history entry ),
+        this is why 'replace' is set to 'true'.
+     */
+    setSearchParams(newParams, { replace: true });
 };
 
 type DropdownUrlSyncHook<T> = {
