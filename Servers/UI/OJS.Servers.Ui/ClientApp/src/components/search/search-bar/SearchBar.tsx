@@ -59,6 +59,7 @@ const SearchBar = () => {
             ? urlSelectedTerms
             : []));
         dispatch(setIsVisible(urlVisible));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ location.search, dispatch, location.pathname ]);
 
     const updateSearchParams = useCallback(

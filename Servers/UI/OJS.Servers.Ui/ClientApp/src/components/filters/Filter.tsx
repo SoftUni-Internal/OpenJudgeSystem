@@ -846,12 +846,9 @@ const handlePageChange = (
     setQueryParams((prev) => {
         const updatedParams = { ...prev, page: newPage };
 
-        const newParams = new URLSearchParams();
-        Object.entries(updatedParams).forEach(([ key, value ]) => {
-            if (value !== undefined && value !== null) {
-                newParams.set(key, value.toString());
-            }
-        });
+        const newParams = new URLSearchParams(window.location.search);
+
+        newParams.set('page', newPage.toString());
 
         setSearchParams(newParams);
         return updatedParams;

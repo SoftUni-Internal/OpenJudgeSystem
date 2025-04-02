@@ -80,6 +80,8 @@ const RecentSubmissions = () => {
 
     useEffect(() => {
         const stateFromUrl = searchParams.get('state');
+        const pageFromUrl = searchParams.get('page');
+
         if (stateFromUrl) {
             const stateNumber = parseInt(stateFromUrl, 10);
             if (stateNumber >= 1 && stateNumber <= 4) {
@@ -90,27 +92,27 @@ const RecentSubmissions = () => {
             setSelectedActive(1);
             setStatus(SubmissionStatus.All);
         }
-    }, [ searchParams ]);
+
+        if (pageFromUrl) {
+            setQueryParams((prev) => ({
+                ...prev,
+                page: parseInt(pageFromUrl, 10),
+            }));
+        }
+    }, [ searchParams, setQueryParams ]);
 
     const handleSelectSubmissionState = useCallback(
         (typeKey: number) => {
-            if (selectedActive) {
-                setQueryParams({
-                    page: 1,
-                    itemsPerPage: queryParams.itemsPerPage,
-                    filter: queryParams.filter,
-                    sorting: queryParams.sorting,
-                });
-
-                const newParams = new URLSearchParams(searchParams);
-                newParams.set('state', typeKey.toString());
-                setSearchParams(newParams);
-
-                setStatus(typeKey);
-                setSelectedActive(typeKey);
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('state', typeKey.toString());
+            if (typeKey !== selectedActive) {
+                newParams.set('page', '1');
             }
+            setSearchParams(newParams);
+            setStatus(typeKey);
+            setSelectedActive(typeKey);
         },
-        [ selectedActive, queryParams, searchParams, setSearchParams ],
+        [ selectedActive, searchParams, setSearchParams ],
     );
 
     const areSubmissionsLoading =
