@@ -135,15 +135,11 @@ const SearchBar = () => {
         updateSearchParams(undefined, newSelectedTerms);
     };
 
-    const debouncedDispatch = debounce((value: string) => {
-        dispatch(setSearchValue(value));
-        updateSearchParams(value);
-    }, 250);
-
     const handleSearchInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
         setInputValue(newValue);
-        debouncedDispatch(newValue);
+        dispatch(setSearchValue(newValue));
+        updateSearchParams(newValue);
     };
 
     const handleSearchBarClose = () => {
