@@ -78,6 +78,41 @@ const RecentSubmissions = () => {
 
     useSyncQueryParamsFromUrl(searchParams, setQueryParams);
 
+    useEffect(() => {
+        const stateFromUrl = searchParams.get('state');
+        if (stateFromUrl) {
+            const stateNumber = parseInt(stateFromUrl, 10);
+            if (stateNumber >= 1 && stateNumber <= 4) {
+                setSelectedActive(stateNumber);
+                setStatus(stateNumber);
+            }
+        } else {
+            setSelectedActive(1);
+            setStatus(SubmissionStatus.All);
+        }
+    }, [ searchParams ]);
+
+    const handleSelectSubmissionState = useCallback(
+        (typeKey: number) => {
+            if (selectedActive) {
+                setQueryParams({
+                    page: 1,
+                    itemsPerPage: queryParams.itemsPerPage,
+                    filter: queryParams.filter,
+                    sorting: queryParams.sorting,
+                });
+
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('state', typeKey.toString());
+                setSearchParams(newParams);
+
+                setStatus(typeKey);
+                setSelectedActive(typeKey);
+            }
+        },
+        [ selectedActive, queryParams, searchParams, setSearchParams ],
+    );
+
     const areSubmissionsLoading =
         loggedInUserInRole
             ? inRoleLoading
@@ -117,25 +152,6 @@ const RecentSubmissions = () => {
             setLatestSubmissions(regularUserData);
         }
     }, [ inRoleData, inRoleSubmissionsReady, regularUserData, regularUserSubmissionsReady ]);
-
-    const handleSelectSubmissionState = useCallback(
-        (typeKey: number) => {
-            if (selectedActive) {
-                setQueryParams({
-                    page: 1,
-                    itemsPerPage: queryParams.itemsPerPage,
-                    filter: queryParams.filter,
-                    sorting: queryParams.sorting,
-                });
-
-                setStatus(typeKey);
-                setSelectedActive(typeKey);
-            }
-        },
-        // If exhaustive dependencies are set, unnecessary re-renders will be made.
-        // eslint-disable-next-line
-        [ selectedActive ],
-    );
 
     const getSubmissionsAwaitingExecution = useCallback((state: string = '') => {
         if (isEmpty(unprocessedSubmissionsCount)) {
