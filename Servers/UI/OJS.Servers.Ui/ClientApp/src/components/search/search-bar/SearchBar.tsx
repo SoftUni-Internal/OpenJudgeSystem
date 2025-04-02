@@ -55,9 +55,9 @@ const SearchBar = () => {
             dispatch(setSearchValue(urlSearchTerm));
         }
 
-        dispatch(setSelectedTerms(urlSelectedTerms.length > 0 || !location.pathname.includes('/search')
+        dispatch(setSelectedTerms(location.pathname.includes('/search')
             ? urlSelectedTerms
-            : []));
+            : CHECKBOXES));
         dispatch(setIsVisible(urlVisible));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ location.search, dispatch, location.pathname ]);
