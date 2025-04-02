@@ -2,7 +2,6 @@ import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react';
 import { IoIosClose } from 'react-icons/io';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Checkbox, TextField } from '@mui/material';
-import debounce from 'lodash/debounce';
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 import concatClassNames from 'src/utils/class-names';
 
