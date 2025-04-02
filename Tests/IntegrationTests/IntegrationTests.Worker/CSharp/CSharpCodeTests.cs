@@ -8,13 +8,11 @@ public class CSharpCodeTests : BaseStrategyTest<CSharpCodeSubmissionFactory, CSh
         : base(fixture, new CSharpCodeSubmissionFactory()) { }
 
     [Fact]
-    public async Task TestCSharpCodeDotNet6CorrectResult()
+    public async Task DotNet6_ShouldReturnCorrectAnswer_WhenCodeIsValid()
     {
         var submission = this.Factory.GetSubmission(new("Console.WriteLine(\"Hello SoftUni\");"));
 
-        await this.Fixture.PublishMessage(submission);
-
-        var receivedSubmission = await this.Fixture.ConsumeMessage(CancellationToken.None, submission.Id);
+        var receivedSubmission = await this.Fixture.ProcessSubmission(submission);
 
         // Assertions
         Assert.NotNull(receivedSubmission);
@@ -24,13 +22,11 @@ public class CSharpCodeTests : BaseStrategyTest<CSharpCodeSubmissionFactory, CSh
     }
 
     [Fact]
-    public async Task TestCSharpCodeDotNet6CompilationError()
+    public async Task DotNet6_ShouldFailCompilation_WhenCodeIsInvalid()
     {
         var submission = this.Factory.GetSubmission(new("This is not proper c# code!"));
 
-        await this.Fixture.PublishMessage(submission);
-
-        var receivedSubmission = await this.Fixture.ConsumeMessage(CancellationToken.None, submission.Id);
+        var receivedSubmission = await this.Fixture.ProcessSubmission(submission);
 
         // Assertions
         Assert.NotNull(receivedSubmission);
@@ -40,13 +36,11 @@ public class CSharpCodeTests : BaseStrategyTest<CSharpCodeSubmissionFactory, CSh
     }
 
     [Fact]
-    public async Task TestCSharpCodeDotNet6TimeLimit()
+    public async Task DotNet6_ShouldTimeout_WhenCodeRunsIndefinitely()
     {
         var submission = this.Factory.GetSubmission(new("while (true) { }"));
 
-        await this.Fixture.PublishMessage(submission);
-
-        var receivedSubmission = await this.Fixture.ConsumeMessage(CancellationToken.None, submission.Id);
+        var receivedSubmission = await this.Fixture.ProcessSubmission(submission);
 
         // Assertions
         Assert.NotNull(receivedSubmission);

@@ -137,7 +137,14 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
         await setupChannel.QueueDeclareAsync(queue: inputQueueName, durable: true, exclusive: false, autoDelete: false);
     }
 
-    public Task<ProcessedSubmissionPubSubModel?> ConsumeMessage(CancellationToken token, int submissionId)
+    public async Task<ProcessedSubmissionPubSubModel?> ProcessSubmission(SubmissionForProcessingPubSubModel submission)
+    {
+        await this.PublishMessage(submission);
+
+        return await this.ConsumeMessage(CancellationToken.None, submission.Id);
+    }
+
+    private Task<ProcessedSubmissionPubSubModel?> ConsumeMessage(CancellationToken token, int submissionId)
     {
         var tcs = new TaskCompletionSource<ProcessedSubmissionPubSubModel?>();
         this.pendingSubmissions[submissionId] = tcs;
@@ -208,7 +215,7 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
             cancellationToken: CancellationToken.None).GetAwaiter().GetResult();
     }
 
-    public async Task PublishMessage(SubmissionForProcessingPubSubModel submission)
+    private async Task PublishMessage(SubmissionForProcessingPubSubModel submission)
     {
         var envelope = new MassTransitEnvelope(
             this.rabbitMqPort,
