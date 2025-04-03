@@ -18,6 +18,8 @@ public class UserMentor : IEntity<string>
 
     public int RequestsMade { get; set; }
 
+    public int TotalRequestsMade { get; set; }
+
     public int? QuotaLimit { get; set; }
 
     public DateTime CreatedOn { get; set; }
