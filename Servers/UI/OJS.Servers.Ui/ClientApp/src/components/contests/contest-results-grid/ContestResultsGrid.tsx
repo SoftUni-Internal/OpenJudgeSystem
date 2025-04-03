@@ -86,15 +86,15 @@ const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
                         {
                         getColumns(items!).map((column, idx) => {
                             if (idx <= 1) { // Skip the first two columns (№ and Participants)
-                                return (<td key={`t-r-i-${idx}`}>{column}</td>);
+                                return <td key={`t-r-i-${idx}`}>{column}</td>;
                             }
 
                             if (idx === getColumns(items!).length - 1) { // Skip the last column (Total Result)
-                                return (<td key={`t-r-i-${idx}`}>{column}</td>);
+                                return <td key={`t-r-i-${idx}`}>{column}</td>;
                             }
 
                             // For problem names, create a link button
-                            const problem = items!.problems![idx - 2]; // -2 because we skipped the first two columns
+                            const problem = items!.problems[idx - 2]; // -2 because we skipped the first two columns
                             if (column.length > 20) {
                                 return (
                                     <td key={`t-r-i-${idx}`}>
