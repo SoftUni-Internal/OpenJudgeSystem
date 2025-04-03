@@ -97,6 +97,7 @@ public class MentorBusinessService : IMentorBusinessService
                 CreatedOn = DateTime.UtcNow,
                 ModifiedOn = DateTime.UtcNow,
                 RequestsMade = 0,
+                TotalRequestsMade = 0,
                 QuotaLimit = null,
                 QuotaResetTime = DateTime.UtcNow.AddMinutes(GetNumericValue(settings, nameof(MentorQuotaResetTimeInMinutes))),
             };
@@ -197,6 +198,7 @@ public class MentorBusinessService : IMentorBusinessService
         });
 
         userMentor.RequestsMade++;
+        userMentor.TotalRequestsMade++;
         await this.userMentorData.SaveChanges();
 
         return GetResponseModel(model, maxUserInputLength);
