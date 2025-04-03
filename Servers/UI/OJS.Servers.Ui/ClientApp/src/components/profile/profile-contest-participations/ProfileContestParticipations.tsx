@@ -204,11 +204,12 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
         setUserContestParticipationsPage(1);
     }, []);
 
-    const renderContestCard = useCallback((contest: IIndexContestsType) => (
-        <ContestCard
-          key={contest.id}
-          contest={contest}
-          showPoints={userIsProfileOwner || internalUser.isAdmin}
+    const renderContestCard = useCallback(
+        (contest: IIndexContestsType) =>
+            <ContestCard
+            key={contest.id}
+            contest={contest}
+            showPoints={userIsProfileOwner || internalUser.isAdmin}
         />
         , [ internalUser, userIsProfileOwner ],
     );
@@ -231,11 +232,11 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
 
     return (
         <div>
-            { ((!isLoggedIn || (isLoggedIn && !userIsProfileOwner && !internalUser.canAccessAdministration)) &&
+            { ((!isLoggedIn || isLoggedIn && !userIsProfileOwner && !internalUser.canAccessAdministration) &&
                 userContestParticipations !== undefined &&
                 !isNilOrEmpty(userContestParticipations.items) &&
                 <h2 className={styles.participationsHeading}>Participated In:</h2>)}
-            {isChosenInToggle && (
+            {isChosenInToggle &&
                 <div className={styles.filterContainer}>
                     <Dropdown
                       dropdownItems={filteredContestDropdownItems}
@@ -253,28 +254,28 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
                       placeholder="Filter by category"
                       isSearchable
                       isDisabled={
-                        (selectedContest !== null && selectedContest.id !== 0) &&
+                        selectedContest !== null && selectedContest.id !== 0 &&
                           (selectedCategory === null || selectedCategory.id === 0)
                         }
                     />
                 </div>
-            )}
+            }
             <List
               values={userContestParticipations?.items || []}
               itemFunc={renderContestCard}
               orientation={Orientation.vertical}
               fullWidth
             />
-            {!isEmpty(userContestParticipations?.items) && userContestParticipations!.pagesCount > 1 && (
+            {!isEmpty(userContestParticipations?.items) && userContestParticipations!.pagesCount > 1 &&
                 <PaginationControls
                   count={userContestParticipations!.pagesCount}
                   page={userContestParticipations!.pageNumber}
                   onChange={onPageChange}
                 />
-            )}
+            }
             { isChosenInToggle &&
                 isNilOrEmpty(userContestParticipations?.items) &&
-                (
+
                     <div className={concatClassNames(
                         styles.noParticipationsText,
                         getColorClassName(themeColors.textColor),
@@ -282,7 +283,7 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
                     >
                         You have not participated in any contests yet.
                     </div>
-                )}
+                }
         </div>
     );
 };
