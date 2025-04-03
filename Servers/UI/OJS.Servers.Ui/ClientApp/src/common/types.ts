@@ -104,6 +104,8 @@ interface IContestsSortAndFilterOptions {
 // TODO: Unify these types, some are called params, others options
 interface IGetContestParticipationsForUserQueryParams extends IContestsSortAndFilterOptions {
     username: string;
+    contestId?: number;
+    categoryId?: number;
 }
 
 interface IContestCategory {
@@ -844,6 +846,34 @@ interface IContestsBulkEdit {
     categoryId: number;
 }
 
+interface IProfilePageContests {
+    id: number;
+    name: string;
+    startTime: Date;
+    endTime: Date;
+    practiceStartTime: Date;
+    practiceEndTime: Date;
+    canBePracticed: boolean;
+    canBeCompeted: boolean;
+    hasContestPassword: boolean;
+    hasPracticePassword: boolean;
+    isOnlineExam: boolean;
+    isWithRandomTasks: boolean;
+    category: string;
+    categoryId: number | null;
+    isLoading: boolean;
+    numberOfProblems: number;
+    practiceResults: number;
+    competeResults: number;
+    competeMaximumPoints: number;
+    practiceMaximumPoints: number;
+    userParticipationResult?: IUserParticipationResult;
+    createdOn: Date;
+    modifiedOn: Date | null;
+    officialParticipants: number;
+    requirePasswordForCompete: boolean;
+    requirePasswordForPractice: boolean;
+}
 
 export type {
     IIndexContestsType,
@@ -935,4 +965,5 @@ export type {
     IContestsBulkEdit,
     IFilterColumn,
     IFilterEnum,
+    IProfilePageContests,
 };
