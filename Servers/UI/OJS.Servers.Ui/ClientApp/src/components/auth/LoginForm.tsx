@@ -1,5 +1,3 @@
- 
- 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import isEmpty from 'lodash/isEmpty';
@@ -35,7 +33,7 @@ const LoginForm = () => {
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
     const [ userName, setUsername ] = useState<string>('');
     const [ password, setPassword ] = useState<string>('');
-    const [ rememberMe, setRememberMe ] = useState<boolean>(false);
+    const [ rememberMe, setRememberMe ] = useState<boolean>(true);
     const [ loginErrorMessage, setLoginErrorMessage ] = useState<string>('');
     const [ usernameFormError, setUsernameFormError ] = useState('');
     const [ passwordFormError, setPasswordFormError ] = useState('');
@@ -171,7 +169,6 @@ const LoginForm = () => {
                 >
                 {loginErrorMessage}
             </span>
-            
             : null,
         [ shouldConfirmContinue, loginErrorMessage ],
     );
@@ -247,7 +244,7 @@ const LoginForm = () => {
                             </LinkButton>
                         </div>
                     </div>
-                    {isLoading && 
+                    {isLoading &&
                     <div className={styles.loginFormLoader}>
                         <div style={{ ...flexCenterObjectStyles }}>
                             <SpinningLoader />
