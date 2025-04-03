@@ -63,7 +63,7 @@ public class ProblemsController : BaseAdminApiController<Problem, int, ProblemIn
         => this.Ok(
             await this.problemGridDataService.GetAll<ProblemInListModel>(
                 model,
-                problem => problem.ProblemGroup.ContestId == contestId));
+                problem => problem.ProblemGroup.ContestId == contestId && !problem.ProblemGroup.IsDeleted));
 
     public override async Task<IActionResult> Create([FromForm] ProblemAdministrationModel model)
     {

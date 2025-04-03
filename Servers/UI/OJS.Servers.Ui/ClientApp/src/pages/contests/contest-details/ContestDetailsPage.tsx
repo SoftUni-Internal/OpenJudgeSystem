@@ -62,7 +62,7 @@ const ContestDetailsPage = () => {
         }
     }, [ data, contestDetails, dispatch ]);
 
-    const renderAllowedLanguages = () => allowedSubmissionTypes?.map((allowedSubmissionType) => 
+    const renderAllowedLanguages = () => allowedSubmissionTypes?.map((allowedSubmissionType) =>
         <span key={`contest-sub-strategy-btn-${allowedSubmissionType.id}`}>
             <Link
               className={styles.allowedLanguageLink}
@@ -78,21 +78,23 @@ const ContestDetailsPage = () => {
             return 'The problems for this contest are not public.';
         }
 
-        return problems.map((problem) => 
+        return problems.map((problem) =>
             <div key={`contest-problem-${problem.id}`} className={styles.problemNameItem}>
                 <span>{problem.name}</span>
                 <div className={styles.problemResources}>
-                    { problem.resources.map((resource: IProblemResourceType) => 
-                        <ProblemResource
-                          key={`p-r-${resource.id}`}
-                          resource={resource}
-                          problem={problem.name}
-                        />)}
+                    { problem.resources.map((resource: IProblemResourceType) => (
+                        <div key={`p-r-${resource.id}`} className={styles.problemResourceWrapper}>
+                            <ProblemResource
+                              resource={resource}
+                              problem={problem.name}
+                            />
+                        </div>
+                    ))}
                 </div>
             </div>);
     };
 
-    const renderAdministrationButtons = () => 
+    const renderAdministrationButtons = () =>
         <div className={styles.administrationButtonsWrapper}>
             <AdministrationLink
               text="Edit"
@@ -114,7 +116,7 @@ const ContestDetailsPage = () => {
               to={`/${CONTESTS_PATH}/${contestId}#tab-problems`}
               text="Problems"
             />
-            {type === ContestVariation.OnlinePracticalExam && 
+            {type === ContestVariation.OnlinePracticalExam &&
             <AdministrationLink
               to={`/${PROBLEM_GROUPS_PATH}?filter=contestid~equals~${contestId}%26%26%3Bisdeleted~equals~false&sorting=id%3DDESC`}
               text="Problem Groups"
@@ -122,7 +124,7 @@ const ContestDetailsPage = () => {
             }
             {!canBeCompeted && (competeParticipantsCount ?? 0) > 0 &&
                 <AdministrationLink text="Transfer" to={`/${CONTESTS_PATH}/${id}?openTransfer=true`} />}
-            {user.isAdmin && isActive && isOnlineExam && 
+            {user.isAdmin && isActive && isOnlineExam &&
             <AdministrationLink
               to={`/${CONTESTS_PATH}/${contestId}?openChangeParticipantsTime=true#tab-participants`}
               text="Change Time"
@@ -155,7 +157,7 @@ const ContestDetailsPage = () => {
     }, [ competeParticipantsCount, practiceParticipantsCount ]);
 
     const renderResultsAsLink = useCallback(
-        (isCompete: boolean) => 
+        (isCompete: boolean) =>
             <Link
           className={`${isCompete
               ? styles.greenColor
