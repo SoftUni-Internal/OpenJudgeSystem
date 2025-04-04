@@ -558,7 +558,7 @@ const ContestSolutionSubmitPage = () => {
                         <div>
                             <span className={styles.title}>Size limit:</span>
                             {' '}
-                            <span>{fileSizeLimit}</span>
+                            <span>{fileSizeLimit?.toFixed(2)}</span>
                             {' '}
                             KB
                         </div>
