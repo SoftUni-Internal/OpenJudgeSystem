@@ -10,42 +10,48 @@ public class CSharpCodeTests : BaseStrategyTest<CSharpCodeSubmissionFactory, CSh
     [Fact]
     public async Task DotNet6_ShouldReturnCorrectAnswer_WhenCodeIsValid()
     {
+        // Arrange
         var submission = this.Factory.GetSubmission(new("Console.WriteLine(\"Hello SoftUni\");"));
 
-        var receivedSubmission = await this.Fixture.ProcessSubmission(submission);
+        // Act
+        var result = await this.Fixture.ProcessSubmission(submission);
 
-        // Assertions
-        Assert.NotNull(receivedSubmission);
-        Assert.Equal(submission.Id, receivedSubmission!.Id);
-        Assert.NotNull(receivedSubmission.ExecutionResult);
-        Assert.True(receivedSubmission.ExecutionResult.TaskResult!.TestResults.All(tr => tr.ResultType == TestRunResultType.CorrectAnswer));
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(submission.Id, result!.Id);
+        Assert.NotNull(result.ExecutionResult);
+        Assert.True(result.ExecutionResult.TaskResult!.TestResults.All(tr => tr.ResultType == TestRunResultType.CorrectAnswer));
     }
 
     [Fact]
     public async Task DotNet6_ShouldFailCompilation_WhenCodeIsInvalid()
     {
+        // Arrange
         var submission = this.Factory.GetSubmission(new("This is not proper c# code!"));
 
-        var receivedSubmission = await this.Fixture.ProcessSubmission(submission);
+        // Act
+        var result = await this.Fixture.ProcessSubmission(submission);
 
-        // Assertions
-        Assert.NotNull(receivedSubmission);
-        Assert.Equal(submission.Id, receivedSubmission.Id);
-        Assert.NotNull(receivedSubmission.ExecutionResult);
-        Assert.False(receivedSubmission.ExecutionResult.IsCompiledSuccessfully);
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(submission.Id, result.Id);
+        Assert.NotNull(result.ExecutionResult);
+        Assert.False(result.ExecutionResult.IsCompiledSuccessfully);
     }
 
     [Fact]
     public async Task DotNet6_ShouldTimeout_WhenCodeRunsIndefinitely()
     {
+        // Arrange
         var submission = this.Factory.GetSubmission(new("while (true) { }"));
 
-        var receivedSubmission = await this.Fixture.ProcessSubmission(submission);
+        // Act
+        var result = await this.Fixture.ProcessSubmission(submission);
 
-        // Assertions
-        Assert.NotNull(receivedSubmission);
-        Assert.Equal(submission.Id, receivedSubmission!.Id);
-        Assert.NotNull(receivedSubmission.ExecutionResult);
-        Assert.True(receivedSubmission.ExecutionResult.TaskResult!.TestResults.All(tr => tr.ResultType == TestRunResultType.TimeLimit));
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(submission.Id, result!.Id);
+        Assert.NotNull(result.ExecutionResult);
+        Assert.True(result.ExecutionResult.TaskResult!.TestResults.All(tr => tr.ResultType == TestRunResultType.TimeLimit));
     }
 }
