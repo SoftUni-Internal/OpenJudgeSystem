@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { IconType } from 'react-icons/lib/cjs/iconBase';
 import { RiAddBoxFill } from 'react-icons/ri';
 import { IconButton, Tooltip } from '@mui/material';
@@ -41,8 +41,7 @@ const CreateButton = (props: ICreateButtonProps) => {
 
                     {Icon
                         ? <Icon style={styles} />
-                        : (
-                            <RiAddBoxFill
+                        : <RiAddBoxFill
                               style={{
                                   ...styles,
                                   color: Object.keys(styles).find((x) => x === 'color')
@@ -50,7 +49,7 @@ const CreateButton = (props: ICreateButtonProps) => {
                                       : getColors(themeMode).palette.primary.main,
                               }}
                             />
-                        )}
+                        }
                 </IconButton>
             </span>
         </Tooltip>

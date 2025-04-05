@@ -13,7 +13,7 @@ interface INotFoundPageProps {
     message?: string;
 }
 
-const NotFoundPage = ({ message }: INotFoundPageProps) => (
+const NotFoundPage = ({ message }: INotFoundPageProps) => 
     <div className={styles.container}>
         <BackToTop />
         <img
@@ -32,6 +32,6 @@ const NotFoundPage = ({ message }: INotFoundPageProps) => (
             />
         </div>
     </div>
-);
+;
 
 export default setLayout(withTitle(NotFoundPage, 'Page Not Found'));

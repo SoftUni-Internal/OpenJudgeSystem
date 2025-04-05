@@ -13,13 +13,13 @@ const DotNetIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IDotNetIconProps) => (
+}: IDotNetIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={TbBrandCSharp}
     />
-);
+;
 
 export default memo(DotNetIcon);

@@ -13,13 +13,13 @@ const ErrorIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IErrorIconProps) => (
+}: IErrorIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={MdError}
     />
-);
+;
 
 export default ErrorIcon;

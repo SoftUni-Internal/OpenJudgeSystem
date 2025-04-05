@@ -13,13 +13,13 @@ const PythonIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IPythonIconProps) => (
+}: IPythonIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={TbBrandPython}
     />
-);
+;
 
 export default memo(PythonIcon);

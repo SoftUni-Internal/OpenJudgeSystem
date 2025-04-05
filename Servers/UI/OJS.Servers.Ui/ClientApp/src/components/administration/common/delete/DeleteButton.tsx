@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect, useState } from 'react';
 import { IoMdTrash } from 'react-icons/io';
 import { IconButton, Tooltip } from '@mui/material';
@@ -61,19 +61,18 @@ const DeleteButton = (props: IDeleteButtonProps) => {
     return (
         isLoading
             ? <SpinningLoader />
-            : (
-                <div style={style
-                    ? { ...style }
-                    : {}}
+            : <div style={style
+                ? { ...style }
+                : {}}
                 >
-                    {renderErrorMessagesAlert(errorMessages) }
-                    <Tooltip title={DELETE}>
-                        <IconButton onClick={confirmDelete}>
-                            <IoMdTrash color="red" />
-                        </IconButton>
-                    </Tooltip>
-                    { showConfirmDelete && (
-                        <ConfirmDialog
+                {renderErrorMessagesAlert(errorMessages) }
+                <Tooltip title={DELETE}>
+                    <IconButton onClick={confirmDelete}>
+                        <IoMdTrash color="red" />
+                    </IconButton>
+                </Tooltip>
+                { showConfirmDelete &&
+                <ConfirmDialog
                           title={`Delete: ${name}`}
                           text={text}
                           confirmButtonText="Delete"
@@ -81,9 +80,9 @@ const DeleteButton = (props: IDeleteButtonProps) => {
                           onClose={() => setShowConfirmDelete(!showConfirmDelete)}
                           confirmFunction={() => deleteRequest(id)}
                         />
-                    )}
-                </div>
-            )
+                    }
+            </div>
+
     );
 };
 

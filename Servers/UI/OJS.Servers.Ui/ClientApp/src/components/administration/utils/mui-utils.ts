@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React from 'react';
 import { createFilterOptions, debounce } from '@mui/material';
 import { GridColDef } from '@mui/x-data-grid';

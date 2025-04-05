@@ -22,17 +22,17 @@ const PrivatePage = ({ children }: IPrivatePageProps) => {
             return <Navigate to="/login" state={state} replace />;
         }
 
-        // eslint-disable-next-line react/jsx-no-useless-fragment
+         
         return <>{children}</>;
     }, [ isLoggedIn, children, location ]);
 
     return renderPageOrRedirectToLogin();
 };
 
-const makePrivate = (ComponentToWrap: FC) => (props: Anything) => (
+const makePrivate = (ComponentToWrap: FC) => (props: Anything) => 
     <PrivatePage>
         <ComponentToWrap {...props} />
     </PrivatePage>
-);
+;
 
 export default makePrivate;

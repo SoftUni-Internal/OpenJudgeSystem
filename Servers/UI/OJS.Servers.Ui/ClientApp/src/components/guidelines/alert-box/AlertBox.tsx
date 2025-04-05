@@ -89,12 +89,11 @@ const AlertBox = ({
 
     return isHidden
         ? null
-        : (
-            <div className={internalClassName}>
-                <span>{message}</span>
-                {closeButton()}
-            </div>
-        );
+        : <div className={internalClassName}>
+            <span>{message}</span>
+            {closeButton()}
+        </div>
+    ;
 };
 export default AlertBox;
 

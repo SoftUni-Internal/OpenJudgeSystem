@@ -160,18 +160,18 @@ const Mentor = (props: IMentorProps) => {
     };
 
     if (!isMentorAllowed) {
-        // eslint-disable-next-line react/jsx-no-useless-fragment
+         
         return <></>;
     }
 
     return (
         <div className={styles.mentor} aria-hidden={false}>
-            {showBubble && !isOpen && (
+            {showBubble && !isOpen && 
                 <div className={styles.bubbleMessage}>
                     <div className={styles.primaryText}>The Code Wizard</div>
                     <div className={styles.secondaryText}>is here to help!</div>
                 </div>
-            )}
+            }
             <Button
               variant="contained"
               className={styles.mentorButton}
@@ -208,9 +208,9 @@ const Mentor = (props: IMentorProps) => {
                         </div>
                         <div className={styles.titleTextContainer}>
                             <span className={styles.mentorTitleText}>The Code Wizard</span>
-                            {problemName && (
+                            {problemName && 
                                 <span className={styles.problemNameText}>{problemName}</span>
-                            )}
+                            }
                         </div>
                     </div>
                 </DialogTitle>
@@ -227,13 +227,13 @@ const Mentor = (props: IMentorProps) => {
                         <div className={styles.conversationStartDate}>
                             {conversationDate !== null && getMentorConversationDate(conversationDate)}
                         </div>
-                        {conversationMessages.map((message) => (
+                        {conversationMessages.map((message) => 
                             <div className={styles.messageContainer} key={message.sequenceNumber}>
-                                {(message.role === ChatMessageRole.Assistant || message.role === ChatMessageRole.Information) && (
+                                {(message.role === ChatMessageRole.Assistant || message.role === ChatMessageRole.Information) && 
                                     <div className={styles.mentorMessageAvatar}>
                                         <img src={mentorAvatar} alt="Mentor Avatar" />
                                     </div>
-                                )}
+                                }
                                 <div
                                   className={`${styles.message} ${
                                       message.role === ChatMessageRole.User
@@ -245,9 +245,8 @@ const Mentor = (props: IMentorProps) => {
                                         {message.content}
                                     </ReactMarkdown>
                                 </div>
-                            </div>
-                        ))}
-                        {isLoading && (
+                            </div>)}
+                        {isLoading && 
                             <div className={styles.message}>
                                 <div className={styles.typingIndicator}>
                                     <span className={concatClassNames(styles.dot, isDarkMode
@@ -264,15 +263,15 @@ const Mentor = (props: IMentorProps) => {
                                     />
                                 </div>
                             </div>
-                        )}
+                        }
                         <div ref={messagesEndRef} />
                         {' '}
                     </div>
-                    {error && (
+                    {error && 
                         <div className={styles.errorMessage}>
                             {((error as any)?.data?.detail ?? 'Failed to send the message. Please try again.')}
                         </div>
-                    )}
+                    }
                 </DialogContent>
                 <DialogActions className={styles.dialogActions}>
                     <TextField
@@ -301,7 +300,7 @@ const Mentor = (props: IMentorProps) => {
                                 }
                             />
                         </Button>
-                        {isInputLengthExceeded && (
+                        {isInputLengthExceeded && 
                             <div className={concatClassNames(styles.errorBubble, styles.bubbleMessage)}>
                                 <div className={styles.secondaryText}>
                                     {`Your message exceeds the ${conversationData?.maxUserInputLength
@@ -309,7 +308,7 @@ const Mentor = (props: IMentorProps) => {
                                         : ''}character limit. Please shorten it.`}
                                 </div>
                             </div>
-                        )}
+                        }
                     </div>
                 </DialogActions>
             </Dialog>

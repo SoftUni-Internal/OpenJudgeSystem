@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React from 'react';
 import { NodeRendererProps } from 'react-arborist';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
@@ -7,7 +7,6 @@ import { IconButton } from '@mui/material';
 
 import { IContestCategoryHierarchy } from '../../../../common/types';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../AdministrationContestCategoriesHierarchy.module.scss';
 
 type NodeProps = NodeRendererProps<IContestCategoryHierarchy> & {
@@ -23,7 +22,7 @@ const Node = ({
     tree,
     isActive,
     onContestsBulkEditClick,
-}: NodeProps) => (
+}: NodeProps) =>
     <div
       className={styles.node}
       style={style}
@@ -64,6 +63,6 @@ const Node = ({
             />
         </IconButton>
     </div>
-);
+;
 
 export default Node;

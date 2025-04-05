@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 /* eslint-disable no-case-declarations */
-/* eslint-disable no-undefined */
+
 import { useEffect, useState } from 'react';
 import { Autocomplete, FormControl, MenuItem, TextField, Typography } from '@mui/material';
 
@@ -23,7 +23,6 @@ import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
 import { autocompleteNameIdFormatFilterOptions } from '../../utils/mui-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IExamGroupEditProps {
@@ -135,7 +134,7 @@ const ExamGroupEdit = (props: IExamGroupEditProps) => {
     };
 
     const onChange = (e: any) => {
-        // eslint-disable-next-line prefer-destructuring
+
         const { name, value } = e.target;
         let {
             name: examGroupName,
@@ -156,8 +155,8 @@ const ExamGroupEdit = (props: IExamGroupEditProps) => {
         case 'contest':
             const selectedContest = contestsForDropdown?.find((c) => c.id === value);
             if (selectedContest) {
-                contestId = selectedContest!.id;
-                contestName = selectedContest!.name;
+                contestId = selectedContest.id;
+                contestName = selectedContest.name;
             }
             break;
         }
@@ -218,8 +217,8 @@ const ExamGroupEdit = (props: IExamGroupEditProps) => {
                       ? 'success'
                       : 'primary'}
                   error={(examGroupValidations.isNameTouched && !examGroupValidations.isNameValid)}
-                  helperText={(examGroupValidations.isNameTouched &&
-                                !examGroupValidations.isNameValid) &&
+                  helperText={examGroupValidations.isNameTouched &&
+                                !examGroupValidations.isNameValid &&
                                 'Exam Group name length must be between 2 and 600 characters long'}
                 />
                 <FormControl className={formStyles.inputRow} sx={{ margin: '20px 0' }}>
@@ -237,14 +236,14 @@ const ExamGroupEdit = (props: IExamGroupEditProps) => {
                       isOptionEqualToValue={(option, value) => option.id === value.id && option.name === value.name}
                       getOptionLabel={(option) => option?.name ?? ''}
                       disableCloseOnSelect
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option.id} value={option.id}>
                               #
                               {option.id}
                               {' '}
                               {option.name}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
                 <AdministrationFormButtons

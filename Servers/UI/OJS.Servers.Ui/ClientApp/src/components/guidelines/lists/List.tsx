@@ -89,7 +89,7 @@ const List = <TValue, >({
                 return null;
             }
 
-            return values.map((value, idx) => (
+            return values.map((value, idx) => 
                 <li
                   key={keyFunc(value)}
                   className={itemClassNameCombined}
@@ -103,8 +103,7 @@ const List = <TValue, >({
                                 // @ts-ignore
                                 : itemFunc(value)
                         }
-                </li>
-            ));
+                </li>);
         },
         [ itemClassNameCombined, itemFunc, keyFunc, values ],
     );

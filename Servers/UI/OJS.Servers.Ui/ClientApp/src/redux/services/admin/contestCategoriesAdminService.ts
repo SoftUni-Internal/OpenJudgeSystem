@@ -40,10 +40,7 @@ const contestCategoriesAdminService = createApi({
             keepUnusedDataFor: 0,
         }),
         getCategories: builder.query<Array<IContestCategories>, null>({ query: () => ({ url: '/GetForContestDropdown' }) }),
-        getContestCategoriesHierarchy: builder.query<Array<IContestCategoryHierarchy>, void>({
-            query: () => ({ url: '/GetHierarchy' }),
-            /* eslint-disable object-curly-newline */
-        }),
+        getContestCategoriesHierarchy: builder.query<Array<IContestCategoryHierarchy>, void>({ query: () => ({ url: '/GetHierarchy' }) }),
         editContestCategoriesHierarchy: builder.mutation<string, AdjacencyList<number, IContestCategoryHierarchyEdit>>({
             query: (categoriesToUpdate) => ({
                 url: '/EditHierarchy',

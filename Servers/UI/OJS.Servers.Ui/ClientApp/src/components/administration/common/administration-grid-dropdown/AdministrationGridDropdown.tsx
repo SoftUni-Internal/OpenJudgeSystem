@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useRef, useState } from 'react';
 import { CiSquareMore } from 'react-icons/ci';
 import { IconButton, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip } from '@mui/material';
@@ -28,7 +28,7 @@ const AdministrationGridDropdown = (props: IAdministrationGridDropdown) => {
               open={showMenu}
               onClose={() => setShowMenu(false)}
             >
-                {sections.map((x) => (
+                {sections.map((x) =>
                     <MenuItem key={x.label}>
                         <List disablePadding>
                             <ListItem disablePadding>
@@ -46,8 +46,7 @@ const AdministrationGridDropdown = (props: IAdministrationGridDropdown) => {
                                 </ListItemButton>
                             </ListItem>
                         </List>
-                    </MenuItem>
-                ))}
+                    </MenuItem>)}
             </Menu>
         </>
     );

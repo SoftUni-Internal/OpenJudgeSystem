@@ -1,6 +1,6 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
+ 
+ 
+ 
 
 import { useEffect, useMemo } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
@@ -109,8 +109,8 @@ const ContestBreadcrumbs = ({ isHidden = false }: IContestBreadcrumbsProps) => {
                     text: contestDetails.name,
                     to: getContestsSolutionSubmitPageUrl({
                         isCompete,
-                        contestId: contestDetails!.id,
-                        contestName: contestDetails!.name,
+                        contestId: contestDetails.id,
+                        contestName: contestDetails.name,
                     } as IContestsSolutionSubmitPageUrlParams),
                 },
                 // Results page appends 'Results' in the end

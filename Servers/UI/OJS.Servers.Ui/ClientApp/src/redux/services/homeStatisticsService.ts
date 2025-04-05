@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { defaultPathIdentifier } from '../../common/constants';
 
-// eslint-disable-next-line import/group-exports
+ 
 export const homeStatisticsService = createApi({
     reducerPath: 'homeStatistics',
     baseQuery: fetchBaseQuery({
@@ -15,5 +15,5 @@ export const homeStatisticsService = createApi({
     endpoints: (builder) => ({ getHomeStatistics: builder.query<any, void>({ query: () => '/StatisticsPreview/GetForHome' }) }),
 });
 
-// eslint-disable-next-line import/group-exports
+ 
 export const { useGetHomeStatisticsQuery } = homeStatisticsService;

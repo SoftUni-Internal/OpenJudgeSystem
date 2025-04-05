@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { useEffect, useState } from 'react';
 import { IoMdTrash } from 'react-icons/io';
 import { IconButton, Tooltip } from '@mui/material';
@@ -64,7 +64,7 @@ const DeleteUserFromGroupButton = (props: IDeleteUserFromGroupButtonProps) => {
                     <IoMdTrash color="red" />
                 </IconButton>
             </Tooltip>
-            {showConfirmDelete && (
+            {showConfirmDelete &&
             <ConfirmDialog
               title={`Delete: ${name}`}
               text={text}
@@ -73,7 +73,7 @@ const DeleteUserFromGroupButton = (props: IDeleteUserFromGroupButtonProps) => {
               onClose={() => setShowConfirmDelete(!showConfirmDelete)}
               confirmFunction={() => deleteRequest({ examGroupId, userId: id })}
             />
-            )}
+            }
         </div>
     );
 };

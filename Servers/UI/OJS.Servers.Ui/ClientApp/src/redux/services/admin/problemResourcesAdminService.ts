@@ -1,4 +1,4 @@
-/* eslint-disable import/group-exports */
+ 
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { IFileModel, IGetAllAdminParams, IPagedResultType, IProblemResouceInLinstModel, IProblemResourceAdministrationModel } from '../../../common/types';

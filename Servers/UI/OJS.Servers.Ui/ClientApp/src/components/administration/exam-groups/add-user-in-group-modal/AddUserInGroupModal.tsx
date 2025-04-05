@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable react/jsx-props-no-spreading */
+
+
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, FormControl, MenuItem, TextField, Typography } from '@mui/material';
 import debounce from 'lodash/debounce';
@@ -21,7 +21,6 @@ import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../ut
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import FormActionButton from '../../form-action-button/FormActionButton';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IAddUserInExamGroupProps {
@@ -144,11 +143,11 @@ const AddUserInGroupModal = (props: IAddUserInExamGroupProps) => {
                       value={null}
                       isOptionEqualToValue={(option, value) => option.id === value.id}
                       getOptionLabel={(option) => option?.userName}
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option.id} value={option.id}>
                               {option.userName}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
                 <FormActionButton

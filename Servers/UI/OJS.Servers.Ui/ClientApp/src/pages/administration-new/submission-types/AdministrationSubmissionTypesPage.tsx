@@ -59,7 +59,7 @@ const AdministrationSubmissionTypesPage = () => {
         refetch();
     };
 
-    const renderFormModal = (index: number, isEditMode: boolean) => (
+    const renderFormModal = (index: number, isEditMode: boolean) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -75,9 +75,9 @@ const AdministrationSubmissionTypesPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () => 
         <>
             <CreateButton
               showModal={showCreateModal}
@@ -85,7 +85,7 @@ const AdministrationSubmissionTypesPage = () => {
               styles={{ width: '40px', height: '40px' }}
             />
             {
-                user.isDeveloper && (
+                user.isDeveloper && 
                     <Tooltip title="Replace/Delete Submission Type">
                         <span>
                             <IconButton
@@ -98,11 +98,11 @@ const AdministrationSubmissionTypesPage = () => {
                             </IconButton>
                         </span>
                     </Tooltip>
-                )
+                
             }
         </>
 
-    );
+    ;
 
     return (
         <>

@@ -22,7 +22,7 @@ const TabsInView = (props: ITabsInViewProps) => {
     return (
         <Slide direction="left" in mountOnEnter unmountOnExit timeout={300}>
             <Box>
-                {form && form()}
+                {form?.()}
                 <Box sx={{ padding: '2rem' }}>
                     <Tabs
                       sx={{ minWidth: '100%', display: 'flex', justifyContent: 'space-around' }}
@@ -30,7 +30,7 @@ const TabsInView = (props: ITabsInViewProps) => {
                       onChange={onTabChange}
                       aria-label="wrapped label tabs example"
                     >
-                        {tabs.map((x: IAdministrationTabModel) => (
+                        {tabs.map((x: IAdministrationTabModel) => 
                             <Tab
                               key={x.value}
                               sx={{ minWidth: '45%', display: 'flex', justifyContent: 'space-evenly' }}
@@ -38,15 +38,13 @@ const TabsInView = (props: ITabsInViewProps) => {
                               label={x.label}
                               disabled={!!x.disabled}
                               wrapped
-                            />
-                        ))}
+                            />)}
                     </Tabs>
                 </Box>
-                {tabs.map((x: IAdministrationTabModel) => tabName === x.value && (
+                {tabs.map((x: IAdministrationTabModel) => tabName === x.value && 
                 <React.Fragment key={x.value}>
                     {x.node(x.value)}
-                </React.Fragment>
-                ))}
+                </React.Fragment>)}
             </Box>
 
         </Slide>

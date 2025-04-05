@@ -5,15 +5,14 @@ interface IStyledTooltipProps extends TooltipProps {
     disabled?: boolean;
 }
 
-const StyledTooltip = styled(({ className, disabled, ...props }: IStyledTooltipProps) => (
+const StyledTooltip = styled(({ className, disabled, ...props }: IStyledTooltipProps) => 
     <Tooltip
       {...props}
       classes={{ popper: className }}
       disableHoverListener={disabled}
       disableFocusListener={disabled}
       disableTouchListener={disabled}
-    />
-))(({ theme }) => ({
+    />)(({ theme }) => ({
     [`& .${tooltipClasses.tooltip}`]: {
         backgroundColor: theme.palette.mode === ThemeMode.Light
             ? '#fff'

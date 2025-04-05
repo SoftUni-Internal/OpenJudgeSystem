@@ -5,7 +5,6 @@ import { IDropdownItem } from 'src/common/types';
 
 import useTheme from '../../../hooks/use-theme';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from './Dropdown.module.scss';
 
 interface IDropdownProps<T = object> {
@@ -20,7 +19,7 @@ interface IDropdownProps<T = object> {
     minWidth?: number;
 }
 
-const StyledPopper = (popperProps: any) => (
+const StyledPopper = (popperProps: any) =>
     <Popper
       {...popperProps}
       placement="bottom-start"
@@ -35,7 +34,7 @@ const StyledPopper = (popperProps: any) => (
           },
       ]}
     />
-);
+;
 
 const Dropdown = <T, >(props: IDropdownProps<T>) => {
     const {
@@ -111,7 +110,7 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
           filterOptions={(options, state) => isSearchable
               ? defaultFilterOptions(options, state)
               : options}
-          renderInput={(params) => (
+          renderInput={(params) =>
               <TextField
                 {...params}
                 placeholder={placeholder}
@@ -123,9 +122,8 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
                         readOnly: !isSearchable,
                     },
                     endAdornment: isSearchable
-                        ? (
-                            <>
-                                {inputValue !== '' && !isDisabled && (
+                        ? <>
+                            {inputValue !== '' && !isDisabled &&
                                 <InputAdornment position="end" className={styles.inputAdornment}>
                                     <IconButton
                                       onClick={(event) => {
@@ -143,18 +141,17 @@ const Dropdown = <T, >(props: IDropdownProps<T>) => {
                                         <IoMdClose />
                                     </IconButton>
                                 </InputAdornment>
-                                )}
-                                {params.InputProps.endAdornment}
-                            </>
-                        )
-                        : (
-                            <InputAdornment position="start" className={styles.inputAdornment}>
-                                {params.InputProps.endAdornment}
-                            </InputAdornment>
-                        ),
+                                }
+                            {params.InputProps.endAdornment}
+                        </>
+
+                        : <InputAdornment position="start" className={styles.inputAdornment}>
+                            {params.InputProps.endAdornment}
+                        </InputAdornment>
+                    ,
                 }}
               />
-          )}
+          }
           ListboxProps={{ style: { maxHeight: '400px' } }}
         />
     );

@@ -13,13 +13,13 @@ const RuntimeErrorIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IErrorIconProps) => (
+}: IErrorIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={FaBell}
     />
-);
+;
 
 export default RuntimeErrorIcon;
