@@ -71,7 +71,9 @@ public class ContestAdministrationModel : BaseAdministrationModel<int>, IMapExpl
             .ForMember(crm => crm.AllowedIps, opt
                 => opt.MapFrom(c => string.Join(';', c.IpsInContests.Select(x => x.Ip.Value).ToHashSet())))
             .ForMember(crm => crm.OfficialParticipants, opt
-                => opt.MapFrom(c => c.Participants.Count(p => p.IsOfficial)));
+                => opt.MapFrom(c => c.Participants.Count(p => p.IsOfficial)))
+            .ForMember(crm => crm.NumberOfProblemGroups, opt
+                => opt.MapFrom(c => c.ProblemGroups.Count(pg => !pg.IsDeleted)));
 
         configuration.CreateMap<ContestAdministrationModel, Contest>()
             //TODO Fix
