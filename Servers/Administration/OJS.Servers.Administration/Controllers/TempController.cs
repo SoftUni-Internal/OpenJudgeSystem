@@ -76,6 +76,9 @@ public class TempController(
             result.AppendLine("<hr>");
         }
 
+        var checkers = await checkersData.All().ToListAsync();
+        var submissionTypes = await submissionTypesData.All().ToListAsync();
+
         foreach (var contestId in contestIds)
         {
             var contest = await this.httpClient.GetFromJsonAsync<ContestLegacyExportServiceModel>($"{this.urls.LegacyJudgeUrl}/api/Contests/Export/{contestId}?apiKey={this.urls.LegacyJudgeApiKey}");
@@ -109,9 +112,6 @@ public class TempController(
                     ? $"<p><b>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
                     : $"<p><b>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be updated.</p>");
             }
-
-            var checkers = await checkersData.All().ToListAsync();
-            var submissionTypes = await submissionTypesData.All().ToListAsync();
 
             if (existingContest == null)
             {
