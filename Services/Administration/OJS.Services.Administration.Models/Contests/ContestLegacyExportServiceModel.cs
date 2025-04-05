@@ -79,7 +79,8 @@ public class ContestLegacyExportServiceModel : IMapExplicitly
                 opt => opt.MapFrom(src =>
                     src.SubmissionTypesInProblems.Count > 0 && src.SubmissionTypesInProblems.FirstOrDefault() != null
                     ? src.SubmissionTypesInProblems.FirstOrDefault()!.SubmissionType
-                    : null));
+                    : null))
+            .ForMember(dest => dest.ShowResults, opt => opt.MapFrom(_ => true));
 
         configuration.CreateMap<SubmissionType, LegacySubmissionType>()
             .ForMember(dest => dest.AllowedFileExtensions,
@@ -138,6 +139,9 @@ public class LegacyProblem
     public LegacySubmissionType? DefaultSubmissionType { get; set; }
 
     public IEnumerable<LegacyResource> Resources { get; set; } = [];
+
+    // Not supported here, but for legacy is still needed
+    public bool ShowResults { get; set; } = true;
 }
 
 public class LegacyChecker : IMapFrom<Checker>
@@ -212,5 +216,12 @@ public class LegacyProblemSubmissionTypeExecutionDetail
     public int ProblemId { get; set; }
 
     public int SubmissionTypeId { get; set; }
+
+    public int? TimeLimit { get; set; }
+
+    public int? MemoryLimit { get; set; }
+
+    public byte[]? SolutionSkeleton { get; set; }
+
     public int WorkerType { get; set; }
 }

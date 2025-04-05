@@ -131,26 +131,23 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
             return;
         }
 
-        using var scope = TransactionsHelper.CreateTransactionScope(
-            IsolationLevel.RepeatableRead,
-            TransactionScopeAsyncFlowOption.Enabled);
-
-        if (!await this.contestsData.IsWithRandomTasksById(problem.ContestId))
+        await this.transactionsProvider.ExecuteInTransaction(async () =>
         {
-            await this.problemGroupsBusiness.DeleteById(problem.ProblemGroupId);
-        }
+            if (!await this.contestsData.IsWithRandomTasksById(problem.ContestId))
+            {
+                await this.problemGroupsBusiness.DeleteById(problem.ProblemGroupId);
+            }
+
+            await this.testRunsData.DeleteByProblem(id);
+            await this.problemsData.DeleteById(id);
+            await this.problemsData.SaveChanges();
+
+            this.problemResourcesData.DeleteByProblem(id);
+
+            this.submissionsData.DeleteByProblem(id);
+        });
 
         await this.problemsCache.ClearProblemCacheById(id);
-
-        await this.problemsData.DeleteById(id);
-        await this.problemsData.SaveChanges();
-        await this.testRunsData.DeleteByProblem(id);
-
-        this.problemResourcesData.DeleteByProblem(id);
-
-        this.submissionsData.DeleteByProblem(id);
-
-        scope.Complete();
     }
 
     public async Task DeleteByContest(int contestId) =>
