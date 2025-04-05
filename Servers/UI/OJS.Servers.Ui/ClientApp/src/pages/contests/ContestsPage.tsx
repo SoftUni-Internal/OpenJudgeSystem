@@ -132,7 +132,9 @@ const ContestsPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ contests, areContestsFetching, searchParams ]);
 
-    if (allContestsError) { return <div className={`${textColorClassName}`}>Error loading contests</div>; }
+    if (allContestsError) {
+        return <div className={`${textColorClassName}`}>Error loading contests</div>;
+    }
 
     return (
         <div className={styles.contestsContainer}>
@@ -162,8 +164,8 @@ const ContestsPage = () => {
                             />
                         )}
                         <ContestStrategies
-                          searchParams={searchParams}
                           setSearchParams={setSearchParams}
+                          searchParams={searchParams}
                         />
                     </div>
                 </div>

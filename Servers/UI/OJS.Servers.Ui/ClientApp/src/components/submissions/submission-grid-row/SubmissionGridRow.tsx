@@ -215,7 +215,6 @@ const SubmissionGridRow = ({
                 return (
                     <LinkButton
                       to={getSubmissionDetailsRedirectionUrl({ submissionId })}
-                      target="_blank"
                       text="Details"
                       type={LinkButtonType.secondary}
                       size={ButtonSize.small}
