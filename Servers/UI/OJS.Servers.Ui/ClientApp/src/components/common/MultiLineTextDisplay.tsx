@@ -19,7 +19,7 @@ const MultiLineTextDisplay = ({ text, className, maxVisibleLines = 1000 } : IMul
         return null;
     }
 
-    const lines = text!.split('\n');
+    const lines = text.split('\n');
     const shouldShowReadMore = lines.length > maxVisibleLines;
     const visibleLines = showAll
         ? lines
@@ -29,10 +29,9 @@ const MultiLineTextDisplay = ({ text, className, maxVisibleLines = 1000 } : IMul
 
     return (
         <div className={internalClassName}>
-            {visibleLines.map((line: string, index: number) => (
-                <p key={index} className={styles.multiLineTextParagraph}>{line}</p>
-            ))}
-            {shouldShowReadMore && (
+            {visibleLines.map((line: string, index: number) => 
+                <p key={index} className={styles.multiLineTextParagraph}>{line}</p>)}
+            {shouldShowReadMore && 
                 <Button onClick={() => setShowAll(!showAll)} className={styles.readMoreButton} type={ButtonType.plain}>
                     {showAll
                         ? 'Show less'
@@ -41,7 +40,7 @@ const MultiLineTextDisplay = ({ text, className, maxVisibleLines = 1000 } : IMul
                         ? <FaChevronUp className={styles.iconAdjustment} />
                         : <FaChevronDown className={styles.iconAdjustment} />}
                 </Button>
-            )}
+            }
         </div>
     );
 };

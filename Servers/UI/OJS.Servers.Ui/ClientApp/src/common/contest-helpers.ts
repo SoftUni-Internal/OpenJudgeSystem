@@ -13,13 +13,13 @@ const getCompeteResultsAreVisibleInContestCards = (
     contest: IIndexContestsType,
     isAdmin: boolean,
 ) => (isAdmin ||
-    (contest.canBeCompeted && !isNil(contest.userParticipationResult?.competePoints))) &&
+    contest.canBeCompeted && !isNil(contest.userParticipationResult?.competePoints)) &&
     contest.competeResults > 0;
 
 const getPracticeResultsAreVisibleInContestCards = (
     contest: IIndexContestsType,
     isAdmin: boolean,
-) => (isAdmin || (!isAdmin && (contest.canBeCompeted || contest.canBePracticed))) &&
+) => (isAdmin || !isAdmin && (contest.canBeCompeted || contest.canBePracticed)) &&
     contest.practiceResults > 0;
 
 const createUrlFriendlyPath = (inputString: string | undefined | null): string => {
@@ -33,7 +33,7 @@ const createUrlFriendlyPath = (inputString: string | undefined | null): string =
             .toLowerCase()
         : '';
 
-    // eslint-disable-next-line no-plusplus
+     
     for (let i = 0; i < cleanedString.length; i++) {
         const character = cleanedString[i];
         if (/[\p{L}\p{Nd}]/u.test(character)) {

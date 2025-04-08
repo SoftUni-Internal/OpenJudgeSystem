@@ -150,7 +150,7 @@ const RecentSubmissions = () => {
         const { isAdmin } = user;
 
         return (
-            isAdmin && (
+            isAdmin && 
             <Heading
               type={HeadingType.secondary}
             >
@@ -198,14 +198,14 @@ const RecentSubmissions = () => {
                     <RefreshIcon size={IconSize.Large} />
                 </IconButton>
             </Heading>
-            )
+            
         );
     }, [ user, getSubmissionsAwaitingExecution, selectedActive, handleSelectSubmissionState ]);
 
     return (
         <div className={styles.recentSubmissionsWrapper}>
             {
-                !user.canAccessAdministration && (
+                !user.canAccessAdministration && 
                     <Heading
                       type={HeadingType.primary}
                     >
@@ -221,18 +221,16 @@ const RecentSubmissions = () => {
                         {' '}
                         total
                     </Heading>
-                )
+                
             }
             {renderSubmissionsStateAdminToggle()}
             {
                 areSubmissionsFetching && queryParams.page === 1
-                    ? (
-                        <div style={{ ...flexCenterObjectStyles, marginTop: '10px' }}>
-                            <SpinningLoader />
-                        </div>
-                    )
-                    : (
-                        <SubmissionsGrid
+                    ? <div style={{ ...flexCenterObjectStyles, marginTop: '10px' }}>
+                        <SpinningLoader />
+                    </div>
+                    
+                    : <SubmissionsGrid
                           className={styles.recentSubmissionsGrid}
                           isDataLoaded={!areSubmissionsLoading}
                           submissions={latestSubmissions}
@@ -247,7 +245,7 @@ const RecentSubmissions = () => {
                           setSearchParams={setSearchParams}
                           setQueryParams={setQueryParams}
                         />
-                    )
+                    
             }
         </div>
     );

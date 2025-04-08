@@ -14,9 +14,9 @@
 }
 
 .option {
+  cursor: pointer;
   font-size: spacings.$sp-16;
   padding: spacings.$sp-8 spacings.$sp-16;
-  cursor: pointer;
 }
 
 .searchableAutocomplete {
@@ -46,8 +46,8 @@
     }
 
     .MuiInputBase-input.Mui-disabled {
-      -webkit-text-fill-color: colors.$light-text-color !important;
       color: colors.$light-text-color !important;
+      -webkit-text-fill-color: colors.$light-text-color !important;
     }
 
     ::placeholder {
@@ -78,8 +78,8 @@
 }
 
 .lightOption {
-  color: colors.$light-text-color;
   background-color: colors.$light-base-color-100;
+  color: colors.$light-text-color;
 
   &:hover {
     background-color: colors.$light-base-color-200 !important;
@@ -91,12 +91,12 @@
 }
 
 .lightNoOptions {
-  color: colors.$light-text-color;
   background-color: colors.$light-base-color-100;
+  color: colors.$light-text-color;
 
   :global {
-    color: colors.$light-text-color !important;
     border: 2px solid colors.$background-color-btn-primary;
+    color: colors.$light-text-color !important;
   }
 }
 
@@ -128,8 +128,8 @@
     }
 
     .MuiInputBase-input.Mui-disabled {
-      -webkit-text-fill-color: colors.$dark-text-color !important;
       color: colors.$dark-text-color !important;
+      -webkit-text-fill-color: colors.$dark-text-color !important;
     }
 
     ::placeholder {
@@ -179,8 +179,8 @@
   background-color: colors.$dark-base-color-400;
 
   :global {
-    color: colors.$dark-text-color !important;
     border: 2px solid colors.$background-color-btn-primary;
+    color: colors.$dark-text-color !important;
   }
 }
 

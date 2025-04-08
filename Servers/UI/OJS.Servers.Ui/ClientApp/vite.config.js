@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import svgr from 'vite-plugin-svgr';
@@ -16,11 +17,11 @@ const forwardToAdmin = () => {
                 if (req.url.startsWith('/administration')) {
                     req.url = '/admin.html';
                 }
-                next()
-            })
+                next();
+            });
         },
-    }
-}
+    };
+};
 
 export default defineConfig(({ mode }) => ({
     appType: 'mpa', // Multi Page Application
@@ -33,9 +34,9 @@ export default defineConfig(({ mode }) => ({
             },
             onwarn(warning, warn) {
                 if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
-                    return
+                    return;
                 }
-                warn(warning)
+                warn(warning);
             }
         },
     },

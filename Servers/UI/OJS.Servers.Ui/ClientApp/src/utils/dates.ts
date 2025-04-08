@@ -30,9 +30,9 @@ const preciseFormatDate = (
 const formatDate = (
     date: Date,
     formatString = defaultDateTimeFormat,
-) => (moment().diff(date, 'days') > 3
+) => moment().diff(date, 'days') > 3
     ? preciseFormatDate(date, formatString)
-    : moment(date).utc(true).local().fromNow());
+    : moment(date).utc(true).local().fromNow();
 
 const timeToWords = (time: string) => {
     // Split the time string into hours, minutes, and seconds

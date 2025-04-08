@@ -10,13 +10,13 @@ const RefreshIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}:IRefreshIconProps) => (
+}:IRefreshIconProps) => 
     <Icon
       className={className}
       size={size}
       helperText={helperText}
       Component={MdOutlineRefresh}
     />
-);
+;
 
 export default memo(RefreshIcon);

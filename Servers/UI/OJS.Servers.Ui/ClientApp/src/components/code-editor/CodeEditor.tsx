@@ -10,7 +10,7 @@ import styles from './CodeEditor.module.scss';
 const Editor = lazy(() => import('@monaco-editor/react'));
 
 const getMonacoLanguage = (submissionTypeName: string | null) => {
-    if (submissionTypeName == null) {
+    if (submissionTypeName === null) {
         return 'javascript';
     }
 
@@ -48,7 +48,7 @@ const CodeEditor = ({
         [ selectedSubmissionType ],
     );
 
-    /* eslint-disable @typescript-eslint/no-empty-function */
+
     return (
         <div className={styles.editor} style={{ ...customEditorStyles }}>
             <Editor

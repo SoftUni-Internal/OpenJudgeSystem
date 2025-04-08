@@ -7,26 +7,28 @@ import { LinkButton, LinkButtonType } from '../../components/guidelines/buttons/
 import styles from './FooterNavigation.module.scss';
 
 const FooterNavigation = () => {
-    const renderSystemInfoAndLinksSection = useCallback(() => (
-        <div className={styles.systemInfoAndLinksContainer}>
-            <span>
-                © 2011 -
-                {' '}
-                {new Date().getFullYear()}
-                {' '}
-                - Open Judge System (OJS)
-            </span>
-            <span className={styles.links}>
-                <LinkButton
+    const renderSystemInfoAndLinksSection = useCallback(
+        () => 
+            <div className={styles.systemInfoAndLinksContainer}>
+                <span>
+                    © 2011 -
+                    {' '}
+                    {new Date().getFullYear()}
+                    {' '}
+                    - Open Judge System (OJS)
+                </span>
+                <span className={styles.links}>
+                    <LinkButton
                   to="https://github.com/SoftUni-Internal/OpenJudgeSystem"
                   type={LinkButtonType.plain}
                   isToExternal
                 >
-                    <GitHubIcon />
-                </LinkButton>
-            </span>
-        </div>
-    ), []);
+                        <GitHubIcon />
+                    </LinkButton>
+                </span>
+            </div>
+        , [],
+    );
 
     return (
         <div className={styles.content}>

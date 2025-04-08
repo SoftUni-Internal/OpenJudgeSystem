@@ -5,7 +5,7 @@ import ErrorIcon from '../../guidelines/icons/ErrorIcon';
 
 import styles from './ErrorResult.module.scss';
 
-const ErrorResult = () => (
+const ErrorResult = () => 
     <div style={{ ...flexCenterObjectStyles }}>
         <ErrorIcon />
         <span className={styles.compileAndUnknownError}>
@@ -13,6 +13,6 @@ const ErrorResult = () => (
             Compile time error
         </span>
     </div>
-);
+;
 
 export default ErrorResult;

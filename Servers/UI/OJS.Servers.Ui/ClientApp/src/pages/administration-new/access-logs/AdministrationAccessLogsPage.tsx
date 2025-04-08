@@ -26,7 +26,7 @@ const AdministrationSubmissionTypeDocumentsPage = () => {
         error,
     } = useGetAllAccessLogsQuery(queryParams);
 
-    const renderViewModal = (index: number) => (
+    const renderViewModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -35,7 +35,7 @@ const AdministrationSubmissionTypeDocumentsPage = () => {
         >
             <AdministrationAccessLogViewPage accessLogId={accessLogId} />
         </AdministrationModal>
-    );
+    ;
 
     const onViewClick = (id: number) => {
         setAccessLogId(id);

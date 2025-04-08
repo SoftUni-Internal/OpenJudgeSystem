@@ -93,9 +93,11 @@ const ContestsPage = () => {
         }
     }, [ allContests, dispatch ]);
 
-    const renderContest = useCallback((contest: IIndexContestsType) => (
-        <ContestCard contest={contest} />
-    ), []);
+    const renderContest = useCallback(
+        (contest: IIndexContestsType) => 
+            <ContestCard contest={contest} />
+        , [],
+    );
 
     const renderContests = useCallback(() => {
         if (areContestsFetching) {
@@ -155,12 +157,12 @@ const ContestsPage = () => {
                             : 'All Categories'}
                     </div>
                     <div className={styles.headingActions}>
-                        {selectedCategory?.id && selectedCategory?.children.length === 0 && (
+                        {selectedCategory?.id && selectedCategory?.children.length === 0 && 
                             <AdministrationLink
                               text="Edit Contests"
                               to={`/${CONTEST_CATEGORIES_HIERARCHY_PATH}?${CONTESTS_BULK_EDIT}=${selectedCategory?.id}`}
                             />
-                        )}
+                        }
                         <ContestStrategies
                           searchParams={searchParams}
                           setSearchParams={setSearchParams}

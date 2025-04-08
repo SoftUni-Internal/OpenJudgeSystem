@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect, useState } from 'react';
 import { Box, Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, InputLabel, MenuItem, Select, TextareaAutosize, TextField, Typography } from '@mui/material';
 import isNaN from 'lodash/isNaN';
@@ -20,7 +20,6 @@ import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
 import { ITestAdministration, testTypesToFEStringsMapping } from '../types';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface ITestFormProps {
@@ -165,14 +164,13 @@ const TestForm = (props: ITestFormProps) => {
                               onChange={(e) => onChange(e)}
                               onBlur={(e) => onChange(e)}
                             >
-                                {Object.entries(testTypesToFEStringsMapping).map(([ key, value ]) => (
+                                {Object.entries(testTypesToFEStringsMapping).map(([ key, value ]) =>
                                     <MenuItem key={key} value={key}>
                                         {value}
-                                    </MenuItem>
-                                ))}
+                                    </MenuItem>)}
                             </Select>
                         </FormControl>
-                        {isEditMode && (
+                        {isEditMode &&
                         <FormControl className={formStyles.spacing}>
                             <FormControlLabel
                               control={<Checkbox checked={test.retestProblem ?? false} />}
@@ -181,7 +179,7 @@ const TestForm = (props: ITestFormProps) => {
                               onChange={(e) => onChange(e)}
                             />
                         </FormControl>
-                        )}
+                        }
                         <FormControl className={formStyles.spacing}>
                             <FormControlLabel
                               control={<Checkbox checked={test.hideInput} />}

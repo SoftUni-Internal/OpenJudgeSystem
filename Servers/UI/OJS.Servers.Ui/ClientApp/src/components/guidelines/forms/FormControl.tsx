@@ -90,9 +90,9 @@ const LabelInternal = ({
 const FormControl = ({
     name,
     value = '',
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+     
     onChange = null,
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+     
     onInput = null,
     onClick,
     className = '',
@@ -140,7 +140,7 @@ const FormControl = ({
                 return;
             }
 
-            onChange(ev.target.value as string);
+            onChange(ev.target.value);
         },
         [ isChecked, onChange, type ],
     );
@@ -232,8 +232,7 @@ const FormControl = ({
                         />
                         <div className={styles.passwordIconWrapper}>
                             {showPassword
-                                ? (
-                                    <FaEyeSlash
+                                ? <FaEyeSlash
                                       onClick={() => {
                                           setShowPassword(!showPassword);
                                       }}
@@ -242,9 +241,8 @@ const FormControl = ({
                                           getColorClassName(themeColors.textColor),
                                       )}
                                     />
-                                )
-                                : (
-                                    <FaEye
+                                
+                                : <FaEye
                                       onClick={() => {
                                           setShowPassword(!showPassword);
                                       }}
@@ -253,7 +251,7 @@ const FormControl = ({
                                           getColorClassName(themeColors.textColor),
                                       )}
                                     />
-                                )}
+                                }
                         </div>
                     </div>
                 );
@@ -281,7 +279,7 @@ const FormControl = ({
     );
 
     const generateFormControlWithLabel = useCallback(
-        () => (
+        () => 
             <LabelInternal
               id={`${id}-label`}
               text={labelText}
@@ -292,7 +290,7 @@ const FormControl = ({
             >
                 {generateFormControl()}
             </LabelInternal>
-        ),
+        ,
         [ containerClassName, generateFormControl, id, labelClassName, labelText, type ],
     );
 

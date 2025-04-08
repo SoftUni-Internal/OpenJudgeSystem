@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { ChangeEvent, useEffect, useState } from 'react';
 
 import { CONTEST_IS_DELETED, CONTEST_IS_NOT_VISIBLE } from '../../../../common/messages';
@@ -135,7 +135,7 @@ const LecturerInContests = (props: ILecturerInContestsProps) => {
         setShowConfirmDialog(true);
     };
 
-    const renderConfirmDialog = (index: number) => (
+    const renderConfirmDialog = (index: number) =>
         <ConfirmDialog
           key={index}
           text="Are you sure you want to remove lecturer from contest."
@@ -148,18 +148,18 @@ const LecturerInContests = (props: ILecturerInContestsProps) => {
               setShowConfirmDialog(false);
           }}
         />
-    );
+    ;
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () =>
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
           styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
           tooltipLabel="Add lecturer to contest"
         />
-    );
+    ;
 
-    const renderCreateModal = (i: number) => (
+    const renderCreateModal = (i: number) =>
         <AdministrationModal
           key={i}
           index={i}
@@ -181,9 +181,9 @@ const LecturerInContests = (props: ILecturerInContestsProps) => {
               }}
             />
         </AdministrationModal>
-    );
+    ;
 
-    if (isLoading || (isFetching && !showConfirmDialog)) {
+    if (isLoading || isFetching && !showConfirmDialog) {
         return <SpinningLoader />;
     }
 

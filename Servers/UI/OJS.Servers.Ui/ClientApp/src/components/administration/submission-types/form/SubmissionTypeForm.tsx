@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect, useState } from 'react';
 import {
     Box,
@@ -37,7 +36,6 @@ import clearSuccessMessages from '../../../../utils/success-messages-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface ISubmissionTypesFormProps {
@@ -194,11 +192,10 @@ const SubmissionTypesForm = (props : ISubmissionTypesFormProps) => {
                       onChange={(e) => onChange(e)}
                       onBlur={(e) => onChange(e)}
                     >
-                        {strategiesData.map((c) => (
+                        {strategiesData.map((c) =>
                             <MenuItem key={c} value={c}>
                                 {c}
-                            </MenuItem>
-                        ))}
+                            </MenuItem>)}
                     </Select>
                 </FormControl>
                 <FormControl className={formStyles.inputRow}>
@@ -212,11 +209,10 @@ const SubmissionTypesForm = (props : ISubmissionTypesFormProps) => {
                       onChange={(e) => onChange(e)}
                       onBlur={(e) => onChange(e)}
                     >
-                        {compilersData.map((c) => (
+                        {compilersData.map((c) =>
                             <MenuItem key={c} value={c}>
                                 {c}
-                            </MenuItem>
-                        ))}
+                            </MenuItem>)}
                     </Select>
                 </FormControl>
                 <FormControl className={formStyles.inputRow}>

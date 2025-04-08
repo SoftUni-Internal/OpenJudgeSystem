@@ -37,7 +37,7 @@ const submissionsAdminService = createApi({
                 method: 'POST',
             }),
         }),
-        // eslint-disable-next-line max-len
+         
         downloadFileSubmission: builder.query<IFileModel, IRetestSubmissionUrlParams>({ query: ({ id }) => ({ url: `/download/${id}` }) }),
         exportSubmissionsToExcel: builder.query<IFileModel, IGetAllAdminParams>({
             query: ({ filter, page, itemsPerPage, sorting }) => ({

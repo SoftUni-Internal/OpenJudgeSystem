@@ -2,65 +2,65 @@
 @use 'src/styles/spacings';
 
 .backToTop {
-    position: fixed;
-    bottom: spacings.$sp-32;
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    z-index: 9999;
-    background-color: colors.$primary-blue;
+  align-items: center;
+  background-color: colors.$primary-blue;
+  border: none;
+  border-radius: 50%;
+  bottom: spacings.$sp-32;
+  cursor: pointer;
+  display: flex;
+  height: 45px;
+  justify-content: center;
+  position: fixed;
+  transition: all 0.3s ease;
+  width: 45px;
+  z-index: 9999;
 
-    &.lightTheme {
-        opacity: 0.9;
-        box-shadow: 0 4px 12px rgb(68 169 248 / 20%);
-
-        &:hover {
-            opacity: 1;
-            box-shadow: 0 6px 16px rgb(68 169 248 / 30%);
-        }
-
-        &:focus {
-            box-shadow: 0 0 0 3px rgb(68 169 248 / 30%);
-        }
-    }
-
-    &.darkTheme {
-        opacity: 0.8;
-        box-shadow: 0 4px 12px rgb(68 169 248 / 15%);
-
-        &:hover {
-            opacity: 1;
-            box-shadow: 0 6px 16px rgb(68 169 248 / 25%);
-        }
-
-        &:focus {
-            box-shadow: 0 0 0 3px rgb(68 169 248 / 20%);
-        }
-    }
+  &.lightTheme {
+    box-shadow: 0 4px 12px rgb(68 169 248 / 20%);
+    opacity: 0.9;
 
     &:hover {
-        transform: translateY(-3px);
+      box-shadow: 0 6px 16px rgb(68 169 248 / 30%);
+      opacity: 1;
     }
 
     &:focus {
-        outline: none;
+      box-shadow: 0 0 0 3px rgb(68 169 248 / 30%);
+    }
+  }
+
+  &.darkTheme {
+    box-shadow: 0 4px 12px rgb(68 169 248 / 15%);
+    opacity: 0.8;
+
+    &:hover {
+      box-shadow: 0 6px 16px rgb(68 169 248 / 25%);
+      opacity: 1;
     }
 
-    &:active {
-        transform: translateY(-1px);
+    &:focus {
+      box-shadow: 0 0 0 3px rgb(68 169 248 / 20%);
     }
+  }
 
-    svg {
-        transition: transform 0.2s ease;
-    }
+  &:hover {
+    transform: translateY(-3px);
+  }
 
-    &:hover svg {
-        transform: translateY(-2px);
-    }
+  &:focus {
+    outline: none;
+  }
+
+  &:active {
+    transform: translateY(-1px);
+  }
+
+  svg {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover svg {
+    transform: translateY(-2px);
+  }
 }

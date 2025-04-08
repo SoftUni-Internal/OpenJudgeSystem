@@ -477,6 +477,7 @@ interface IHasNameAndIdType {
     name: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface IContestAutocomplete extends IHasNameAndIdType {}
 
 interface ITestsUploadModel {
@@ -874,7 +875,6 @@ interface IProfilePageContests {
     requirePasswordForPractice: boolean;
 }
 
-// eslint-disable-next-line import/prefer-default-export
 export type {
     IIndexContestsType,
     IProblemType,

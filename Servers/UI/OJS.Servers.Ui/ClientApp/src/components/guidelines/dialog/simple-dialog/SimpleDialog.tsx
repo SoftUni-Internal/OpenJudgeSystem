@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import { CANCEL } from 'src/common/labels';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from 'src/components/guidelines/dialog/ConfirmDialog.module.scss';
 
 interface ISimpleDialogProps {
@@ -11,7 +10,7 @@ interface ISimpleDialogProps {
     declineFunction: () => void;
 }
 
-const SimpleDialog = ({ title, content, declineFunction }: ISimpleDialogProps) => (
+const SimpleDialog = ({ title, content, declineFunction }: ISimpleDialogProps) =>
     <div className={styles.position}>
         <Dialog
           open
@@ -25,11 +24,10 @@ const SimpleDialog = ({ title, content, declineFunction }: ISimpleDialogProps) =
             <DialogContent>
                 { React.isValidElement(content)
                     ? content
-                    : (
-                        <DialogContentText>
-                            {content}
-                        </DialogContentText>
-                    )}
+                    : <DialogContentText>
+                        {content}
+                    </DialogContentText>
+                    }
             </DialogContent>
             <DialogActions>
                 <Button
@@ -42,6 +40,6 @@ const SimpleDialog = ({ title, content, declineFunction }: ISimpleDialogProps) =
             </DialogActions>
         </Dialog>
     </div>
-);
+;
 
 export default SimpleDialog;

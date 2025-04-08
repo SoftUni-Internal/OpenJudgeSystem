@@ -71,14 +71,14 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
         );
     };
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () => 
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
           styles={{ width: '40px', height: '40px' }}
         />
 
-    );
+    ;
 
     if (isGettingResources) {
         return <SpinningLoader />;

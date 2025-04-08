@@ -13,13 +13,13 @@ const PostgreSqlIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IPostgreSqlIconProps) => (
+}: IPostgreSqlIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={DiPostgresql}
     />
-);
+;
 
 export default memo(PostgreSqlIcon);

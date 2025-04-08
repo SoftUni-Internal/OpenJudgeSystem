@@ -6,7 +6,7 @@ import Breadcrumbs, { IPageBreadcrumbsItem } from '../../components/guidelines/b
 import RecentSubmissions from '../../components/submissions/recent-submissions/RecentSubmissions';
 import setLayout from '../shared/set-layout';
 
-const SubmissionsPage = () => (
+const SubmissionsPage = () => 
     <>
         <BackToTop />
         <MetaTags
@@ -25,6 +25,6 @@ const SubmissionsPage = () => (
         <RecentSubmissions />
     </>
 
-);
+;
 
 export default setLayout(SubmissionsPage);

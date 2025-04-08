@@ -22,7 +22,7 @@ const ProfileSearchList = (props: IProfileSearchListProps) => {
     }
     return (
         <div className={`${styles.profileElementsWrapper} ${textColorClassName}`}>
-            {data.map((el) => (
+            {data.map((el) => 
                 <Link
                   key={`p-l-i-${el.id}`}
                   to={`/profile/${el.name}`}
@@ -30,8 +30,7 @@ const ProfileSearchList = (props: IProfileSearchListProps) => {
                   onClick={() => dispatch(setProfile(null))}
                 >
                     {el.name}
-                </Link>
-            ))}
+                </Link>)}
         </div>
     );
 };

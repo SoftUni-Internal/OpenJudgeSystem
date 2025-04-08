@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { useEffect } from 'react';
 
 import { getAndSetSuccessfulMessages } from '../../utils/messages-utils';

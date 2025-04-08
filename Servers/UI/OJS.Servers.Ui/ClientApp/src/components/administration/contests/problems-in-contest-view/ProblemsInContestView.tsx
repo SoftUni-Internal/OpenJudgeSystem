@@ -27,7 +27,6 @@ import CopyModal, { AllowedOperations } from '../../problems/copy/CopyModal';
 import ProblemForm from '../../problems/problem-form/ProblemForm';
 import ProblemRetest from '../../problems/retest/ProblemRetest';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../../../../pages/administration-new/AdministrationStyles.module.scss';
 
 interface IProblemsInContestViewProps {
@@ -134,8 +133,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
               onClose={onClose}
             >
                 {isCreate
-                    ? (
-                        <ProblemForm
+                    ? <ProblemForm
                           contestId={Number(contestId)}
                           contestName={contestName}
                           problemId={null}
@@ -144,20 +142,19 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
                           onSuccess={onProblemCreate}
                           setParentSuccessMessage={setSuccessMessage}
                         />
-                    )
-                    : (
-                        <ProblemForm
+
+                    : <ProblemForm
                           problemId={problemId}
                           contestType={null}
                           onSuccess={onProblemCreate}
                           setParentSuccessMessage={setSuccessMessage}
                         />
-                    )}
+                    }
             </AdministrationModal>
         );
     };
 
-    const renderDeleteAllModal = (index: number) => (
+    const renderDeleteAllModal = (index: number) =>
         <ConfirmDialog
           key={index}
           text={`Are you sure you want to delete all problems ${problemsData?.items
@@ -172,14 +169,14 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
               setShowDeleteAllConfirm(!showDeleteAllConfirm);
           }}
         />
-    );
+    ;
 
     const onSuccessfulRetest = (message: string) => {
         setSuccessMessage(message);
         setShowRetestModal(false);
     };
 
-    const renderRetestModal = (index: number) => (
+    const renderRetestModal = (index: number) =>
         <ProblemRetest
           key={index}
           contestId={contestId}
@@ -194,11 +191,11 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
           problemToRetest={problemToRetestId}
           onSuccess={onSuccessfulRetest}
         />
-    );
+    ;
 
     const renderGridSettings = () => {
         const isCopyFunctionalityDisabled = areProblemsFetching ||
-            (!areProblemsFetching && (!problemsData || isNilOrEmpty(problemsData.items)));
+            !areProblemsFetching && (!problemsData || isNilOrEmpty(problemsData.items));
 
         return (
             <>
@@ -233,7 +230,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
         );
     };
 
-    const renderCopyModal = (index: number, operation: AllowedOperations) => (
+    const renderCopyModal = (index: number, operation: AllowedOperations) =>
         <CopyModal
           key={index + operation}
           index={index}
@@ -249,7 +246,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
           problemToCopyId={problemToCopy}
           setParentSuccessMessage={setSuccessMessage}
         />
-    );
+    ;
 
     return (
         <div className={styles.container}>
@@ -257,8 +254,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
             {renderSuccessfullAlert(successMessage)}
             { isDeletingAll
                 ? <SpinningLoader />
-                : (
-                    <AdministrationGridView
+                : <AdministrationGridView
                       data={problemsData}
                       error={getContestError}
                       filterableGridColumnDef={problemFilterableColumns}
@@ -294,7 +290,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
                       withSearchParams={false}
                       legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Problem is deleted.' } ]}
                     />
-                )}
+                }
         </div>
     );
 };

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React from 'react';
 import { TbBinaryTree } from 'react-icons/tb';
 import AddIcon from '@mui/icons-material/Add';
@@ -60,7 +60,7 @@ export const returnRolesNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(params.row.id)} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${ROLES_PATH}/${params.row.id}`} location={`${EDIT} page`} />
@@ -72,7 +72,7 @@ export const returnRolesNonFilterableColumns = (
                   onSuccess={onSuccessfulDelete}
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
-                {params.row.name === 'Lecturer' && (
+                {params.row.name === 'Lecturer' &&
                     <>
                         <AdministrationGridDropdown
                           icon={<TbBinaryTree />}
@@ -113,9 +113,9 @@ export const returnRolesNonFilterableColumns = (
                           id={Number(params.row.id)}
                         />
                     </>
-                )}
+                }
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

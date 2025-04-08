@@ -40,7 +40,7 @@ const AdministrationSettingsPage = () => {
         refetch();
     };
 
-    const renderSettingModal = (index: number, isEditMode: boolean) => (
+    const renderSettingModal = (index: number, isEditMode: boolean) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -58,15 +58,15 @@ const AdministrationSettingsPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderGridActions = () => (
+    const renderGridActions = () => 
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
     return (
         <>
