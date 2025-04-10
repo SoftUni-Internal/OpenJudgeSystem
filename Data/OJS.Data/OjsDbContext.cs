@@ -75,9 +75,9 @@ namespace OJS.Data
 
         public DbSet<AccessLog> AccessLogs { get; set; } = null!;
 
-        public DbSet<MentorPromptTemplate> MentorPromptTemplates { get; set; }
+        public DbSet<MentorPromptTemplate> MentorPromptTemplates { get; set; } = null!;
 
-        public DbSet<UserMentor> UsersMentors { get; set; }
+        public DbSet<UserMentor> UsersMentors { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -10,8 +10,6 @@
 
     public class ContestProblemServiceModel : IMapExplicitly
     {
-        private int? fileSizeLimitInBytes;
-
         public int Id { get; set; }
 
         public int ContestId { get; set; }
@@ -34,20 +32,7 @@
 
         public double TimeLimit { get; set; }
 
-        public double? FileSizeLimit
-        {
-            get
-            {
-                if (!this.fileSizeLimitInBytes.HasValue)
-                {
-                    return null;
-                }
-
-                return (double)this.fileSizeLimitInBytes / 1024;
-            }
-
-            set => this.fileSizeLimitInBytes = (int?)value;
-        }
+        public double? FileSizeLimit { get; set; }
 
         public string CheckerName { get; set; } = null!;
 
@@ -65,7 +50,7 @@
                     opt => opt.MapFrom(s => s.ProblemGroup.Type == ProblemGroupType.ExcludedFromHomework))
                 .ForMember(
                     d => d.FileSizeLimit,
-                    opt => opt.MapFrom(s => s.SourceCodeSizeLimit.HasValue ? (double)s.SourceCodeSizeLimit : default))
+                    opt => opt.MapFrom(s => s.SourceCodeSizeLimit.HasValue ? (double)s.SourceCodeSizeLimit / 1024 : default))
                 .ForMember(
                     d => d.AllowedSubmissionTypes,
                     opt => opt.MapFrom(s => s.SubmissionTypesInProblems))

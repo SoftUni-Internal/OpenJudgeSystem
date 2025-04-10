@@ -14,6 +14,7 @@ interface IContestResultsProblemType {
     problemGroupId: number;
     name: string;
     maximumPoints: boolean;
+    orderBy: number;
 }
 
 interface IContestResultsParticipationType {

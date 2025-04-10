@@ -13,5 +13,5 @@ public class PagedResult<TItem>
 
     public int PageNumber { get; set; }
 
-    public IEnumerable<TItem> Items { get; set; } = Enumerable.Empty<TItem>();
+    public IEnumerable<TItem> Items { get; set; } = [];
 }
