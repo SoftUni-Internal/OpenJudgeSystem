@@ -18,7 +18,6 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
     private readonly string rabbitMqUser = "ojsuser";
     private readonly string rabbitMqPassword = "myS3cretPass2";
     private readonly string rabbitMqVirtualHost = "ojs";
-    private const string BaseWorkerImageName = "judge_worker_base_integration_tests:latest";
     private const string WorkerImageName = "judge_worker_intergration_tests:latest";
     private const string WorkerName = "worker_intergration_tests";
 
@@ -73,8 +72,6 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
 
         var dockerCompatiblePath = executionStrategiesPath.Replace("\\", "/");
 
-        var baseImageContext = Path.Combine(this.projectRoot, "Docker", "worker_base");
-
         var loggerFactory = LoggerFactory.Create(builder =>
         {
             builder
@@ -82,19 +79,11 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
                 .AddConsole();
         });
 
-        var baseImage = new ImageFromDockerfileBuilder()
-            .WithDockerfileDirectory(baseImageContext)
-            .WithDockerfile("Dockerfile")
-            .WithName(BaseWorkerImageName)
-            .WithLogger(loggerFactory.CreateLogger<ImageFromDockerfileBuilder>())
-            .Build();
-
-        await baseImage.CreateAsync();
-
         var workerImage = new ImageFromDockerfileBuilder()
             .WithDockerfileDirectory(this.projectRoot)
-            .WithDockerfile("./Docker/Dockerfile.worker.integration-tests")
+            .WithDockerfile("./Docker/Dockerfile.worker")
             .WithName(WorkerImageName)
+            .WithLogger(loggerFactory.CreateLogger<ImageFromDockerfileBuilder>())
             .Build();
 
         await workerImage.CreateAsync();
@@ -108,6 +97,7 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
             .WithBindMount(dockerCompatiblePath, "/tmp/ExecutionStrategies")
             .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
             .DependsOn(this.rabbitMqContainer)
+            .WithLogger(loggerFactory.CreateLogger<ImageFromDockerfileBuilder>())
             .Build();
 
         await this.workerContainer.StartAsync();
