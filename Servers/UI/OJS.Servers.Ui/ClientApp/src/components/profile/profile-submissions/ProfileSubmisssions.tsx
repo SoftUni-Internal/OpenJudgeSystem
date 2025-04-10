@@ -3,6 +3,7 @@ import isNil from 'lodash/isNil';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import { applyDefaultQueryValues } from 'src/components/filters/Filter';
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
+import { useSyncQueryParamsFromUrl } from 'src/utils/url-utils';
 
 import { useGetUserSubmissionsQuery } from '../../../redux/services/submissionsService';
 import { useAppSelector } from '../../../redux/store';
@@ -42,6 +43,8 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
         { ...queryParams, username: profile?.userName! },
         { skip: !canFetchSubmissions },
     );
+
+    useSyncQueryParamsFromUrl(searchParams, setQueryParams);
 
     useEffect(() => {
         if (!isChosenInToggle || areSubmissionsLoading || isNil(userSubmissions)) {
