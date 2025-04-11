@@ -88,7 +88,7 @@ const ProfileContestParticipations = ({
     );
 
     const {
-        data: allParticipatedContests,
+        data: allParticipatedContests = [],
         isLoading: areAllContestsLoading,
     } = useGetAllParticipatedContestsQuery(
         // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
