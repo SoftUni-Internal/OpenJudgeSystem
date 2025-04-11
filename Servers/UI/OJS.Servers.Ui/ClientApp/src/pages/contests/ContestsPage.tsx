@@ -103,8 +103,6 @@ const ContestsPage = () => {
         }
 
         if (!Array.isArray(contests?.items)) {
-            console.log('The value of the contests is:');
-            console.log(contests);
             return (
                 <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
                     The contests could not be loaded. If this problem persists, please contact an administrator.
