@@ -41,7 +41,8 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
                 return { blob, filename };
             }
 
-            if (response.headers.get('Content-Length')) {
+            // Return empty string if response is empty. It's important to explicitly check for 0 length.
+            if (response.headers.get('Content-Length') === '0') {
                 return '';
             }
 
