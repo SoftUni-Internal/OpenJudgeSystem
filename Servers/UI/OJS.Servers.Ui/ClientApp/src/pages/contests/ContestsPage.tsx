@@ -89,6 +89,8 @@ const ContestsPage = () => {
 
     useEffect(() => {
         if (allContests && !isNilOrEmpty(allContests)) {
+            console.log('allContests fetched', allContests);
+            console.log('type of allContests fetched', typeof allContests);
             dispatch(setContests(allContests));
         }
     }, [ allContests, dispatch ]);
@@ -105,6 +107,9 @@ const ContestsPage = () => {
         if (!Array.isArray(contests?.items)) {
             console.log('The value of the contests is:');
             console.log(contests);
+            console.log('type of contests', typeof contests);
+            console.log('allContests', allContests);
+            console.log('type of allContests', typeof allContests);
             return (
                 <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
                     The contests could not be loaded. If this problem persists, please contact an administrator.
