@@ -102,6 +102,16 @@ const ContestsPage = () => {
             return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;
         }
 
+        if (!Array.isArray(contests?.items)) {
+            console.log('The value of the contests is:');
+            console.log(contests);
+            return (
+                <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
+                    The contests could not be loaded. If this problem persists, please contact an administrator.
+                </Heading>
+            );
+        }
+
         if (!contests?.items?.length) {
             return (
                 <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
@@ -119,6 +129,7 @@ const ContestsPage = () => {
                   orientation={Orientation.vertical}
                 />
                 <PaginationControls
+                  // isDataFetching={areContestsFetching}
                   count={contests?.pagesCount}
                   page={selectedPage}
                   onChange={(page:number) => {
@@ -129,8 +140,7 @@ const ContestsPage = () => {
                 />
             </>
         );
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [ contests, areContestsFetching, searchParams ]);
+    }, [ areContestsFetching, contests?.items, contests?.pagesCount, renderContest, selectedPage, searchParams, setSearchParams, textColorClassName ]);
 
     if (allContestsError) {
         return <div className={`${textColorClassName}`}>Error loading contests</div>;
