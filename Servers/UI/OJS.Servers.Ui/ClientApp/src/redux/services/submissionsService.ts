@@ -31,7 +31,6 @@ const submissionsService = createApi({
                 return { blob, fileName: 'file.zip' };
             }
 
-            // Return empty string if response is empty. It's important to explicitly check for 0 length.
             if (response.headers.get('Content-Length') === '0') {
                 return '';
             }
