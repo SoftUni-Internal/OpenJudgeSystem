@@ -41,7 +41,7 @@ const ContestCategories = (props: IContestCategoriesProps) => {
     const textColorClassName = getColorClassName(themeColors.textColor);
 
     const {
-        data: contestCategories = [],
+        data: contestCategories,
         isLoading: areCategoriesLoading,
         error: categoriesError,
     } = useGetContestCategoriesQuery();

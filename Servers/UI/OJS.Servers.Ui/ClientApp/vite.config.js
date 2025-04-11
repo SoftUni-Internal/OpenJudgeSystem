@@ -5,6 +5,8 @@ import { visualizer } from "rollup-plugin-visualizer";
 import { resolve } from 'path';
 /// <reference types="vite-plugin-svgr/client" />
 
+const isUnminified = process.env.UNMINIFIED === 'true';
+
 // For development server, we want to forward all requests to /administration to /admin.html
 const forwardToAdmin = () => {
     return {
@@ -22,10 +24,8 @@ const forwardToAdmin = () => {
     }
 }
 
-export default defineConfig(({ mode }) => {
-    const isUnminified = true; // process.env.UNMINIFIED === 'true';
-
-    return ({
+export default defineConfig(({ mode }) =>
+    ({
         appType: 'mpa', // Multi Page Application
         build: {
             minify: isUnminified ? false : 'esbuild',
@@ -55,5 +55,4 @@ export default defineConfig(({ mode }) => {
                 'src': resolve(__dirname, 'src'),
             },
         },
-    });
-});
+    }));
