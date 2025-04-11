@@ -133,12 +133,17 @@ const ProfileContestParticipations = ({
 
     const categoryContestsMap = useMemo(() => {
         const map = new Map<number, IIndexContestsType[]>();
-        allParticipatedContests?.forEach((contest) => {
-            if (contest.categoryId) {
-                if (!map.has(contest.categoryId)) { map.set(contest.categoryId, []); }
-                map.get(contest.categoryId)!.push(contest);
-            }
-        });
+        // Ensure allParticipatedContests is an array before using forEach
+        if (Array.isArray(allParticipatedContests)) {
+            allParticipatedContests.forEach((contest) => {
+                if (contest.categoryId) {
+                    if (!map.has(contest.categoryId)) { map.set(contest.categoryId, []); }
+                    map.get(contest.categoryId)!.push(contest);
+                }
+            });
+        } else if (allParticipatedContests) {
+            console.error('Expected allParticipatedContests to be an array but got:', typeof allParticipatedContests);
+        }
         return map;
     }, [ allParticipatedContests ]);
 
@@ -147,7 +152,10 @@ const ProfileContestParticipations = ({
         categoryContestsMap.forEach((contests, categoryId) => {
             map.set(categoryId, contests.map((c) => ({ id: c.id, name: `${c.name} (${c.category})` })));
         });
-        map.set(0, allParticipatedContests?.map((c) => ({ id: c.id, name: `${c.name} (${c.category})` })) || []);
+        // Ensure allParticipatedContests is an array before using map
+        map.set(0, Array.isArray(allParticipatedContests)
+            ? allParticipatedContests.map((c) => ({ id: c.id, name: `${c.name} (${c.category})` }))
+            : []);
         return map;
     }, [ categoryContestsMap, allParticipatedContests ]);
 
@@ -160,11 +168,14 @@ const ProfileContestParticipations = ({
 
     const categoryDropdownItems = useMemo(() => {
         const map = new Map<number, string>();
-        allParticipatedContests?.forEach((contest) => {
-            if (contest.categoryId && contest.category) {
-                map.set(contest.categoryId, contest.category);
-            }
-        });
+        // Ensure allParticipatedContests is an array before using forEach
+        if (Array.isArray(allParticipatedContests)) {
+            allParticipatedContests.forEach((contest) => {
+                if (contest.categoryId && contest.category) {
+                    map.set(contest.categoryId, contest.category);
+                }
+            });
+        }
         return Array.from(map.entries())
             .map(([ id, name ]) => ({ id, name: `${name} (#${id})` }))
             .sort((a, b) => a.name.localeCompare(b.name));
