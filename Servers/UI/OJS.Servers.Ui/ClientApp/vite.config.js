@@ -22,33 +22,38 @@ const forwardToAdmin = () => {
     }
 }
 
-export default defineConfig(({ mode }) => ({
-    appType: 'mpa', // Multi Page Application
-    build: {
-        sourcemap: mode === 'staging',
-        rollupOptions: {
-            input: {
-                main: resolve(__dirname, 'index.html'),
-                admin: resolve(__dirname, 'admin.html')
-            },
-            onwarn(warning, warn) {
-                if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
-                    return
+export default defineConfig(({ mode }) => {
+    const isUnminified = process.env.UNMINIFIED === 'true';
+
+    return ({
+        appType: 'mpa', // Multi Page Application
+        build: {
+            minify: isUnminified ? false : 'esbuild',
+            sourcemap: isUnminified,
+            rollupOptions: {
+                input: {
+                    main: resolve(__dirname, 'index.html'),
+                    admin: resolve(__dirname, 'admin.html')
+                },
+                onwarn(warning, warn) {
+                    if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+                        return
+                    }
+                    warn(warning)
                 }
-                warn(warning)
-            }
+            },
         },
-    },
-    plugins: [
-        react(),
-        svgr(),
-        forwardToAdmin(),
-        visualizer({open: true, filename: 'bundle-analysis.html'}),
-    ],
-    server: {port: 5002},
-    resolve: {
-        alias: {
-            'src': resolve(__dirname, 'src'),
+        plugins: [
+            react(),
+            svgr(),
+            forwardToAdmin(),
+            visualizer({open: true, filename: 'bundle-analysis.html'}),
+        ],
+        server: {port: 5002},
+        resolve: {
+            alias: {
+                'src': resolve(__dirname, 'src'),
+            },
         },
-    },
-}));
+    });
+});

@@ -102,6 +102,16 @@ const ContestsPage = () => {
             return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;
         }
 
+        if (!Array.isArray(contests?.items)) {
+            console.log('The value of the contests is:');
+            console.log(contests);
+            return (
+                <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
+                    The contests could not be loaded. If this problem persists, please contact an administrator.
+                </Heading>
+            );
+        }
+
         if (!contests?.items?.length) {
             return (
                 <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>

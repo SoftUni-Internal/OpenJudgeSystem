@@ -85,7 +85,7 @@ const List = <TValue, >({
 
     const renderItems = useCallback(
         () => {
-            if (isNil(values) || isEmpty(values)) {
+            if (isNil(values) || isEmpty(values) || !Array.isArray(values)) {
                 return null;
             }
 
