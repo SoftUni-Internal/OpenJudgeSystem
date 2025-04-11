@@ -23,7 +23,7 @@ const forwardToAdmin = () => {
 }
 
 export default defineConfig(({ mode }) => {
-    const isUnminified = process.env.UNMINIFIED === 'true';
+    const isUnminified = process.argv.includes('--unminified');
 
     return ({
         appType: 'mpa', // Multi Page Application
