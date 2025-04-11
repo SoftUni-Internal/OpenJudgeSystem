@@ -140,8 +140,8 @@ const ContestsPage = () => {
                 />
             </>
         );
-    }, [ areContestsFetching, contests?.items, contests?.pagesCount, renderContest, selectedPage, searchParams, setSearchParams, textColorClassName ]);
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [ contests, areContestsFetching, searchParams ]);
     if (allContestsError) {
         return <div className={`${textColorClassName}`}>Error loading contests</div>;
     }
