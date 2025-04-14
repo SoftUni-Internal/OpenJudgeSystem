@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable import/group-exports */
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
+import { NavigateOptions, URLSearchParamsInit, useNavigate } from 'react-router-dom';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -840,17 +840,20 @@ const applyDefaultQueryValues = (
 
 const handlePageChange = (
     setQueryParams: Dispatch<React.SetStateAction<IGetSubmissionsUrlParams>>,
-    setSearchParams: (params: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void,
     newPage: number,
+    navigate: (to: string, options?: NavigateOptions) => void,
 ) => {
     setQueryParams((prev) => {
         const updatedParams = { ...prev, page: newPage };
 
         const newParams = new URLSearchParams(window.location.search);
-
         newParams.set('page', newPage.toString());
 
-        setSearchParams(newParams);
+        // Use navigate to preserve the hash
+        const hash = window.location.hash;
+        const newUrl = `${window.location.pathname}?${newParams.toString()}${hash}`;
+        navigate(newUrl, { preventScrollReset: true });
+
         return updatedParams;
     });
 };
