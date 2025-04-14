@@ -110,7 +110,7 @@ RUN pip3 install --no-cache-dir -r /tmp/requirements.txt
 RUN $PYENV_ROOT/versions/3.11.5/bin/pip install --no-cache-dir -r /tmp/requirements.txt
 
 # Java 11 and 21 with Spring and Hibernate
-USER root
+USER restricted_user
 
 WORKDIR /judge-resources/java/java-spring-and-hibernate
 COPY ./java-spring-and-hibernate .
@@ -118,7 +118,7 @@ RUN mvn dependency:go-offline
 # Needed 2 versions of this package, one in the strategy pom.xml, other one is istalled here
 # Otherwise maven resolves only 1 dependency
 # TODO: Fix this
-RUN mvn dependency:get -DgroupId=org.codehaus.plexus -DartifactId=plexus-utils -Dversion=2.0.4
+RUN mvn dependency:get -DgroupId=org.codehaus.plexus -DartifactId=plexus-utils -Dversion=3.0.10
 RUN mvn clean install
 
 WORKDIR /judge-resources/java/java-21-spring-and-hibernate
