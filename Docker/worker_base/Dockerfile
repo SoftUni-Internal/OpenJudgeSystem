@@ -129,6 +129,8 @@ RUN mvn dependency:go-offline
 RUN mvn dependency:get -DgroupId=org.codehaus.plexus -DartifactId=plexus-utils -Dversion=3.0.10
 RUN mvn clean install
 
+USER root
+
 # Go
 ENV GO111MODULE=off
 
