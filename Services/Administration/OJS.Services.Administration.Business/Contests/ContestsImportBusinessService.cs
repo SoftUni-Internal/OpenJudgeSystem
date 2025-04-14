@@ -1,11 +1,8 @@
-namespace OJS.Servers.Administration.Controllers;
+namespace OJS.Services.Administration.Business.Contests;
 
 using FluentExtensions.Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Data.Models;
 using OJS.Data.Models.Checkers;
@@ -13,11 +10,11 @@ using OJS.Data.Models.Contests;
 using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.Data.Models.Tests;
-using OJS.Servers.Infrastructure.Controllers;
 using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Business.Problems;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Contests;
+using OJS.Services.Common.Models;
 using OJS.Services.Infrastructure.Configurations;
 using System;
 using System.Collections.Generic;
@@ -28,8 +25,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-[Authorize(Roles = GlobalConstants.Roles.Administrator)]
-public class TempController(
+public class ContestsImportBusinessService(
     IHttpClientFactory httpClientFactory,
     IOptions<ApplicationUrlsConfig> urlsConfig,
     IContestsDataService contestsData,
@@ -38,31 +34,31 @@ public class TempController(
     ISubmissionTypesDataService submissionTypesData,
     ITestRunsDataService testRunsData,
     IProblemsBusinessService problemsBusiness,
-    IProblemGroupsBusinessService problemGroupsBusiness)
-    : BaseApiController
+    IProblemGroupsBusinessService problemGroupsBusiness) : IContestsImportBusinessService
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
     private readonly ApplicationUrlsConfig urls = urlsConfig.Value;
 
-    public async Task<IActionResult> ImportContestsFromCategory(int sourceContestCategoryId, int destinationContestCategoryId, bool dryRun = true)
+    public async Task<ServiceResult<string>> ImportContestsFromCategory(int sourceContestCategoryId, int destinationContestCategoryId,
+        bool dryRun = true)
     {
         if (sourceContestCategoryId == 0 || destinationContestCategoryId == 0)
         {
-            return this.BadRequest("Invalid contest category ids.");
+            return new ServiceResult<string>("Invalid contest category ids.");
         }
 
         var contestIds = await this.httpClient.GetFromJsonAsync<int[]>($"{this.urls.LegacyJudgeUrl}/api/Contests/GetExistingIdsForCategory?contestCategoryId={sourceContestCategoryId}&apiKey={this.urls.LegacyJudgeApiKey}");
 
         if (contestIds == null)
         {
-            return this.BadRequest("Failed to get contest IDs.");
+            return new ServiceResult<string>("Failed to get contest IDs.");
         }
 
         var destinationContestCategory = await contestCategoriesData.OneById(destinationContestCategoryId);
 
         if (destinationContestCategory == null)
         {
-            return this.BadRequest($"Destination contest category with id {destinationContestCategoryId} does not exist.");
+            return new ServiceResult<string>($"Destination contest category with id {destinationContestCategoryId} does not exist.");
         }
 
         var result = new StringBuilder();
@@ -129,7 +125,7 @@ public class TempController(
             : "<p>Import completed.</p>");
         result.AppendLine("<hr>");
 
-        return this.Content(result.ToString(), GlobalConstants.MimeTypes.TextHtml);
+        return ServiceResult<string>.Success(result.ToString());
     }
 
     private static DateTime? ConvertTimeToUtc(DateTime? dateTime)
