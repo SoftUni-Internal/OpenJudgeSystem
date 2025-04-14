@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
 /* eslint-disable import/group-exports */
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { NavigateOptions, URLSearchParamsInit, useNavigate } from 'react-router-dom';
+import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 // eslint-disable-next-line import/no-extraneous-dependencies
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
