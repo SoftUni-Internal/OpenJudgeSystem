@@ -62,6 +62,7 @@ const SearchPage = () => {
     const [
         getContestsSearch, {
             data: contestsSearchData,
+            isLoading: isContestSearchLoading,
             isFetching: isContestsSearchFetching,
             error: contestsSearchError,
             isError: areContestsSearchError,
@@ -69,6 +70,7 @@ const SearchPage = () => {
     const [
         getProblemsSearch, {
             data: problemsSearchData,
+            isLoading: isProblemsSearchLoading,
             isFetching: isProblemsSearchFetching,
             error: problemsSearchError,
             isError: areProblemsSearchError,
@@ -76,6 +78,7 @@ const SearchPage = () => {
     const [
         getUsersSearch, {
             data: usersSearchData,
+            isLoading: isUsersSearchLoading,
             isFetching: isUsersSearchFetching,
             error: usersSearchError,
             isError: areUsersSearchError,
@@ -157,6 +160,7 @@ const SearchPage = () => {
         searchName: SearchTypeEnums,
         data: IPagedResultType<IIndexContestsType> | IPagedResultType<IUserType> | IPagedResultType<IProblemSearchType> | undefined,
         isLoading: boolean,
+        isFetching: boolean,
         isError: boolean,
         error: any,
     ) => {
@@ -233,6 +237,7 @@ const SearchPage = () => {
                         : renderData()}
                 { data && data.totalItemsCount > 0 && (
                     <PaginationControls
+                      isDataFetching={isFetching}
                       count={data?.pagesCount || 0}
                       page={selectedPageValue()}
                       onChange={(page: number) => {
@@ -273,11 +278,11 @@ const SearchPage = () => {
                             &quot;
                         </div>
                         {shouldIncludeContests &&
-                            renderSearchFragmentResults(SearchTypeEnums.CONTESTS, contestsSearchData, isContestsSearchFetching, areContestsSearchError, contestsSearchError)}
+                            renderSearchFragmentResults(SearchTypeEnums.CONTESTS, contestsSearchData, isContestSearchLoading, isContestsSearchFetching, areContestsSearchError, contestsSearchError)}
                         {shouldIncludeProblems &&
-                            renderSearchFragmentResults(SearchTypeEnums.PROBLEMS, problemsSearchData, isProblemsSearchFetching, areProblemsSearchError, problemsSearchError)}
+                            renderSearchFragmentResults(SearchTypeEnums.PROBLEMS, problemsSearchData, isProblemsSearchLoading, isProblemsSearchFetching, areProblemsSearchError, problemsSearchError)}
                         {shouldIncludeUsers &&
-                            renderSearchFragmentResults(SearchTypeEnums.USERS, usersSearchData, isUsersSearchFetching, areUsersSearchError, usersSearchError)}
+                            renderSearchFragmentResults(SearchTypeEnums.USERS, usersSearchData, isUsersSearchLoading, isUsersSearchFetching, areUsersSearchError, usersSearchError)}
                     </>
                 )}
         </div>

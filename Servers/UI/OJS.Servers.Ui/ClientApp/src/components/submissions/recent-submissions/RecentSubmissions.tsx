@@ -254,6 +254,7 @@ const RecentSubmissions = () => {
                     )
                     : (
                         <SubmissionsGrid
+                          isDataFetching={areSubmissionsFetching}
                           className={styles.recentSubmissionsGrid}
                           isDataLoaded={!areSubmissionsLoading}
                           submissions={latestSubmissions}

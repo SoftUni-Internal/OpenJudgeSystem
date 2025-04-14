@@ -37,6 +37,7 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
     const {
         data: userSubmissions,
         isLoading: areSubmissionsLoading,
+        isFetching: areSubmissionsFetching,
         error: userSubmissionsQueryError,
     } = useGetUserSubmissionsQuery(
         // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
@@ -66,6 +67,7 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
 
         return (
             <SubmissionsGrid
+              isDataFetching={areSubmissionsFetching}
               isDataLoaded={!areSubmissionsLoading}
               submissions={userSubmissions!}
               className={styles.profileSubmissionsGrid}
@@ -89,7 +91,8 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
         shouldRender,
         userIsProfileOwner,
         userSubmissions,
-        userSubmissionsQueryError ]);
+        userSubmissionsQueryError,
+        areSubmissionsFetching ]);
 
     return render();
 };

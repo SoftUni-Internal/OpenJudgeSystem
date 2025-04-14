@@ -65,6 +65,7 @@ const ProfileContestParticipations = ({
     const {
         data: userContestParticipations,
         isLoading: areContestParticipationsLoading,
+        isFetching: areContestParticipationsFetching,
         error: contestParticipationsQueryError,
     } = useGetContestsParticipationsForUserQuery(
         {
@@ -90,11 +91,15 @@ const ProfileContestParticipations = ({
     const {
         data: allParticipatedContests,
         isLoading: areAllContestsLoading,
+        isFetching: areAllContestsFetching,
     } = useGetAllParticipatedContestsQuery(
         // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
         { username: profile?.userName! },
         { skip: !canFetchParticipations },
     );
+
+    const isDataLoading = areContestParticipationsLoading || areAllContestsLoading;
+    const isDataFetching = areAllContestsFetching || areContestParticipationsFetching;
 
     useEffect(() => {
         const pageParam = parseInt(searchParams.get('page') || '1', 10);
@@ -227,7 +232,7 @@ const ProfileContestParticipations = ({
         />
     ), [ internalUser, userIsProfileOwner ]);
 
-    if (areContestParticipationsLoading || areAllContestsLoading) {
+    if (isDataLoading) {
         return <div style={{ ...flexCenterObjectStyles, minHeight: '200px' }}><SpinningLoader /></div>;
     }
 
@@ -277,6 +282,7 @@ const ProfileContestParticipations = ({
             {!isEmpty(userContestParticipations?.items) &&
                 userContestParticipations && userContestParticipations.pagesCount > 1 && (
                     <PaginationControls
+                      isDataFetching={isDataFetching}
                       count={userContestParticipations.pagesCount}
                       page={userContestParticipations.pageNumber}
                       onChange={onPageChange}
