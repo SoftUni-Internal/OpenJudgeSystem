@@ -94,10 +94,14 @@ const SearchPage = () => {
     }, [ dispatch, searchParams ]);
 
     useEffect(() => {
-        setSelectedContestsPage(1);
-        setSelectedProblemsPage(1);
-        setSelectedUsersPage(1);
-    }, [ searchValue ]);
+        const contestPageFromUrl = parseInt(searchParams.get('contestsPage') || '1', 10);
+        const problemsPageFromUrl = parseInt(searchParams.get('problemsPage') || '1', 10);
+        const usersPageFromUrl = parseInt(searchParams.get('usersPage') || '1', 10);
+
+        setSelectedContestsPage(contestPageFromUrl);
+        setSelectedProblemsPage(problemsPageFromUrl);
+        setSelectedUsersPage(usersPageFromUrl);
+    }, [ searchParams ]);
 
     useEffect(() => {
         if (contestsContentRef.current) {
@@ -146,7 +150,7 @@ const SearchPage = () => {
         }
 
         searchParams.set(`${searchName.toLowerCase()}Page`, page.toString());
-        setSearchParams(searchParams, { replace: true });
+        setSearchParams(searchParams);
     }, [ searchParams, setSearchParams ]);
 
     const renderSearchFragmentResults = useCallback((

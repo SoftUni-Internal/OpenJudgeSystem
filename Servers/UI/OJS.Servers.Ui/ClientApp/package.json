@@ -58,6 +58,7 @@
     "@types/uuid": "^8.3.1",
     "@typescript-eslint/eslint-plugin": "^7.0.2",
     "@typescript-eslint/parser": "^7.0.2",
+    "cross-env": "^7.0.3",
     "eslint": "^8.56.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -83,7 +84,9 @@
   "scripts": {
     "start": "vite",
     "build": "vite build",
+    "build:unminified": "cross-env UNMINIFIED=true vite build",
     "build:staging": "vite build --mode staging",
+    "build:staging:unminified": "cross-env UNMINIFIED=true vite build --mode staging",
     "build:local": "vite build --mode development.local",
     "eject": "react-scripts eject",
     "lint:eslint": "./node_modules/.bin/eslint ./src --ext .tsx --ext .ts",

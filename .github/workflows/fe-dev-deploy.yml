@@ -2,10 +2,23 @@ name: 05. Deploy FE (Development)
 
 on:
   workflow_dispatch:
+    inputs:
+      build_variant:
+        description: 'Select the Yarn build variant'
+        required: false
+        default: 'build:staging'
+        type: choice
+        options:
+          - build:staging
+          - build:staging:unminified
   workflow_call:
     inputs:
       branch_name:
         description: 'The branch that will be deployed'
+        required: false
+        type: string
+      build_variant:
+        default: 'build:staging'
         required: false
         type: string
 jobs:
@@ -16,7 +29,7 @@ jobs:
       dockerfile_name: Dockerfile.fe
       docker_tag: dev-latest
       branch_name: ${{ inputs.branch_name || 'v2-development' }}
-      build_args: YARN_BUILD_COMMAND=build:staging
+      build_args: YARN_BUILD_COMMAND=${{ inputs.build_variant }}
       additional_run_commands: |
         export NODE_OPTIONS=--max-old-space-size=8192
     secrets: inherit

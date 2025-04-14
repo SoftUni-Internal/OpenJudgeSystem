@@ -89,6 +89,8 @@ const ContestsPage = () => {
 
     useEffect(() => {
         if (allContests && !isNilOrEmpty(allContests)) {
+            console.log('allContests fetched', allContests);
+            console.log('type of allContests fetched', typeof allContests);
             dispatch(setContests(allContests));
         }
     }, [ allContests, dispatch ]);
@@ -100,6 +102,14 @@ const ContestsPage = () => {
     const renderContests = useCallback(() => {
         if (areContestsFetching) {
             return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;
+        }
+
+        if (!Array.isArray(contests?.items)) {
+            return (
+                <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
+                    The contests could not be loaded. If this problem persists, please contact an administrator.
+                </Heading>
+            );
         }
 
         if (!contests?.items?.length) {
@@ -132,7 +142,9 @@ const ContestsPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ contests, areContestsFetching, searchParams ]);
 
-    if (allContestsError) { return <div className={`${textColorClassName}`}>Error loading contests</div>; }
+    if (allContestsError) {
+        return <div className={`${textColorClassName}`}>Error loading contests</div>;
+    }
 
     return (
         <div className={styles.contestsContainer}>
@@ -162,8 +174,8 @@ const ContestsPage = () => {
                             />
                         )}
                         <ContestStrategies
-                          searchParams={searchParams}
                           setSearchParams={setSearchParams}
+                          searchParams={searchParams}
                         />
                     </div>
                 </div>

@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
+import { useDropdownUrlStateSync } from 'src/utils/url-utils';
 
 import { SortType, SortTypeDirection } from '../../../common/contest-types';
 import { IDropdownItem, IIndexContestsType } from '../../../common/types';
@@ -24,13 +26,20 @@ import styles from './ProfileContestParticipations.module.scss';
 interface IProfileContestParticipationsProps {
     userIsProfileOwner: boolean | null;
     isChosenInToggle: boolean;
+    setSearchParams: (newParams: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void;
+    searchParams: URLSearchParams;
 }
 
-const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: IProfileContestParticipationsProps) => {
+const ProfileContestParticipations = ({
+    userIsProfileOwner,
+    isChosenInToggle,
+    setSearchParams,
+    searchParams,
+}: IProfileContestParticipationsProps) => {
     const [ shouldRender, setShouldRender ] = useState<boolean>(false);
     const [ userContestParticipationsPage, setUserContestParticipationsPage ] = useState<number>(1);
-    const [ selectedContest, setSelectedContest ] = useState<IDropdownItem | null>({ id: 0, name: '' });
-    const [ selectedCategory, setSelectedCategory ] = useState<IDropdownItem | null>({ id: 0, name: '' });
+    const [ selectedContest, setSelectedContest ] = useState<IDropdownItem | undefined>({ id: 0, name: '' });
+    const [ selectedCategory, setSelectedCategory ] = useState<IDropdownItem | undefined>({ id: 0, name: '' });
 
     const { internalUser, isLoggedIn } = useAppSelector((reduxState) => reduxState.authorization);
     const { profile } = useAppSelector((reduxState) => reduxState.users);
@@ -41,15 +50,15 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
             return false;
         }
 
-        if (isLoggedIn && !isNil(profile)) {
+        if (isLoggedIn && profile) {
             if (!isChosenInToggle && userIsProfileOwner) {
                 return false;
             }
-
             if (!isChosenInToggle && !userIsProfileOwner && internalUser.canAccessAdministration) {
                 return false;
             }
         }
+
         return !isNil(profile);
     }, [ isLoggedIn, profile, isChosenInToggle, userIsProfileOwner, internalUser ]);
 
@@ -88,9 +97,18 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
     );
 
     useEffect(() => {
-        if (((userIsProfileOwner || internalUser.canAccessAdministration) && !isChosenInToggle) ||
+        const pageParam = parseInt(searchParams.get('page') || '1', 10);
+        if (Number.isInteger(pageParam) && pageParam >= 1) {
+            setUserContestParticipationsPage(pageParam);
+        }
+    }, [ searchParams ]);
+
+    useEffect(() => {
+        if (
+            ((userIsProfileOwner || internalUser.canAccessAdministration) && !isChosenInToggle) ||
             areContestParticipationsLoading ||
-            isNil(userContestParticipations)) {
+            isNil(userContestParticipations)
+        ) {
             setShouldRender(false);
             return;
         }
@@ -108,101 +126,109 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
 
     const onPageChange = useCallback((page: number) => {
         setUserContestParticipationsPage(page);
-    }, []);
+        const newParams = new URLSearchParams(searchParams.toString());
+        newParams.set('page', page.toString());
+        setSearchParams(newParams);
+    }, [ searchParams, setSearchParams ]);
 
-    // Precompute contests for each category
     const categoryContestsMap = useMemo(() => {
-        if (!allParticipatedContests) {
-            return new Map<number, IIndexContestsType[]>();
-        }
-
-        const categoryMap = new Map<number, IIndexContestsType[]>();
-
-        allParticipatedContests.forEach((contest) => {
-            if (contest.categoryId) {
-                if (!categoryMap.has(contest.categoryId)) {
-                    categoryMap.set(contest.categoryId, []);
+        const map = new Map<number, IIndexContestsType[]>();
+        // Ensure allParticipatedContests is an array before using forEach
+        if (Array.isArray(allParticipatedContests)) {
+            allParticipatedContests.forEach((contest) => {
+                if (contest.categoryId) {
+                    if (!map.has(contest.categoryId)) { map.set(contest.categoryId, []); }
+                    map.get(contest.categoryId)!.push(contest);
                 }
-                categoryMap.get(contest.categoryId)!.push(contest);
-            }
-        });
-
-        return categoryMap;
+            });
+        } else if (allParticipatedContests) {
+            console.error('Expected allParticipatedContests to be an array but got:', typeof allParticipatedContests);
+        }
+        return map;
     }, [ allParticipatedContests ]);
 
-    // Precompute dropdown items for each category
     const contestDropdownItemsMap = useMemo(() => {
-        const dropdownMap = new Map<number, IDropdownItem[]>();
-
+        const map = new Map<number, IDropdownItem[]>();
         categoryContestsMap.forEach((contests, categoryId) => {
-            dropdownMap.set(
-                categoryId,
-                contests.map((contest) => ({
-                    id: contest.id,
-                    name: `${contest.name} (${contest.category})`,
-                })),
-            );
+            map.set(categoryId, contests.map((c) => ({ id: c.id, name: `${c.name} (${c.category})` })));
         });
-
-        // Add a special entry for "all contests" (category not selected)
-        dropdownMap.set(0, allParticipatedContests?.map((contest) => ({
-            id: contest.id,
-            name: `${contest.name} (${contest.category})`,
-        })) || []);
-
-        return dropdownMap;
+        // Ensure allParticipatedContests is an array before using map
+        map.set(0, Array.isArray(allParticipatedContests)
+            ? allParticipatedContests.map((c) => ({ id: c.id, name: `${c.name} (${c.category})` }))
+            : []);
+        return map;
     }, [ categoryContestsMap, allParticipatedContests ]);
 
-    // Get contests for the selected category efficiently
     const filteredContestDropdownItems = useMemo(
-        () => contestDropdownItemsMap
-            .get(selectedCategory === null
-                ? 0
-                : Number(selectedCategory.id)) ||
-            [],
+        () => contestDropdownItemsMap.get(selectedCategory?.id
+            ? Number(selectedCategory.id)
+            : 0) || [],
         [ selectedCategory, contestDropdownItemsMap ],
     );
 
     const categoryDropdownItems = useMemo(() => {
-        if (!allParticipatedContests) {
-            return [];
+        const map = new Map<number, string>();
+        // Ensure allParticipatedContests is an array before using forEach
+        if (Array.isArray(allParticipatedContests)) {
+            allParticipatedContests.forEach((contest) => {
+                if (contest.categoryId && contest.category) {
+                    map.set(contest.categoryId, contest.category);
+                }
+            });
         }
-
-        const uniqueCategories = new Map<number, string>();
-        allParticipatedContests.forEach((contest) => {
-            if (contest.categoryId && contest.category && !uniqueCategories.has(contest.categoryId)) {
-                uniqueCategories.set(contest.categoryId, contest.category);
-            }
-        });
-
-        return Array.from(uniqueCategories.entries())
-            .map(([ id, name ]) => ({
-                id,
-                name: `${name} (#${id})`,
-            }))
+        return Array.from(map.entries())
+            .map(([ id, name ]) => ({ id, name: `${name} (#${id})` }))
             .sort((a, b) => a.name.localeCompare(b.name));
     }, [ allParticipatedContests ]);
 
+    const { updateUrl: updateContestUrl } = useDropdownUrlStateSync<IDropdownItem>(
+        'contestId',
+        filteredContestDropdownItems,
+        setSelectedContest,
+        setSearchParams,
+        searchParams,
+    );
+
+    const { updateUrl: updateCategoryUrl, batchUpdateUrl: batchUpdateCategoryUrl } = useDropdownUrlStateSync<IDropdownItem>(
+        'categoryId',
+        categoryDropdownItems,
+        setSelectedCategory,
+        setSearchParams,
+        searchParams,
+        true,
+    );
+
     const handleContestSelect = useCallback((item: IDropdownItem | undefined) => {
-        setSelectedContest(item || null);
+        const selected = item || undefined;
+        setSelectedContest(selected);
+        updateContestUrl(selected);
         setUserContestParticipationsPage(1);
-    }, []);
+    }, [ updateContestUrl ]);
 
     const handleContestClear = useCallback(() => {
-        setSelectedContest(null);
+        setSelectedContest(undefined);
+        updateContestUrl(undefined);
         setUserContestParticipationsPage(1);
-    }, []);
+    }, [ updateContestUrl ]);
 
     const handleCategorySelect = useCallback((item: IDropdownItem | undefined) => {
-        setSelectedCategory(item || null);
-        setSelectedContest(null);
+        const selected = item || undefined;
+        setSelectedCategory(selected);
+        updateCategoryUrl(selected);
         setUserContestParticipationsPage(1);
-    }, []);
+    }, [ updateCategoryUrl ]);
 
     const handleCategoryClear = useCallback(() => {
-        setSelectedCategory(null);
+        setSelectedCategory(undefined);
+        setSelectedContest(undefined);
+
+        batchUpdateCategoryUrl?.([
+            { key: 'contestId', value: undefined },
+            { key: 'categoryId', value: undefined },
+        ]);
+
         setUserContestParticipationsPage(1);
-    }, []);
+    }, [ batchUpdateCategoryUrl ]);
 
     const renderContestCard = useCallback((contest: IIndexContestsType) => (
         <ContestCard
@@ -213,27 +239,22 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
     ), [ internalUser, userIsProfileOwner ]);
 
     if (areContestParticipationsLoading || areAllContestsLoading) {
-        return (
-            <div style={{ ...flexCenterObjectStyles, minHeight: '200px' }}>
-                <SpinningLoader />
-            </div>
-        );
+        return <div style={{ ...flexCenterObjectStyles, minHeight: '200px' }}><SpinningLoader /></div>;
     }
 
     if (!isNil(contestParticipationsQueryError)) {
         return <span>Error fetching user contest participations</span>;
     }
 
-    if (!shouldRender) {
-        return null;
-    }
+    if (!shouldRender) { return null; }
 
     return (
         <div>
-            { ((!isLoggedIn || (isLoggedIn && !userIsProfileOwner && !internalUser.canAccessAdministration)) &&
-                userContestParticipations !== undefined &&
-                !isNilOrEmpty(userContestParticipations.items) &&
-                <h2 className={styles.participationsHeading}>Participated In:</h2>)}
+            {(!isLoggedIn || (!userIsProfileOwner && !internalUser.canAccessAdministration)) &&
+                userContestParticipations &&
+                !isNilOrEmpty(userContestParticipations.items) && (
+                    <h2 className={styles.participationsHeading}>Participated In:</h2>
+            )}
             {isChosenInToggle && (
                 <div className={styles.filterContainer}>
                     <Dropdown
@@ -252,8 +273,8 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
                       placeholder="Filter by category"
                       isSearchable
                       isDisabled={
-                        (selectedContest !== null && selectedContest.id !== 0) &&
-                          (selectedCategory === null || selectedCategory.id === 0)
+                            (selectedContest && selectedContest.id !== 0) &&
+                            (!selectedCategory || selectedCategory.id === 0)
                         }
                     />
                 </div>
@@ -264,24 +285,23 @@ const ProfileContestParticipations = ({ userIsProfileOwner, isChosenInToggle }: 
               orientation={Orientation.vertical}
               fullWidth
             />
-            {!isEmpty(userContestParticipations?.items) && userContestParticipations!.pagesCount > 1 && (
-                <PaginationControls
-                  count={userContestParticipations!.pagesCount}
-                  page={userContestParticipations!.pageNumber}
-                  onChange={onPageChange}
-                />
+            {!isEmpty(userContestParticipations?.items) &&
+                userContestParticipations && userContestParticipations.pagesCount > 1 && (
+                    <PaginationControls
+                      count={userContestParticipations.pagesCount}
+                      page={userContestParticipations.pageNumber}
+                      onChange={onPageChange}
+                    />
             )}
-            { isChosenInToggle &&
-                isNilOrEmpty(userContestParticipations?.items) &&
-                (
-                    <div className={concatClassNames(
-                        styles.noParticipationsText,
-                        getColorClassName(themeColors.textColor),
-                    )}
-                    >
-                        You have not participated in any contests yet.
-                    </div>
+            {isChosenInToggle && isNilOrEmpty(userContestParticipations?.items) && (
+                <div className={concatClassNames(
+                    styles.noParticipationsText,
+                    getColorClassName(themeColors.textColor),
                 )}
+                >
+                    You have not participated in any contests yet.
+                </div>
+            )}
         </div>
     );
 };
