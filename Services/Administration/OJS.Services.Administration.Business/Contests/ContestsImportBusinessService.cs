@@ -290,8 +290,11 @@ public class ContestsImportBusinessService(
                     existingProblem.Resources.Clear();
                     existingProblem.SubmissionTypesInProblems.Clear();
 
-                    // Delete test runs for the problem, as they are no longer valid after importing new tests
-                    await testRunsData.DeleteByProblem(existingProblem.Id);
+                    if (!dryRun)
+                    {
+                        // Delete test runs for the problem, as they are no longer valid after importing new tests
+                        await testRunsData.DeleteByProblem(existingProblem.Id);
+                    }
                 }
 
                 // Update problem properties
