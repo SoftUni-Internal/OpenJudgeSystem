@@ -46,7 +46,7 @@ internal static class WebApplicationExtensions
                     : Results.Content(result.Data, GlobalConstants.MimeTypes.TextHtml);
             })
             .RequireAuthorization(auth => auth.RequireRole(Administrator))
-            .WithRequestTimeout(TimeSpan.FromMinutes(5));
+            .WithRequestTimeout(TimeSpan.FromMinutes(10));
 
         return app
             .UseAndMapHangfireDashboard();
