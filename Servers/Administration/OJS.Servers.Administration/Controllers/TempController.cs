@@ -159,7 +159,6 @@ public class TempController(
             PracticePassword = contest.PracticePassword,
             LimitBetweenSubmissions = contest.LimitBetweenSubmissions,
             OrderBy = contest.OrderBy,
-            NumberOfProblemGroups = contest.NumberOfProblemGroups,
             AllowParallelSubmissionsInTasks = !contest.UsersCantSubmitConcurrently,
             IsVisible = contest.IsVisible,
             VisibleFrom = ConvertTimeToUtc(contest.VisibleFrom),
@@ -242,7 +241,6 @@ public class TempController(
         existingContest.PracticePassword = sourceContest.PracticePassword;
         existingContest.LimitBetweenSubmissions = sourceContest.LimitBetweenSubmissions;
         existingContest.OrderBy = sourceContest.OrderBy;
-        existingContest.NumberOfProblemGroups = sourceContest.NumberOfProblemGroups;
         existingContest.AllowParallelSubmissionsInTasks = !sourceContest.UsersCantSubmitConcurrently;
         existingContest.IsVisible = sourceContest.IsVisible;
         existingContest.VisibleFrom = ConvertTimeToUtc(sourceContest.VisibleFrom);

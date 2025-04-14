@@ -60,6 +60,7 @@ public class ContestAdministrationModel : BaseAdministrationModel<int>, IMapExpl
                                      this.Type == ContestType.OnsitePracticalExamWithRandomTasks.ToString();
 
     public int NumberOfProblemGroups { get; set; }
+
     // TODO : Add Automatically change test detailed feedback visiblity and Warn on missing author solutions
     public void RegisterMappings(IProfileExpression configuration)
     {

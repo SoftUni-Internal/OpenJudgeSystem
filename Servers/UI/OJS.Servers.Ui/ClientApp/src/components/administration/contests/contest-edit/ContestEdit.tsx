@@ -146,8 +146,6 @@ const ContestEdit = (props:IContestEditProps) => {
         isNewIpPasswordValid: true,
         isDurationTouched: false,
         isDurationValid: true,
-        isNumberOfProblemGroupsTouched: false,
-        isNUmberOfProblemGroupsValid: true,
     });
 
     const { data, isLoading } = useGetContestByIdQuery(
@@ -248,8 +246,7 @@ const ContestEdit = (props:IContestEditProps) => {
         contestValidations.isLimitBetweenSubmissionsValid &&
         contestValidations.isOrderByValid &&
         contestValidations.isNewIpPasswordValid &&
-        contestValidations.isDurationValid &&
-        contestValidations.isNUmberOfProblemGroupsValid;
+        contestValidations.isDurationValid;
         setIsValidForm(isValid);
     };
 
@@ -275,7 +272,6 @@ const ContestEdit = (props:IContestEditProps) => {
             allowParallelSubmissionsInTasks,
             categoryId,
             categoryName,
-            numberOfProblemGroups,
             duration,
         } = contest;
         const currentContestValidations = contestValidations;
@@ -296,11 +292,6 @@ const ContestEdit = (props:IContestEditProps) => {
             const isValid = !!Object.keys(ContestVariation).filter((key) => isNaN(Number(key))).some((x) => x === value);
             currentContestValidations.isTypeValid = isValid;
 
-            const isOnlineExamValue = isVariation(value, ContestVariation.OnlinePracticalExam);
-            const isWithRandomTasksValue = isVariation(value, ContestVariation.OnsitePracticalExamWithRandomTasks);
-            if (isOnlineExamValue || isWithRandomTasksValue) {
-                numberOfProblemGroups = 2;
-            }
             break;
         }
         case 'limitBetweenSubmissions': {
@@ -413,13 +404,6 @@ const ContestEdit = (props:IContestEditProps) => {
             }
             break;
         }
-        case 'numberOfProblemGroups':
-            currentContestValidations.isNumberOfProblemGroupsTouched = true;
-            if (value) {
-                currentContestValidations.isNUmberOfProblemGroupsValid = value > 0;
-                numberOfProblemGroups = Number(value);
-            }
-            break;
         case 'duration': {
             let currentValue = value;
 
@@ -457,7 +441,6 @@ const ContestEdit = (props:IContestEditProps) => {
             allowParallelSubmissionsInTasks,
             categoryId,
             categoryName,
-            numberOfProblemGroups,
             duration,
         }));
         validateForm();
@@ -560,7 +543,7 @@ const ContestEdit = (props:IContestEditProps) => {
                             </FormControl>
                         </Box>
                         <Box className={formStyles.row}>
-                            { isWithRandomTasks && (
+                            { isWithRandomTasks && isEditMode && (
                                 <TextField
                                   className={formStyles.inputRow}
                                   type="number"
@@ -570,13 +553,7 @@ const ContestEdit = (props:IContestEditProps) => {
                                   onChange={(e) => onChange(e)}
                                   InputLabelProps={{ shrink: true }}
                                   name="numberOfProblemGroups"
-                                  disabled={isEditMode}
-                                  error={(contestValidations.isNumberOfProblemGroupsTouched &&
-                                      !contestValidations.isNUmberOfProblemGroupsValid)}
-                                  helperText={(
-                                      contestValidations.isNumberOfProblemGroupsTouched && !contestValidations.isNUmberOfProblemGroupsValid
-                                  ) &&
-                                        CONTEST_NUMBER_OF_PROBLEM_GROUPS}
+                                  disabled
                                 />
                             )}
                         </Box>
