@@ -840,17 +840,20 @@ const applyDefaultQueryValues = (
 
 const handlePageChange = (
     setQueryParams: Dispatch<React.SetStateAction<IGetSubmissionsUrlParams>>,
-    setSearchParams: (params: URLSearchParamsInit, navigateOpts?: NavigateOptions) => void,
     newPage: number,
+    navigate: (to: string, options?: NavigateOptions) => void,
 ) => {
     setQueryParams((prev) => {
         const updatedParams = { ...prev, page: newPage };
 
         const newParams = new URLSearchParams(window.location.search);
-
         newParams.set('page', newPage.toString());
 
-        setSearchParams(newParams);
+        // Use navigate to preserve the hash
+        const hash = window.location.hash;
+        const newUrl = `${window.location.pathname}?${newParams.toString()}${hash}`;
+        navigate(newUrl, { preventScrollReset: true });
+
         return updatedParams;
     });
 };

@@ -49,6 +49,7 @@ const ContestResultsPage = () => {
     const {
         data: contestResults,
         isLoading,
+        isFetching,
         error: contestResultsError,
         refetch,
     } = useGetContestResultsQuery({
@@ -116,6 +117,7 @@ const ContestResultsPage = () => {
                             />
                         </Heading>
                         <PaginationControls
+                          isDataFetching={isFetching}
                           count={contestResults?.pagedResults.pagesCount ?? 0}
                           page={selectedPage}
                           onChange={(page:number) => {
@@ -128,6 +130,7 @@ const ContestResultsPage = () => {
                           items={contestResults ?? null}
                         />
                         <PaginationControls
+                          isDataFetching={isFetching}
                           count={contestResults?.pagedResults.pagesCount ?? 0}
                           page={selectedPage}
                           onChange={(page:number) => {
