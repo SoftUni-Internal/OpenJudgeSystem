@@ -265,14 +265,13 @@ finally:
 
             return await this.RunTests(string.Empty, executor, checker, executionContext, result);
         }
-        catch (Exception exception)
+        catch (Exception)
         {
             var cleanupResult = await this.DeleteNginxContainer(executor, executionContext);
 
             if (cleanupResult is not null && !string.IsNullOrWhiteSpace(cleanupResult.ErrorOutput))
             {
                 this.Logger.LogUnexpectedProcessOutput(cleanupResult);
-                throw new ArgumentException($"The nginx container created by {this.GetType().Name} could not be deleted. Reason: {cleanupResult.ErrorOutput}", exception);
             }
 
             throw;
