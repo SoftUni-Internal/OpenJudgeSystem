@@ -19,6 +19,9 @@ internal static class WebApplicationExtensions
         app.UseCorsPolicy();
         app.UseDefaults();
 
+        // Enable serving static files from wwwroot folder
+        app.UseStaticFiles();
+
         app.UseMiddleware<AdministrationExceptionMiddleware>();
         app.MigrateDatabase<OjsDbContext>(configuration);
 
@@ -30,20 +33,21 @@ internal static class WebApplicationExtensions
             .MapHealthChecksUI()
             .RequireAuthorization(auth => auth.RequireRole(Administrator));
 
+        // API endpoint for importing contests
         app.MapGet("/api/temp/ImportContestsFromCategory", async (
                 IContestsImportBusinessService contestsImportBusinessService,
+                HttpContext httpContext,
                 int sourceContestCategoryId,
                 int destinationContestCategoryId,
                 bool dryRun = true) =>
             {
-                var result = await contestsImportBusinessService.ImportContestsFromCategory(
+                await contestsImportBusinessService.StreamImportContestsFromCategory(
                     sourceContestCategoryId,
                     destinationContestCategoryId,
+                    httpContext.Response,
                     dryRun);
 
-                return result.IsError
-                    ? Results.BadRequest(result.Error)
-                    : Results.Content(result.Data, GlobalConstants.MimeTypes.TextHtml);
+                return Results.Empty;
             })
             .RequireAuthorization(auth => auth.RequireRole(Administrator))
             .WithRequestTimeout(TimeSpan.FromMinutes(10));

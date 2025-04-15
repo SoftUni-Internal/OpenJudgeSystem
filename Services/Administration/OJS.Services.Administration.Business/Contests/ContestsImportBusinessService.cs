@@ -1,8 +1,10 @@
 namespace OJS.Services.Administration.Business.Contests;
 
 using FluentExtensions.Extensions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Data.Models;
 using OJS.Data.Models.Checkers;
@@ -14,7 +16,6 @@ using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Business.Problems;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Contests;
-using OJS.Services.Common.Models;
 using OJS.Services.Infrastructure.Configurations;
 using System;
 using System.Collections.Generic;
@@ -34,53 +35,76 @@ public class ContestsImportBusinessService(
     ISubmissionTypesDataService submissionTypesData,
     ITestRunsDataService testRunsData,
     IProblemsBusinessService problemsBusiness,
-    IProblemGroupsBusinessService problemGroupsBusiness) : IContestsImportBusinessService
+    IProblemGroupsBusinessService problemGroupsBusiness)
+    : IContestsImportBusinessService
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
     private readonly ApplicationUrlsConfig urls = urlsConfig.Value;
 
-    public async Task<ServiceResult<string>> ImportContestsFromCategory(int sourceContestCategoryId, int destinationContestCategoryId,
-        bool dryRun = true)
+    public async Task StreamImportContestsFromCategory(int sourceContestCategoryId, int destinationContestCategoryId, HttpResponse response, bool dryRun = true)
     {
+        response.ContentType = GlobalConstants.MimeTypes.TextHtml;
+
         if (sourceContestCategoryId == 0 || destinationContestCategoryId == 0)
         {
-            return new ServiceResult<string>("Invalid contest category ids.");
+            await response.WriteAsync("<p style='color:red'>Invalid contest category ids.</p>");
+            return;
         }
+
+        await response.WriteAsync("<div id='import-results' style='font-family: Arial, sans-serif;'>");
+        await response.WriteAsync("<h2>Import Process Started</h2>");
+        await response.Body.FlushAsync();
 
         var contestIds = await this.httpClient.GetFromJsonAsync<int[]>($"{this.urls.LegacyJudgeUrl}/api/Contests/GetExistingIdsForCategory?contestCategoryId={sourceContestCategoryId}&apiKey={this.urls.LegacyJudgeApiKey}");
 
         if (contestIds == null)
         {
-            return new ServiceResult<string>("Failed to get contest IDs.");
+            await response.WriteAsync("<p style='color:red'>Failed to get contest IDs.</p>");
+            await response.WriteAsync("</div>");
+            return;
         }
 
         var destinationContestCategory = await contestCategoriesData.OneById(destinationContestCategoryId);
 
         if (destinationContestCategory == null)
         {
-            return new ServiceResult<string>($"Destination contest category with id {destinationContestCategoryId} does not exist.");
+            await response.WriteAsync($"<p style='color:red'>Destination contest category with id {destinationContestCategoryId} does not exist.</p>");
+            await response.WriteAsync("</div>");
+            return;
         }
 
-        var result = new StringBuilder();
-        result.AppendLine(CultureInfo.InvariantCulture, $"<p>Importing contests from category #{sourceContestCategoryId} into category \"{destinationContestCategory.Name}\" #{destinationContestCategoryId}</p>");
-        result.AppendLine(CultureInfo.InvariantCulture, $"<p>{contestIds.Length} contests will be imported. These are the source contest ids: <b>{string.Join(", ", contestIds)}</b></p>");
-        result.AppendLine("<hr>");
+        await response.WriteAsync($"<p>Importing contests from category #{sourceContestCategoryId} into category \"{destinationContestCategory.Name}\" #{destinationContestCategoryId}</p>");
+        await response.WriteAsync($"<p>{contestIds.Length} contests will be imported. These are the source contest ids: <b>{string.Join(", ", contestIds)}</b></p>");
+        await response.WriteAsync("<hr>");
+        await response.Body.FlushAsync();
 
         if (dryRun)
         {
-            result.AppendLine("<b>Dry run is enabled. This will not import any contests.</b>");
-            result.AppendLine("<hr>");
+            await response.WriteAsync("<p><b style='color:blue'>Dry run is enabled. This will not import any contests.</b></p>");
+            await response.WriteAsync("<hr>");
+            await response.Body.FlushAsync();
         }
 
         var checkers = await checkersData.All().ToListAsync();
         var submissionTypes = await submissionTypesData.All().ToListAsync();
+
+        // Add a progress counter
+        var processedCount = 0;
+
+        await response.WriteAsync("<div id='progress-bar' style='margin: 10px 0; background-color: #f0f0f0; border-radius: 4px; padding: 2px;'>");
+        await response.WriteAsync($"<div id='progress' style='background-color: #4CAF50; height: 20px; border-radius: 4px; width: 0%;'></div>");
+        await response.WriteAsync("</div>");
+        await response.WriteAsync($"<p id='progress-text'>Processed: 0 of {contestIds.Length}</p>");
+        await response.WriteAsync("<div id='contest-results'>");
+        await response.Body.FlushAsync();
 
         foreach (var contestId in contestIds)
         {
             var contest = await this.httpClient.GetFromJsonAsync<ContestLegacyExportServiceModel>($"{this.urls.LegacyJudgeUrl}/api/Contests/Export/{contestId}?apiKey={this.urls.LegacyJudgeApiKey}");
             if (contest == null)
             {
-                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>Skip:</b> Failed to get source contest <b>#{contestId}</b>. Skipping it...</p>");
+                await response.WriteAsync($"<p><b style='color:orange'>Skip:</b> Failed to get source contest <b>#{contestId}</b>. Skipping it...</p>");
+                await response.Body.FlushAsync();
                 continue;
             }
 
@@ -102,30 +126,47 @@ public class ContestsImportBusinessService(
                     .ThenInclude(sp => sp.SubmissionType)
                 .FirstOrDefaultAsync(c => c.CategoryId == destinationContestCategoryId && c.Name == contest.Name);
 
+            // Create a StringBuilder for this contest's results
+            var contestResult = new StringBuilder();
+
             if (dryRun)
             {
-                result.AppendLine(existingContest == null
-                    ? $"<p><b>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
-                    : $"<p><b>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be updated.</p>");
+                contestResult.AppendLine(existingContest == null
+                    ? $"<p><b style='color:green'>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
+                    : $"<p><b style='color:blue'>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be updated.</p>");
             }
 
             if (existingContest == null)
             {
-                await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes, result, dryRun);
+                await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes, contestResult, dryRun);
             }
             else
             {
-                await this.UpdateContest(existingContest, contest, checkers, submissionTypes, result, dryRun);
+                await this.UpdateContest(existingContest, contest, checkers, submissionTypes, contestResult, dryRun);
             }
+
+            // Write this contest's results to the response
+            await response.WriteAsync(contestResult.ToString());
+
+            // Update progress
+            processedCount++;
+            var percentage = (double)processedCount / contestIds.Length * 100;
+
+            // Update progress bar with JavaScript
+            await response.WriteAsync($"<script>document.getElementById('progress').style.width = '{percentage}%';</script>");
+            await response.WriteAsync($"<script>document.getElementById('progress-text').innerText = 'Processed: {processedCount} of {contestIds.Length}';</script>");
+
+            await response.Body.FlushAsync();
         }
 
-        result.AppendLine("<hr>");
-        result.AppendLine(dryRun
-            ? "<p>Dry run completed. To import, set dryRun to false.</p>"
-            : "<p>Import completed.</p>");
-        result.AppendLine("<hr>");
-
-        return ServiceResult<string>.Success(result.ToString());
+        await response.WriteAsync("</div>"); // Close contest-results div
+        await response.WriteAsync("<hr>");
+        await response.WriteAsync(dryRun
+            ? "<p><b style='color:blue'>Dry run completed. To import, set dryRun to false.</b></p>"
+            : "<p><b style='color:green'>Import completed successfully!</b></p>");
+        await response.WriteAsync("<hr>");
+        await response.WriteAsync("</div>"); // Close import-results div
+        await response.Body.FlushAsync();
     }
 
     private static DateTime? ConvertTimeToUtc(DateTime? dateTime)
