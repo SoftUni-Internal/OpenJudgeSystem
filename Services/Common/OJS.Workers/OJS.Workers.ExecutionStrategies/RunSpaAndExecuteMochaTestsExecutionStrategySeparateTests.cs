@@ -174,8 +174,8 @@ try:
         start_at_date = datetime.strptime(processed_time_str, ""%Y-%m-%dT%H:%M:%S.%f"").replace(tzinfo=timezone.utc)
         time_diff = datetime_now - start_at_date
 
-        # Remove container if older than 1 hour
-        if time_diff.total_seconds() > 3600:
+        # Remove container if older than 15 minutes
+        if time_diff.total_seconds() > 900:
             apps_container.stop()
             apps_container.wait()
             apps_container.remove()
@@ -221,9 +221,9 @@ finally:
         container.remove()
 ";
 
-        private string NginxContainerName { get; set; } = string.Empty;
+    private string NginxContainerName { get; set; } = string.Empty;
 
-        private string NginxIpAddress { get; set; } = string.Empty;
+    private string NginxIpAddress { get; set; } = string.Empty;
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
@@ -249,23 +249,37 @@ finally:
         this.SaveNginxFile();
 
         var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
-            var executor = this.CreateStandardExecutor();
-        var checker = executionContext.Input.GetChecker();
-        var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
+        var executor = this.CreateStandardExecutor();
+        try
+        {
+            var checker = executionContext.Input.GetChecker();
+            var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
             var output = preExecutionResult.ReceivedOutput.Trim().Split(',');
 
             if (output.Length == 2)
-        {
+            {
                 this.NginxContainerName = output[0];
                 this.NginxIpAddress = output[1];
-        }
-        else
-        {
-            this.Logger.LogUnexpectedProcessOutput(preExecutionResult);
-            throw new ArgumentException("Failed to run the strategy pre execute step. Please contact a developer.");
-        }
+            }
+            else
+            {
+                this.Logger.LogUnexpectedProcessOutput(preExecutionResult);
+                throw new ArgumentException("Failed to run the strategy pre execute step. Please contact a developer.");
+            }
 
-        return await this.RunTests(string.Empty, executor, checker, executionContext, result);
+            return await this.RunTests(string.Empty, executor, checker, executionContext, result);
+        }
+        catch (Exception)
+        {
+            var cleanupResult = await this.DeleteNginxContainer(executor, executionContext);
+
+            if (cleanupResult is not null && !string.IsNullOrWhiteSpace(cleanupResult.ErrorOutput))
+            {
+                this.Logger.LogUnexpectedProcessOutput(cleanupResult);
+            }
+
+            throw;
+        }
     }
 
     protected override async Task<IExecutionResult<TestResult>> RunTests(
@@ -276,15 +290,6 @@ finally:
         IExecutionResult<TestResult> result)
     {
         var filePath = this.BuildTestPath("tests");
-
-        // pass in container name in order to close container after execution
-        // pass test file path to mocha so it executes only this test file, and not all test files each run
-        var processedPythonCodeTemplate = this.PythonCodeTemplate
-                .Replace(ContainerNamePlaceholder, this.NginxContainerName)
-            .Replace(TestFilePathPlaceholder, filePath)
-            .Replace(KillContainerPlaceholder, "True");
-
-        var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
 
         var testsConcatenated = string.Join(
             $"{Environment.NewLine}{Environment.NewLine}",
@@ -301,6 +306,15 @@ finally:
         FileHelpers.SaveStringToFile(
             this.PreprocessTestInput(skeletonWithTests),
             filePath);
+
+        // pass in container name in order to close container after execution
+        // pass test file path to mocha so it executes only this test file, and not all test files each run
+        var processedPythonCodeTemplate = this.PythonCodeTemplate
+            .Replace(ContainerNamePlaceholder, this.NginxContainerName)
+            .Replace(TestFilePathPlaceholder, filePath)
+            .Replace(KillContainerPlaceholder, "True");
+
+        var mainCodeSavePath = this.SavePythonCodeTemplateToTempFile(processedPythonCodeTemplate);
 
         var processExecutionResult = await this.Execute(executionContext, executor, mainCodeSavePath);
 
@@ -401,7 +415,7 @@ finally:
 
     private ICollection<TestResult> ExtractTestResultsFromReceivedOutput(string receivedOutput, IEnumerable<TestContext> tests)
     {
-            var mochaResult = JsonExecutionResult.Parse(PreproccessReceivedExecutionOutput(receivedOutput));
+        var mochaResult = JsonExecutionResult.Parse(PreproccessReceivedExecutionOutput(receivedOutput));
         if (mochaResult.TotalTests == 0)
         {
             return tests
@@ -412,7 +426,7 @@ finally:
                     ResultType = TestRunResultType.WrongAnswer,
                     CheckerDetails = new CheckerDetails
                     {
-                            UserOutputFragment = string.IsNullOrWhiteSpace(mochaResult.Error) ? receivedOutput : "An error occurred while processing the submission, please contact and administrator.",
+                        UserOutputFragment = string.IsNullOrWhiteSpace(mochaResult.Error) ? receivedOutput : "An error occurred while processing the submission, please contact and administrator.",
                     },
                 })
                 .ToList();
@@ -509,8 +523,50 @@ finally:
         testInput = this.ReplaceNodeModulesRequireStatementsInTests(testInput)
                 .Replace(UserApplicationHttpPortPlaceholder, "");
 
-            return testInput.Replace("localhost:", this.NginxIpAddress);
+        return testInput.Replace("localhost:", this.NginxIpAddress);
     }
 
     private string BuildTestPath(string fileName) => FileHelpers.BuildPath(this.TestsPath, $"{fileName}{JavaScriptFileExtension}");
+
+    private async Task<ProcessExecutionResult?> DeleteNginxContainer(
+        IExecutor executor,
+        IExecutionContext<TestsInputModel> executionContext)
+    {
+        if (string.IsNullOrEmpty(this.NginxContainerName))
+        {
+            return null;
+        }
+
+        var cleanupScript = $@"
+import docker
+
+try:
+    client = docker.from_env()
+    container = client.containers.get('{this.NginxContainerName}')
+
+    container.reload()  # Refresh container state info
+    status = container.attrs['State']['Status']
+
+    if status in ['created', 'running', 'paused', 'restarting', 'exited']:
+        if status == 'running':
+            container.stop()
+            container.wait()
+        elif status == 'created':
+            print('The nginx container was created but not started.')
+
+        container.remove()
+        print(f'Cleanup succeeded!')
+    else:
+        print(f'The nginx container is in an unexpected state: {{status}}')
+
+except docker.errors.NotFound:
+    print(f'The cleanup was skipped, the nginx container {this.NginxContainerName} was not found.')
+except Exception as e:
+    print(f'The nginx container cleanup failed: {{e}}')
+";
+
+        var cleanupFilePath = this.SavePythonCodeTemplateToTempFile(cleanupScript);
+
+        return await this.Execute(executionContext, executor, cleanupFilePath);
+    }
 }
