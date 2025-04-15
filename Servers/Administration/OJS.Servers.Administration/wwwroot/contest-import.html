@@ -14,11 +14,14 @@
     }
     .form-group {
       margin-bottom: 15px;
+      display: flex;
+      align-items: center;
     }
     label {
       display: inline-block;
-      width: 200px;
+      width: 300px;
       font-weight: bold;
+      margin-right: 10px;
     }
     input[type="number"] {
       width: 100px;
@@ -61,21 +64,21 @@
   <h1>Contest Import Tool</h1>
 
   <div class="info-box">
-    <p>This tool allows you to import contests from one category to another. The results will stream in real-time as each contest is processed.</p>
+    <p>This tool allows you to import contests from a category on judge.softuni.org into category on alpha. The results will stream in real-time as each contest is processed.</p>
   </div>
 
   <form id="importForm">
     <div class="form-group">
-      <label for="sourceId">Source Category ID:</label>
+      <label for="sourceId">Source Category ID (legacy):</label>
       <input type="number" id="sourceId" required min="1">
     </div>
     <div class="form-group">
-      <label for="destId">Destination Category ID:</label>
+      <label for="destId">Destination Category ID (alpha):</label>
       <input type="number" id="destId" required min="1">
     </div>
     <div class="form-group">
       <label for="dryRun">Dry Run (no actual changes):</label>
-      <input type="checkbox" id="dryRun" checked>
+      <input type="checkbox" id="dryRun" checked style="margin-top: 2px;">
     </div>
     <button type="submit">Start Import</button>
   </form>
@@ -99,7 +102,7 @@
       return;
     }
 
-    const url = `/api/temp/ImportContestsFromCategory?sourceContestCategoryId=${sourceId}&destinationContestCategoryId=${destId}&dryRun=${dryRun}&stream=true`;
+    const url = `/api/temp/ImportContestsFromCategory?sourceContestCategoryId=${sourceId}&destinationContestCategoryId=${destId}&dryRun=${dryRun}`;
 
     const iframe = document.getElementById('resultFrame');
     iframe.style.display = 'block';
