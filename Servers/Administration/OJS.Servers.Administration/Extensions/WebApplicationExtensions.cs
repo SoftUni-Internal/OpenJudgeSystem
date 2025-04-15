@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OJS.Common;
 using OJS.Data;
 using OJS.Servers.Administration.Middleware;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Services.Administration.Business.Contests;
 using System;
-using static OJS.Common.GlobalConstants.Roles;
+using static OJS.Common.GlobalConstants;
+using static Common.GlobalConstants.Roles;
 
 internal static class WebApplicationExtensions
 {
@@ -51,6 +51,10 @@ internal static class WebApplicationExtensions
             })
             .RequireAuthorization(auth => auth.RequireRole(Administrator))
             .WithRequestTimeout(TimeSpan.FromMinutes(10));
+
+        // UI page for the contest import tool
+        app.MapGet("/contest-import", () => Results.File("contest-import.html", MimeTypes.TextHtml))
+            .RequireAuthorization(auth => auth.RequireRole(Administrator));
 
         return app
             .UseAndMapHangfireDashboard();

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Contest Import Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: inline-block;
+      width: 200px;
+      font-weight: bold;
+    }
+    input[type="number"] {
+      width: 100px;
+      padding: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result-container {
+      margin-top: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      min-height: 400px;
+    }
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .info-box {
+      background-color: #e7f3fe;
+      border-left: 6px solid #2196F3;
+      padding: 10px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Contest Import Tool</h1>
+
+  <div class="info-box">
+    <p>This tool allows you to import contests from one category to another. The results will stream in real-time as each contest is processed.</p>
+  </div>
+
+  <form id="importForm">
+    <div class="form-group">
+      <label for="sourceId">Source Category ID:</label>
+      <input type="number" id="sourceId" required min="1">
+    </div>
+    <div class="form-group">
+      <label for="destId">Destination Category ID:</label>
+      <input type="number" id="destId" required min="1">
+    </div>
+    <div class="form-group">
+      <label for="dryRun">Dry Run (no actual changes):</label>
+      <input type="checkbox" id="dryRun" checked>
+    </div>
+    <button type="submit">Start Import</button>
+  </form>
+
+  <div id="result-container">
+    <div id="placeholder">Import results will appear here...</div>
+    <iframe id="resultFrame" style="display: none;"></iframe>
+  </div>
+</div>
+
+<script>
+  document.getElementById('importForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const sourceId = document.getElementById('sourceId').value;
+    const destId = document.getElementById('destId').value;
+    const dryRun = document.getElementById('dryRun').checked;
+
+    if (!sourceId || !destId) {
+      alert('Please enter both source and destination category IDs');
+      return;
+    }
+
+    const url = `/api/temp/ImportContestsFromCategory?sourceContestCategoryId=${sourceId}&destinationContestCategoryId=${destId}&dryRun=${dryRun}&stream=true`;
+
+    const iframe = document.getElementById('resultFrame');
+    iframe.style.display = 'block';
+    document.getElementById('placeholder').style.display = 'none';
+    iframe.src = url;
+  });
+</script>
+</body>
+</html>
