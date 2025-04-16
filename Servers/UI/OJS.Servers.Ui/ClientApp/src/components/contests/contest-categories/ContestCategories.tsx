@@ -174,7 +174,8 @@ const ContestCategories = (props: IContestCategoriesProps) => {
                               expandedItems={expandedItems}
                               onExpandedItemsChange={handleExpandedItemsChange}
                             >
-                                {contestCategories?.map((contestCategory: IContestCategory) => renderCategory(contestCategory))}
+                                {Array.isArray(contestCategories) &&
+                                    contestCategories?.map((contestCategory: IContestCategory) => renderCategory(contestCategory))}
                             </SimpleTreeView>
                         </Box>
                     </div>

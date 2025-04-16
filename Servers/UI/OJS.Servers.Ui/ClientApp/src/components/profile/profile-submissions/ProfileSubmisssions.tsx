@@ -3,6 +3,7 @@ import isNil from 'lodash/isNil';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import { applyDefaultQueryValues } from 'src/components/filters/Filter';
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
+import { useSyncQueryParamsFromUrl } from 'src/utils/url-utils';
 
 import { useGetUserSubmissionsQuery } from '../../../redux/services/submissionsService';
 import { useAppSelector } from '../../../redux/store';
@@ -36,12 +37,15 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
     const {
         data: userSubmissions,
         isLoading: areSubmissionsLoading,
+        isFetching: areSubmissionsFetching,
         error: userSubmissionsQueryError,
     } = useGetUserSubmissionsQuery(
         // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
         { ...queryParams, username: profile?.userName! },
         { skip: !canFetchSubmissions },
     );
+
+    useSyncQueryParamsFromUrl(searchParams, setQueryParams);
 
     useEffect(() => {
         if (!isChosenInToggle || areSubmissionsLoading || isNil(userSubmissions)) {
@@ -63,6 +67,7 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
 
         return (
             <SubmissionsGrid
+              isDataFetching={areSubmissionsFetching}
               isDataLoaded={!areSubmissionsLoading}
               submissions={userSubmissions!}
               className={styles.profileSubmissionsGrid}
@@ -86,7 +91,8 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
         shouldRender,
         userIsProfileOwner,
         userSubmissions,
-        userSubmissionsQueryError ]);
+        userSubmissionsQueryError,
+        areSubmissionsFetching ]);
 
     return render();
 };

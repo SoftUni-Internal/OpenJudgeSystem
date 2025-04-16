@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useCallback, useMemo, useState } from 'react';
-import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
+import { NavigateOptions, URLSearchParamsInit, useNavigate } from 'react-router-dom';
 import isEmpty from 'lodash/isEmpty';
 import { IDictionary } from 'src/common/common-types';
 import { FilterColumnTypeEnum } from 'src/common/enums';
@@ -19,6 +19,7 @@ import styles from './SubmissionsGrid.module.scss';
 
 interface ISubmissionsGridProps extends IHaveOptionalClassName {
     isDataLoaded: boolean;
+    isDataFetching: boolean;
     submissions?: IPagedResultType<IPublicSubmission>;
     options: ISubmissionsGridOptions;
     searchParams: URLSearchParams;
@@ -37,6 +38,7 @@ interface ISubmissionsGridOptions {
 const SubmissionsGrid = ({
     className,
     isDataLoaded,
+    isDataFetching,
     submissions,
     options,
     searchParams,
@@ -45,6 +47,7 @@ const SubmissionsGrid = ({
 }: ISubmissionsGridProps) => {
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
     const { internalUser: user } = useAppSelector((state) => state.authorization);
+    const navigate = useNavigate();
 
     const [ selectedFilters, setSelectedFilters ] = useState<IDictionary<Array<IFilter>>>(mapUrlToFilters(searchParams, [
         { name: 'Id', id: 'Id', columnType: FilterColumnTypeEnum.NUMBER },
@@ -59,7 +62,7 @@ const SubmissionsGrid = ({
     const isAdmin = user.isAdmin;
 
     const onPageChange = (page: number) => {
-        handlePageChange(setQueryParams, setSearchParams, page);
+        handlePageChange(setQueryParams, page, navigate);
     };
 
     const handleToggleFilter = (filterId: string | null) => {
@@ -269,6 +272,7 @@ const SubmissionsGrid = ({
             {renderSubmissionsGrid()}
             {submissions && areItemsAvailable && submissions?.pagesCount !== 0 && (
                 <PaginationControls
+                  isDataFetching={isDataFetching}
                   count={submissions.pagesCount}
                   page={submissions.pageNumber}
                   onChange={onPageChange}

@@ -13,7 +13,6 @@ import { SUBMISSION_SENT } from 'src/common/messages';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import {
     applyDefaultQueryValues,
-    handlePageChange,
 } from 'src/components/filters/Filter';
 import CheckBox from 'src/components/guidelines/checkbox/CheckBox';
 import Dropdown from 'src/components/guidelines/dropdown/Dropdown';
@@ -22,6 +21,7 @@ import useSuccessMessageEffect from 'src/hooks/common/use-success-message-effect
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 import isNilOrEmpty from 'src/utils/check-utils';
 import { renderSuccessfullAlert } from 'src/utils/render-utils';
+import { useSyncQueryParamsFromUrl } from 'src/utils/url-utils';
 
 import { ContestParticipationType } from '../../../common/constants';
 import {
@@ -209,6 +209,8 @@ const ContestSolutionSubmitPage = () => {
         setIsRotating(true);
         getSubmissionsData();
     };
+
+    useSyncQueryParamsFromUrl(searchParams, setQueryParams);
 
     useSuccessMessageEffect({
         data: [
@@ -558,7 +560,7 @@ const ContestSolutionSubmitPage = () => {
                         <div>
                             <span className={styles.title}>Size limit:</span>
                             {' '}
-                            <span>{fileSizeLimit}</span>
+                            <span>{fileSizeLimit?.toFixed(2)}</span>
                             {' '}
                             KB
                         </div>
@@ -772,7 +774,7 @@ const ContestSolutionSubmitPage = () => {
             {renderSuccessfullAlert(successMessage)}
             <ContestBreadcrumbs />
             <BackToTop rightPosition={allowMentor
-                ? 110
+                ? 130
                 : 20}
             />
             <div className={styles.nameWrapper}>
@@ -821,7 +823,6 @@ const ContestSolutionSubmitPage = () => {
             <div className={styles.problemsAndEditorWrapper}>
                 <ContestProblems
                   problems={updatedProblems || problems || []}
-                  onContestProblemChange={() => handlePageChange(setQueryParams, setSearchParams, 1)}
                   totalParticipantsCount={participantsCount}
                   sumMyPoints={sumMyPoints}
                   sumTotalPoints={sumAllContestPoints}
@@ -869,6 +870,7 @@ const ContestSolutionSubmitPage = () => {
                     ? getErrorMessage(submissionsErrorData, 'Error loading submissions')
                     : (
                         <SubmissionsGrid
+                          isDataFetching={submissionsDataFetching}
                           isDataLoaded={!submissionsDataLoading}
                           submissions={submissionsData ?? undefined}
                           options={{

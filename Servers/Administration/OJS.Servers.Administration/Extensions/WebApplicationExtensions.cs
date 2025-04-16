@@ -1,12 +1,16 @@
 namespace OJS.Servers.Administration.Extensions;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OJS.Data;
 using OJS.Servers.Administration.Middleware;
 using OJS.Servers.Infrastructure.Extensions;
-using static OJS.Common.GlobalConstants.Roles;
+using OJS.Services.Administration.Business.Contests;
+using System;
+using static OJS.Common.GlobalConstants;
+using static Common.GlobalConstants.Roles;
 
 internal static class WebApplicationExtensions
 {
@@ -14,6 +18,9 @@ internal static class WebApplicationExtensions
     {
         app.UseCorsPolicy();
         app.UseDefaults();
+
+        // Enable serving static files from wwwroot folder
+        app.UseStaticFiles();
 
         app.UseMiddleware<AdministrationExceptionMiddleware>();
         app.MigrateDatabase<OjsDbContext>(configuration);
@@ -24,6 +31,29 @@ internal static class WebApplicationExtensions
 
         app
             .MapHealthChecksUI()
+            .RequireAuthorization(auth => auth.RequireRole(Administrator));
+
+        // API endpoint for importing contests
+        app.MapGet("/api/temp/ImportContestsFromCategory", async (
+                IContestsImportBusinessService contestsImportBusinessService,
+                HttpContext httpContext,
+                int sourceContestCategoryId,
+                int destinationContestCategoryId,
+                bool dryRun = true) =>
+            {
+                await contestsImportBusinessService.StreamImportContestsFromCategory(
+                    sourceContestCategoryId,
+                    destinationContestCategoryId,
+                    httpContext.Response,
+                    dryRun);
+
+                return Results.Empty;
+            })
+            .RequireAuthorization(auth => auth.RequireRole(Administrator))
+            .WithRequestTimeout(TimeSpan.FromMinutes(10));
+
+        // UI page for the contest import tool
+        app.MapGet("/contest-import", () => Results.File("contest-import.html", MimeTypes.TextHtml))
             .RequireAuthorization(auth => auth.RequireRole(Administrator));
 
         return app

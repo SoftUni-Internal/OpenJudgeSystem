@@ -89,6 +89,8 @@ const ContestsPage = () => {
 
     useEffect(() => {
         if (allContests && !isNilOrEmpty(allContests)) {
+            console.log('allContests fetched', allContests);
+            console.log('type of allContests fetched', typeof allContests);
             dispatch(setContests(allContests));
         }
     }, [ allContests, dispatch ]);
@@ -127,6 +129,7 @@ const ContestsPage = () => {
                   orientation={Orientation.vertical}
                 />
                 <PaginationControls
+                  isDataFetching={areContestsFetching}
                   count={contests?.pagesCount}
                   page={selectedPage}
                   onChange={(page:number) => {
@@ -140,7 +143,9 @@ const ContestsPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ contests, areContestsFetching, searchParams ]);
 
-    if (allContestsError) { return <div className={`${textColorClassName}`}>Error loading contests</div>; }
+    if (allContestsError) {
+        return <div className={`${textColorClassName}`}>Error loading contests</div>;
+    }
 
     return (
         <div className={styles.contestsContainer}>
@@ -170,13 +175,14 @@ const ContestsPage = () => {
                             />
                         )}
                         <ContestStrategies
-                          searchParams={searchParams}
                           setSearchParams={setSearchParams}
+                          searchParams={searchParams}
                         />
                     </div>
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls
+                      isDataFetching={areContestsFetching}
                       count={contests?.pagesCount || 0}
                       page={selectedPage}
                       onChange={(page:number) => {

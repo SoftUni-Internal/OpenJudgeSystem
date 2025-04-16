@@ -84,11 +84,12 @@ const ContestDetailsPage = () => {
                 <span>{problem.name}</span>
                 <div className={styles.problemResources}>
                     { problem.resources.map((resource: IProblemResourceType) => (
-                        <ProblemResource
-                          key={`p-r-${resource.id}`}
-                          resource={resource}
-                          problem={problem.name}
-                        />
+                        <div key={`p-r-${resource.id}`} className={styles.problemResourceWrapper}>
+                            <ProblemResource
+                              resource={resource}
+                              problem={problem.name}
+                            />
+                        </div>
                     ))}
                 </div>
             </div>
