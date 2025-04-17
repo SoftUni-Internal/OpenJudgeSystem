@@ -39,9 +39,6 @@ jobs:
       dockerfile_name: Dockerfile.ui
       docker_tag: ${{ inputs.docker_image_tag }}
       branch_name: ${{ inputs.branch_name || 'v2' }}
-      additional_run_commands: |
-        echo "NODE_OPTIONS=--max_old_space_size=8192" >> $GITHUB_ENV
-        export NODE_OPTIONS=--max-old-space-size=8192
     secrets: inherit
   deploy:
     needs: [build-and-push]
