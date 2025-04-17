@@ -136,7 +136,7 @@ public class ContestsImportBusinessService(
             {
                 contestResult.AppendLine(existingContest == null
                     ? $"<p><b style='color:green'>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
-                    : $"<p><b style='color:blue'>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be updated.</p>");
+                    : $"<p><b style='color:blue'>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists (#{existingContest.Id}) and will be updated.</p>");
             }
 
             if (existingContest == null)
