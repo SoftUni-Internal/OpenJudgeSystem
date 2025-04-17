@@ -74,17 +74,19 @@ jobs:
       shell: bash
       run: |
         TAGS=""
+        IMAGE_PATH="ghcr.io/softuni-internal/${{ env.IMAGE }}"
+
         if [[ -n "${{ inputs.docker_image_tag }}" ]]; then
           CURRENT_DATE=$(date +'%d-%m-%Y_%H%M')
-          TAGS="${{ env.IMAGE }}:${CURRENT_DATE},${{ env.IMAGE }}:${{ env.GIT_SHA }},${{ env.IMAGE }}:${{ env.BUILD_VER }}"
+          TAGS="$IMAGE_PATH:${CURRENT_DATE},$IMAGE_PATH:${{ env.GIT_SHA }},$IMAGE_PATH:${{ env.BUILD_VER }}"
         else
-          TAGS="${{ env.IMAGE }}:${{ env.GIT_SHA }},${{ env.IMAGE }}:${{ env.BUILD_VER }}"
+          TAGS="$IMAGE_PATH:${{ env.GIT_SHA }},$IMAGE_PATH:${{ env.BUILD_VER }}"
         fi
         if [[ -n "${{ env.BRANCH_NAME }}" ]]; then
-          TAGS="$TAGS,${{ env.IMAGE }}:${{ env.BRANCH_NAME }}"
+          TAGS="$TAGS,$IMAGE_PATH:${{ env.BRANCH_NAME }}"
         fi
         if [[ -n "${{ env.DOCKER_TAG }}" ]]; then
-          TAGS="$TAGS,${{ env.IMAGE }}:${{ env.DOCKER_TAG }}"
+          TAGS="$TAGS,$IMAGE_PATH:${{ env.DOCKER_TAG }}"
         fi
         echo "DOCKER_TAGS=$TAGS" >> $GITHUB_ENV
     - name: Set up Docker Buildx
@@ -109,7 +111,6 @@ jobs:
     - uses: docker/build-push-action@v4
       with:
         context: .
-        registry: ghcr.io
         file: ${{ env.DOCKERFILE_PATH }}
         builder: ${{ steps.buildx.outputs.name }}
         build-args: |
