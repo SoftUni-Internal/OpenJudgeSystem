@@ -48,6 +48,7 @@ public class ContestsImportBusinessService(
         if (sourceContestCategoryId == 0 || destinationContestCategoryId == 0)
         {
             await response.WriteAsync("<p style='color:red'>Invalid contest category ids.</p>");
+            await response.Body.FlushAsync();
             return;
         }
 
@@ -61,6 +62,7 @@ public class ContestsImportBusinessService(
         {
             await response.WriteAsync("<p style='color:red'>Failed to get contest IDs.</p>");
             await response.WriteAsync("</div>");
+            await response.Body.FlushAsync();
             return;
         }
 
@@ -70,6 +72,7 @@ public class ContestsImportBusinessService(
         {
             await response.WriteAsync($"<p style='color:red'>Destination contest category with id {destinationContestCategoryId} does not exist.</p>");
             await response.WriteAsync("</div>");
+            await response.Body.FlushAsync();
             return;
         }
 
@@ -155,7 +158,6 @@ public class ContestsImportBusinessService(
             // Update progress bar with JavaScript
             await response.WriteAsync($"<script>document.getElementById('progress').style.width = '{percentage}%';</script>");
             await response.WriteAsync($"<script>document.getElementById('progress-text').innerText = 'Processed: {processedCount} of {contestIds.Length}';</script>");
-
             await response.Body.FlushAsync();
         }
 
