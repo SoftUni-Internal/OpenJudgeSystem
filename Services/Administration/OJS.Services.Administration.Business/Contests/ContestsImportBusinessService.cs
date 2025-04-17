@@ -304,12 +304,18 @@ public class ContestsImportBusinessService(
             result.AppendLine(CultureInfo.InvariantCulture, $"<p>Test runs for contest <b>\"{sourceContest.Name}\"</b> deleted successfully.</p>");
         }
 
+        var sourceGroups = sourceContest.ProblemGroups.OrderBy(g => g.OrderBy).ToList();
+        var existingGroups = existingContest.ProblemGroups.OrderBy(g => g.OrderBy).ToList();
+
         // Process each problem in the group
-        foreach (var sourceProblemGroup in sourceContest.ProblemGroups)
+        for (var i = 0; i < sourceGroups.Count; i++)
         {
+            var sourceProblemGroup = sourceGroups[i];
+
             // Try to find existing problem group by OrderBy
-            var existingProblemGroup = existingContest.ProblemGroups
-                .FirstOrDefault(pg => Math.Abs(pg.OrderBy - sourceProblemGroup.OrderBy) < 0.001);
+            var existingProblemGroup = i < existingGroups.Count
+                ? existingGroups[i]
+                : null;
 
             if (existingProblemGroup == null)
             {
@@ -433,31 +439,42 @@ public class ContestsImportBusinessService(
                 Math.Abs(pg.OrderBy - sourceOrderBy) < 0.001))
             .ToList();
 
-        foreach (var problemGroup in problemGroupsToRemove)
-        {
-            result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> will be deleted.</p>");
+        var problemsToRemove = existingContest.ProblemGroups
+            .SelectMany(pg => pg.Problems)
+            .Where(p => !sourceProblemNames.Contains(p.Name))
+            .Concat(problemGroupsToRemove.SelectMany(pg => pg.Problems))
+            .ToList();
 
+        foreach (var problem in problemsToRemove)
+        {
             if (!dryRun)
             {
-                await problemGroupsBusiness.Delete(problemGroup.Id);
+                await problemsBusiness.Delete(problem.Id);
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> deleted successfully.</p>");
+            }
+            else
+            {
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> will be deleted.</p>");
             }
         }
 
-        foreach (var problemGroup in existingContest.ProblemGroups)
+        foreach (var problemGroup in problemGroupsToRemove)
         {
-            var problemsToRemove = problemGroup.Problems
-                .Where(p => !sourceProblemNames.Contains(p.Name))
-                .ToList();
-
-            foreach (var problem in problemsToRemove)
+            if (!dryRun)
             {
-                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> will be deleted.</p>");
-
-                if (!dryRun)
-                {
-                    await problemsBusiness.Delete(problem.Id);
-                }
+                problemGroup.IsDeleted = true;
+                problemGroup.DeletedOn = DateTime.UtcNow;
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> deleted successfully.</p>");
             }
+            else
+            {
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> will be deleted.</p>");
+            }
+        }
+
+        if (!dryRun)
+        {
+            await contestsData.SaveChanges();
         }
 
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{sourceContest.Name}\"</b> updated successfully.</p>");
