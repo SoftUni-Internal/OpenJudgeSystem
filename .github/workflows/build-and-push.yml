@@ -25,18 +25,19 @@ on:
 
 env:
     IMG: ${{ inputs.docker_image_name }}
-    OWNER: ${{ lower(github.repository_owner) }}
-    IMAGE: ghcr.io/${{ lower(github.repository_owner) }}/${{ inputs.docker_image_name }}
     BUILD_VER: 1.0.${{ github.run_number }}
-    GIT_SHA: ${{ substr(github.sha, 0, 7) }}
     DOCKERFILE_PATH: Docker/${{ inputs.dockerfile_name }}
 
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     steps:
-    - name: Add BUILD_DATE (needs *runtime* value)
-      run: echo "BUILD_DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+    - name: Configure Environment Variables
+      run: |
+        OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
+        echo "IMAGE=ghcr.io/${OWNER}/${IMG}" >> $GITHUB_ENV
+        echo "BUILD_DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
+        echo "GIT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_ENV
     - name: Get branch name (merge)
       if: github.event_name == 'push'
       shell: bash
@@ -108,7 +109,7 @@ jobs:
         build-args: |
           ${{ inputs.build_args }}
         labels: |
-          org.opencontainers.image.authors=${{ env.OWNER }}
+          org.opencontainers.image.authors=${{ github.repository_owner }}
           org.opencontainers.image.created=${{ env.BUILD_DATE }}
           org.opencontainers.image.description=Created from commit ${{ env.GIT_SHA }} and ref ${{ github.ref_name }}
           org.opencontainers.image.ref.name=${{ github.ref_name }}
