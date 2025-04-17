@@ -289,6 +289,21 @@ public class ContestsImportBusinessService(
         existingContest.AutoChangeTestsFeedbackVisibility = sourceContest.AutoChangeTestsFeedbackVisibility;
         existingContest.Duration = sourceContest.Duration;
 
+        if (!dryRun)
+        {
+            await testRunsData.ExecuteSqlCommandWithTimeout($"""
+                DELETE tr FROM [OpenJudgeSystem].[dbo].[TestRuns] tr
+                INNER JOIN [OpenJudgeSystem].[dbo].[Tests] t ON tr.TestId = t.Id
+                INNER JOIN [OpenJudgeSystem].[dbo].[Problems] p ON p.Id = t.ProblemId
+                INNER JOIN [OpenJudgeSystem].[dbo].[ProblemGroups] pg ON pg.Id = p.ProblemGroupId
+                INNER JOIN [OpenJudgeSystem].[dbo].[Contests] c ON c.Id = pg.ContestId
+                WHERE c.Id = {existingContest.Id}
+                """,
+                60);
+
+            result.AppendLine(CultureInfo.InvariantCulture, $"<p>Test runs for contest <b>\"{sourceContest.Name}\"</b> deleted successfully.</p>");
+        }
+
         // Process each problem in the group
         foreach (var sourceProblemGroup in sourceContest.ProblemGroups)
         {
@@ -328,16 +343,10 @@ public class ContestsImportBusinessService(
                 else
                 {
                     // Clear existing collections to update them
-                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Update:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be updated. Tests will be replaced. Test runs will be deleted.</p>");
+                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Update:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be updated. Tests will be replaced.</p>");
                     existingProblem.Tests.Clear();
                     existingProblem.Resources.Clear();
                     existingProblem.SubmissionTypesInProblems.Clear();
-
-                    if (!dryRun)
-                    {
-                        // Delete test runs for the problem, as they are no longer valid after importing new tests
-                        await testRunsData.DeleteByProblem(existingProblem.Id);
-                    }
                 }
 
                 // Update problem properties
