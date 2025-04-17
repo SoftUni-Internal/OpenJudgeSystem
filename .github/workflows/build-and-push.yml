@@ -74,7 +74,7 @@ jobs:
       shell: bash
       run: |
         TAGS=""
-        IMAGE_PATH="ghcr.io/softuni-internal/${{ env.IMAGE }}"
+        IMAGE_PATH="ghcr.io/${{ github.repository_owner }}/${{ env.IMAGE }}"
 
         if [[ -n "${{ inputs.docker_image_tag }}" ]]; then
           CURRENT_DATE=$(date +'%d-%m-%Y_%H%M')
