@@ -188,7 +188,6 @@ public class MentorBusinessService : IMentorBusinessService
                 { "ProblemName", model.ProblemName },
                 { "ContestId", model.ContestId.ToString(CultureInfo.InvariantCulture) },
                 { "ProblemId", model.ProblemId.ToString(CultureInfo.InvariantCulture) },
-                { "UserId", model.UserId },
             },
         });
 
