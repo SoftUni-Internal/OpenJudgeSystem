@@ -79,6 +79,7 @@ public class ContestsImportBusinessService(
 
         logger.LogInformation("Importing {ContestIdsCount} contests from category {SourceContestCategoryId} into category {DestinationContestCategoryId}, dry run: {dryRun}", contestIds.Length, sourceContestCategoryId, destinationContestCategoryId, dryRun);
         await response.WriteAsync($"<p>Importing contests from category #{sourceContestCategoryId} into category \"{destinationContestCategory.Name}\" #{destinationContestCategoryId}</p>");
+        logger.LogInformation("{ContestIdsCount} contests will be imported. These are the source contest ids: {ContestIds}", contestIds.Length, string.Join(", ", contestIds));
         await response.WriteAsync($"<p>{contestIds.Length} contests will be imported. These are the source contest ids: <b>{string.Join(", ", contestIds)}</b></p>");
         await response.WriteAsync("<hr>");
         await response.Body.FlushAsync();
@@ -168,6 +169,7 @@ public class ContestsImportBusinessService(
             await response.Body.FlushAsync();
         }
 
+        logger.LogInformation("Import process completed successfully.");
         await response.WriteAsync("</div>"); // Close contest-results div
         await response.WriteAsync("<hr>");
         await response.WriteAsync(dryRun
@@ -264,7 +266,7 @@ public class ContestsImportBusinessService(
             await contestsData.SaveChanges();
         }
 
-        logger.LogInformation("Contest {ContestId} imported successfully", newContest.Id);
+        logger.LogInformation("Contest {ContestId} imported successfully", contest.Id);
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{contest.Name}\"</b> was imported successfully.</p>");
         result.AppendLine("<hr>");
     }
