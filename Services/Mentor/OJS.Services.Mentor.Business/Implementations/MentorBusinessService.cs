@@ -180,6 +180,16 @@ public class MentorBusinessService : IMentorBusinessService
         var response = await chat.CompleteChatAsync(messagesToSend, new ChatCompletionOptions
         {
             MaxOutputTokenCount = GetNumericValue(settings, nameof(MentorMaxOutputTokenCount)),
+            EndUserId = model.UserId,
+            Metadata =
+            {
+                { "CategoryName", model.CategoryName },
+                { "ContestName", model.ContestName },
+                { "ProblemName", model.ProblemName },
+                { "ContestId", model.ContestId.ToString(CultureInfo.InvariantCulture) },
+                { "ProblemId", model.ProblemId.ToString(CultureInfo.InvariantCulture) },
+                { "UserId", model.UserId },
+            },
         });
 
         if (response is null)
