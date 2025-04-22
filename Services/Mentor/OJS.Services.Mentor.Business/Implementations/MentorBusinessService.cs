@@ -611,7 +611,7 @@ public class MentorBusinessService : IMentorBusinessService
         var number = GetProblemNumber(model.ProblemName);
         var text = this.ExtractSectionFromDocument(file, model.ProblemName, number, model.ProblemId, model.ContestId);
 
-        var problemIsExtracted = !string.IsNullOrEmpty(text);
+        var problemIsExtracted = !string.IsNullOrWhiteSpace(text);
         var message = new ConversationMessageModel
         {
             Content = string.Format(
