@@ -131,7 +131,7 @@ public class MentorBusinessService : IMentorBusinessService
 
         var messagesToSend = new List<ChatMessage>();
 
-        var systemMessage = await this.cache.Get(
+        var (systemMessage, problemIsExtracted) = await this.cache.Get(
             string.Format(CultureInfo.InvariantCulture, CacheConstants.MentorSystemMessage, model.UserId, model.ProblemId),
             async () => await this.GetSystemMessage(model),
             CacheConstants.OneHourInSeconds);
@@ -188,6 +188,7 @@ public class MentorBusinessService : IMentorBusinessService
                 { "ProblemName", model.ProblemName },
                 { "ContestId", model.ContestId.ToString(CultureInfo.InvariantCulture) },
                 { "ProblemId", model.ProblemId.ToString(CultureInfo.InvariantCulture) },
+                { "ProblemIsExtractedSuccessfully", problemIsExtracted.ToString(CultureInfo.InvariantCulture) },
             },
         });
 
@@ -561,7 +562,7 @@ public class MentorBusinessService : IMentorBusinessService
         // The parenthesis should not be removed, they are used to define the priority of the arithmetic operations.
         => (GetNumericValue(settings, nameof(MentorMaxInputTokenCount)) * 4 * GetNumericValue(settings, nameof(PercentageOfMentorMaxInputTokenCountUsedByUser))) / 100;
 
-    private async Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model)
+    private async Task<(ConversationMessageModel message, bool problemIsExtracted)> GetSystemMessage(ConversationRequestModel model)
     {
         /*
          *  In the first version of the mentor, there will be only a single
@@ -610,7 +611,8 @@ public class MentorBusinessService : IMentorBusinessService
         var number = GetProblemNumber(model.ProblemName);
         var text = this.ExtractSectionFromDocument(file, model.ProblemName, number, model.ProblemId, model.ContestId);
 
-        return new ConversationMessageModel
+        var problemIsExtracted = !string.IsNullOrEmpty(text);
+        var message = new ConversationMessageModel
         {
             Content = string.Format(
                 CultureInfo.InvariantCulture,
@@ -625,6 +627,8 @@ public class MentorBusinessService : IMentorBusinessService
             SequenceNumber = int.MinValue,
             ProblemId = model.ProblemId,
         };
+
+        return (message, problemIsExtracted);
     }
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
