@@ -3,6 +3,7 @@ namespace OJS.Services.Administration.Business.Contests;
 using FluentExtensions.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OJS.Common;
 using OJS.Common.Enumerations;
@@ -12,7 +13,6 @@ using OJS.Data.Models.Contests;
 using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.Data.Models.Tests;
-using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Business.Problems;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Contests;
@@ -35,7 +35,7 @@ public class ContestsImportBusinessService(
     ISubmissionTypesDataService submissionTypesData,
     ITestRunsDataService testRunsData,
     IProblemsBusinessService problemsBusiness,
-    IProblemGroupsBusinessService problemGroupsBusiness)
+    ILogger<ContestsImportBusinessService> logger)
     : IContestsImportBusinessService
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
@@ -60,6 +60,7 @@ public class ContestsImportBusinessService(
 
         if (contestIds == null)
         {
+            logger.LogError("Failed to get contest IDs for category {SourceContestCategoryId}", sourceContestCategoryId);
             await response.WriteAsync("<p style='color:red'>Failed to get contest IDs.</p>");
             await response.WriteAsync("</div>");
             await response.Body.FlushAsync();
@@ -76,6 +77,7 @@ public class ContestsImportBusinessService(
             return;
         }
 
+        logger.LogInformation("Importing {ContestIdsCount} contests from category {SourceContestCategoryId} into category {DestinationContestCategoryId}, dry run: {dryRun}", contestIds.Length, sourceContestCategoryId, destinationContestCategoryId, dryRun);
         await response.WriteAsync($"<p>Importing contests from category #{sourceContestCategoryId} into category \"{destinationContestCategory.Name}\" #{destinationContestCategoryId}</p>");
         await response.WriteAsync($"<p>{contestIds.Length} contests will be imported. These are the source contest ids: <b>{string.Join(", ", contestIds)}</b></p>");
         await response.WriteAsync("<hr>");
@@ -106,10 +108,13 @@ public class ContestsImportBusinessService(
             var contest = await this.httpClient.GetFromJsonAsync<ContestLegacyExportServiceModel>($"{this.urls.LegacyJudgeUrl}/api/Contests/Export/{contestId}?apiKey={this.urls.LegacyJudgeApiKey}");
             if (contest == null)
             {
+                logger.LogError("Failed to get contest with id {ContestId}", contestId);
                 await response.WriteAsync($"<p><b style='color:orange'>Skip:</b> Failed to get source contest <b>#{contestId}</b>. Skipping it...</p>");
                 await response.Body.FlushAsync();
                 continue;
             }
+
+            logger.LogInformation("Importing contest {ContestId} into category {DestinationContestCategoryId}, dry run: {dryRun}", contestId, destinationContestCategoryId, dryRun);
 
             var existingContest = await contestsData
                 .WithQueryFilters()
@@ -141,10 +146,12 @@ public class ContestsImportBusinessService(
 
             if (existingContest == null)
             {
+                logger.LogInformation("Importing contest {ContestId} as new contest", contestId);
                 await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes, contestResult, dryRun);
             }
             else
             {
+                logger.LogInformation("Updating contest {ContestId}", existingContest.Id);
                 await this.UpdateContest(existingContest, contest, checkers, submissionTypes, contestResult, dryRun);
             }
 
@@ -257,6 +264,7 @@ public class ContestsImportBusinessService(
             await contestsData.SaveChanges();
         }
 
+        logger.LogInformation("Contest {ContestId} imported successfully", newContest.Id);
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{contest.Name}\"</b> was imported successfully.</p>");
         result.AppendLine("<hr>");
     }
@@ -302,6 +310,7 @@ public class ContestsImportBusinessService(
                 60);
 
             result.AppendLine(CultureInfo.InvariantCulture, $"<p>Test runs for contest <b>\"{sourceContest.Name}\"</b> deleted successfully.</p>");
+            logger.LogInformation("Test runs for contest {ContestId} deleted successfully", existingContest.Id);
         }
 
         var sourceGroups = sourceContest.ProblemGroups.OrderBy(g => g.OrderBy).ToList();
@@ -477,6 +486,7 @@ public class ContestsImportBusinessService(
             await contestsData.SaveChanges();
         }
 
+        logger.LogInformation("Contest {ContestId} updated successfully", existingContest.Id);
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{sourceContest.Name}\"</b> updated successfully.</p>");
         result.AppendLine("<hr>");
     }
