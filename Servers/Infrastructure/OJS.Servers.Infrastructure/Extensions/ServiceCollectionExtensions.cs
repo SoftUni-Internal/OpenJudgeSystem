@@ -369,7 +369,7 @@ namespace OJS.Servers.Infrastructure.Extensions
         {
             var applicationConfig = configuration.GetSectionWithValidation<ApplicationConfig>();
 
-            services.AddHttpClient(ServerConstants.LokiHttpClientName, client =>
+            services.AddHttpClient(ServiceConstants.LokiHttpClientName, client =>
             {
                 client.BaseAddress = new Uri(applicationConfig.OtlpCollectorBaseUrl);
                 client.DefaultRequestHeaders.Add(HeaderNames.Authorization, applicationConfig.OtlpCollectorBasicAuthHeaderValue);

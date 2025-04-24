@@ -1,6 +1,7 @@
 namespace OJS.Servers.Infrastructure.Health;
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using OJS.Common.Constants;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ public class LokiHealthCheck : IHealthCheck
     private readonly HttpClient client;
 
     public LokiHealthCheck(IHttpClientFactory clientFactory)
-        => this.client = clientFactory.CreateClient(ServerConstants.LokiHttpClientName);
+        => this.client = clientFactory.CreateClient(ServiceConstants.LokiHttpClientName);
 
     public async Task<HealthCheckResult> CheckHealthAsync(
         HealthCheckContext context,
