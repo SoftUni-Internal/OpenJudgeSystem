@@ -631,9 +631,8 @@ public class MentorBusinessService : IMentorBusinessService
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
     {
-        var fileBytes = link.Contains($"/{Svn}", StringComparison.OrdinalIgnoreCase)
-            ? await this.DownloadSvnResource(link, problemId, contestId)
-            : await this.DownloadResource(link, problemId, contestId);
+        using var client = this.CreateClientForLink(link);
+        var fileBytes = await this.FetchResource(link, client, problemId, contestId);
 
         if (!IsExpectedFormat(fileBytes))
         {
@@ -644,20 +643,23 @@ public class MentorBusinessService : IMentorBusinessService
         return fileBytes;
     }
 
-    private async Task<byte[]> DownloadResource(string url, int problemId, int contestId)
+    private HttpClient CreateClientForLink(string link)
     {
-        var client = this.httpClientFactory.CreateClient(DefaultHttpClientName);
-        return await this.FetchResource(url, client, problemId, contestId);
-    }
+        if (!Uri.TryCreate(link, UriKind.Absolute, out var uri))
+        {
+            throw new BusinessServiceException($"Invalid URL provided for Problem: {link}", nameof(link));
+        }
 
-    private async Task<byte[]> DownloadSvnResource(string path, int problemId, int contestId)
-    {
-        var index = path.IndexOf(Svn, StringComparison.OrdinalIgnoreCase);
-        var resourcePath = path[(index + Svn.Length)..].TrimStart('/');
+        // 1) Try the SVN client for links from the SVN server
+        var svnClient = this.httpClientFactory.CreateClient(SvnHttpClientName);
+        if (svnClient.BaseAddress != null
+            && string.Equals(svnClient.BaseAddress.Host, uri.Host, StringComparison.OrdinalIgnoreCase))
+        {
+            return svnClient;
+        }
 
-        using var client = this.httpClientFactory.CreateClient(SvnHttpClientName);
-
-        return await this.FetchResource(resourcePath, client, problemId, contestId);
+        // 2) Fallback: use the default client
+        return this.httpClientFactory.CreateClient(DefaultHttpClientName);
     }
 
     private async Task<byte[]> FetchResource(string link, HttpClient client, int problemId, int contestId)
