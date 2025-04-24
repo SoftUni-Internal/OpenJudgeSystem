@@ -625,7 +625,7 @@ public class MentorBusinessService : IMentorBusinessService
             // The system message should always be first ( in ascending order )
             SequenceNumber = int.MinValue,
             ProblemId = model.ProblemId,
-            ProblemIsExtractedSuccessfully = !string.IsNullOrEmpty(text),
+            ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
         };
     }
 
