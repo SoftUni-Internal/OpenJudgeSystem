@@ -40,7 +40,7 @@ const Mentor = (props: IMentorProps) => {
     const [ conversationDate, setConversationDate ] = useState<Date | null>(null);
     const [ conversationMessages, setConversationMessages ] = useState<IMentorConversationMessage[]>([
         {
-            content: 'Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна?',
+            content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
             role: ChatMessageRole.Assistant,
             sequenceNumber: 1,
             // Using an invalid problemId on purpose, this is just a placeholder message.
