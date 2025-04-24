@@ -33,7 +33,6 @@ public class MentorBusinessService : IMentorBusinessService
     private const string SvnHttpClientName = "Svn";
     private const string DefaultHttpClientName = "Default";
     private const string Docx = "docx";
-    private const string Svn = "svn";
     private const string DocumentNotFoundOrEmpty = "Judge was unable to find the problem's description. Please contact an administrator and report the problem.";
 
     private readonly IDataService<UserMentor> userMentorData;
