@@ -4,6 +4,11 @@
     {
         public const string WorkersQueueName = "OJS.Servers.Worker.Consumers.SubmissionsForProcessingConsumer";
 
+        // HttpClients
+        public const string LokiHttpClientName = "Loki";
+        public const string SvnHttpClientName = "Svn";
+        public const string DefaultHttpClientName = "Default";
+
         public static class CheckerTypes
         {
             public const string ExactMatch = "exact";
