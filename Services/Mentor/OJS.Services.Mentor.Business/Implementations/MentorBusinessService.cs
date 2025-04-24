@@ -25,7 +25,7 @@ using OJS.Services.Ui.Data;
 using OpenAI;
 using OpenAI.Chat;
 using TiktokenSharp;
-using static OJS.Common.GlobalConstants;
+using static OJS.Common.GlobalConstants.FileExtensions;
 using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
 using static OJS.Common.GlobalConstants.Settings;
 
@@ -583,8 +583,8 @@ public class MentorBusinessService : IMentorBusinessService
 
         var wordFiles = problemsResources
             .Where(pr =>
-                   pr is { File: not null, FileExtension: FileExtensions.Docx } ||
-                   pr.Link is not null && pr.Link.Split('.').Last().Equals(FileExtensions.Docx, StringComparison.Ordinal))
+                   (pr.File is not null && pr.FileExtension?.Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal) == true) ||
+                   (pr.Link is not null && pr.Link.Split('.').Last().Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal)))
             .ToList();
 
         /*
