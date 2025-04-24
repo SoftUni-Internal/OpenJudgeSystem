@@ -8,7 +8,6 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Build.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using OJS.Common.Constants;
 using OJS.Common.Enumerations;
@@ -26,12 +25,12 @@ using OJS.Services.Ui.Data;
 using OpenAI;
 using OpenAI.Chat;
 using TiktokenSharp;
+using static OJS.Common.GlobalConstants;
 using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
 using static OJS.Common.GlobalConstants.Settings;
 
 public class MentorBusinessService : IMentorBusinessService
 {
-    private const string Docx = "docx";
     private const string DocumentNotFoundOrEmpty = "Judge was unable to find the problem's description. Please contact an administrator and report the problem.";
 
     private readonly IDataService<UserMentor> userMentorData;
@@ -41,7 +40,6 @@ public class MentorBusinessService : IMentorBusinessService
     private readonly IContestsDataService contestsData;
     private readonly ICacheService cache;
     private readonly ILogger<MentorBusinessService> logger;
-    private readonly IConfiguration configuration;
     private readonly OpenAIClient openAiClient;
 
     public MentorBusinessService(
@@ -585,8 +583,8 @@ public class MentorBusinessService : IMentorBusinessService
 
         var wordFiles = problemsResources
             .Where(pr =>
-                   pr is { File: not null, FileExtension: Docx } ||
-                   pr.Link is not null && pr.Link.Split('.').Last().Equals(Docx, StringComparison.Ordinal))
+                   pr is { File: not null, FileExtension: FileExtensions.Docx } ||
+                   pr.Link is not null && pr.Link.Split('.').Last().Equals(FileExtensions.Docx, StringComparison.Ordinal))
             .ToList();
 
         /*
