@@ -101,6 +101,9 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(307, LogLevel.Error, "Failed to parse the content of the downloaded file for problem #{ProblemId} in contest #{ContestId}.")]
     public static partial void LogFileParsingFailure(this ILogger logger, int problemId, int contestId);
 
+    [LoggerMessage(308, LogLevel.Error, "Problem description resource not found for problem #{ProblemId} in contest #{ContestId}. Verify that the problem or the first problem in the contest has a valid description resource.", SkipEnabledCheck = true)]
+    public static partial void LogProblemDescriptionResourceNotFound(this ILogger logger, int problemId, int contestId);
+
     // Submissions
     [LoggerMessage(1010, LogLevel.Error, "Exception in publishing submission #{SubmissionId}", SkipEnabledCheck = true)]
     public static partial void LogExceptionPublishingSubmission(this ILogger logger, int submissionId, Exception ex);
