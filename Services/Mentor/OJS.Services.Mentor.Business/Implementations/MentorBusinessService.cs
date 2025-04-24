@@ -668,7 +668,12 @@ public class MentorBusinessService : IMentorBusinessService
 
             if (response is not { IsSuccessStatusCode: true })
             {
-                this.logger.LogHttpRequestFailure(problemId, contestId, response?.StatusCode ?? HttpStatusCode.ServiceUnavailable, link);
+                this.logger.LogHttpRequestFailure(
+                    problemId,
+                    contestId,
+                    response?.StatusCode ?? HttpStatusCode.ServiceUnavailable,
+                    response?.RequestMessage?.RequestUri?.AbsoluteUri ?? link,
+                    response?.ReasonPhrase);
                 throw new BusinessServiceException(DocumentNotFoundOrEmpty);
             }
 
@@ -682,9 +687,9 @@ public class MentorBusinessService : IMentorBusinessService
 
             return fileBytes;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            this.logger.LogResourceDownloadFailure(problemId, contestId, link);
+            this.logger.LogResourceDownloadFailure(problemId, contestId, link, ex);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
     }
