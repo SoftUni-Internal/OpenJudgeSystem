@@ -92,11 +92,11 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(304, LogLevel.Warning, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is either empty or does not exist.")]
     public static partial void LogFileNotFoundOrEmpty(this ILogger logger, int problemId, int contestId, string link);
 
-    [LoggerMessage(305, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId} with status code {StatusCode}")]
-    public static partial void LogHttpRequestFailure(this ILogger logger, int problemId, int contestId, HttpStatusCode statusCode, string link);
+    [LoggerMessage(305, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId} with status code {StatusCode} and response message: {ResponseMessage}.")]
+    public static partial void LogHttpRequestFailure(this ILogger logger, int problemId, int contestId, HttpStatusCode statusCode, string link, string? responseMessage);
 
     [LoggerMessage(306, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId}.")]
-    public static partial void LogResourceDownloadFailure(this ILogger logger, int problemId, int contestId, string link);
+    public static partial void LogResourceDownloadFailure(this ILogger logger, int problemId, int contestId, string link, Exception ex);
 
     [LoggerMessage(307, LogLevel.Error, "Failed to parse the content of the downloaded file for problem #{ProblemId} in contest #{ContestId}.")]
     public static partial void LogFileParsingFailure(this ILogger logger, int problemId, int contestId);

@@ -21,6 +21,7 @@ namespace OJS.Servers.Infrastructure.Extensions
     using Microsoft.Extensions.Options;
     using Microsoft.Net.Http.Headers;
     using Microsoft.OpenApi.Models;
+    using OJS.Common.Constants;
     using OJS.Common.Exceptions;
     using OJS.Servers.Infrastructure.Configurations;
     using OJS.Servers.Infrastructure.Handlers;
@@ -368,7 +369,7 @@ namespace OJS.Servers.Infrastructure.Extensions
         {
             var applicationConfig = configuration.GetSectionWithValidation<ApplicationConfig>();
 
-            services.AddHttpClient(ServerConstants.LokiHttpClientName, client =>
+            services.AddHttpClient(ServiceConstants.LokiHttpClientName, client =>
             {
                 client.BaseAddress = new Uri(applicationConfig.OtlpCollectorBaseUrl);
                 client.DefaultRequestHeaders.Add(HeaderNames.Authorization, applicationConfig.OtlpCollectorBasicAuthHeaderValue);
@@ -384,14 +385,14 @@ namespace OJS.Servers.Infrastructure.Extensions
             services.AddHttpClient<IHttpClientService, HttpClientService>(ConfigureHttpClient);
             services.AddHttpClient<ISulsPlatformHttpClientService, SulsPlatformHttpClientService>(ConfigureHttpClient);
             services.AddHttpClient<IRabbitMqHttpClient, RabbitMqHttpClient>(ConfigureHttpClient);
-            services.AddHttpClient(ServerConstants.SvnHttpClientName, client =>
+            services.AddHttpClient(ServiceConstants.SvnHttpClientName, client =>
             {
                 client.BaseAddress = new Uri(svnConfig.BaseUrl);
             }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
             {
                 Credentials = new NetworkCredential(svnConfig.Username, svnConfig.Password),
             });
-            services.AddHttpClient(ServerConstants.DefaultHttpClientName);
+            services.AddHttpClient(ServiceConstants.DefaultHttpClientName);
 
             return services;
         }

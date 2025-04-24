@@ -8,8 +8,8 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Build.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OJS.Common.Constants;
 using OJS.Common.Enumerations;
 using OJS.Common.Extensions;
 using OJS.Data.Models;
@@ -25,15 +25,12 @@ using OJS.Services.Ui.Data;
 using OpenAI;
 using OpenAI.Chat;
 using TiktokenSharp;
+using static OJS.Common.GlobalConstants;
 using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
 using static OJS.Common.GlobalConstants.Settings;
 
 public class MentorBusinessService : IMentorBusinessService
 {
-    private const string SvnHttpClientName = "Svn";
-    private const string DefaultHttpClientName = "Default";
-    private const string Docx = "docx";
-    private const string Svn = "svn";
     private const string DocumentNotFoundOrEmpty = "Judge was unable to find the problem's description. Please contact an administrator and report the problem.";
 
     private readonly IDataService<UserMentor> userMentorData;
@@ -43,7 +40,6 @@ public class MentorBusinessService : IMentorBusinessService
     private readonly IContestsDataService contestsData;
     private readonly ICacheService cache;
     private readonly ILogger<MentorBusinessService> logger;
-    private readonly IConfiguration configuration;
     private readonly OpenAIClient openAiClient;
 
     public MentorBusinessService(
@@ -180,6 +176,16 @@ public class MentorBusinessService : IMentorBusinessService
         var response = await chat.CompleteChatAsync(messagesToSend, new ChatCompletionOptions
         {
             MaxOutputTokenCount = GetNumericValue(settings, nameof(MentorMaxOutputTokenCount)),
+            EndUserId = model.UserId,
+            Metadata =
+            {
+                { "CategoryName", model.CategoryName },
+                { "ContestName", model.ContestName },
+                { "ProblemName", model.ProblemName },
+                { "ContestId", model.ContestId.ToString(CultureInfo.InvariantCulture) },
+                { "ProblemId", model.ProblemId.ToString(CultureInfo.InvariantCulture) },
+                { "ProblemIsExtractedSuccessfully", systemMessage.ProblemIsExtractedSuccessfully ? "true" : "false" },
+            },
         });
 
         if (response is null)
@@ -577,8 +583,8 @@ public class MentorBusinessService : IMentorBusinessService
 
         var wordFiles = problemsResources
             .Where(pr =>
-                   pr is { File: not null, FileExtension: Docx } ||
-                   pr.Link is not null && pr.Link.Split('.').Last().Equals(Docx, StringComparison.Ordinal))
+                   pr is { File: not null, FileExtension: FileExtensions.Docx } ||
+                   pr.Link is not null && pr.Link.Split('.').Last().Equals(FileExtensions.Docx, StringComparison.Ordinal))
             .ToList();
 
         /*
@@ -615,14 +621,14 @@ public class MentorBusinessService : IMentorBusinessService
             // The system message should always be first ( in ascending order )
             SequenceNumber = int.MinValue,
             ProblemId = model.ProblemId,
+            ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
         };
     }
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
     {
-        var fileBytes = link.Contains($"/{Svn}", StringComparison.OrdinalIgnoreCase)
-            ? await this.DownloadSvnResource(link, problemId, contestId)
-            : await this.DownloadResource(link, problemId, contestId);
+        using var client = this.CreateClientForLink(link);
+        var fileBytes = await this.FetchResource(link, client, problemId, contestId);
 
         if (!IsExpectedFormat(fileBytes))
         {
@@ -633,20 +639,23 @@ public class MentorBusinessService : IMentorBusinessService
         return fileBytes;
     }
 
-    private async Task<byte[]> DownloadResource(string url, int problemId, int contestId)
+    private HttpClient CreateClientForLink(string link)
     {
-        var client = this.httpClientFactory.CreateClient(DefaultHttpClientName);
-        return await this.FetchResource(url, client, problemId, contestId);
-    }
+        if (!Uri.TryCreate(link, UriKind.Absolute, out var uri))
+        {
+            throw new BusinessServiceException($"Invalid URL provided for Problem: {link}", nameof(link));
+        }
 
-    private async Task<byte[]> DownloadSvnResource(string path, int problemId, int contestId)
-    {
-        var index = path.IndexOf(Svn, StringComparison.OrdinalIgnoreCase);
-        var resourcePath = path[(index + Svn.Length)..].TrimStart('/');
+        // 1) Try the SVN client for links from the SVN server
+        var svnClient = this.httpClientFactory.CreateClient(ServiceConstants.SvnHttpClientName);
+        if (svnClient.BaseAddress != null
+            && string.Equals(svnClient.BaseAddress.Host, uri.Host, StringComparison.OrdinalIgnoreCase))
+        {
+            return svnClient;
+        }
 
-        using var client = this.httpClientFactory.CreateClient(SvnHttpClientName);
-
-        return await this.FetchResource(resourcePath, client, problemId, contestId);
+        // 2) Fallback: use the default client
+        return this.httpClientFactory.CreateClient(ServiceConstants.DefaultHttpClientName);
     }
 
     private async Task<byte[]> FetchResource(string link, HttpClient client, int problemId, int contestId)
@@ -657,7 +666,12 @@ public class MentorBusinessService : IMentorBusinessService
 
             if (response is not { IsSuccessStatusCode: true })
             {
-                this.logger.LogHttpRequestFailure(problemId, contestId, response?.StatusCode ?? HttpStatusCode.ServiceUnavailable, link);
+                this.logger.LogHttpRequestFailure(
+                    problemId,
+                    contestId,
+                    response?.StatusCode ?? HttpStatusCode.ServiceUnavailable,
+                    response?.RequestMessage?.RequestUri?.AbsoluteUri ?? link,
+                    response?.ReasonPhrase);
                 throw new BusinessServiceException(DocumentNotFoundOrEmpty);
             }
 
@@ -671,9 +685,9 @@ public class MentorBusinessService : IMentorBusinessService
 
             return fileBytes;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            this.logger.LogResourceDownloadFailure(problemId, contestId, link);
+            this.logger.LogResourceDownloadFailure(problemId, contestId, link, ex);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
     }
