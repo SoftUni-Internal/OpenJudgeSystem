@@ -10,6 +10,7 @@ using Microsoft.Build.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OJS.Common.Constants;
 using OJS.Common.Enumerations;
 using OJS.Common.Extensions;
 using OJS.Data.Models;
@@ -30,8 +31,6 @@ using static OJS.Common.GlobalConstants.Settings;
 
 public class MentorBusinessService : IMentorBusinessService
 {
-    private const string SvnHttpClientName = "Svn";
-    private const string DefaultHttpClientName = "Default";
     private const string Docx = "docx";
     private const string DocumentNotFoundOrEmpty = "Judge was unable to find the problem's description. Please contact an administrator and report the problem.";
 
@@ -650,7 +649,7 @@ public class MentorBusinessService : IMentorBusinessService
         }
 
         // 1) Try the SVN client for links from the SVN server
-        var svnClient = this.httpClientFactory.CreateClient(SvnHttpClientName);
+        var svnClient = this.httpClientFactory.CreateClient(ServiceConstants.SvnHttpClientName);
         if (svnClient.BaseAddress != null
             && string.Equals(svnClient.BaseAddress.Host, uri.Host, StringComparison.OrdinalIgnoreCase))
         {
@@ -658,7 +657,7 @@ public class MentorBusinessService : IMentorBusinessService
         }
 
         // 2) Fallback: use the default client
-        return this.httpClientFactory.CreateClient(DefaultHttpClientName);
+        return this.httpClientFactory.CreateClient(ServiceConstants.DefaultHttpClientName);
     }
 
     private async Task<byte[]> FetchResource(string link, HttpClient client, int problemId, int contestId)

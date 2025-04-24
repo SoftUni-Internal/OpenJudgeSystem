@@ -3,6 +3,8 @@
     public static class ServiceConstants
     {
         public const string WorkersQueueName = "OJS.Servers.Worker.Consumers.SubmissionsForProcessingConsumer";
+        public const string SvnHttpClientName = "Svn";
+        public const string DefaultHttpClientName = "Default";
 
         public static class CheckerTypes
         {
