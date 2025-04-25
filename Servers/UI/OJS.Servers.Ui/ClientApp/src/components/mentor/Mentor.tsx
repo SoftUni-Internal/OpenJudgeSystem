@@ -10,9 +10,7 @@ import TextField from '@mui/material/TextField';
 import { ChatMessageRole } from 'src/common/enums';
 import { IMentorConversationMessage } from 'src/common/types';
 import useTheme from 'src/hooks/use-theme';
-import { addMessage,
-    cleanupOldConversations,
-    initializeConversation } from 'src/redux/features/mentorSlice';
+import { addMessage, initializeConversation } from 'src/redux/features/mentorSlice';
 import { useStartConversationMutation } from 'src/redux/services/mentorService';
 import { useAppDispatch, useAppSelector } from 'src/redux/store';
 import concatClassNames from 'src/utils/class-names';
@@ -21,9 +19,6 @@ import { getMentorConversationDate } from 'src/utils/dates';
 import mentorAvatar from '../../assets/mentor.png';
 
 import styles from './Mentor.module.scss';
-
-// Maximum number of conversations to keep in storage
-const MAX_CONVERSATIONS = 20;
 
 interface IMentorProps {
     problemId?: number;
@@ -45,7 +40,6 @@ const Mentor = (props: IMentorProps) => {
     const [ showBubble, setShowBubble ] = useState(true);
     const [ inputMessage, setInputMessage ] = useState('');
 
-    // Get conversation data from Redux store
     const conversationData = useAppSelector((state) => problemId !== undefined && state.mentor?.conversationsByProblemId
         ? state.mentor.conversationsByProblemId[problemId]
         : undefined);
@@ -95,10 +89,6 @@ const Mentor = (props: IMentorProps) => {
     useEffect(() => {
         if (problemId !== undefined && problemName !== undefined) {
             dispatch(initializeConversation({ problemId, problemName }));
-
-            // Clean up old conversations when initializing a new one
-            // This helps prevent storage issues
-            dispatch(cleanupOldConversations({ maxConversations: MAX_CONVERSATIONS }));
         }
     }, [ dispatch, problemId, problemName ]);
 
@@ -109,7 +99,6 @@ const Mentor = (props: IMentorProps) => {
             setLocalConversationMessages(conversationData.messages.filter((message) => message.problemId === problemId));
             setLocalConversationDate(conversationData.conversationDate);
         } else if (problemId !== undefined && problemName !== undefined) {
-            // Initialize with welcome message
             setLocalConversationMessages([
                 {
                     content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
