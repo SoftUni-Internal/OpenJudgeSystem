@@ -7,6 +7,8 @@ public class ConversationResponseModel : IMapExplicitly
 {
     public string UserId { get; set; } = default!;
 
+    public int ProblemId { get; set; }
+
     public ICollection<ConversationMessageModel> Messages { get; set; } = [];
 
     public int MaxUserInputLength { get; set; }

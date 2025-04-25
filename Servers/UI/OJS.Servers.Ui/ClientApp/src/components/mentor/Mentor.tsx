@@ -10,14 +10,20 @@ import TextField from '@mui/material/TextField';
 import { ChatMessageRole } from 'src/common/enums';
 import { IMentorConversationMessage } from 'src/common/types';
 import useTheme from 'src/hooks/use-theme';
+import { addMessage,
+    cleanupOldConversations,
+    initializeConversation } from 'src/redux/features/mentorSlice';
 import { useStartConversationMutation } from 'src/redux/services/mentorService';
-import { useAppSelector } from 'src/redux/store';
+import { useAppDispatch, useAppSelector } from 'src/redux/store';
 import concatClassNames from 'src/utils/class-names';
 import { getMentorConversationDate } from 'src/utils/dates';
 
 import mentorAvatar from '../../assets/mentor.png';
 
 import styles from './Mentor.module.scss';
+
+// Maximum number of conversations to keep in storage
+const MAX_CONVERSATIONS = 20;
 
 interface IMentorProps {
     problemId?: number;
@@ -33,28 +39,33 @@ const Mentor = (props: IMentorProps) => {
     const { problemId, problemName, contestId, contestName, categoryName, submissionTypeName, isMentorAllowed } = props;
     const { internalUser: user } = useAppSelector((state) => state.authorization);
     const { isDarkMode } = useTheme();
+    const dispatch = useAppDispatch();
 
     const [ isOpen, setIsOpen ] = useState(false);
     const [ showBubble, setShowBubble ] = useState(true);
     const [ inputMessage, setInputMessage ] = useState('');
-    const [ conversationDate, setConversationDate ] = useState<Date | null>(null);
-    const [ conversationMessages, setConversationMessages ] = useState<IMentorConversationMessage[]>([
-        {
-            content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
-            role: ChatMessageRole.Assistant,
-            sequenceNumber: 1,
-            // Using an invalid problemId on purpose, this is just a placeholder message.
-            problemId: -1,
-        },
-    ]);
+
+    // Get conversation data from Redux store
+    const conversationData = useAppSelector((state) => problemId !== undefined && state.mentor?.conversationsByProblemId
+        ? state.mentor.conversationsByProblemId[problemId]
+        : undefined);
+
+    // Local state for UI purposes
+    const [ localConversationMessages, setLocalConversationMessages ] = useState<IMentorConversationMessage[]>([]);
+    const [ localConversationDate, setLocalConversationDate ] = useState<Date | null>(null);
+
     const inputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const [ startConversation, { data: conversationData, error, isLoading } ] = useStartConversationMutation();
+    const [ startConversation, {
+        data: conversationResponseData,
+        error,
+        isLoading,
+    } ] = useStartConversationMutation({ fixedCacheKey: `problem-${problemId}` });
 
     const isInputLengthExceeded = useMemo(
-        () => inputMessage.length > (conversationData?.maxUserInputLength ?? 4096),
-        [ conversationData, inputMessage ],
+        () => inputMessage.length > (conversationResponseData?.maxUserInputLength ?? 4096),
+        [ conversationResponseData, inputMessage ],
     );
 
     const isChatDisabled = useMemo(
@@ -80,17 +91,42 @@ const Mentor = (props: IMentorProps) => {
         ],
     );
 
+    // Initialize conversation for the current problem if needed
+    useEffect(() => {
+        if (problemId !== undefined && problemName !== undefined) {
+            dispatch(initializeConversation({ problemId, problemName }));
+
+            // Clean up old conversations when initializing a new one
+            // This helps prevent storage issues
+            dispatch(cleanupOldConversations({ maxConversations: MAX_CONVERSATIONS }));
+        }
+    }, [ dispatch, problemId, problemName ]);
+
+    // Update local state when conversation data changes
+    useEffect(() => {
+        if (conversationData && problemId !== undefined) {
+            // Only show messages that belong to this problem
+            setLocalConversationMessages(conversationData.messages.filter((message) => message.problemId === problemId));
+            setLocalConversationDate(conversationData.conversationDate);
+        } else if (problemId !== undefined && problemName !== undefined) {
+            // Initialize with welcome message
+            setLocalConversationMessages([
+                {
+                    content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
+                    role: ChatMessageRole.Assistant,
+                    sequenceNumber: 1,
+                    problemId,
+                },
+            ]);
+            setLocalConversationDate(null);
+        }
+    }, [ conversationData, problemId, problemName ]);
+
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [ conversationMessages ]);
-
-    useEffect(() => {
-        if (conversationData) {
-            setConversationMessages(conversationData.messages.filter((m) => m.role !== ChatMessageRole.System));
-        }
-    }, [ conversationData ]);
+    }, [ localConversationMessages ]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -116,19 +152,26 @@ const Mentor = (props: IMentorProps) => {
             return;
         }
 
-        if (conversationDate === null) {
-            setConversationDate(new Date());
-        }
-
         const message: IMentorConversationMessage = {
             content: inputMessage,
             role: ChatMessageRole.User,
-            sequenceNumber: Math.max(...conversationMessages.map((cm) => cm.sequenceNumber)) + 1,
+            sequenceNumber: Math.max(...localConversationMessages.map((cm) => cm.sequenceNumber)) + 1,
             problemId,
         };
 
-        const updatedConversationMessages = [ ...conversationMessages, message ];
-        setConversationMessages(updatedConversationMessages);
+        // Add message to Redux store
+        dispatch(addMessage({
+            problemId,
+            message,
+            setConversationDate: localConversationDate === null,
+        }));
+
+        // Update local state for immediate UI feedback
+        const updatedConversationMessages = [ ...localConversationMessages, message ];
+        setLocalConversationMessages(updatedConversationMessages);
+        if (localConversationDate === null) {
+            setLocalConversationDate(new Date());
+        }
 
         startConversation({
             userId: user.id,
@@ -225,9 +268,9 @@ const Mentor = (props: IMentorProps) => {
                 >
                     <div className={styles.messagesContainer}>
                         <div className={styles.conversationStartDate}>
-                            {conversationDate !== null && getMentorConversationDate(conversationDate)}
+                            {localConversationDate !== null && getMentorConversationDate(localConversationDate)}
                         </div>
-                        {conversationMessages.map((message) => (
+                        {localConversationMessages.map((message) => (
                             <div className={styles.messageContainer} key={message.sequenceNumber}>
                                 {(message.role === ChatMessageRole.Assistant || message.role === ChatMessageRole.Information) && (
                                     <div className={styles.mentorMessageAvatar}>
@@ -304,8 +347,8 @@ const Mentor = (props: IMentorProps) => {
                         {isInputLengthExceeded && (
                             <div className={concatClassNames(styles.errorBubble, styles.bubbleMessage)}>
                                 <div className={styles.secondaryText}>
-                                    {`Your message exceeds the ${conversationData?.maxUserInputLength
-                                        ? `${conversationData.maxUserInputLength}-`
+                                    {`Your message exceeds the ${conversationResponseData?.maxUserInputLength
+                                        ? `${conversationResponseData.maxUserInputLength}-`
                                         : ''}character limit. Please shorten it.`}
                                 </div>
                             </div>
