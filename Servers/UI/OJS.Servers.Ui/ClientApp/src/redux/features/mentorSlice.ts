@@ -17,6 +17,41 @@ interface IMentorState {
 
 const initialState: IMentorState = { conversationsByProblemId: {} };
 
+const applyMessageLimits = (messages: IMentorConversationMessage[]): IMentorConversationMessage[] => {
+    if (messages.length <= MAX_MESSAGES_PER_PROBLEM) {
+        return messages;
+    }
+
+    // Keep the first message (welcome message) and the most recent messages
+    const welcomeMessage = messages[0];
+    const recentMessages = messages.slice(-(MAX_MESSAGES_PER_PROBLEM - 1));
+
+    // Combine welcome message and recent messages
+    const limitedMessages = [welcomeMessage, ...recentMessages];
+
+    // Fix sequence numbers to be consecutive
+    limitedMessages.forEach((msg, index) => {
+        if (index > 0) { // Skip the welcome message
+            msg.sequenceNumber = index + 1;
+        }
+    });
+
+    return limitedMessages;
+};
+
+const ensureConversationExists = (
+    state: IMentorState,
+    problemId: number,
+    createDate: boolean = false
+): void => {
+    if (!state.conversationsByProblemId[problemId]) {
+        state.conversationsByProblemId[problemId] = {
+            messages: [],
+            conversationDate: createDate ? new Date() : null,
+        };
+    }
+};
+
 export const mentorSlice = createSlice({
     name: 'mentor',
     initialState,
@@ -49,35 +84,13 @@ export const mentorSlice = createSlice({
         }>) => {
             const { problemId, message, setConversationDate } = action.payload;
 
-            // Ensure the conversation exists
-            if (!state.conversationsByProblemId[problemId]) {
-                state.conversationsByProblemId[problemId] = {
-                    messages: [],
-                    conversationDate: null,
-                };
-            }
+            ensureConversationExists(state, problemId);
 
-            // Add the message
             state.conversationsByProblemId[problemId].messages.push(message);
 
-            // Apply message limit if exceeded
-            if (state.conversationsByProblemId[problemId].messages.length > MAX_MESSAGES_PER_PROBLEM) {
-                // Keep the first message (welcome message) and the most recent messages
-                const welcomeMessage = state.conversationsByProblemId[problemId].messages[0];
-                const recentMessages = state.conversationsByProblemId[problemId].messages.slice(-(MAX_MESSAGES_PER_PROBLEM - 1));
+            state.conversationsByProblemId[problemId].messages =
+                applyMessageLimits(state.conversationsByProblemId[problemId].messages);
 
-                // Reassign the messages array with the welcome message and recent messages
-                state.conversationsByProblemId[problemId].messages = [ welcomeMessage, ...recentMessages ];
-
-                // Fix sequence numbers to be consecutive
-                state.conversationsByProblemId[problemId].messages.forEach((msg, index) => {
-                    if (index > 0) { // Skip the welcome message
-                        msg.sequenceNumber = index + 1;
-                    }
-                });
-            }
-
-            // Set conversation date if needed
             if (setConversationDate && !state.conversationsByProblemId[problemId].conversationDate) {
                 state.conversationsByProblemId[problemId].conversationDate = new Date();
             }
@@ -90,13 +103,7 @@ export const mentorSlice = createSlice({
         }>) => {
             const { problemId, messages } = action.payload;
 
-            // Ensure the conversation exists
-            if (!state.conversationsByProblemId[problemId]) {
-                state.conversationsByProblemId[problemId] = {
-                    messages: [],
-                    conversationDate: new Date(),
-                };
-            }
+            ensureConversationExists(state, problemId);
 
             // Filter out system messages AND ensure all messages have the correct problemId
             const filteredMessages = messages
@@ -106,28 +113,7 @@ export const mentorSlice = createSlice({
                     problemId,
                 }));
 
-            // Apply message limit if exceeded
-            if (filteredMessages.length > MAX_MESSAGES_PER_PROBLEM) {
-                // Keep the first message (welcome message) and the most recent messages
-                const welcomeMessage = filteredMessages[0];
-                const recentMessages = filteredMessages.slice(-(MAX_MESSAGES_PER_PROBLEM - 1));
-
-                // Update the messages
-                state.conversationsByProblemId[problemId].messages = [
-                    { ...welcomeMessage, problemId }, // Ensure welcome message has correct problemId
-                    ...recentMessages.map((m) => ({ ...m, problemId })), // Ensure all messages have correct problemId
-                ];
-
-                // Fix sequence numbers to be consecutive
-                state.conversationsByProblemId[problemId].messages.forEach((msg, index) => {
-                    if (index > 0) { // Skip the welcome message
-                        msg.sequenceNumber = index + 1;
-                    }
-                });
-            } else {
-                // Update the messages (no limit exceeded)
-                state.conversationsByProblemId[problemId].messages = filteredMessages;
-            }
+            state.conversationsByProblemId[problemId].messages = applyMessageLimits(filteredMessages);
         },
     },
 });
