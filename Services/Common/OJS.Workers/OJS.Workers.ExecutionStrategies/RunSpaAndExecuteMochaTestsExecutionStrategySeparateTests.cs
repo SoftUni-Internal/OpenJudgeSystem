@@ -254,6 +254,7 @@ finally:
         {
             var checker = executionContext.Input.GetChecker();
             var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
+            preExecutionResult.ReceivedOutput = "testing";
             var output = preExecutionResult.ReceivedOutput.Trim().Split(',');
 
             if (output.Length == 2)
