@@ -16,5 +16,7 @@
         public DateTime? CompletedExecutionOn { get; set; }
 
         public string? WorkerName { get; set; }
+
+        public byte[]? VerboseLogFile { get; set; }
     }
 }

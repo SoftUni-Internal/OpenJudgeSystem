@@ -2,6 +2,7 @@ namespace OJS.Servers.Worker.Consumers;
 
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OJS.Services.Common;
 using OJS.Services.Worker.Business;
 using OJS.Services.Infrastructure.Extensions;
@@ -9,42 +10,32 @@ using System;
 using System.Threading.Tasks;
 using OJS.PubSub.Worker.Models.Submissions;
 using OJS.Services.Common.Extensions;
-using OJS.Services.Common.Models.Submissions;
 using OJS.Services.Common.Models.Submissions.ExecutionContext;
 using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Constants;
+using OJS.Services.Worker.Models.Configuration;
 using OJS.Workers.Common.Exceptions;
+using OJS.Workers.Common.Helpers;
 using OJS.Workers.Common.Models;
 using ConfigurationException = OJS.Workers.Common.Exceptions.ConfigurationException;
 
-public class SubmissionsForProcessingConsumer : IConsumer<SubmissionForProcessingPubSubModel>
+public class SubmissionsForProcessingConsumer(
+    ISubmissionsBusinessService submissionsBusiness,
+    IPublisherService publisher,
+    IHostInfoService hostInfoService,
+    ILogger<SubmissionsForProcessingConsumer> logger,
+    IDatesService dates,
+    IOptions<SubmissionExecutionConfig> executionConfigAccessor)
+    : IConsumer<SubmissionForProcessingPubSubModel>
 {
-    private readonly ISubmissionsBusinessService submissionsBusiness;
-    private readonly IPublisherService publisher;
-    private readonly IHostInfoService hostInfoService;
-    private readonly ILogger<SubmissionsForProcessingConsumer> logger;
-    private readonly IDatesService dates;
-
-    public SubmissionsForProcessingConsumer(
-        ISubmissionsBusinessService submissionsBusiness,
-        IPublisherService publisher,
-        IHostInfoService hostInfoService,
-        ILogger<SubmissionsForProcessingConsumer> logger,
-        IDatesService dates)
-    {
-        this.submissionsBusiness = submissionsBusiness;
-        this.publisher = publisher;
-        this.hostInfoService = hostInfoService;
-        this.logger = logger;
-        this.dates = dates;
-    }
+    private readonly SubmissionExecutionConfig executionConfig = executionConfigAccessor.Value;
 
     public async Task Consume(ConsumeContext<SubmissionForProcessingPubSubModel> context)
     {
-        var startedExecutionOn = this.dates.GetUtcNowOffset();
-        var workerName = this.hostInfoService.GetHostIp();
+        var startedExecutionOn = dates.GetUtcNowOffset();
+        var workerName = hostInfoService.GetHostIp();
 
-        this.logger.LogStartingProcessingSubmission(context.Message.Id, workerName);
+        logger.LogStartingProcessingSubmission(context.Message.Id, workerName);
 
         var submissionStartedProcessingPubSubModel = new SubmissionStartedProcessingPubSubModel
         {
@@ -52,7 +43,7 @@ public class SubmissionsForProcessingConsumer : IConsumer<SubmissionForProcessin
             ProcessingStartedAt = startedExecutionOn,
         };
 
-        await this.publisher.Publish(submissionStartedProcessingPubSubModel);
+        await publisher.Publish(submissionStartedProcessingPubSubModel);
 
         var result = new ProcessedSubmissionPubSubModel(context.Message.Id)
         {
@@ -62,9 +53,9 @@ public class SubmissionsForProcessingConsumer : IConsumer<SubmissionForProcessin
         try
         {
             var submission = context.Message.Map<SubmissionServiceModel>();
-            this.logger.LogExecutingSubmission(submission.Id, submission.TrimDetails());
-            var executionResult = await this.submissionsBusiness.ExecuteSubmission(submission);
-            this.logger.LogProducedExecutionResult(submission.Id, executionResult);
+            logger.LogExecutingSubmission(submission.Id, submission.TrimDetails());
+            var executionResult = await submissionsBusiness.ExecuteSubmission(submission);
+            logger.LogProducedExecutionResult(submission.Id, executionResult);
 
             result.SetExecutionResult(executionResult);
         }
@@ -75,19 +66,29 @@ public class SubmissionsForProcessingConsumer : IConsumer<SubmissionForProcessin
                 StrategyException => ExceptionType.Strategy,
                 SolutionException => ExceptionType.Solution,
                 ConfigurationException => ExceptionType.Configuration,
-                _ => ExceptionType.Other
+                _ => ExceptionType.Other,
             };
 
-            this.logger.LogErrorProcessingSubmission(context.Message.Id, result.WorkerName, exception);
+            logger.LogErrorProcessingSubmission(context.Message.Id, result.WorkerName, exception);
             result.SetException(exception, true, exceptionType);
         }
-
         finally
         {
             result.SetStartedAndCompletedExecutionOn(startedExecutionOn.UtcDateTime, completedExecutionOn: DateTime.UtcNow);
+
+            if (context.Message.Verbosely)
+            {
+                // If the submission is marked as verbose, try to read the log file and attach it to the result
+                var logFilePath = FileHelpers.BuildSubmissionLogFilePath(context.Message.Id);
+                if (FileHelpers.FileExists(logFilePath))
+                {
+                    result.VerboseLogFile = await FileHelpers.ReadFileUpToBytes(logFilePath, this.executionConfig.SubmissionVerboseLogFileMaxBytes);
+                    FileHelpers.DeleteFile(logFilePath);
+                }
+            }
         }
 
-        await this.publisher.Publish(result);
-        this.logger.LogPublishedProcessedSubmission(context.Message.Id, result.WorkerName);
+        await publisher.Publish(result);
+        logger.LogPublishedProcessedSubmission(context.Message.Id, result.WorkerName);
     }
 }

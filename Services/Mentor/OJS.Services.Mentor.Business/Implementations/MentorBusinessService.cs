@@ -207,7 +207,7 @@ public class MentorBusinessService(
             var body = wordDocument.MainDocumentPart?.Document.Body;
             if (body is null)
             {
-                throw new BusinessServiceException(DocumentNotFoundOrEmpty);
+                throw new BusinessServiceException(DocumentNotFoundOrEmpty + " Document body is null.");
             }
 
             var sections = new Dictionary<string, (int Index, List<string> Data, OpenXmlElement Element)>();
@@ -578,6 +578,7 @@ public class MentorBusinessService(
 
         if (problemsDescription is null)
         {
+            this.logger.LogProblemDescriptionResourceNotFound(model.ProblemId, model.ContestId);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
 
