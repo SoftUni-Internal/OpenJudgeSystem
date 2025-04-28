@@ -578,7 +578,7 @@ public class MentorBusinessService(
 
         if (problemsDescription is null)
         {
-            this.logger.LogProblemDescriptionResourceNotFound(model.ProblemId, model.ContestId);
+            logger.LogProblemDescriptionResourceNotFound(model.ProblemId, model.ContestId);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
 
