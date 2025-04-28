@@ -36,12 +36,14 @@ const applyMessageLimits = (messages: IMentorConversationMessage[]): IMentorConv
 const ensureConversationExists = (
     state: IMentorState,
     problemId: number,
-    createDate: boolean = false
+    createDate: boolean = false,
 ): void => {
     if (!state.conversationsByProblemId[problemId]) {
         state.conversationsByProblemId[problemId] = {
             messages: [],
-            conversationDate: createDate ? new Date() : null,
+            conversationDate: createDate
+                ? new Date()
+                : null,
         };
     }
 };
