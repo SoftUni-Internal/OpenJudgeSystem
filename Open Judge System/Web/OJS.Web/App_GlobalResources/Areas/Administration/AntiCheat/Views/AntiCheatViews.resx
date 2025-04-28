@@ -123,6 +123,9 @@
   <data name="By_submission_page_title" xml:space="preserve">
     <value>By submission similarity</value>
   </data>
+  <data name="CheckForSimilarities" xml:space="preserve">
+    <value>Check for similarities</value>
+  </data>
   <data name="Choose_or_enter_contest" xml:space="preserve">
     <value>Choose or enter contest...</value>
   </data>
@@ -146,6 +149,9 @@
   </data>
   <data name="Second_participant" xml:space="preserve">
     <value>Second Participant</value>
+  </data>
+  <data name="ThereAreNoSimilarities" xml:space="preserve">
+    <value>There are not similarities</value>
   </data>
   <data name="Username" xml:space="preserve">
     <value>Username</value>

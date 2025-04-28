@@ -123,6 +123,9 @@
   <data name="By_submission_page_title" xml:space="preserve">
     <value>По прилика на решенията</value>
   </data>
+  <data name="CheckForSimilarities" xml:space="preserve">
+    <value>Провери за прилики</value>
+  </data>
   <data name="Choose_or_enter_contest" xml:space="preserve">
     <value>Изберете или въведете състезание...</value>
   </data>
@@ -146,6 +149,9 @@
   </data>
   <data name="Second_participant" xml:space="preserve">
     <value>Втори участник</value>
+  </data>
+  <data name="ThereAreNoSimilarities" xml:space="preserve">
+    <value>Няма прилики</value>
   </data>
   <data name="Username" xml:space="preserve">
     <value>Потребителско име</value>

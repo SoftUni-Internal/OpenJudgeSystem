@@ -129,4 +129,13 @@
   <data name="Choose_submission_type" xml:space="preserve">
     <value>Choose submission type</value>
   </data>
+  <data name="Download_submission_file" xml:space="preserve">
+    <value>Download submission file</value>
+  </data>
+  <data name="Upload_new_submission" xml:space="preserve">
+    <value>Upload new submission</value>
+  </data>
+  <data name="Allowed_file_formats_label" xml:space="preserve">
+    <value>Allowed file formats:</value>
+  </data>
 </root>

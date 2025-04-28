@@ -126,4 +126,7 @@
   <data name="Retest" xml:space="preserve">
     <value>Ретест</value>
   </data>
+  <data name="Confirm_delete_submissions_message_format" xml:space="preserve">
+    <value>Сигурни ли сте, че искате да изтриете избраните {0} решения? Моля, уверете се, че сте филтрирали коректно преди да продължите.</value>
+  </data>
 </root>

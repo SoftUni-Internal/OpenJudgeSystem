@@ -171,4 +171,7 @@
   <data name="Started_execution_on" xml:space="preserve">
     <value>Последно стартиране на изпълнение</value>
   </data>
+  <data name="Administration" xml:space="preserve">
+    <value>Администрация</value>
+  </data>
 </root>

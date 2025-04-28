@@ -150,4 +150,7 @@
   <data name="Page_title" xml:space="preserve">
     <value>New resource</value>
   </data>
+  <data name="Enter_link" xml:space="preserve">
+    <value>Enter a link</value>
+  </data>
 </root>

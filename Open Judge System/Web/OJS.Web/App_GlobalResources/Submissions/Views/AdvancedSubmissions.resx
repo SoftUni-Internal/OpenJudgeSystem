@@ -129,4 +129,16 @@
   <data name="Page_title_for_regular_user" xml:space="preserve">
     <value>Latest {0} submissions out of {1} total</value>
   </data>
+  <data name="Submissions_in_queue_label" xml:space="preserve">
+    <value>Submissions in queue</value>
+  </data>
+  <data name="Show_queued_submissions_label" xml:space="preserve">
+    <value>Show queued submissions</value>
+  </data>
+  <data name="Show_all_submissions_label" xml:space="preserve">
+    <value>Show all submissions</value>
+  </data>
+  <data name="Restart_service_button_label" xml:space="preserve">
+    <value>Restart services</value>
+  </data>
 </root>

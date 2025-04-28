@@ -55,13 +55,13 @@ function initilizeTestRuns(response) {
         pageable: true,
         scrollable: false,
         columns: [
-            { field: 'Id', title: 'Номер' },
-            { field: 'TimeUsed', title: 'Време' },
-            { field: 'MemoryUsed', title: 'Памет' },
-            { title: 'Резултат', template: '<div> #= testResult(ExecutionResult) # </div>' },
-            { field: 'CheckerComment', title: 'Чекер' },
-            { field: 'ExecutionComment', title: 'Екзекютор' },
-            { title: 'Решение', template: '<a href="/Contests/Submissions/View/#= SubmissionId #" target="_blank">№#= SubmissionId #</a>' }
+            { field: 'Id', title: 'Number' },
+            { field: 'TimeUsed', title: 'Time' },
+            { field: 'MemoryUsed', title: 'Memory' },
+            { title: 'Result', template: '<div> #= testResult(ExecutionResult) # </div>' },
+            { field: 'CheckerComment', title: 'Checker' },
+            { field: 'ExecutionComment', title: 'Executor' },
+            { title: 'Solution', template: '<a href="/Contests/Submissions/View/#= SubmissionId #" target="_blank">№#= SubmissionId #</a>' }
         ]
     });
 }

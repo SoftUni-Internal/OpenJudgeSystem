@@ -1,4 +1,5 @@
 ﻿@using System.Collections
+@using Resource = Resources.Views.Shared.DownloadSubmissionsPopupWindowPartial
 
 <div id="download-contest-submissions-popup" style="display: none;">
     <form id="download-contest-submissions-form" method="GET" action="/Administration/ContestsExport/Solutions/">
@@ -9,12 +10,12 @@
         <div class="text-center">
             <div class="editor-field">
                 <input type="radio" checked="checked" value="true" name="compete" id="compete-true"/>
-                <label for="compete-true">Решения на състезанието</label>
+                <label for="compete-true">@Resource.Contest_submissions</label>
             </div>
 
             <div class="editor-field">
                 <input type="radio" value="false" name="compete" id="compete-false"/>
-                <label for="compete-false">Решения на упражненията</label>
+                <label for="compete-false">@Resource.Contest_practises</label>
             </div>
         </div>
 
@@ -34,7 +35,7 @@
         </section>
 
         <section class="text-center top-buffer">
-            <input type="submit" class="btn btn-success" value="Свали решенията"/>
+            <input type="submit" class="btn btn-success" value="@Resource.Download_submissions"/>
         </section>
     </form>
 </div>

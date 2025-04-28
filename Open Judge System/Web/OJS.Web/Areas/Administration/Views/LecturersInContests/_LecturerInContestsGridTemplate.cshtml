@@ -1,5 +1,8 @@
 ﻿@using OJS.Web.Areas.Administration.ViewModels.LecturersInContests
 
+@using GeneralResource = Resources.Areas.Administration.AdministrationGeneral
+@using Resources = Resources.Areas.Administration.LecturerInContest.Views.AdminLecturerInContest
+
 @{
     const string ControllerName = "LecturersInContests";
     const string AreaName = "Administration";
@@ -15,13 +18,13 @@
     })
     .ColumnMenu()
     .Pageable(x => x.Refresh(true))
-    .ToolBar(tool => tool.Create().Text("Добави състезание"))
+    .ToolBar(tool => tool.Create().Text(Resources.AddContest))
     .Editable(edit =>
     {
         edit.Mode(GridEditMode.PopUp);
-        edit.Window(w => w.Title("Състезания на лектор"));
+        edit.Window(w => w.Title(Resources.LecturerContests));
         edit.TemplateName("LecturerInContest");
-        edit.DisplayDeleteConfirmation("Наистина ли искате да изтриете елемента?");
+        edit.DisplayDeleteConfirmation(GeneralResource.Delete_prompt);
     })
     .DataSource(dataSource => dataSource
             .Ajax()

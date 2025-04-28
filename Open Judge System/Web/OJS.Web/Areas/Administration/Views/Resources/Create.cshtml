@@ -79,7 +79,7 @@
                 @Html.TextBox(nameof(ProblemResourceViewModel.RawLink), Model.Link, new { @class = "form-control pull-left full-editor" })
             </div>
             <div class="editor-field col-xs-4">
-                <span class="glyphicon glyphicon-question-sign text-primary" title="Въведете линк" data-tooltip="true"></span>
+                <span class="glyphicon glyphicon-question-sign text-primary" title="@Resource.Enter_link" data-tooltip="true"></span>
                 @Html.ValidationMessage(nameof(ProblemResourceViewModel.RawLink))
             </div>
         </div>
