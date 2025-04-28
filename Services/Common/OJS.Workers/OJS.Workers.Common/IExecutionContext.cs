@@ -20,8 +20,6 @@
 
         int MemoryLimit { get; }
 
-        int VerboseLogFileMaxBytes { get; }
-
         TInput Input { get; set; }
     }
 }

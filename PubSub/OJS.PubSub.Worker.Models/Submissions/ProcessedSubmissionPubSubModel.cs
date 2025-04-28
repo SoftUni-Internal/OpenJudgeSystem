@@ -26,6 +26,8 @@ public class ProcessedSubmissionPubSubModel : IMapExplicitly
 
     public string? WorkerName { get; set; }
 
+    public byte[]? VerboseLogFile { get; set; }
+
     public void SetExecutionResult(ExecutionResultServiceModel executionResultModel)
     {
         this.ExecutionResult = executionResultModel;

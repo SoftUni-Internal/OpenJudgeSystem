@@ -46,25 +46,9 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
         try
         {
             executionContext.Code = this.PreprocessCode(executionContext);
-            var result = await this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+            return await this.InternalExecute(executionContext, new ExecutionResult<TResult>());
 
-            if (submission.Verbosely)
-            {
-                // If the submission is marked as verbose, try read the log file and attach it to the result
-                var logFilePath = FileHelpers.BuildSubmissionLogFilePath(submissionId);
-                if (FileHelpers.FileExists(logFilePath))
-                {
-                    result.VerboseLogFile = await FileHelpers.ReadFileUpToBytes(logFilePath, executionContext.VerboseLogFileMaxBytes);
-                }
-                else
-                {
-                    result.ProcessingComment = $"No verbose log file found in {logFilePath}";
-                }
-            }
-
-            return result;
-
-            // Catch logic is handled by the caller
+            // The caller handles catch logic
         }
         finally
         {
@@ -75,7 +59,6 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
                 try
                 {
                     DirectoryHelpers.SafeDeleteDirectory(this.WorkingDirectory, true);
-                    FileHelpers.DeleteFile(FileHelpers.BuildSubmissionLogFilePath(submissionId));
                 }
                 catch (Exception ex)
                 {
