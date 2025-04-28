@@ -1,9 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
+import { ChatMessageRole } from 'src/common/enums';
+import { updateMessages } from 'src/redux/features/mentorSlice';
 
 import { defaultPathIdentifier } from '../../common/constants';
 import { IMentorConversationRequestModel, IMentorConversationResponseModel } from '../../common/types';
-import { updateMessages } from "src/redux/features/mentorSlice";
-import { ChatMessageRole } from "src/common/enums";
 
 const mentorService = createApi({
     reducerPath: 'mentorService',
@@ -25,14 +25,10 @@ const mentorService = createApi({
             async onQueryStarted(arg, { dispatch, queryFulfilled }) {
                 try {
                     const { data } = await queryFulfilled;
-                    dispatch(
-                        updateMessages({
-                            problemId: data.problemId,
-                            messages: data.messages.filter(
-                                (m) => m.role !== ChatMessageRole.System,
-                            ),
-                        }),
-                    );
+                    dispatch(updateMessages({
+                        problemId: data.problemId,
+                        messages: data.messages.filter((m) => m.role !== ChatMessageRole.System),
+                    }));
                 } catch {
                     /* ignore, slice already has optimistic copy */
                 }

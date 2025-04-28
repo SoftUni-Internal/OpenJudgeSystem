@@ -148,7 +148,6 @@ const Mentor = (props: IMentorProps) => {
             problemId,
         };
 
-        // Add message to Redux store
         dispatch(addMessage({
             problemId,
             message,

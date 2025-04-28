@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
 import { ChatMessageRole } from '../../common/enums';
 import { IMentorConversationMessage } from '../../common/types';
 
@@ -14,9 +15,7 @@ interface IMentorState {
     }>;
 }
 
-const initialState: IMentorState = {
-    conversationsByProblemId: {},
-};
+const initialState: IMentorState = { conversationsByProblemId: {} };
 
 export const mentorSlice = createSlice({
     name: 'mentor',
@@ -31,16 +30,16 @@ export const mentorSlice = createSlice({
                 state.conversationsByProblemId[problemId] = {
                     messages: [
                         {
-                          content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
-                          role: ChatMessageRole.Assistant,
-                          sequenceNumber: 1,
-                          problemId,
+                            content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
+                            role: ChatMessageRole.Assistant,
+                            sequenceNumber: 1,
+                            problemId,
                         },
                     ],
                     conversationDate: null,
-                    };
-                }
-            },
+                };
+            }
+        },
 
         // Add a message to a specific problem's conversation
         addMessage: (state, action: PayloadAction<{
@@ -68,7 +67,7 @@ export const mentorSlice = createSlice({
                 const recentMessages = state.conversationsByProblemId[problemId].messages.slice(-(MAX_MESSAGES_PER_PROBLEM - 1));
 
                 // Reassign the messages array with the welcome message and recent messages
-                state.conversationsByProblemId[problemId].messages = [welcomeMessage, ...recentMessages];
+                state.conversationsByProblemId[problemId].messages = [ welcomeMessage, ...recentMessages ];
 
                 // Fix sequence numbers to be consecutive
                 state.conversationsByProblemId[problemId].messages.forEach((msg, index) => {
@@ -96,13 +95,13 @@ export const mentorSlice = createSlice({
                 state.conversationsByProblemId[problemId] = {
                     messages: [],
                     conversationDate: new Date(),
-              };
+                };
             }
 
             // Filter out system messages AND ensure all messages have the correct problemId
             const filteredMessages = messages
-                .filter(m => m.role !== ChatMessageRole.System)
-                .map(m => ({
+                .filter((m) => m.role !== ChatMessageRole.System)
+                .map((m) => ({
                     ...m,
                     problemId,
                 }));
@@ -116,7 +115,7 @@ export const mentorSlice = createSlice({
                 // Update the messages
                 state.conversationsByProblemId[problemId].messages = [
                     { ...welcomeMessage, problemId }, // Ensure welcome message has correct problemId
-                    ...recentMessages.map(m => ({ ...m, problemId })) // Ensure all messages have correct problemId
+                    ...recentMessages.map((m) => ({ ...m, problemId })), // Ensure all messages have correct problemId
                 ];
 
                 // Fix sequence numbers to be consecutive
@@ -134,9 +133,9 @@ export const mentorSlice = createSlice({
 });
 
 export const {
-  initializeConversation,
-  addMessage,
-  updateMessages
+    initializeConversation,
+    addMessage,
+    updateMessages,
 } = mentorSlice.actions;
 
 export default mentorSlice.reducer;
