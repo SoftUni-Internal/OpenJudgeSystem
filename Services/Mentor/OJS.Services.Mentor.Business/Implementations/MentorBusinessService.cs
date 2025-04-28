@@ -21,6 +21,7 @@ using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Mentor.Business;
 using OJS.Services.Mentor.Models;
+using OJS.Services.Ui.Business;
 using OJS.Services.Ui.Data;
 using OpenAI;
 using OpenAI.Chat;
@@ -29,42 +30,23 @@ using static OJS.Common.GlobalConstants.FileExtensions;
 using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
 using static OJS.Common.GlobalConstants.Settings;
 
-public class MentorBusinessService : IMentorBusinessService
+public class MentorBusinessService(
+    IDataService<UserMentor> userMentorData,
+    IDataService<MentorPromptTemplate> mentorPromptTemplateData,
+    IHttpClientFactory httpClientFactory,
+    IDataService<Setting> settingData,
+    IContestsDataService contestsData,
+    ICacheService cache,
+    ILogger<MentorBusinessService> logger,
+    OpenAIClient openAiClient,
+    IProblemResourcesBusinessService problemResourcesBusinessService)
+    : IMentorBusinessService
 {
     private const string DocumentNotFoundOrEmpty = "Judge was unable to find the problem's description. Please contact an administrator and report the problem.";
 
-    private readonly IDataService<UserMentor> userMentorData;
-    private readonly IDataService<MentorPromptTemplate> mentorPromptTemplateData;
-    private readonly IHttpClientFactory httpClientFactory;
-    private readonly IDataService<Setting> settingData;
-    private readonly IContestsDataService contestsData;
-    private readonly ICacheService cache;
-    private readonly ILogger<MentorBusinessService> logger;
-    private readonly OpenAIClient openAiClient;
-
-    public MentorBusinessService(
-        IDataService<UserMentor> userMentorData,
-        IDataService<MentorPromptTemplate> mentorPromptTemplateData,
-        IHttpClientFactory httpClientFactory,
-        IDataService<Setting> settingData,
-        IContestsDataService contestsData,
-        ICacheService cache,
-        ILogger<MentorBusinessService> logger,
-        OpenAIClient openAiClient)
-    {
-        this.userMentorData = userMentorData;
-        this.mentorPromptTemplateData = mentorPromptTemplateData;
-        this.httpClientFactory = httpClientFactory;
-        this.settingData = settingData;
-        this.contestsData = contestsData;
-        this.cache = cache;
-        this.logger = logger;
-        this.openAiClient = openAiClient;
-    }
-
     public async Task<ConversationResponseModel> StartConversation(ConversationRequestModel model)
     {
-        var settings = await this.settingData
+        var settings = await settingData
             .GetQuery(s => s.Name.Contains(Mentor))
             .AsNoTracking()
             .ToDictionaryAsync(k => k.Name, v => v.Value);
@@ -81,7 +63,7 @@ public class MentorBusinessService : IMentorBusinessService
             throw new BusinessServiceException($"Your message exceeds the {maxUserInputLength}-character limit. Please shorten it.");
         }
 
-        var userMentor = await this.userMentorData
+        var userMentor = await userMentorData
             .GetQuery(um => um.Id == model.UserId)
             .FirstOrDefaultAsync();
 
@@ -98,8 +80,8 @@ public class MentorBusinessService : IMentorBusinessService
                 QuotaResetTime = DateTime.UtcNow.AddMinutes(GetNumericValue(settings, nameof(MentorQuotaResetTimeInMinutes))),
             };
 
-            await this.userMentorData.Add(userMentor);
-            await this.userMentorData.SaveChanges();
+            await userMentorData.Add(userMentor);
+            await userMentorData.SaveChanges();
         }
 
         if (DateTime.UtcNow >= userMentor.QuotaResetTime)
@@ -127,7 +109,7 @@ public class MentorBusinessService : IMentorBusinessService
 
         var messagesToSend = new List<ChatMessage>();
 
-        var systemMessage = await this.cache.Get(
+        var systemMessage = await cache.Get(
             string.Format(CultureInfo.InvariantCulture, CacheConstants.MentorSystemMessage, model.UserId, model.ProblemId),
             async () => await this.GetSystemMessage(model),
             CacheConstants.OneHourInSeconds);
@@ -172,7 +154,7 @@ public class MentorBusinessService : IMentorBusinessService
 
         messagesToSend.AddRange(recentMessages.Select(m => CreateChatMessage(m.Role, m.Content)));
 
-        var chat = this.openAiClient.GetChatClient(mentorModel);
+        var chat = openAiClient.GetChatClient(mentorModel);
         var response = await chat.CompleteChatAsync(messagesToSend, new ChatCompletionOptions
         {
             MaxOutputTokenCount = GetNumericValue(settings, nameof(MentorMaxOutputTokenCount)),
@@ -205,7 +187,7 @@ public class MentorBusinessService : IMentorBusinessService
 
         userMentor.RequestsMade++;
         userMentor.TotalRequestsMade++;
-        await this.userMentorData.SaveChanges();
+        await userMentorData.SaveChanges();
 
         return GetResponseModel(model, maxUserInputLength);
     }
@@ -283,7 +265,7 @@ public class MentorBusinessService : IMentorBusinessService
         }
         catch (Exception)
         {
-            this.logger.LogFileParsingFailure(problemId, contestId);
+            logger.LogFileParsingFailure(problemId, contestId);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
     }
@@ -416,7 +398,7 @@ public class MentorBusinessService : IMentorBusinessService
             }
 
             // Log the percentage of content truncated
-            this.logger.LogPercentageOfMessageContentTruncated(percentageTruncated, problemId);
+            logger.LogPercentageOfMessageContentTruncated(percentageTruncated, problemId);
 
             // Stop if we've removed enough tokens
             if (tokensToRemove <= 0)
@@ -429,7 +411,7 @@ public class MentorBusinessService : IMentorBusinessService
         if (removedMessageCount > 0)
         {
             // Log the number of messages removed
-            this.logger.LogTruncatedMentorMessages(initialMessageCount, removedMessageCount, problemId);
+            logger.LogTruncatedMentorMessages(initialMessageCount, removedMessageCount, problemId);
         }
     }
 
@@ -566,12 +548,12 @@ public class MentorBusinessService : IMentorBusinessService
          *  .FirstOrDefaultAsync() will always return a template. This
          *  will be changed in the future.
          */
-        var template = await this.mentorPromptTemplateData
+        var template = await mentorPromptTemplateData
             .GetQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        var problemsResources = await this.contestsData
+        var problemsResources = await contestsData
             .GetByIdQuery(model.ContestId)
             .AsNoTracking()
             .Select(c => c.ProblemGroups
@@ -627,12 +609,13 @@ public class MentorBusinessService : IMentorBusinessService
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
     {
+        link = problemResourcesBusinessService.SafeConvertToSvnLink(link);
         using var client = this.CreateClientForLink(link);
         var fileBytes = await this.FetchResource(link, client, problemId, contestId);
 
         if (!IsExpectedFormat(fileBytes))
         {
-            this.logger.LogInvalidDocumentFormat(problemId, contestId, link);
+            logger.LogInvalidDocumentFormat(problemId, contestId, link);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
 
@@ -647,7 +630,7 @@ public class MentorBusinessService : IMentorBusinessService
         }
 
         // 1) Try the SVN client for links from the SVN server
-        var svnClient = this.httpClientFactory.CreateClient(ServiceConstants.SvnHttpClientName);
+        var svnClient = httpClientFactory.CreateClient(ServiceConstants.SvnHttpClientName);
         if (svnClient.BaseAddress != null
             && string.Equals(svnClient.BaseAddress.Host, uri.Host, StringComparison.OrdinalIgnoreCase))
         {
@@ -655,7 +638,7 @@ public class MentorBusinessService : IMentorBusinessService
         }
 
         // 2) Fallback: use the default client
-        return this.httpClientFactory.CreateClient(ServiceConstants.DefaultHttpClientName);
+        return httpClientFactory.CreateClient(ServiceConstants.DefaultHttpClientName);
     }
 
     private async Task<byte[]> FetchResource(string link, HttpClient client, int problemId, int contestId)
@@ -666,7 +649,7 @@ public class MentorBusinessService : IMentorBusinessService
 
             if (response is not { IsSuccessStatusCode: true })
             {
-                this.logger.LogHttpRequestFailure(
+                logger.LogHttpRequestFailure(
                     problemId,
                     contestId,
                     response?.StatusCode ?? HttpStatusCode.ServiceUnavailable,
@@ -679,7 +662,7 @@ public class MentorBusinessService : IMentorBusinessService
 
             if (fileBytes.Length == 0)
             {
-                this.logger.LogFileNotFoundOrEmpty(problemId, contestId, link);
+                logger.LogFileNotFoundOrEmpty(problemId, contestId, link);
                 throw new BusinessServiceException(DocumentNotFoundOrEmpty);
             }
 
@@ -687,7 +670,7 @@ public class MentorBusinessService : IMentorBusinessService
         }
         catch (Exception ex)
         {
-            this.logger.LogResourceDownloadFailure(problemId, contestId, link, ex);
+            logger.LogResourceDownloadFailure(problemId, contestId, link, ex);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
     }
