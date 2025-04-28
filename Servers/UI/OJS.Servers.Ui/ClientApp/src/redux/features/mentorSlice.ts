@@ -22,21 +22,15 @@ const applyMessageLimits = (messages: IMentorConversationMessage[]): IMentorConv
         return messages;
     }
 
-    // Keep the first message (welcome message) and the most recent messages
-    const welcomeMessage = messages[0];
+    // Keep the most recent messages
     const recentMessages = messages.slice(-(MAX_MESSAGES_PER_PROBLEM - 1));
 
-    // Combine welcome message and recent messages
-    const limitedMessages = [welcomeMessage, ...recentMessages];
-
     // Fix sequence numbers to be consecutive
-    limitedMessages.forEach((msg, index) => {
-        if (index > 0) { // Skip the welcome message
-            msg.sequenceNumber = index + 1;
-        }
+    recentMessages.forEach((msg, index) => {
+        msg.sequenceNumber = index + 1;
     });
 
-    return limitedMessages;
+    return recentMessages;
 };
 
 const ensureConversationExists = (
