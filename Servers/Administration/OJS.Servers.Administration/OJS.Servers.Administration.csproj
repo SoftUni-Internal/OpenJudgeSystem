@@ -8,4 +8,7 @@
     <ProjectReference Include="..\..\..\Services\Administration\OJS.Services.Administration.Data\OJS.Services.Administration.Data.csproj" />
     <ProjectReference Include="..\..\Infrastructure\OJS.Servers.Infrastructure\OJS.Servers.Infrastructure.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\" />
+  </ItemGroup>
 </Project>
