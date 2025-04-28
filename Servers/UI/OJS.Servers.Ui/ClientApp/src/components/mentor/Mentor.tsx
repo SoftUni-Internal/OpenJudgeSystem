@@ -98,18 +98,8 @@ const Mentor = (props: IMentorProps) => {
             // Only show messages that belong to this problem
             setLocalConversationMessages(conversationData.messages.filter((message) => message.problemId === problemId));
             setLocalConversationDate(conversationData.conversationDate);
-        } else if (problemId !== undefined && problemName !== undefined) {
-            setLocalConversationMessages([
-                {
-                    content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
-                    role: ChatMessageRole.Assistant,
-                    sequenceNumber: 1,
-                    problemId,
-                },
-            ]);
-            setLocalConversationDate(null);
         }
-    }, [ conversationData, problemId, problemName ]);
+    }, [ conversationData, problemId ]);
 
     useEffect(() => {
         if (messagesEndRef.current) {
