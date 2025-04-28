@@ -30,8 +30,6 @@ jobs:
       docker_tag: dev-latest
       branch_name: ${{ inputs.branch_name || 'v2-development' }}
       build_args: YARN_BUILD_COMMAND=${{ inputs.build_variant }}
-      additional_run_commands: |
-        export NODE_OPTIONS=--max-old-space-size=8192
     secrets: inherit
   deploy:
     needs: [build-and-push]
