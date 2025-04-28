@@ -49,7 +49,6 @@ export const contestsService = createApi({
                 return { blob, fileName: filename };
             }
 
-            // Only return empty string for empty responses, not just because Content-Length exists
             if (response.headers.get('Content-Length') === '0') {
                 return '';
             }

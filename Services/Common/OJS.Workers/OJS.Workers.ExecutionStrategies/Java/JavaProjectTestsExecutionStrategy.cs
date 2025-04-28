@@ -484,7 +484,10 @@ public class _$TestRunner {{
             {
                 var errorLine = ReadAndValidateLine(output);
 
-                var errorMessage = errorLine[firstSpaceIndex..];
+                var errorMessageStart = errorLine.IndexOf(' ');
+                var errorMessage = errorMessageStart > 0 && errorMessageStart < errorLine.Length - 1
+                    ? errorLine[errorMessageStart..]
+                    : errorLine;
 
                 errorsByFiles.Add(fileName, errorMessage);
             }

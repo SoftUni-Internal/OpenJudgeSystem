@@ -129,6 +129,7 @@ const ContestsPage = () => {
                   orientation={Orientation.vertical}
                 />
                 <PaginationControls
+                  isDataFetching={areContestsFetching}
                   count={contests?.pagesCount}
                   page={selectedPage}
                   onChange={(page:number) => {
@@ -181,6 +182,7 @@ const ContestsPage = () => {
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls
+                      isDataFetching={areContestsFetching}
                       count={contests?.pagesCount || 0}
                       page={selectedPage}
                       onChange={(page:number) => {

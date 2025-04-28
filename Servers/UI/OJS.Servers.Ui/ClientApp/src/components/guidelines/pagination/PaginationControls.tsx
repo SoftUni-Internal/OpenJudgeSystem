@@ -13,12 +13,14 @@ interface IPaginationControlsProps extends IHaveOptionalClassName {
     count: number;
     page: number;
     onChange: (value: number) => void | undefined;
+    isDataFetching: boolean;
 }
 
 const PaginationControls = ({
     count,
     page,
     onChange,
+    isDataFetching,
     className = '',
 } : IPaginationControlsProps) => {
     const { themeColors, getColorClassName } = useTheme();
@@ -35,6 +37,7 @@ const PaginationControls = ({
             '& .MuiPaginationItem-root.Mui-selected': { backgroundColor: '#44a9f8', color: '#ffffff' },
             '& .MuiPaginationItem-root': { color: themeColors.textColor },
             '& .MuiPaginationItem-ellipsis': { cursor: 'pointer' },
+            '& .Mui-disabled': { pointerEvents: 'none' },
         },
         ellipsis: {
             pointerEvents: 'auto',
@@ -45,6 +48,10 @@ const PaginationControls = ({
     const classes = useStyles();
 
     const handleEllipsisClick = (type: string) => {
+        if (isDataFetching) {
+            return;
+        }
+
         let newPage;
 
         if (type === 'start-ellipsis') {
@@ -72,6 +79,7 @@ const PaginationControls = ({
               classes={{ ul: classes.ul }}
               showFirstButton
               showLastButton
+              disabled={isDataFetching}
               renderItem={(item) => {
                   if (item.type === 'start-ellipsis') {
                       return (

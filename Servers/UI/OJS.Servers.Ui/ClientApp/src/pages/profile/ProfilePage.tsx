@@ -37,6 +37,14 @@ const ProfilePage = () => {
     const { themeColors, getColorClassName } = useTheme();
     const dispatch = useAppDispatch();
 
+    const handleViewChange = useCallback((value: number, view: string) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('page', '1');
+        newParams.set('view', view);
+        setSearchParams(newParams);
+        setToggleValue(value);
+    }, [ searchParams, setSearchParams ]);
+
     const profileUsername = useMemo(
         () => !isNil(username)
             ? decodeFromUrlParam(username)
@@ -141,10 +149,7 @@ const ProfilePage = () => {
                                           text={currentUserIsProfileOwner
                                               ? 'My Submissions'
                                               : 'User Submissions'}
-                                          onClick={() => {
-                                              setSearchParams({ ...Object.fromEntries(searchParams.entries()), view: 'submissions' });
-                                              setToggleValue(1);
-                                          }}
+                                          onClick={() => handleViewChange(1, 'submissions')}
                                         />
                                         <Button
                                           type={toggleValue === 2
@@ -154,10 +159,7 @@ const ProfilePage = () => {
                                           text={currentUserIsProfileOwner
                                               ? 'My Contests'
                                               : 'User Contests'}
-                                          onClick={() => {
-                                              setSearchParams({ ...Object.fromEntries(searchParams.entries()), view: 'contests' });
-                                              setToggleValue(2);
-                                          }}
+                                          onClick={() => handleViewChange(2, 'contests')}
                                         />
                                     </div>
                                 )}

@@ -1,9 +1,9 @@
-namespace OJS.Servers.Administration.Controllers;
+namespace OJS.Services.Administration.Business.Contests;
 
 using FluentExtensions.Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OJS.Common;
 using OJS.Common.Enumerations;
@@ -13,8 +13,6 @@ using OJS.Data.Models.Contests;
 using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.Data.Models.Tests;
-using OJS.Servers.Infrastructure.Controllers;
-using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Business.Problems;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Contests;
@@ -28,8 +26,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 
-[Authorize(Roles = GlobalConstants.Roles.Administrator)]
-public class TempController(
+public class ContestsImportBusinessService(
     IHttpClientFactory httpClientFactory,
     IOptions<ApplicationUrlsConfig> urlsConfig,
     IContestsDataService contestsData,
@@ -38,55 +35,87 @@ public class TempController(
     ISubmissionTypesDataService submissionTypesData,
     ITestRunsDataService testRunsData,
     IProblemsBusinessService problemsBusiness,
-    IProblemGroupsBusinessService problemGroupsBusiness)
-    : BaseApiController
+    ILogger<ContestsImportBusinessService> logger)
+    : IContestsImportBusinessService
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
     private readonly ApplicationUrlsConfig urls = urlsConfig.Value;
 
-    public async Task<IActionResult> ImportContestsFromCategory(int sourceContestCategoryId, int destinationContestCategoryId, bool dryRun = true)
+    public async Task StreamImportContestsFromCategory(int sourceContestCategoryId, int destinationContestCategoryId, HttpResponse response, bool dryRun = true)
     {
+        response.ContentType = GlobalConstants.MimeTypes.TextHtml;
+
         if (sourceContestCategoryId == 0 || destinationContestCategoryId == 0)
         {
-            return this.BadRequest("Invalid contest category ids.");
+            await response.WriteAsync("<p style='color:red'>Invalid contest category ids.</p>");
+            await response.Body.FlushAsync();
+            return;
         }
+
+        await response.WriteAsync("<div id='import-results' style='font-family: Arial, sans-serif;'>");
+        await response.WriteAsync("<h2>Import Process Started</h2>");
+        await response.Body.FlushAsync();
 
         var contestIds = await this.httpClient.GetFromJsonAsync<int[]>($"{this.urls.LegacyJudgeUrl}/api/Contests/GetExistingIdsForCategory?contestCategoryId={sourceContestCategoryId}&apiKey={this.urls.LegacyJudgeApiKey}");
 
         if (contestIds == null)
         {
-            return this.BadRequest("Failed to get contest IDs.");
+            logger.LogError("Failed to get contest IDs for category {SourceContestCategoryId}", sourceContestCategoryId);
+            await response.WriteAsync("<p style='color:red'>Failed to get contest IDs.</p>");
+            await response.WriteAsync("</div>");
+            await response.Body.FlushAsync();
+            return;
         }
 
         var destinationContestCategory = await contestCategoriesData.OneById(destinationContestCategoryId);
 
         if (destinationContestCategory == null)
         {
-            return this.BadRequest($"Destination contest category with id {destinationContestCategoryId} does not exist.");
+            await response.WriteAsync($"<p style='color:red'>Destination contest category with id {destinationContestCategoryId} does not exist.</p>");
+            await response.WriteAsync("</div>");
+            await response.Body.FlushAsync();
+            return;
         }
 
-        var result = new StringBuilder();
-        result.AppendLine(CultureInfo.InvariantCulture, $"<p>Importing contests from category #{sourceContestCategoryId} into category \"{destinationContestCategory.Name}\" #{destinationContestCategoryId}</p>");
-        result.AppendLine(CultureInfo.InvariantCulture, $"<p>{contestIds.Length} contests will be imported. These are the source contest ids: <b>{string.Join(", ", contestIds)}</b></p>");
-        result.AppendLine("<hr>");
+        logger.LogInformation("Importing {ContestIdsCount} contests from category {SourceContestCategoryId} into category {DestinationContestCategoryId}, dry run: {dryRun}", contestIds.Length, sourceContestCategoryId, destinationContestCategoryId, dryRun);
+        await response.WriteAsync($"<p>Importing contests from category #{sourceContestCategoryId} into category \"{destinationContestCategory.Name}\" #{destinationContestCategoryId}</p>");
+        logger.LogInformation("{ContestIdsCount} contests will be imported. These are the source contest ids: {ContestIds}", contestIds.Length, string.Join(", ", contestIds));
+        await response.WriteAsync($"<p>{contestIds.Length} contests will be imported. These are the source contest ids: <b>{string.Join(", ", contestIds)}</b></p>");
+        await response.WriteAsync("<hr>");
+        await response.Body.FlushAsync();
 
         if (dryRun)
         {
-            result.AppendLine("<b>Dry run is enabled. This will not import any contests.</b>");
-            result.AppendLine("<hr>");
+            await response.WriteAsync("<p><b style='color:blue'>Dry run is enabled. This will not import any contests.</b></p>");
+            await response.WriteAsync("<hr>");
+            await response.Body.FlushAsync();
         }
 
         var checkers = await checkersData.All().ToListAsync();
         var submissionTypes = await submissionTypesData.All().ToListAsync();
+
+        // Add a progress counter
+        var processedCount = 0;
+
+        await response.WriteAsync("<div id='progress-bar' style='margin: 10px 0; background-color: #f0f0f0; border-radius: 4px; padding: 2px;'>");
+        await response.WriteAsync($"<div id='progress' style='background-color: #4CAF50; height: 20px; border-radius: 4px; width: 0%;'></div>");
+        await response.WriteAsync("</div>");
+        await response.WriteAsync($"<p id='progress-text'>Processed: 0 of {contestIds.Length}</p>");
+        await response.WriteAsync("<div id='contest-results'>");
+        await response.Body.FlushAsync();
 
         foreach (var contestId in contestIds)
         {
             var contest = await this.httpClient.GetFromJsonAsync<ContestLegacyExportServiceModel>($"{this.urls.LegacyJudgeUrl}/api/Contests/Export/{contestId}?apiKey={this.urls.LegacyJudgeApiKey}");
             if (contest == null)
             {
-                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>Skip:</b> Failed to get source contest <b>#{contestId}</b>. Skipping it...</p>");
+                logger.LogError("Failed to get contest with id {ContestId}", contestId);
+                await response.WriteAsync($"<p><b style='color:orange'>Skip:</b> Failed to get source contest <b>#{contestId}</b>. Skipping it...</p>");
+                await response.Body.FlushAsync();
                 continue;
             }
+
+            logger.LogInformation("Importing contest {ContestId} into category {DestinationContestCategoryId}, dry run: {dryRun}", contestId, destinationContestCategoryId, dryRun);
 
             var existingContest = await contestsData
                 .WithQueryFilters()
@@ -106,30 +135,49 @@ public class TempController(
                     .ThenInclude(sp => sp.SubmissionType)
                 .FirstOrDefaultAsync(c => c.CategoryId == destinationContestCategoryId && c.Name == contest.Name);
 
+            // Create a StringBuilder for this contest's results
+            var contestResult = new StringBuilder();
+
             if (dryRun)
             {
-                result.AppendLine(existingContest == null
-                    ? $"<p><b>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
-                    : $"<p><b>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be updated.</p>");
+                contestResult.AppendLine(existingContest == null
+                    ? $"<p><b style='color:green'>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
+                    : $"<p><b style='color:blue'>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists (#{existingContest.Id}) and will be updated.</p>");
             }
 
             if (existingContest == null)
             {
-                await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes, result, dryRun);
+                logger.LogInformation("Importing contest {ContestId} as new contest", contestId);
+                await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes, contestResult, dryRun);
             }
             else
             {
-                await this.UpdateContest(existingContest, contest, checkers, submissionTypes, result, dryRun);
+                logger.LogInformation("Updating contest {ContestId}", existingContest.Id);
+                await this.UpdateContest(existingContest, contest, checkers, submissionTypes, contestResult, dryRun);
             }
+
+            // Write this contest's results to the response
+            await response.WriteAsync(contestResult.ToString());
+
+            // Update progress
+            processedCount++;
+            var percentage = (double)processedCount / contestIds.Length * 100;
+
+            // Update progress bar with JavaScript
+            await response.WriteAsync($"<script>document.getElementById('progress').style.width = '{percentage}%';</script>");
+            await response.WriteAsync($"<script>document.getElementById('progress-text').innerText = 'Processed: {processedCount} of {contestIds.Length}';</script>");
+            await response.Body.FlushAsync();
         }
 
-        result.AppendLine("<hr>");
-        result.AppendLine(dryRun
-            ? "<p>Dry run completed. To import, set dryRun to false.</p>"
-            : "<p>Import completed.</p>");
-        result.AppendLine("<hr>");
-
-        return this.Content(result.ToString(), GlobalConstants.MimeTypes.TextHtml);
+        logger.LogInformation("Import process completed successfully.");
+        await response.WriteAsync("</div>"); // Close contest-results div
+        await response.WriteAsync("<hr>");
+        await response.WriteAsync(dryRun
+            ? "<p><b style='color:blue'>Dry run completed. To import, set dryRun to false.</b></p>"
+            : "<p><b style='color:green'>Import completed successfully!</b></p>");
+        await response.WriteAsync("<hr>");
+        await response.WriteAsync("</div>"); // Close import-results div
+        await response.Body.FlushAsync();
     }
 
     private static DateTime? ConvertTimeToUtc(DateTime? dateTime)
@@ -217,6 +265,7 @@ public class TempController(
             await contestsData.SaveChanges();
         }
 
+        logger.LogInformation("Contest {ContestId} imported successfully", contest.Id);
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{contest.Name}\"</b> was imported successfully.</p>");
         result.AppendLine("<hr>");
     }
@@ -248,12 +297,34 @@ public class TempController(
         existingContest.AutoChangeTestsFeedbackVisibility = sourceContest.AutoChangeTestsFeedbackVisibility;
         existingContest.Duration = sourceContest.Duration;
 
-        // Process each problem in the group
-        foreach (var sourceProblemGroup in sourceContest.ProblemGroups)
+        if (!dryRun)
         {
+            await testRunsData.ExecuteSqlCommandWithTimeout($"""
+                DELETE tr FROM [OpenJudgeSystem].[dbo].[TestRuns] tr
+                INNER JOIN [OpenJudgeSystem].[dbo].[Tests] t ON tr.TestId = t.Id
+                INNER JOIN [OpenJudgeSystem].[dbo].[Problems] p ON p.Id = t.ProblemId
+                INNER JOIN [OpenJudgeSystem].[dbo].[ProblemGroups] pg ON pg.Id = p.ProblemGroupId
+                INNER JOIN [OpenJudgeSystem].[dbo].[Contests] c ON c.Id = pg.ContestId
+                WHERE c.Id = {existingContest.Id}
+                """,
+                60);
+
+            result.AppendLine(CultureInfo.InvariantCulture, $"<p>Test runs for contest <b>\"{sourceContest.Name}\"</b> deleted successfully.</p>");
+            logger.LogInformation("Test runs for contest {ContestId} deleted successfully", existingContest.Id);
+        }
+
+        var sourceGroups = sourceContest.ProblemGroups.OrderBy(g => g.OrderBy).ToList();
+        var existingGroups = existingContest.ProblemGroups.OrderBy(g => g.OrderBy).ToList();
+
+        // Process each problem in the group
+        for (var i = 0; i < sourceGroups.Count; i++)
+        {
+            var sourceProblemGroup = sourceGroups[i];
+
             // Try to find existing problem group by OrderBy
-            var existingProblemGroup = existingContest.ProblemGroups
-                .FirstOrDefault(pg => Math.Abs(pg.OrderBy - sourceProblemGroup.OrderBy) < 0.001);
+            var existingProblemGroup = i < existingGroups.Count
+                ? existingGroups[i]
+                : null;
 
             if (existingProblemGroup == null)
             {
@@ -287,13 +358,10 @@ public class TempController(
                 else
                 {
                     // Clear existing collections to update them
-                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Update:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be updated. Tests will be replaced. Test runs will be deleted.</p>");
+                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Update:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be updated. Tests will be replaced.</p>");
                     existingProblem.Tests.Clear();
                     existingProblem.Resources.Clear();
                     existingProblem.SubmissionTypesInProblems.Clear();
-
-                    // Delete test runs for the problem, as they are no longer valid after importing new tests
-                    await testRunsData.DeleteByProblem(existingProblem.Id);
                 }
 
                 // Update problem properties
@@ -380,33 +448,45 @@ public class TempController(
                 Math.Abs(pg.OrderBy - sourceOrderBy) < 0.001))
             .ToList();
 
-        foreach (var problemGroup in problemGroupsToRemove)
-        {
-            result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> will be deleted.</p>");
+        var problemsToRemove = existingContest.ProblemGroups
+            .SelectMany(pg => pg.Problems)
+            .Where(p => !sourceProblemNames.Contains(p.Name))
+            .Concat(problemGroupsToRemove.SelectMany(pg => pg.Problems))
+            .ToList();
 
+        foreach (var problem in problemsToRemove)
+        {
             if (!dryRun)
             {
-                await problemGroupsBusiness.Delete(problemGroup.Id);
+                await problemsBusiness.Delete(problem.Id);
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> deleted successfully.</p>");
             }
-        }
-
-        foreach (var problemGroup in existingContest.ProblemGroups)
-        {
-            var problemsToRemove = problemGroup.Problems
-                .Where(p => !sourceProblemNames.Contains(p.Name))
-                .ToList();
-
-            foreach (var problem in problemsToRemove)
+            else
             {
                 result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> will be deleted.</p>");
-
-                if (!dryRun)
-                {
-                    await problemsBusiness.Delete(problem.Id);
-                }
             }
         }
 
+        foreach (var problemGroup in problemGroupsToRemove)
+        {
+            if (!dryRun)
+            {
+                problemGroup.IsDeleted = true;
+                problemGroup.DeletedOn = DateTime.UtcNow;
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> deleted successfully.</p>");
+            }
+            else
+            {
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> will be deleted.</p>");
+            }
+        }
+
+        if (!dryRun)
+        {
+            await contestsData.SaveChanges();
+        }
+
+        logger.LogInformation("Contest {ContestId} updated successfully", existingContest.Id);
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{sourceContest.Name}\"</b> updated successfully.</p>");
         result.AppendLine("<hr>");
     }

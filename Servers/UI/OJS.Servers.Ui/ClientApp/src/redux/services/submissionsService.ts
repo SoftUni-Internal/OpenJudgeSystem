@@ -30,7 +30,8 @@ const submissionsService = createApi({
 
                 return { blob, fileName: 'file.zip' };
             }
-            if (response.headers.get('Content-Length')) {
+
+            if (response.headers.get('Content-Length') === '0') {
                 return '';
             }
 
