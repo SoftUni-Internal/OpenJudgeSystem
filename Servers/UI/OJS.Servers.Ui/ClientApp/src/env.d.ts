@@ -8,3 +8,14 @@ interface ImportMetaEnv {
   readonly VITE_PLATFORM_URL: string;
   readonly VITE_YOUTUBE_VIDEO_ID: string;
 }
+
+declare module '*.css';
+
+/* Optional: Vite “?react” loader */
+declare module '*.svg?react' {
+    import * as React from 'react';
+
+    const ReactComponent: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+
+    export default ReactComponent;
+}
