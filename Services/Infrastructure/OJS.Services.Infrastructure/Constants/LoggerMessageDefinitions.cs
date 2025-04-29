@@ -104,6 +104,12 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(308, LogLevel.Error, "Problem description resource not found for problem #{ProblemId} in contest #{ContestId}. Verify that the problem or the first problem in the contest has a valid description resource.", SkipEnabledCheck = true)]
     public static partial void LogProblemDescriptionResourceNotFound(this ILogger logger, int problemId, int contestId);
 
+    [LoggerMessage(309, LogLevel.Error, "The SVN BaseUrl provided in settings is not valid. Expected valid absolute URL, but got: {SvnBaseUrl}", SkipEnabledCheck = true)]
+    public static partial void LogSvnBaseUrlNotValid(this ILogger logger, string svnBaseUrl);
+
+    [LoggerMessage(310, LogLevel.Warning, "Couldn't find a valid alternative SVN base url in settings for link: {Link}.")]
+    public static partial void LogAlternativeBaseUrlNotFoundForLink(this ILogger logger, string link);
+
     // Submissions
     [LoggerMessage(1010, LogLevel.Error, "Exception in publishing submission #{SubmissionId}", SkipEnabledCheck = true)]
     public static partial void LogExceptionPublishingSubmission(this ILogger logger, int submissionId, Exception ex);
