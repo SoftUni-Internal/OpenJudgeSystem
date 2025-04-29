@@ -100,7 +100,7 @@ export const mentorSlice = createSlice({
 
             ensureConversationExists(state, problemId);
 
-            // Filter out system messages AND ensure all messages have the correct problemId
+            // Filter out system messages
             const filteredMessages = messages
                 .filter((m) => m.role !== ChatMessageRole.System);
 

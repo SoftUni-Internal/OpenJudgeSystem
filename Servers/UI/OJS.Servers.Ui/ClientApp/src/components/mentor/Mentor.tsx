@@ -95,7 +95,6 @@ const Mentor = (props: IMentorProps) => {
     // Update local state when conversation data changes
     useEffect(() => {
         if (conversationData && problemId !== undefined) {
-            // Only show messages that belong to this problem
             setLocalConversationMessages(conversationData.messages);
             setLocalConversationDate(conversationData.conversationDate);
         }
