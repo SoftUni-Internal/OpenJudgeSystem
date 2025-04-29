@@ -43,13 +43,24 @@ import usersService from './services/usersService';
 import submissionTypeDocumentsAdminService from './services/admin/submissionTypeDocumentsAdminService';
 import submissionTypesInSubmissionDocumentsAdminService from './services/admin/submissionTypesInSubmissionDocumentsAdminService';
 
+const persistConfig = (reducersToPersist: string[]) => ({
+    key: 'root',
+    storage,
+    whitelist: reducersToPersist,
+});
+
+const mentorPersistConfig = {
+    key: 'mentor',
+    storage,
+};
+
 const rootReducer = combineReducers({
     // reducers
     [themeSlice.name]: themeSlice.reducer,
     [authorizationSlice.name]: authorizationSlice.reducer,
     [usersSlice.name]: usersSlice.reducer,
     [contestSlice.name]: contestSlice.reducer,
-    [mentorSlice.name]: mentorSlice.reducer,
+    [mentorSlice.name]: persistReducer(mentorPersistConfig, mentorSlice.reducer),
     [searchSlice.name]: searchSlice.reducer,
 
     // services
@@ -83,18 +94,11 @@ const rootReducer = combineReducers({
     [accessLogsAdminService.reducerPath]: accessLogsAdminService.reducer,
 });
 
-const persistConfig = (reducersToPersist: string[]) => ({
-    key: 'root',
-    storage,
-    whitelist: reducersToPersist,
-});
-
 // list reducers with data to be persisted here
 const reducersToPersist = [
     themeSlice.name,
     authorizationSlice.name,
     contestSlice.name,
-    mentorSlice.name,
     searchSlice.name,
 ];
 
