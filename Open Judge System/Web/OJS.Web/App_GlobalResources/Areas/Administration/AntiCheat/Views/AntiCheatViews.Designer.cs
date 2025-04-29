@@ -160,7 +160,7 @@ namespace Resources.Areas.Administration.AntiCheat.Views {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There are not similarities.
+        ///   Looks up a localized string similar to There are no similarities.
         /// </summary>
         public static string ThereAreNoSimilarities {
             get {

@@ -61,7 +61,7 @@ function initilizeTestRuns(response) {
             { title: 'Result', template: '<div> #= testResult(ExecutionResult) # </div>' },
             { field: 'CheckerComment', title: 'Checker' },
             { field: 'ExecutionComment', title: 'Executor' },
-            { title: 'Solution', template: '<a href="/Contests/Submissions/View/#= SubmissionId #" target="_blank">№#= SubmissionId #</a>' }
+            { title: 'Submission', template: '<a href="/Contests/Submissions/View/#= SubmissionId #" target="_blank">№#= SubmissionId #</a>' }
         ]
     });
 }
