@@ -39,6 +39,7 @@ namespace OJS.Servers.Ui.Extensions
                 .AddOptionsWithValidation<ApplicationUrlsConfig>()
                 .AddOptionsWithValidation<EmailServiceConfig>()
                 .AddOptionsWithValidation<MentorConfig>()
+                .AddOptionsWithValidation<SvnConfig>()
                 .AddControllers();
     }
 }

@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\UI\OJS.Services.Ui.Business\OJS.Services.Ui.Business.csproj" />
       <ProjectReference Include="..\..\UI\OJS.Services.Ui.Data\OJS.Services.Ui.Data.csproj" />
       <ProjectReference Include="..\OJS.Services.Mentor.Models\OJS.Services.Mentor.Models.csproj" />
     </ItemGroup>
