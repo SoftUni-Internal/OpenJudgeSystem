@@ -84,8 +84,11 @@
 
     $(function () {
         $('#bulk-delete-submissions').click(function () {
-            var submissionsCount = $('#DataGrid').data('kendoGrid').dataSource.total();
-            return confirm('Сигурни ли сте, че искате да изтриете избраните ' + submissionsCount + ' решения? Моля, уверете се, че сте филтрирали коректно преди да продължите.');
+            const submissionsCount = $('#DataGrid').data('kendoGrid').dataSource.total();
+            const messageFormat = '@Resource.Confirm_delete_submissions_message_format';
+            const message = messageFormat.replace('{0}', submissionsCount);
+            
+            return confirm(message);
         });
     });
     function createRetestForm(id) {

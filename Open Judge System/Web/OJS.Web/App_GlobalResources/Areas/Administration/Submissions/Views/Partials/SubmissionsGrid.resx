@@ -126,4 +126,7 @@
   <data name="Retest" xml:space="preserve">
     <value>Retest</value>
   </data>
+  <data name="Confirm_delete_submissions_message_format" xml:space="preserve">
+    <value>Are you sure you want to delete the selected {0} submissions? Please ensure you have filtered correctly before proceeding.</value>
+  </data>
 </root>

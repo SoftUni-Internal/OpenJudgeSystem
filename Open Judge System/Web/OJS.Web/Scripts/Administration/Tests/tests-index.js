@@ -172,7 +172,7 @@ function initializeGrid(problemId, contestId) {
                 { field: 'OrderBy', title: 'Order by' },
                 { field: 'TestRunsCount', title: 'Test runs count' },
                 {
-                    title: 'Операции', width: '25%', template: '<a href="/Administration/Tests/Details/#= Id #" ' +
+                    title: 'Operations', width: '25%', template: '<a href="/Administration/Tests/Details/#= Id #" ' +
                         'class="btn btn-sm btn-primary">Details</a>&nbsp;' +
                         '<a href="/Administration/Tests/Edit/#= Id #" class="btn btn-sm btn-primary">Edit</a>&nbsp;' +
                         '<a href="/Administration/Tests/Delete/#= Id #" class="btn btn-sm btn-primary">Delete</a>'

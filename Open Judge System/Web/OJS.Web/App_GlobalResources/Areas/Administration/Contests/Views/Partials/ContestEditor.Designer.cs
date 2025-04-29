@@ -179,6 +179,33 @@ namespace Resources.Areas.Administration.Contests.Views.Partials {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Enter password for a new IP.
+        /// </summary>
+        public static string EnterPasswordForNewIP {
+            get {
+                return ResourceManager.GetString("EnterPasswordForNewIP", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter the race type.
+        /// </summary>
+        public static string EnterRaceType {
+            get {
+                return ResourceManager.GetString("EnterRaceType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Enter worker type.
+        /// </summary>
+        public static string EnterWorkerType {
+            get {
+                return ResourceManager.GetString("EnterWorkerType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to General information.
         /// </summary>
         public static string General_info {

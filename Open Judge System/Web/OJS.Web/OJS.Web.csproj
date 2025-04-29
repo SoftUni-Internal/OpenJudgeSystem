@@ -878,6 +878,26 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>FeedbackIndexAdmin.resx</DependentUpon>
     </Compile>
+    <Compile Include="App_GlobalResources\Areas\Administration\LecturerInContest\Views\AdminLecturerInContest.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AdminLecturerInContest.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Areas\Administration\LecturersInContestCategories\Views\LecturersInContestCategories.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LecturersInContestCategories.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Areas\Administration\Lecturers\Views\AdminLecturers.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>AdminLecturers.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Areas\Administration\Navigation.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Navigation.resx</DependentUpon>
+    </Compile>
     <Compile Include="App_GlobalResources\Areas\Administration\Participants\ViewModels\ParticipantViewModels.bg.designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -1702,6 +1722,26 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>AdvancedSubmissionsGridPartial.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Views\Shared\DownloadSubmissionsPopupWindowPartial.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DownloadSubmissionsPopupWindowPartial.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Views\Shared\EditorTemplates\LecturerInContest.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LecturerInContest.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Views\Shared\EditorTemplates\LecturerInContestCategory.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LecturerInContestCategory.resx</DependentUpon>
+    </Compile>
+    <Compile Include="App_GlobalResources\Views\Shared\LecturersInContestsAndCategoriesPartial.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LecturersInContestsAndCategoriesPartial.resx</DependentUpon>
     </Compile>
     <Compile Include="App_GlobalResources\Views\Shared\LoginPartial.bg.designer.cs">
       <DependentUpon>LoginPartial.bg.resx</DependentUpon>
@@ -2946,6 +2986,38 @@
       <LastGenOutput>FeedbackReport.bg.designer.cs</LastGenOutput>
       <CustomToolNamespace>Resources.Areas.Administration.Feedback.ViewModels</CustomToolNamespace>
     </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\LecturerInContest\Views\AdminLecturerInContest.bg.resx">
+      <DependentUpon>AdminLecturerInContest.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\LecturerInContest\Views\AdminLecturerInContest.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AdminLecturerInContest.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Areas.Administration.LecturerInContest.Views</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\LecturersInContestCategories\Views\LecturersInContestCategories.bg.resx">
+      <DependentUpon>LecturersInContestCategories.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\LecturersInContestCategories\Views\LecturersInContestCategories.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LecturersInContestCategories.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Areas.Administration.LecturersInContestCategories.Views</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\Lecturers\Views\AdminLecturers.bg.resx">
+      <DependentUpon>AdminLecturers.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\Lecturers\Views\AdminLecturers.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>AdminLecturers.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Areas.Administration.Lecturers.Views</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\Navigation.bg.resx">
+      <DependentUpon>Navigation.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Areas\Administration\Navigation.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Navigation.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Areas.Administration</CustomToolNamespace>
+    </EmbeddedResource>
     <EmbeddedResource Include="App_GlobalResources\Areas\Administration\Participants\ViewModels\ParticipantViewModels.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>ParticipantViewModels.Designer.cs</LastGenOutput>
@@ -3676,11 +3748,13 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>General.bg.designer.cs</LastGenOutput>
       <CustomToolNamespace>Resources.Account.Views</CustomToolNamespace>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="App_GlobalResources\Account\Views\General.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>General.Designer.cs</LastGenOutput>
       <CustomToolNamespace>Resources.Account.Views</CustomToolNamespace>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="App_GlobalResources\Account\Views\Login.bg.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
@@ -4036,6 +4110,38 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>AdvancedSubmissionsGridPartial.bg.designer.cs</LastGenOutput>
       <CustomToolNamespace>Resources.Submissions.Views.Partial</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\DownloadSubmissionsPopupWindowPartial.bg.resx">
+      <DependentUpon>DownloadSubmissionsPopupWindowPartial.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\DownloadSubmissionsPopupWindowPartial.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>DownloadSubmissionsPopupWindowPartial.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Views.Shared</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\EditorTemplates\LecturerInContest.bg.resx">
+      <DependentUpon>LecturerInContest.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\EditorTemplates\LecturerInContest.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LecturerInContest.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Views.Shared.EditorTemplates</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\EditorTemplates\LecturerInContestCategory.bg.resx">
+      <DependentUpon>LecturerInContestCategory.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\EditorTemplates\LecturerInContestCategory.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LecturerInContestCategory.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Views.Shared.EditorTemplates</CustomToolNamespace>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\LecturersInContestsAndCategoriesPartial.bg.resx">
+      <DependentUpon>LecturersInContestsAndCategoriesPartial.resx</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="App_GlobalResources\Views\Shared\LecturersInContestsAndCategoriesPartial.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>LecturersInContestsAndCategoriesPartial.Designer.cs</LastGenOutput>
+      <CustomToolNamespace>Resources.Views.Shared</CustomToolNamespace>
     </EmbeddedResource>
     <EmbeddedResource Include="App_GlobalResources\Views\Shared\LoginPartial.bg.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>

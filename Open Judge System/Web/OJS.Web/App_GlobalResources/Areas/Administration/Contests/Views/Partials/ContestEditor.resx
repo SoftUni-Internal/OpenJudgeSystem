@@ -189,4 +189,13 @@
   <data name="Ensure_valid_author_submisions" xml:space="preserve">
     <value>Show/Hide warnings for strategies that don't have a currently passing submission with max points</value>
   </data>
+  <data name="EnterPasswordForNewIP" xml:space="preserve">
+    <value>Enter password for a new IP</value>
+  </data>
+  <data name="EnterRaceType" xml:space="preserve">
+    <value>Enter the race type</value>
+  </data>
+  <data name="EnterWorkerType" xml:space="preserve">
+    <value>Enter worker type</value>
+  </data>
 </root>

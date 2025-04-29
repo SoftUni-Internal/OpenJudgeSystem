@@ -43,14 +43,14 @@ $(document).ready(function () {
     if (numericTextBox.value() != null && parseInt(numericTextBox.value()) !== 0) {
         checkbox.attr('checked', true);
         numericTextBox.enable(true);
-        input.attr('data-val-required', 'Лимита е задължителен!');
+        input.attr('data-val-required', 'The limit is required!');
         reparseForm(form);
     }
 
     checkbox.change(function () {
         if ($(this).is(':checked')) {
             numericTextBox.enable(true);
-            input.attr('data-val-required', 'Лимита е задължителен!');
+            input.attr('data-val-required', 'The limit is required!');
             reparseForm(form);
         } else {
             numericTextBox.enable(false);

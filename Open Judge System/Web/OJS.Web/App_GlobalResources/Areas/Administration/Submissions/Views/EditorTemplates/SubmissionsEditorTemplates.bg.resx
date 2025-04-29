@@ -129,4 +129,13 @@
   <data name="Choose_submission_type" xml:space="preserve">
     <value>Изберете тип събмисия</value>
   </data>
+  <data name="Download_submission_file" xml:space="preserve">
+    <value>Свали решението</value>
+  </data>
+  <data name="Upload_new_submission" xml:space="preserve">
+    <value>Качи ново решение</value>
+  </data>
+  <data name="Allowed_file_formats_label" xml:space="preserve">
+    <value>Разрешени файлови формати:</value>
+  </data>
 </root>

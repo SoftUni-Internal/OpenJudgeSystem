@@ -129,4 +129,16 @@
   <data name="Page_title_for_regular_user" xml:space="preserve">
     <value>Последните {0} изпратени решения от общо {1}</value>
   </data>
+  <data name="Submissions_in_queue_label" xml:space="preserve">
+    <value>Решения в опашката</value>
+  </data>
+  <data name="Show_queued_submissions_label" xml:space="preserve">
+    <value>Покажи решенията в опашката</value>
+  </data>
+  <data name="Restart_service_button_label" xml:space="preserve">
+    <value>Рестартирай сървиса</value>
+  </data>
+  <data name="Show_all_submissions_label" xml:space="preserve">
+    <value>Покажи всички решения</value>
+  </data>
 </root>

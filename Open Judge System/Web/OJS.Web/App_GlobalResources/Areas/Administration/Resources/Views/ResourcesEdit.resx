@@ -150,4 +150,7 @@
   <data name="Page_title" xml:space="preserve">
     <value>Edit</value>
   </data>
+  <data name="Enter_link" xml:space="preserve">
+    <value>Въведете линк</value>
+  </data>
 </root>

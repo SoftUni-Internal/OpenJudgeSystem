@@ -34,14 +34,14 @@
     <div class="row">
         <div class="col-md-10">
             <h4>
-                Решения в опашката: @ViewBag.SubmissionsInQueue
+                @Resource.Submissions_in_queue_label: @ViewBag.SubmissionsInQueue
                 (@Ajax.ActionLink(
-                    "Покажи решенията в опашката",
+                    Resource.Show_queued_submissions_label,
                     "GetSubmissionsGrid",
                     new { notProcessedOnly = true },
                     new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "submissions-container" }) /
                 @Ajax.ActionLink(
-                    "Покажи всички решения",
+                    Resource.Show_all_submissions_label,
                     "GetSubmissionsGrid",
                     new AjaxOptions { HttpMethod = "GET", InsertionMode = InsertionMode.Replace, UpdateTargetId = "submissions-container" }))
             </h4>
@@ -51,7 +51,7 @@
             {
                 @Html.AntiForgeryToken()
 
-                <input type="submit" class="btn btn-primary" value="Рестартирай сървиса" />
+                <input type="submit" class="btn btn-primary" value="@Resource.Restart_service_button_label" />
             }
         </div>
     </div>

@@ -11,19 +11,19 @@
 
         switch (testRuns[i].ExecutionResult) {
             case 0:
-                result += '<span class="glyphicon glyphicon-ok text-success" title="Правилен отговор"></span>';
+                result += '<span class="glyphicon glyphicon-ok text-success" title="Correct answer"></span>';
                 break;
             case 1:
-                result += '<span class="glyphicon glyphicon-remove text-danger" title="Грешен отговор"></span>';
+                result += '<span class="glyphicon glyphicon-remove text-danger" title="Wrong answer"></span>';
                 break;
             case 2:
-                result += '<span class="glyphicon glyphicon-time" title="Лимит време"></span>';
+                result += '<span class="glyphicon glyphicon-time" title="Time limit"></span>';
                 break;
             case 3:
-                result += '<span class="glyphicon glyphicon-hdd text-danger" title="Лимит памет"></span>';
+                result += '<span class="glyphicon glyphicon-hdd text-danger" title="Memory limit"></span>';
                 break;
             case 4:
-                result += '<span class="glyphicon glyphicon-asterisk text-danger" title="Грешка при изпълнение"></span>';
+                result += '<span class="glyphicon glyphicon-asterisk text-danger" title="Runtime error"></span>';
                 break;
             default:
                 throw new Error('Invalid execution result');

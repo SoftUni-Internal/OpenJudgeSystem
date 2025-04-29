@@ -1,13 +1,14 @@
 ﻿@model OJS.Web.ViewModels.Account.ChangeEmailViewModel
+@using Resource = Resources.Account.Views.General
 
 @{
     ViewBag.Title = Resources.Account.Views.ChangeEmailView.Title;
 }
 
 <ol class="breadcrumb">
-    <li><a href="/">Начало</a></li>
-    <li>@Html.ActionLink("Профил", GlobalConstants.Index, new { controller = "Profile", area = "Users" })</li>
-    <li>@Html.ActionLink("Настройки", GlobalConstants.Index, new { controller = "Settings", area = "Users" })</li>
+    <li><a href="/">@Resource.BreadcrumbHome</a></li>
+    <li>@Html.ActionLink(Resource.Profile_label, GlobalConstants.Index, new { controller = "Profile", area = "Users" })</li>
+    <li>@Html.ActionLink(Resource.Settings_label, GlobalConstants.Index, new { controller = "Settings", area = "Users" })</li>
     <li class="active">@ViewBag.Title</li>
 </ol>
 

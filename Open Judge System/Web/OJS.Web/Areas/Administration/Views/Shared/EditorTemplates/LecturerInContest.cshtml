@@ -1,5 +1,7 @@
 ﻿@model OJS.Web.Areas.Administration.ViewModels.LecturersInContests.LecturerInContestShortViewModel
 
+@using Resource = Resources.Views.Shared.EditorTemplates.LecturerInContest
+
 <div class="editor-label">
     @Html.LabelFor(x => x.ContestName)
 </div>
@@ -11,7 +13,7 @@
         .DataTextField("Name")
         .Filter(FilterType.Contains)
         .MinLength(3)
-        .Placeholder("Изберете обучение")
+        .Placeholder(Resource.Select_training)
         .DataSource(data => data
             .ServerFiltering(true)
             .Read(read =>

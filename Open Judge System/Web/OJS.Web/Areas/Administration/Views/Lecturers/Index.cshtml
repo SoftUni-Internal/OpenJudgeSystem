@@ -1,7 +1,10 @@
 ﻿@using OJS.Web.Areas.Administration.ViewModels.Lecturers
 
+@using GeneralResource = Resources.Areas.Administration.AdministrationGeneral;
+@using Resources = Resources.Areas.Administration.Lecturers.Views.AdminLecturers
+
 @{
-    ViewBag.Title = "Лектори в състезания и категории";
+    ViewBag.Title = Resources.Lecturers_in_contests_and_categories;
 
     const string ControllerName = "Lecturers";
     const string AreaName = "Administration";
@@ -20,8 +23,8 @@
     })
     .ToolBar(toolbar =>
     {
-        toolbar.Custom().Text("Обратно към администрацията").Action("Navigation", "Administration", new { Area = string.Empty }).Name("custom-toolbar-button");
-        toolbar.Custom().Text("Експорт към Excel").Name("custom-toolbar-button").HtmlAttributes(new { id = "export" }).Url(Url.Action("ExportToExcel", ControllerName, new { page = 1, pageSize = "~", filter = "!!", sort = "~" }));
+        toolbar.Custom().Text(GeneralResource.Back_to_navigation).Action("Navigation", "Administration", new { Area = string.Empty }).Name("custom-toolbar-button");
+        toolbar.Custom().Text(GeneralResource.Export_to_excel).Name("custom-toolbar-button").HtmlAttributes(new { id = "export" }).Url(Url.Action("ExportToExcel", ControllerName, new { page = 1, pageSize = "~", filter = "!!", sort = "~" }));
     })
     .ColumnMenu()
     .Events(e => e.DataBound("onDataBound"))

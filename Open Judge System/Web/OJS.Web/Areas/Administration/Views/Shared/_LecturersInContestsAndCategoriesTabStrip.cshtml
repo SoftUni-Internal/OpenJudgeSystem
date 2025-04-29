@@ -1,15 +1,17 @@
-﻿<script type="text/x-kendo-template" id="lecturer-in-contests-and-categories-tab-strip-template">
+﻿@using Resource = Resources.Views.Shared.LecturersInContestsAndCategoriesPartial
+
+<script type="text/x-kendo-template" id="lecturer-in-contests-and-categories-tab-strip-template">
     @(Html.Kendo().TabStrip()
         .Name("lecturer-in-contests-and-categories-tab-strip_#=UserId#")
         .Items(tabstrip =>
         {
             tabstrip
                 .Add()
-                .Text("Състезания")
+                .Text(Resource.Contests)
                 .Content(Html.Partial("~/Areas/Administration/Views/LecturersInContests/_LecturerInContestsGridTemplate.cshtml").ToHtmlString());
             tabstrip
                 .Add()
-                .Text("Категории състезания")
+                .Text(Resource.Contest_categories)
                 .Content(Html.Partial("~/Areas/Administration/Views/LecturersInContestCategories/_LecturerInContestCategoriesGridTemplate.cshtml").ToHtmlString());
         })
         .SelectedIndex(0)

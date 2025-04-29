@@ -54,7 +54,7 @@ function showErrorMessage(errorData) {
             .addClass('field-validation-error')
             .html(errorObject.Message);
     } else {
-        alert('Възникна неочаквана грешка');
+        alert('An unexpected error occurred');
     }
 }
 
@@ -69,7 +69,7 @@ function showDownloadSubmissionsPopup(ev) {
     var downloadContestSubmissionsWindow = $('#download-contest-submissions-popup').kendoWindow({
         height: 'auto',
         width: '30%',
-        title: 'Изтегляне на решения',
+        title: 'Download contest submissions',
         visible: false,
         modal: 'true',
         deactivate: clearDownloadContestSubmissionsForm

@@ -120,4 +120,13 @@
   <data name="Captcha_invalid" xml:space="preserve">
     <value>The captcha is invalid</value>
   </data>
+  <data name="BreadcrumbHome" xml:space="preserve">
+    <value>Home</value>
+  </data>
+  <data name="Profile_label" xml:space="preserve">
+    <value>Profile</value>
+  </data>
+  <data name="Settings_label" xml:space="preserve">
+    <value>Settings</value>
+  </data>
 </root>

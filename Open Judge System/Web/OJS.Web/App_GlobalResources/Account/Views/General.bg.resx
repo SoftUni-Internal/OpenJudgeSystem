@@ -120,4 +120,13 @@
   <data name="Captcha_invalid" xml:space="preserve">
     <value>Невалиден код за валидация</value>
   </data>
+  <data name="BreadcrumbHome" xml:space="preserve">
+    <value>Начало</value>
+  </data>
+  <data name="Profile_label" xml:space="preserve">
+    <value>Профил</value>
+  </data>
+  <data name="Settings_label" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
 </root>

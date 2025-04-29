@@ -19,7 +19,7 @@ namespace Resources.Areas.Administration.AntiCheat.Views {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class AntiCheatViews {
@@ -75,6 +75,15 @@ namespace Resources.Areas.Administration.AntiCheat.Views {
         public static string By_submission_page_title {
             get {
                 return ResourceManager.GetString("By_submission_page_title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Check for similarities.
+        /// </summary>
+        public static string CheckForSimilarities {
+            get {
+                return ResourceManager.GetString("CheckForSimilarities", resourceCulture);
             }
         }
         
@@ -147,6 +156,15 @@ namespace Resources.Areas.Administration.AntiCheat.Views {
         public static string Second_participant {
             get {
                 return ResourceManager.GetString("Second_participant", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to There are no similarities.
+        /// </summary>
+        public static string ThereAreNoSimilarities {
+            get {
+                return ResourceManager.GetString("ThereAreNoSimilarities", resourceCulture);
             }
         }
         

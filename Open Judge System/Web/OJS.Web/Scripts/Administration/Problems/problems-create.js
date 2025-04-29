@@ -48,14 +48,14 @@ function onResourceTypeSelect() {
 
     if (val === 3) {
         resourceContainer.html("<div class='pull-right' data-type='resource-content'>" +
-            "<label for='Resources_" + id + "__Link'>Линк</label>" +
+            "<label for='Resources_" + id + "__Link'>Link</label>" +
             "<input type='text' class='form-control full-editor' name='Resources[" + id +
             "].RawLink' id='Resources_" + id + "__Link' />" +
             '</div>');
     } else {
-        resourceContainer.html('<div><strong>Файл</strong></div>' +
+        resourceContainer.html('<div><strong>File</strong></div>' +
             "<div id='file-button-" + id + "' data-file-upload-button='true' data-id='" + id +
-            "' class='btn btn-sm btn-primary' onclick='startUploadForm(this)'>Избери ресурс</div>" +
+            "' class='btn btn-sm btn-primary' onclick='startUploadForm(this)'>Select resource</div>" +
             "<div class='hidden-file-upload'>" +
             "<input type='file' name='Resources[" + id +
             "].File' id='Resources_" + id + "__File' data-id='" + id +
@@ -77,14 +77,14 @@ $(document).ready(function () {
     if (numericTextBox.value() != null && parseInt(numericTextBox.value()) !== 0) {
         checkbox.attr('checked', true);
         numericTextBox.enable(true);
-        input.attr('data-val-required', 'Лимита е задължителен!');
+        input.attr('data-val-required', 'The limit is required!');
         reparseForm(form);
     }
 
     $('#enable-sclimit').change(function () {
         if ($(this).is(':checked')) {
             numericTextBox.enable(true);
-            input.attr('data-val-required', 'Лимита е задължителен!');
+            input.attr('data-val-required', 'The limit is required!');
             reparseForm(form);
         } else {
             numericTextBox.enable(false);
@@ -122,7 +122,7 @@ $(document).ready(function () {
             $('#remove-resource').removeAttr('disabled');
 
             $('#resources .required-resource-field').each(function () {
-                $(this).rules('add', { required: true, messages: { required: 'Задължително поле' } });
+                $(this).rules('add', { required: true, messages: { required: 'Required field' } });
             });
         });
     });

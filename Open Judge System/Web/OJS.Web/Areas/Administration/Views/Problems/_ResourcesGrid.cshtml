@@ -9,7 +9,7 @@
         columns.Bound(model => model.Name);
         columns.Bound(model => model.Type).ClientTemplate("#= TypeName #");
         columns.Bound(model => model.OrderBy);
-        columns.Bound(model => model.Link).ClientTemplate("# if(Type == 3) { # <a href='#= Link #' class='btn btn-sm btn-primary' target='_blank'>Линк</a> # } else { # <a href='/Administration/Resources/Download/#= Id #' class='btn btn-sm btn-primary'>Свали</a> # } #");
+        columns.Bound(model => model.Link).ClientTemplate("# if(Type == 3) { # <a href='#= Link #' class='btn btn-sm btn-primary' target='_blank'>Link</a> # } else { # <a href='/Administration/Resources/Download/#= Id #' class='btn btn-sm btn-primary'>Download</a> # } #");
     })
     .Pageable(x => x.Refresh(true))
     .Sortable(x => x.Enabled(true).AllowUnsort(false))

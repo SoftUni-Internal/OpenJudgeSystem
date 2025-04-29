@@ -1,12 +1,13 @@
 ﻿@model OJS.Web.ViewModels.Account.RegisterViewModel
 @using Resource = Resources.Account.Views.Register
+@using GeneralResource = Resources.Account.Views.General
 
 @{
     ViewBag.Title = Resource.Register_title;
 }
 
 <ol class="breadcrumb">
-    <li><a href="/">Начало</a></li>
+    <li><a href="/">@GeneralResource.BreadcrumbHome</a></li>
     <li class="active">@ViewBag.Title</li>
 </ol>
 

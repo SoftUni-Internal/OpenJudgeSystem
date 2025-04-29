@@ -1,0 +1,50 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="Tasks_Link" xml:space="preserve">
+        <value>Задачи</value>
+    </data>
+    <data name="Contests_Link" xml:space="preserve">
+        <value>Състезания</value>
+    </data>
+    <data name="Contest_Categories_Link" xml:space="preserve">
+        <value>Категории</value>
+    </data>
+    <data name="Exam_Groups_Link" xml:space="preserve">
+        <value>Групи за изпити</value>
+    </data>
+    <data name="Feedback_Link" xml:space="preserve">
+        <value>Обратна връзка</value>
+    </data>
+    <data name="Contest_Categories_Hierarchy_Link" xml:space="preserve">
+        <value>Йерархия на категориите</value>
+    </data>
+    <data name="Tests_Link" xml:space="preserve">
+        <value>Тестови файлове</value>
+    </data>
+    <data name="Users_Link" xml:space="preserve">
+        <value>Потребители</value>
+    </data>
+    <data name="Submissions_Link" xml:space="preserve">
+        <value>Решения</value>
+    </data>
+    <data name="Roles_Link" xml:space="preserve">
+        <value>Роли</value>
+    </data>
+    <data name="Settings_Link" xml:space="preserve">
+        <value>Настройки</value>
+    </data>
+    <data name="Access_Logs_Link" xml:space="preserve">
+        <value>Логове за достъп</value>
+    </data>
+</root>
