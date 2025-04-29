@@ -2,8 +2,10 @@
 
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OJS.Services.Infrastructure.Configurations;
+using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.Problems;
@@ -13,7 +15,8 @@ using System.Linq;
 
 public class ProblemResourcesBusinessService(
     IProblemResourcesDataService problemResourcesDataService,
-    IOptions<SvnConfig> svnConfigAccessor)
+    IOptions<SvnConfig> svnConfigAccessor,
+    ILogger<ProblemResourcesBusinessService> logger)
     : IProblemResourcesBusinessService
 {
     private readonly SvnConfig svnConfig = svnConfigAccessor.Value;
@@ -36,7 +39,7 @@ public class ProblemResourcesBusinessService(
 
         if (!Uri.TryCreate(this.svnConfig.BaseUrl, UriKind.Absolute, out var svnUri))
         {
-            // Not a valid SVN link provided in the config
+            logger.LogSvnBaseUrlNotValid(this.svnConfig.BaseUrl);
             return link;
         }
 
@@ -46,7 +49,7 @@ public class ProblemResourcesBusinessService(
 
         if (alternativeUri == null)
         {
-            // Not an alternative SVN link, or not a valid alternative SVN link provided in the config
+            logger.LogAlternativeBaseUrlNotFoundForLink(link);
             return link;
         }
 
@@ -55,6 +58,10 @@ public class ProblemResourcesBusinessService(
 
         var newUri = new Uri(svnUri, relativeUri);
 
-        return newUri.ToString();
+        var newLink = newUri.ToString();
+
+        logger.LogLinkSuccessfullyConvertedToSvnLink(link, newLink);
+
+        return newLink;
     }
 }

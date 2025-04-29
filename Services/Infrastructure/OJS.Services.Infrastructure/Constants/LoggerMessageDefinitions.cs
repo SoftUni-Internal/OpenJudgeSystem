@@ -86,23 +86,32 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(302, LogLevel.Information, "Truncated {PercentageOfMessageContentTruncated:F2}% of a message's content to comply with token limits for problem #{ProblemId}.")]
     public static partial void LogPercentageOfMessageContentTruncated(this ILogger logger, double percentageOfMessageContentTruncated, int problemId);
 
-    [LoggerMessage(303, LogLevel.Error, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is not in the expected format.", SkipEnabledCheck = true)]
+    [LoggerMessage(303, LogLevel.Information, "Link: {OriginalLink} successfully converted to SVN link: {newLink}")]
+    public static partial void LogLinkSuccessfullyConvertedToSvnLink(this ILogger logger, string originalLink, string newLink);
+
+    [LoggerMessage(340, LogLevel.Error, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is not in the expected format.", SkipEnabledCheck = true)]
     public static partial void LogInvalidDocumentFormat(this ILogger logger, int problemId, int contestId, string link);
 
-    [LoggerMessage(304, LogLevel.Error, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is either empty or does not exist.", SkipEnabledCheck = true)]
+    [LoggerMessage(341, LogLevel.Error, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is either empty or does not exist.", SkipEnabledCheck = true)]
     public static partial void LogFileNotFoundOrEmpty(this ILogger logger, int problemId, int contestId, string link);
 
-    [LoggerMessage(305, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId} with status code {StatusCode} and response message: {ResponseMessage}.", SkipEnabledCheck = true)]
+    [LoggerMessage(342, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId} with status code {StatusCode} and response message: {ResponseMessage}.", SkipEnabledCheck = true)]
     public static partial void LogHttpRequestFailure(this ILogger logger, int problemId, int contestId, HttpStatusCode statusCode, string link, string? responseMessage);
 
-    [LoggerMessage(306, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId}.", SkipEnabledCheck = true)]
+    [LoggerMessage(343, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId}.", SkipEnabledCheck = true)]
     public static partial void LogResourceDownloadFailure(this ILogger logger, int problemId, int contestId, string link, Exception ex);
 
-    [LoggerMessage(307, LogLevel.Error, "Failed to parse the content of the downloaded file for problem #{ProblemId} in contest #{ContestId}.", SkipEnabledCheck = true)]
+    [LoggerMessage(344, LogLevel.Error, "Failed to parse the content of the downloaded file for problem #{ProblemId} in contest #{ContestId}.", SkipEnabledCheck = true)]
     public static partial void LogFileParsingFailure(this ILogger logger, int problemId, int contestId);
 
-    [LoggerMessage(308, LogLevel.Error, "Problem description resource not found for problem #{ProblemId} in contest #{ContestId}. Verify that the problem or the first problem in the contest has a valid description resource.", SkipEnabledCheck = true)]
+    [LoggerMessage(345, LogLevel.Error, "Problem description resource not found for problem #{ProblemId} in contest #{ContestId}. Verify that the problem or the first problem in the contest has a valid description resource.", SkipEnabledCheck = true)]
     public static partial void LogProblemDescriptionResourceNotFound(this ILogger logger, int problemId, int contestId);
+
+    [LoggerMessage(356, LogLevel.Error, "The SVN BaseUrl provided in settings is not valid. Expected valid absolute URL, but got: {SvnBaseUrl}", SkipEnabledCheck = true)]
+    public static partial void LogSvnBaseUrlNotValid(this ILogger logger, string svnBaseUrl);
+
+    [LoggerMessage(380, LogLevel.Warning, "Couldn't find a valid alternative SVN base url in settings for link: {Link}.")]
+    public static partial void LogAlternativeBaseUrlNotFoundForLink(this ILogger logger, string link);
 
     // Submissions
     [LoggerMessage(1010, LogLevel.Error, "Exception in publishing submission #{SubmissionId}", SkipEnabledCheck = true)]
