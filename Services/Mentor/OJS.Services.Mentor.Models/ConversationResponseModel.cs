@@ -9,7 +9,7 @@ public class ConversationResponseModel : IMapExplicitly
 
     public int ProblemId { get; set; }
 
-    public ICollection<ConversationMessageModel> Messages { get; set; } = [];
+    public ICollection<ConversationMessageResponseModel> Messages { get; set; } = [];
 
     public int MaxUserInputLength { get; set; }
 
