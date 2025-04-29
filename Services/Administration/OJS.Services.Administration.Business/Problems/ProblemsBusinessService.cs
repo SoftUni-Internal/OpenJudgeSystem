@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OJS.Common;
 using OJS.Common.Enumerations;
-using OJS.Common.Helpers;
 using OJS.Data.Models;
 using OJS.Data.Models.Problems;
 using OJS.Services.Administration.Business.ProblemGroups;
@@ -23,9 +22,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using OJS.Workers.Common;
-using IsolationLevel = System.Transactions.IsolationLevel;
 using Resource = OJS.Common.Resources.ProblemsBusiness;
 using SharedResource = OJS.Common.Resources.ContestsGeneral;
 
@@ -113,7 +110,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         await this.problemsData.SaveChanges();
 
-        await this.ReevaluateProblemsOrder(contestId);
+        await this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(contestId);
         await this.problemsCache.ClearProblemCacheById(problem.Id);
 
         return model;
@@ -147,6 +144,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
             this.submissionsData.DeleteByProblem(id);
         });
 
+        await this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(problem.ContestId);
         await this.problemsCache.ClearProblemCacheById(id);
     }
 
@@ -187,9 +185,6 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         return ServiceResult.Success;
     }
-
-    public Task ReevaluateProblemsOrder(int contestId)
-        => this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(contestId);
 
     public override async Task<ProblemAdministrationModel> Get(int id)
     {
@@ -250,7 +245,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         await this.problemsData.SaveChanges();
 
-        await this.ReevaluateProblemsOrder(problem.ProblemGroup.ContestId);
+        await this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(problem.ProblemGroup.ContestId);
 
         return model;
     }

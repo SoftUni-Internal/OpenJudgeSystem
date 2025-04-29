@@ -66,7 +66,8 @@ public class ContestLegacyExportServiceModel : IMapExplicitly
             .ForMember(dest => dest.UsersCantSubmitConcurrently,
                 opt => opt.MapFrom(src => !src.AllowParallelSubmissionsInTasks))
             .ForMember(dest => dest.DefaultWorkerType, opt => opt.MapFrom(src => 0))
-            .ForMember(dest => dest.EnsureValidAuthorSubmisions, opt => opt.MapFrom(src => false));
+            .ForMember(dest => dest.EnsureValidAuthorSubmisions, opt => opt.MapFrom(src => false))
+            .ForMember(dest => dest.NumberOfProblemGroups, opt => opt.MapFrom(src => src.ProblemGroups.Count()));
 
         configuration.CreateMap<Problem, LegacyProblem>()
             .ForMember(dest => dest.SubmissionTypes, opt => opt.MapFrom(src => src.SubmissionTypesInProblems.Select(stp => stp.SubmissionType)))
