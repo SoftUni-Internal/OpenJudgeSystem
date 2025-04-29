@@ -64,7 +64,6 @@ export const mentorSlice = createSlice({
                             content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
                             role: ChatMessageRole.Assistant,
                             sequenceNumber: 1,
-                            problemId,
                         },
                     ],
                     conversationDate: null,
@@ -103,11 +102,7 @@ export const mentorSlice = createSlice({
 
             // Filter out system messages AND ensure all messages have the correct problemId
             const filteredMessages = messages
-                .filter((m) => m.role !== ChatMessageRole.System)
-                .map((m) => ({
-                    ...m,
-                    problemId,
-                }));
+                .filter((m) => m.role !== ChatMessageRole.System);
 
             state.conversationsByProblemId[problemId].messages = applyMessageLimits(filteredMessages);
         },

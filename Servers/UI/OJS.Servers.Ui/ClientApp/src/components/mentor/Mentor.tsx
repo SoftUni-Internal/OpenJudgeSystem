@@ -96,7 +96,7 @@ const Mentor = (props: IMentorProps) => {
     useEffect(() => {
         if (conversationData && problemId !== undefined) {
             // Only show messages that belong to this problem
-            setLocalConversationMessages(conversationData.messages.filter((message) => message.problemId === problemId));
+            setLocalConversationMessages(conversationData.messages);
             setLocalConversationDate(conversationData.conversationDate);
         }
     }, [ conversationData, problemId ]);
@@ -135,7 +135,6 @@ const Mentor = (props: IMentorProps) => {
             content: inputMessage,
             role: ChatMessageRole.User,
             sequenceNumber: Math.max(...localConversationMessages.map((cm) => cm.sequenceNumber)) + 1,
-            problemId,
         };
 
         dispatch(addMessage({
