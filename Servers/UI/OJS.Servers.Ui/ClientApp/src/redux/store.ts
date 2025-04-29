@@ -3,6 +3,7 @@ import { TypedUseSelectorHook, useDispatch as useReduxDispatch, useSelector as u
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import createIDBStorage from 'redux-persist-indexeddb-storage';
 
 // features
 import { authorizationSlice } from './features/authorizationSlice';
@@ -51,7 +52,7 @@ const persistConfig = (reducersToPersist: string[]) => ({
 
 const mentorPersistConfig = {
     key: 'mentor',
-    storage,
+    storage: createIDBStorage('mentorDB'),
 };
 
 const rootReducer = combineReducers({
