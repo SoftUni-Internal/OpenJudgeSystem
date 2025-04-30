@@ -7,6 +7,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import isNil from 'lodash/isNil';
 import { ChatMessageRole } from 'src/common/enums';
 import { IMentorConversationMessage } from 'src/common/types';
 import useTheme from 'src/hooks/use-theme';
@@ -140,7 +141,8 @@ const Mentor = (props: IMentorProps) => {
         const messages = [ message ];
 
         // Add the welcome message to the store if it's the first message
-        if (localConversationMessages.length === 1) {
+        // and the conversation is not in the store
+        if (localConversationMessages.length === 1 && isNil(conversationData)) {
             messages.unshift(welcomeMessage);
         }
 
