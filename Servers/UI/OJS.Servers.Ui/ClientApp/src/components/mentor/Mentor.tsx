@@ -7,10 +7,11 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import isNil from 'lodash/isNil';
 import { ChatMessageRole } from 'src/common/enums';
 import { IMentorConversationMessage } from 'src/common/types';
 import useTheme from 'src/hooks/use-theme';
-import { addMessage, initializeConversation } from 'src/redux/features/mentorSlice';
+import { addMessages } from 'src/redux/features/mentorSlice';
 import { useStartConversationMutation } from 'src/redux/services/mentorService';
 import { useAppDispatch, useAppSelector } from 'src/redux/store';
 import concatClassNames from 'src/utils/class-names';
@@ -62,6 +63,12 @@ const Mentor = (props: IMentorProps) => {
         [ conversationResponseData, inputMessage ],
     );
 
+    const welcomeMessage: IMentorConversationMessage = useMemo(() => ({
+        content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
+        role: ChatMessageRole.Assistant,
+        sequenceNumber: 1,
+    }), [ problemName ]);
+
     const isChatDisabled = useMemo(
         () => inputMessage.trim() === '' ||
             isLoading ||
@@ -85,20 +92,15 @@ const Mentor = (props: IMentorProps) => {
         ],
     );
 
-    // Initialize conversation for the current problem if needed
-    useEffect(() => {
-        if (problemId !== undefined && problemName !== undefined) {
-            dispatch(initializeConversation({ problemId, problemName }));
-        }
-    }, [ dispatch, problemId, problemName ]);
-
-    // Update local state when conversation data changes
     useEffect(() => {
         if (conversationData && problemId !== undefined) {
             setLocalConversationMessages(conversationData.messages);
             setLocalConversationDate(conversationData.conversationDate);
+        } else if (problemId !== undefined) {
+            setLocalConversationMessages([ welcomeMessage ]);
+            setLocalConversationDate(null);
         }
-    }, [ conversationData, problemId ]);
+    }, [ conversationData, problemId, welcomeMessage ]);
 
     useEffect(() => {
         if (messagesEndRef.current) {
@@ -136,9 +138,16 @@ const Mentor = (props: IMentorProps) => {
             sequenceNumber: Math.max(...localConversationMessages.map((cm) => cm.sequenceNumber)) + 1,
         };
 
-        dispatch(addMessage({
+        const messages = [ message ];
+
+        // Add the welcome message to the store if it's the first message
+        if (isNil(conversationData) || conversationData.messages.length === 0) {
+            messages.unshift(welcomeMessage);
+        }
+
+        dispatch(addMessages({
             problemId,
-            message,
+            messages,
             setConversationDate: localConversationDate === null,
         }));
 
