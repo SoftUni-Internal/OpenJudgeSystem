@@ -141,7 +141,7 @@ const Mentor = (props: IMentorProps) => {
         const messages = [ message ];
 
         // Add the welcome message to the store if it's the first message
-        if (isNil(conversationData)) {
+        if (isNil(conversationData) || conversationData.messages.length === 0) {
             messages.unshift(welcomeMessage);
         }
 
