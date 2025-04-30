@@ -1,9 +1,7 @@
 namespace OJS.Workers.ExecutionStrategies.NodeJs.Typescript;
 
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 using System.Linq;
 using OJS.Workers.Common;
@@ -14,55 +12,19 @@ using OJS.Workers.Compilers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
 
-using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
-
-public class TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha<TSettings>
-    : TypeScriptPreprocessExecuteAndCheckExecutionStrategy<TSettings>
-    where TSettings : TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings
+public class TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TSettings>(
+    IOjsSubmission submission,
+    IProcessExecutorFactory processExecutorFactory,
+    IExecutionStrategySettingsProvider settingsProvider,
+    ILogger<BaseExecutionStrategy<TSettings>> logger,
+    ICompilerFactory compilerFactory)
+    : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TSettings>(submission, processExecutorFactory,
+        settingsProvider, logger)
+    where TSettings : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings
 {
     protected const string TestsPlaceholder = "/*#testsCode*/";
     protected const string UserCodePlaceholder = "/*#userCode#*/";
     protected const string SolutionSkeletonPlaceholder = "/*#solutionSkeleton#*/";
-    protected readonly ICompilerFactory compilerFactory;
-
-    public TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha(
-        IOjsSubmission submission,
-        IProcessExecutorFactory processExecutorFactory,
-        IExecutionStrategySettingsProvider settingsProvider,
-        ILogger<BaseExecutionStrategy<TSettings>> logger,
-        ICompilerFactory compilerFactory)
-        : base(submission, processExecutorFactory, settingsProvider, logger, compilerFactory)
-    {
-        this.compilerFactory = compilerFactory;
-
-        if (!File.Exists(this.Settings.MochaModulePath))
-        {
-            throw new ArgumentException(
-                $"Mocha not found in: {this.Settings.MochaModulePath}",
-                nameof(this.Settings.MochaModulePath));
-        }
-
-        if (!Directory.Exists(this.Settings.ChaiModulePath))
-        {
-            throw new ArgumentException(
-                $"Chai not found in: {this.Settings.ChaiModulePath}",
-                nameof(this.Settings.ChaiModulePath));
-        }
-
-        if (!Directory.Exists(this.Settings.SinonModulePath))
-        {
-            throw new ArgumentException(
-                $"Sinon not found in: {this.Settings.SinonModulePath}",
-                nameof(this.Settings.SinonModulePath));
-        }
-
-        if (!Directory.Exists(this.Settings.SinonChaiModulePath))
-        {
-            throw new ArgumentException(
-                $"Sinon-chai not found in: {this.Settings.SinonChaiModulePath}",
-                nameof(this.Settings.SinonChaiModulePath));
-        }
-    }
 
     private string TypeScriptTemplateContent => @$"
     // Imports
@@ -92,9 +54,6 @@ public class TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha<TSettings>
     }});
 ";
 
-    protected virtual IEnumerable<string> AdditionalExecutionArguments
-        => [TestsReporterArgument, JsonReportName];
-
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
         IExecutionResult<TestResult> result)
@@ -117,8 +76,8 @@ public class TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha<TSettings>
         var tsCodeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, typeScriptTemplate);
 
         // Run TypeScript compiler to generate JavaScript
-        var compiler = this.compilerFactory.CreateCompiler(executionContext.CompilerType, this.Type);
-        var compilerPath = this.compilerFactory.GetCompilerPath(executionContext.CompilerType, this.Type);
+        var compiler = compilerFactory.CreateCompiler(executionContext.CompilerType, this.Type);
+        var compilerPath = compilerFactory.GetCompilerPath(executionContext.CompilerType, this.Type);
         var compilerResult = compiler.Compile(compilerPath, tsCodeSavePath, executionContext.AdditionalCompilerArguments);
 
         if (!compilerResult.IsCompiledSuccessfully)
@@ -223,18 +182,3 @@ it('{testName}', function () {{
         return testResults;
     }
 }
-
-public record TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings(
-    int BaseTimeUsed,
-    int BaseMemoryUsed,
-    string NodeJsExecutablePath,
-    string UnderscoreModulePath,
-    string MochaModulePath,
-    string ChaiModulePath,
-    string SinonModulePath,
-    string SinonChaiModulePath)
-    : TypeScriptPreprocessExecuteAndCheckExecutionStrategySettings(
-        BaseTimeUsed,
-        BaseMemoryUsed,
-        NodeJsExecutablePath,
-        UnderscoreModulePath);

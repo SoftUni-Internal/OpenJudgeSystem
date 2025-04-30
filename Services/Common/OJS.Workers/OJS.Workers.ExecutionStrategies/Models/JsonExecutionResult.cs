@@ -40,16 +40,8 @@ namespace OJS.Workers.ExecutionStrategies.Models
             var initialPassedTests = 0;
             var passed = false;
             var fullTitles = new List<string>();
-            var testsIndexes = new List<int>();
             try
             {
-                // Find the first occurrence of '{' to handle cases where there's text before the JSON
-                var jsonStartIndex = result.IndexOf('{');
-                if (jsonStartIndex > 0)
-                {
-                    result = result.Substring(jsonStartIndex);
-                }
-                
                 // The fields 'stats' and 'tests' with their respective subfields are required for extracting results,
                 // if any of them are missing the received output is not considered valid
                 jsonTestResult = JObject.Parse(result.Trim().Replace("/*", InvalidJsonReplace).Replace("*/", InvalidJsonReplace));
@@ -79,6 +71,7 @@ namespace OJS.Workers.ExecutionStrategies.Models
                 error = "Invalid console output!";
             }
 
+            var testsIndexes = new List<int>();
             if (getTestIndexes)
             {
                 try

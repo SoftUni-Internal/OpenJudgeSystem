@@ -179,11 +179,11 @@ namespace OJS.Services.Worker.Business.Implementations
                         compilerFactory);
                     break;
                 case ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha:
-                    executionStrategy = new TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha<TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
+                    executionStrategy = new TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
                         submission,
                         processExecutorFactory,
                         executionStrategySettingsProvider,
-                        loggerFactory.CreateStrategyLogger<TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha<TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes),
+                        loggerFactory.CreateStrategyLogger<TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes),
                         compilerFactory);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
