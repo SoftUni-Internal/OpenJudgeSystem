@@ -84,8 +84,6 @@ namespace OJS.Data.Models.Contests
 
         public double OrderBy { get; set; }
 
-        public short NumberOfProblemGroups { get; set; }
-
         public string? Description { get; set; }
 
         public bool AllowParallelSubmissionsInTasks { get; set; }

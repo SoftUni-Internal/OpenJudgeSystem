@@ -532,6 +532,7 @@ public class MentorBusinessService(
         int maxUserInputLength)
     {
         var responseModel = model.Map<ConversationResponseModel>();
+        responseModel.ProblemId = model.ProblemId;
         responseModel.MaxUserInputLength = maxUserInputLength;
         return responseModel;
     }

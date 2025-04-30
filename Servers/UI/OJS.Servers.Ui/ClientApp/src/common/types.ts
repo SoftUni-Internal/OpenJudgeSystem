@@ -779,7 +779,6 @@ interface IMentorConversationMessage {
     content: string;
     role: ChatMessageRole;
     sequenceNumber: number;
-    problemId: number;
 }
 
 interface IMentorConversationRequestModel {
@@ -797,6 +796,7 @@ interface IMentorConversationResponseModel {
     userId: string;
     messages: IMentorConversationMessage[];
     maxUserInputLength: number;
+    problemId: number;
 }
 
 interface IUserMentorInListModel {

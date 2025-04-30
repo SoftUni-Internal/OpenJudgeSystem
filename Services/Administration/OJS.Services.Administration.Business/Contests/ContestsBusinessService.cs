@@ -250,11 +250,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
 
         contest.MapFrom(model);
 
-        if (model.IsWithRandomTasks && contest.ProblemGroups.Count == 0)
-        {
-            AddProblemGroupsToContest(contest, model.NumberOfProblemGroups);
-        }
-
         contest.IpsInContests.Clear();
         await this.AddIpsToContest(contest, model.AllowedIps);
 
@@ -289,8 +284,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
     public override async Task<ContestAdministrationModel> Create(ContestAdministrationModel model)
     {
         var contest = model.Map<Contest>();
-
-        AddProblemGroupsToContest(contest, model.NumberOfProblemGroups);
 
         await this.AddIpsToContest(contest, model.AllowedIps);
 
@@ -409,7 +402,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         this.contestsData.UpdateMany(contests);
         await this.contestsData.SaveChanges();
     }
-       
+
     public async Task AdjustLimitBetweenSubmissions(WorkersBusyRatioServiceModel model)
     {
         var settings = await this.settingsCache.GetRequiredValue<ContestLimitBetweenSubmissionsAdjustSettings>(ContestLimitBetweenSubmissionsAdjustmentSettings);
@@ -521,17 +514,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
 
     private static string GetParticipantName(ParticipantModel participant)
         => $"{participant.UserName} ({participant.FirstName} {participant.LastName})";
-
-    private static void AddProblemGroupsToContest(Contest contest, int problemGroupsCount)
-    {
-        for (var i = 1; i <= problemGroupsCount; i++)
-        {
-            contest.ProblemGroups.Add(new ProblemGroup
-            {
-                OrderBy = i,
-            });
-        }
-    }
 
     private static InMemoryFile ZipSubmission(
         ProblemModel problem,
