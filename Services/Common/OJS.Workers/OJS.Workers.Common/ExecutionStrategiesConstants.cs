@@ -51,6 +51,7 @@ namespace OJS.Workers.Common
 
             // TypeScript
             public const string TypeScriptCodeV20 = "typescript-codeV20";
+            public const string TypeScriptUnitTestsWithMochaV20 = "typescript-unit-tests-with-mochaV20";
 
             // Python
             public const string PythonCode = "python-code";
@@ -149,7 +150,8 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMochaV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },
 
                     // TypeScript
-                    { ExecutionStrategyNames.TypeScriptCodeV20, ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndCheck },
+                    { ExecutionStrategyNames.TypeScriptCodeV20, ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndCheck  },
+                    { ExecutionStrategyNames.TypeScriptUnitTestsWithMochaV20, ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha },
 
                     // Java
                     { ExecutionStrategyNames.JavaCode, ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck },
