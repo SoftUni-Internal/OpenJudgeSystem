@@ -52,36 +52,19 @@ export const mentorSlice = createSlice({
     name: 'mentor',
     initialState,
     reducers: {
-        // Initialize a conversation for a problem if it doesn't exist
-        initializeConversation: (state, action: PayloadAction<{ problemId: number; problemName: string }>) => {
-            const { problemId, problemName } = action.payload;
-
-            // Only initialize if it doesn't already exist
-            if (!state.conversationsByProblemId[problemId]) {
-                state.conversationsByProblemId[problemId] = {
-                    messages: [
-                        {
-                            content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
-                            role: ChatMessageRole.Assistant,
-                            sequenceNumber: 1,
-                        },
-                    ],
-                    conversationDate: null,
-                };
-            }
-        },
-
         // Add a message to a specific problem's conversation
-        addMessage: (state, action: PayloadAction<{
+        addMessages: (state, action: PayloadAction<{
             problemId: number;
-            message: IMentorConversationMessage;
+            messages: IMentorConversationMessage[];
             setConversationDate?: boolean;
         }>) => {
-            const { problemId, message, setConversationDate } = action.payload;
+            const { problemId, messages, setConversationDate } = action.payload;
 
             ensureConversationExists(state, problemId);
 
-            state.conversationsByProblemId[problemId].messages.push(message);
+            messages.forEach((msg) => {
+                state.conversationsByProblemId[problemId].messages.push(msg);
+            });
 
             state.conversationsByProblemId[problemId].messages =
                 applyMessageLimits(state.conversationsByProblemId[problemId].messages);
@@ -110,8 +93,7 @@ export const mentorSlice = createSlice({
 });
 
 export const {
-    initializeConversation,
-    addMessage,
+    addMessages,
     updateMessages,
 } = mentorSlice.actions;
 
