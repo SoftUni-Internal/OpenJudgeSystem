@@ -158,8 +158,10 @@ public class MentorBusinessService(
                 { "CategoryName", model.CategoryName },
                 { "ContestName", model.ContestName },
                 { "ProblemName", model.ProblemName },
+                { "SubmissionTypeName" , model.SubmissionTypeName },
                 { "ContestId", model.ContestId.ToString(CultureInfo.InvariantCulture) },
                 { "ProblemId", model.ProblemId.ToString(CultureInfo.InvariantCulture) },
+                { "UserId", model.UserId },
                 { "ProblemIsExtractedSuccessfully", systemMessage.ProblemIsExtractedSuccessfully ? "true" : "false" },
             },
         });
