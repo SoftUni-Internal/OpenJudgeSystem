@@ -97,26 +97,21 @@ public class MentorBusinessService(
                 Content = $"Достигнахте лимита на съобщенията си, моля опитайте отново след {GetTimeUntilNextMessage(userMentor.QuotaResetTime)}.",
                 Role = MentorMessageRole.Information,
                 SequenceNumber = model.Messages.Max(m => m.SequenceNumber) + 1,
-                ProblemId = model.ProblemId,
             });
 
             return GetResponseModel(model, maxUserInputLength);
         }
 
-        var currentProblemMessages = model.Messages
-            .Where(m => m.Role != MentorMessageRole.Information)
-            .ToList();
-
         var messagesToSend = new List<ChatMessage>();
 
         var systemMessage = await cache.Get(
-            string.Format(CultureInfo.InvariantCulture, CacheConstants.MentorSystemMessage, model.UserId, model.ProblemId),
+            string.Format(CultureInfo.InvariantCulture, CacheConstants.MentorSystemMessageForProblem, model.ProblemId),
             async () => await this.GetSystemMessage(model),
             CacheConstants.OneHourInSeconds);
         systemMessage.Content = RemoveRedundantWhitespace(systemMessage.Content);
         messagesToSend.Add(CreateChatMessage(systemMessage.Role, systemMessage.Content));
 
-        var recentMessages = currentProblemMessages
+        var recentMessages = model.Messages
             .Where(m => m.Role is not MentorMessageRole.System and not MentorMessageRole.Information)
             .OrderByDescending(m => m.SequenceNumber)
             .Take(GetNumericValue(settings, nameof(MentorMessagesSentCount)))
@@ -126,7 +121,6 @@ public class MentorBusinessService(
                 Content = m.Content,
                 Role = m.Role,
                 SequenceNumber = m.SequenceNumber,
-                ProblemId = m.ProblemId,
             })
             .ToList();
 
@@ -182,7 +176,6 @@ public class MentorBusinessService(
             Content = assistantContent,
             Role = MentorMessageRole.Assistant,
             SequenceNumber = model.Messages.Max(m => m.SequenceNumber) + 1,
-            ProblemId = model.ProblemId,
         });
 
         userMentor.RequestsMade++;
@@ -602,9 +595,8 @@ public class MentorBusinessService(
                 model.CategoryName,
                 model.SubmissionTypeName),
             Role = MentorMessageRole.System,
-            // The system message should always be first ( in ascending order )
+            // The system message should always be first (in ascending order)
             SequenceNumber = int.MinValue,
-            ProblemId = model.ProblemId,
             ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
         };
     }
