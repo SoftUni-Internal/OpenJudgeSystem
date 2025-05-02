@@ -104,7 +104,7 @@ public class MentorBusinessService(
         }
 
         var currentProblemMessages = model.Messages
-            .Where(m => m.ProblemId == model.ProblemId && m.Role != MentorMessageRole.Information)
+            .Where(m => m.Role != MentorMessageRole.Information)
             .ToList();
 
         var messagesToSend = new List<ChatMessage>();
