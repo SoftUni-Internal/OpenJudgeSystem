@@ -3,10 +3,12 @@ import { TypedUseSelectorHook, useDispatch as useReduxDispatch, useSelector as u
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import createIDBStorage from 'redux-persist-indexeddb-storage';
 
 // features
 import { authorizationSlice } from './features/authorizationSlice';
 import { contestSlice } from './features/contestsSlice';
+import { mentorSlice } from './features/mentorSlice';
 import searchSlice from './features/searchSlice';
 import { themeSlice } from './features/themeSlice';
 import usersSlice from './features/usersSlice';
@@ -42,12 +44,24 @@ import usersService from './services/usersService';
 import submissionTypeDocumentsAdminService from './services/admin/submissionTypeDocumentsAdminService';
 import submissionTypesInSubmissionDocumentsAdminService from './services/admin/submissionTypesInSubmissionDocumentsAdminService';
 
+const persistConfig = (reducersToPersist: string[]) => ({
+    key: 'root',
+    storage,
+    whitelist: reducersToPersist,
+});
+
+const mentorPersistConfig = {
+    key: 'mentor',
+    storage: createIDBStorage('mentorDB'),
+};
+
 const rootReducer = combineReducers({
     // reducers
     [themeSlice.name]: themeSlice.reducer,
     [authorizationSlice.name]: authorizationSlice.reducer,
     [usersSlice.name]: usersSlice.reducer,
     [contestSlice.name]: contestSlice.reducer,
+    [mentorSlice.name]: persistReducer(mentorPersistConfig, mentorSlice.reducer),
     [searchSlice.name]: searchSlice.reducer,
 
     // services
@@ -79,12 +93,6 @@ const rootReducer = combineReducers({
     [examGroupsService.reducerPath]: examGroupsService.reducer,
     [settingsAdminService.reducerPath]: settingsAdminService.reducer,
     [accessLogsAdminService.reducerPath]: accessLogsAdminService.reducer,
-});
-
-const persistConfig = (reducersToPersist: string[]) => ({
-    key: 'root',
-    storage,
-    whitelist: reducersToPersist,
 });
 
 // list reducers with data to be persisted here

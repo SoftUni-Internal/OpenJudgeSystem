@@ -505,9 +505,9 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             await this.submissionsForProcessingData.SetProcessingState(submissionForProcessing, SubmissionProcessingState.Processed);
         });
 
-        if (executionResult?.VerboseLogFile != null)
+        if (submissionExecutionResult.VerboseLogFile is { Length: > 0 })
         {
-            await this.fileIo.SaveFile(this.GetLogFilePath(submission.Id), executionResult.VerboseLogFile);
+            await this.fileIo.SaveFile(this.GetLogFilePath(submission.Id), submissionExecutionResult.VerboseLogFile);
         }
 
         this.logger.LogSubmissionProcessedSuccessfully(submission.Id, submissionForProcessing);

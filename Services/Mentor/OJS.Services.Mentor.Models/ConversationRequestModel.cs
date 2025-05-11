@@ -2,19 +2,19 @@
 
 public class ConversationRequestModel
 {
-    public string UserId { get; set; } = default!;
+    public string UserId { get; set; } = string.Empty;
 
     public ICollection<ConversationMessageModel> Messages { get; set; } = [];
 
     public int ProblemId { get; set; }
 
-    public string ProblemName { get; set; } = default!;
+    public string ProblemName { get; set; } = string.Empty;
 
     public int ContestId { get; set; }
 
-    public string ContestName { get; set; } = default!;
+    public string ContestName { get; set; } = string.Empty;
 
-    public string CategoryName { get; set; } = default!;
+    public string CategoryName { get; set; } = string.Empty;
 
-    public string SubmissionTypeName { get; set; } = default!;
+    public string SubmissionTypeName { get; set; } = string.Empty;
 }

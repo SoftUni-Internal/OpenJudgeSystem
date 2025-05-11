@@ -69,6 +69,8 @@ namespace OJS.Services.Administration.Business.ProblemGroups
 
             await this.problemGroupsData.SaveChanges();
 
+            await this.ReevaluateProblemsAndProblemGroupsOrder(problemGroup.ContestId);
+
             return model;
         }
 
@@ -80,14 +82,22 @@ namespace OJS.Services.Administration.Business.ProblemGroups
 
             await this.problemGroupsData.SaveChanges();
 
+            await this.ReevaluateProblemsAndProblemGroupsOrder(problemGroup.ContestId);
+
             return model;
         }
 
         public override async Task Delete(int id)
         {
+            var contestId = await this.problemGroupsData.GetByIdQuery(id)
+                .Select(pg => pg.ContestId)
+                .FirstOrDefaultAsync();
+
             await this.problemGroupsData.DeleteById(id);
 
             await this.problemGroupsData.SaveChanges();
+
+            await this.ReevaluateProblemsAndProblemGroupsOrder(contestId);
         }
 
         public async Task<ServiceResult> DeleteById(int id)
@@ -105,6 +115,8 @@ namespace OJS.Services.Administration.Business.ProblemGroups
 
                 this.problemGroupsData.Delete(problemGroup);
                 await this.problemGroupsData.SaveChanges();
+
+                await this.ReevaluateProblemsAndProblemGroupsOrder(problemGroup.ContestId);
             }
 
             return ServiceResult.Success;

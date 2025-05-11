@@ -25,7 +25,7 @@
 
         public const string SubmissionTypesByContestCategory = "SubmissionTypesByCategory:{0}";
 
-        public const string MentorSystemMessage = "MentorSystemMessage:{0}:{1}";
+        public const string MentorSystemMessageForProblem = "MentorSystemMessageForProblem:{0}";
 
         public static CompositeFormat SettingsFormat => CompositeFormat.Parse("Settings:{0}");
     }

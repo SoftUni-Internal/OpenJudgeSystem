@@ -137,6 +137,8 @@ namespace OJS.Common
             public const string TestOutputTxt = Output + Txt;
             public const string TestInputZip = Input + Zip;
             public const string TestOutputZip = Output + Zip;
+
+            public static string WithoutLeadingDot(string fileExtension) => fileExtension.TrimStart('.');
         }
 
         public static class Submissions

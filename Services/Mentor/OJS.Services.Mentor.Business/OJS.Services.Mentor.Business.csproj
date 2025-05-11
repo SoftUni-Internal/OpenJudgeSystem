@@ -7,12 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\UI\OJS.Services.Ui.Business\OJS.Services.Ui.Business.csproj" />
       <ProjectReference Include="..\..\UI\OJS.Services.Ui.Data\OJS.Services.Ui.Data.csproj" />
       <ProjectReference Include="..\OJS.Services.Mentor.Models\OJS.Services.Mentor.Models.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="OpenAI" Version="2.0.0" />
+      <PackageReference Include="OpenAI" Version="2.1.0" />
       <PackageReference Include="TiktokenSharp" Version="1.1.5" />
     </ItemGroup>
 

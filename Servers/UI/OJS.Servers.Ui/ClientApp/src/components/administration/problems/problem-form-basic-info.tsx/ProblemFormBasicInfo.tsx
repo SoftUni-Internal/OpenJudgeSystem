@@ -34,47 +34,97 @@ const ProblemFormBasicInfo = (props: IProblemFormBasicInfoProps) => {
 
     const renderProblemGroups = () => {
         if (currentProblem.contestType === ContestVariation.OnlinePracticalExam) {
+            const NEW_PROBLEM_GROUP: IProblemGroupDropdownModel = {
+                id: 0,
+                orderBy: 0,
+            };
+            const options = [ NEW_PROBLEM_GROUP, ...problemGroups ];
+
             return (
-                <FormControl className={formStyles.inputRow}>
-                    <Autocomplete
-                      sx={{ width: '100%' }}
-                      className={formStyles.inputRow}
-                      onChange={(event, newValue) => onChange({ target: { name: 'problemGroupId', value: newValue?.id } })}
-                      value={problemGroups.find((pg) => pg.id === currentProblem.problemGroupId) ?? null}
-                      options={problemGroups}
-                      getOptionLabel={(option) => option.orderBy.toString()}
-                      renderInput={(params) => (
-                          <TextField {...params} label="Problem Group Order By" />
-                      )}
-                      renderOption={(properties, option) => (
-                          <MenuItem {...properties} key={option.id} value={option.id}>
-                              {option.orderBy}
-                          </MenuItem>
-                      )}
-                    />
-                </FormControl>
+                <Box className={formStyles.row}>
+                    <Box className={formStyles.row}>
+                        <FormControl className={formStyles.inputRow}>
+                            <Autocomplete<IProblemGroupDropdownModel>
+                              sx={{ width: '100%' }}
+                              className={formStyles.inputRow}
+                              onChange={(event, newValue) => {
+                                  onChange({ target: { name: 'problemGroupId', value: newValue?.id } });
+                              }}
+                              value={options.find((pg) => pg.id === currentProblem.problemGroupId) ?? null}
+                              options={options}
+                              getOptionLabel={(option) => {
+                                  if (option.id === NEW_PROBLEM_GROUP.id) {
+                                      return 'Add in a new problem group';
+                                  }
+                                  return option.orderBy.toString();
+                              }}
+                              renderInput={(params) => (
+                                  <TextField {...params} label="Problem Group Order By" />
+                              )}
+                              renderOption={(properties, option) => {
+                                  if (option.id === NEW_PROBLEM_GROUP.id) {
+                                      return (
+                                          <MenuItem {...properties} key={option.id} value={option.id}>
+                                              Add in a new problem group
+                                          </MenuItem>
+                                      );
+                                  }
+                                  return (
+                                      <MenuItem {...properties} key={option.id} value={option.id}>
+                                          {option.orderBy}
+                                      </MenuItem>
+                                  );
+                              }}
+                            />
+                        </FormControl>
+                    </Box>
+                    <Box className={formStyles.row}>
+                        {currentProblem.problemGroupId === NEW_PROBLEM_GROUP.id && (
+                            <FormControl className={formStyles.inputRow}>
+                                <Autocomplete
+                                  sx={{ width: '100%' }}
+                                  className={formStyles.inputRow}
+                                  onChange={(event, newValue) => onChange({ target: { name: 'problemGroupType', value: newValue } })}
+                                  value={currentProblem.problemGroupType}
+                                  options={Object.keys(ProblemGroupTypes).filter((key) => isNaN(Number(key)))}
+                                  renderInput={(params) => (
+                                      <TextField {...params} label={PROBLEM_GROUP_TYPE} />
+                                  )}
+                                  getOptionLabel={(option) => option}
+                                  renderOption={(properties, option) => (
+                                      <MenuItem {...properties} key={option} value={option}>
+                                          {option}
+                                      </MenuItem>
+                                  )}
+                                />
+                            </FormControl>
+                        )}
+                    </Box>
+                </Box>
             );
         }
 
         return (
-            <FormControl className={formStyles.inputRow}>
-                <Autocomplete
-                  sx={{ width: '100%' }}
-                  className={formStyles.inputRow}
-                  onChange={(event, newValue) => onChange({ target: { name: 'problemGroupType', value: newValue } })}
-                  value={currentProblem.problemGroupType}
-                  options={Object.keys(ProblemGroupTypes).filter((key) => isNaN(Number(key)))}
-                  renderInput={(params) => (
-                      <TextField {...params} label={PROBLEM_GROUP_TYPE} />
-                  )}
-                  getOptionLabel={(option) => option}
-                  renderOption={(properties, option) => (
-                      <MenuItem {...properties} key={option} value={option}>
-                          {option}
-                      </MenuItem>
-                  )}
-                />
-            </FormControl>
+            <Box className={formStyles.row}>
+                <FormControl className={formStyles.inputRow}>
+                    <Autocomplete
+                      sx={{ width: '100%' }}
+                      className={formStyles.inputRow}
+                      onChange={(event, newValue) => onChange({ target: { name: 'problemGroupType', value: newValue } })}
+                      value={currentProblem.problemGroupType}
+                      options={Object.keys(ProblemGroupTypes).filter((key) => isNaN(Number(key)))}
+                      renderInput={(params) => (
+                          <TextField {...params} label={PROBLEM_GROUP_TYPE} />
+                      )}
+                      getOptionLabel={(option) => option}
+                      renderOption={(properties, option) => (
+                          <MenuItem {...properties} key={option} value={option}>
+                              {option}
+                          </MenuItem>
+                      )}
+                    />
+                </FormControl>
+            </Box>
         );
     };
 
@@ -180,8 +230,8 @@ const ProblemFormBasicInfo = (props: IProblemFormBasicInfoProps) => {
                               )}
                             />
                         </FormControl>
-                        {renderProblemGroups()}
                     </Box>
+                    {renderProblemGroups()}
                     <Box className={formStyles.row}>
                         <TextField
                           className={formStyles.fieldBoxElementLeft}

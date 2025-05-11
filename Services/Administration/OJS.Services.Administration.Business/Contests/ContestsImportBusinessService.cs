@@ -3,6 +3,7 @@ namespace OJS.Services.Administration.Business.Contests;
 using FluentExtensions.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OJS.Common;
 using OJS.Common.Enumerations;
@@ -12,7 +13,6 @@ using OJS.Data.Models.Contests;
 using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.Data.Models.Tests;
-using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Business.Problems;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Contests;
@@ -35,7 +35,7 @@ public class ContestsImportBusinessService(
     ISubmissionTypesDataService submissionTypesData,
     ITestRunsDataService testRunsData,
     IProblemsBusinessService problemsBusiness,
-    IProblemGroupsBusinessService problemGroupsBusiness)
+    ILogger<ContestsImportBusinessService> logger)
     : IContestsImportBusinessService
 {
     private readonly HttpClient httpClient = httpClientFactory.CreateClient();
@@ -48,6 +48,7 @@ public class ContestsImportBusinessService(
         if (sourceContestCategoryId == 0 || destinationContestCategoryId == 0)
         {
             await response.WriteAsync("<p style='color:red'>Invalid contest category ids.</p>");
+            await response.Body.FlushAsync();
             return;
         }
 
@@ -59,8 +60,10 @@ public class ContestsImportBusinessService(
 
         if (contestIds == null)
         {
+            logger.LogError("Failed to get contest IDs for category {SourceContestCategoryId}", sourceContestCategoryId);
             await response.WriteAsync("<p style='color:red'>Failed to get contest IDs.</p>");
             await response.WriteAsync("</div>");
+            await response.Body.FlushAsync();
             return;
         }
 
@@ -70,10 +73,13 @@ public class ContestsImportBusinessService(
         {
             await response.WriteAsync($"<p style='color:red'>Destination contest category with id {destinationContestCategoryId} does not exist.</p>");
             await response.WriteAsync("</div>");
+            await response.Body.FlushAsync();
             return;
         }
 
+        logger.LogInformation("Importing {ContestIdsCount} contests from category {SourceContestCategoryId} into category {DestinationContestCategoryId}, dry run: {dryRun}", contestIds.Length, sourceContestCategoryId, destinationContestCategoryId, dryRun);
         await response.WriteAsync($"<p>Importing contests from category #{sourceContestCategoryId} into category \"{destinationContestCategory.Name}\" #{destinationContestCategoryId}</p>");
+        logger.LogInformation("{ContestIdsCount} contests will be imported. These are the source contest ids: {ContestIds}", contestIds.Length, string.Join(", ", contestIds));
         await response.WriteAsync($"<p>{contestIds.Length} contests will be imported. These are the source contest ids: <b>{string.Join(", ", contestIds)}</b></p>");
         await response.WriteAsync("<hr>");
         await response.Body.FlushAsync();
@@ -103,10 +109,13 @@ public class ContestsImportBusinessService(
             var contest = await this.httpClient.GetFromJsonAsync<ContestLegacyExportServiceModel>($"{this.urls.LegacyJudgeUrl}/api/Contests/Export/{contestId}?apiKey={this.urls.LegacyJudgeApiKey}");
             if (contest == null)
             {
+                logger.LogError("Failed to get contest with id {ContestId}", contestId);
                 await response.WriteAsync($"<p><b style='color:orange'>Skip:</b> Failed to get source contest <b>#{contestId}</b>. Skipping it...</p>");
                 await response.Body.FlushAsync();
                 continue;
             }
+
+            logger.LogInformation("Importing contest {ContestId} into category {DestinationContestCategoryId}, dry run: {dryRun}", contestId, destinationContestCategoryId, dryRun);
 
             var existingContest = await contestsData
                 .WithQueryFilters()
@@ -133,15 +142,17 @@ public class ContestsImportBusinessService(
             {
                 contestResult.AppendLine(existingContest == null
                     ? $"<p><b style='color:green'>Import as new:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> will be imported as new contest.</p>"
-                    : $"<p><b style='color:blue'>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists and will be updated.</p>");
+                    : $"<p><b style='color:blue'>Update:</b> (src <b>#{contestId}</b>) Contest <b>\"{contest.Name}\"</b> already exists (#{existingContest.Id}) and will be updated.</p>");
             }
 
             if (existingContest == null)
             {
+                logger.LogInformation("Importing contest {ContestId} as new contest", contestId);
                 await this.ImportNewContest(destinationContestCategoryId, contest, checkers, submissionTypes, contestResult, dryRun);
             }
             else
             {
+                logger.LogInformation("Updating contest {ContestId}", existingContest.Id);
                 await this.UpdateContest(existingContest, contest, checkers, submissionTypes, contestResult, dryRun);
             }
 
@@ -155,10 +166,10 @@ public class ContestsImportBusinessService(
             // Update progress bar with JavaScript
             await response.WriteAsync($"<script>document.getElementById('progress').style.width = '{percentage}%';</script>");
             await response.WriteAsync($"<script>document.getElementById('progress-text').innerText = 'Processed: {processedCount} of {contestIds.Length}';</script>");
-
             await response.Body.FlushAsync();
         }
 
+        logger.LogInformation("Import process completed successfully.");
         await response.WriteAsync("</div>"); // Close contest-results div
         await response.WriteAsync("<hr>");
         await response.WriteAsync(dryRun
@@ -196,7 +207,6 @@ public class ContestsImportBusinessService(
             PracticePassword = contest.PracticePassword,
             LimitBetweenSubmissions = contest.LimitBetweenSubmissions,
             OrderBy = contest.OrderBy,
-            NumberOfProblemGroups = contest.NumberOfProblemGroups,
             AllowParallelSubmissionsInTasks = !contest.UsersCantSubmitConcurrently,
             IsVisible = contest.IsVisible,
             VisibleFrom = ConvertTimeToUtc(contest.VisibleFrom),
@@ -255,6 +265,7 @@ public class ContestsImportBusinessService(
             await contestsData.SaveChanges();
         }
 
+        logger.LogInformation("Contest {ContestId} imported successfully", contest.Id);
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{contest.Name}\"</b> was imported successfully.</p>");
         result.AppendLine("<hr>");
     }
@@ -279,7 +290,6 @@ public class ContestsImportBusinessService(
         existingContest.PracticePassword = sourceContest.PracticePassword;
         existingContest.LimitBetweenSubmissions = sourceContest.LimitBetweenSubmissions;
         existingContest.OrderBy = sourceContest.OrderBy;
-        existingContest.NumberOfProblemGroups = sourceContest.NumberOfProblemGroups;
         existingContest.AllowParallelSubmissionsInTasks = !sourceContest.UsersCantSubmitConcurrently;
         existingContest.IsVisible = sourceContest.IsVisible;
         existingContest.VisibleFrom = ConvertTimeToUtc(sourceContest.VisibleFrom);
@@ -287,12 +297,34 @@ public class ContestsImportBusinessService(
         existingContest.AutoChangeTestsFeedbackVisibility = sourceContest.AutoChangeTestsFeedbackVisibility;
         existingContest.Duration = sourceContest.Duration;
 
-        // Process each problem in the group
-        foreach (var sourceProblemGroup in sourceContest.ProblemGroups)
+        if (!dryRun)
         {
+            await testRunsData.ExecuteSqlCommandWithTimeout($"""
+                DELETE tr FROM [OpenJudgeSystem].[dbo].[TestRuns] tr
+                INNER JOIN [OpenJudgeSystem].[dbo].[Tests] t ON tr.TestId = t.Id
+                INNER JOIN [OpenJudgeSystem].[dbo].[Problems] p ON p.Id = t.ProblemId
+                INNER JOIN [OpenJudgeSystem].[dbo].[ProblemGroups] pg ON pg.Id = p.ProblemGroupId
+                INNER JOIN [OpenJudgeSystem].[dbo].[Contests] c ON c.Id = pg.ContestId
+                WHERE c.Id = {existingContest.Id}
+                """,
+                60);
+
+            result.AppendLine(CultureInfo.InvariantCulture, $"<p>Test runs for contest <b>\"{sourceContest.Name}\"</b> deleted successfully.</p>");
+            logger.LogInformation("Test runs for contest {ContestId} deleted successfully", existingContest.Id);
+        }
+
+        var sourceGroups = sourceContest.ProblemGroups.OrderBy(g => g.OrderBy).ToList();
+        var existingGroups = existingContest.ProblemGroups.OrderBy(g => g.OrderBy).ToList();
+
+        // Process each problem in the group
+        for (var i = 0; i < sourceGroups.Count; i++)
+        {
+            var sourceProblemGroup = sourceGroups[i];
+
             // Try to find existing problem group by OrderBy
-            var existingProblemGroup = existingContest.ProblemGroups
-                .FirstOrDefault(pg => Math.Abs(pg.OrderBy - sourceProblemGroup.OrderBy) < 0.001);
+            var existingProblemGroup = i < existingGroups.Count
+                ? existingGroups[i]
+                : null;
 
             if (existingProblemGroup == null)
             {
@@ -326,16 +358,10 @@ public class ContestsImportBusinessService(
                 else
                 {
                     // Clear existing collections to update them
-                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Update:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be updated. Tests will be replaced. Test runs will be deleted.</p>");
+                    result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Update:</b> Problem <b>\"{sourceProblem.Name}\"</b> will be updated. Tests will be replaced.</p>");
                     existingProblem.Tests.Clear();
                     existingProblem.Resources.Clear();
                     existingProblem.SubmissionTypesInProblems.Clear();
-
-                    if (!dryRun)
-                    {
-                        // Delete test runs for the problem, as they are no longer valid after importing new tests
-                        await testRunsData.DeleteByProblem(existingProblem.Id);
-                    }
                 }
 
                 // Update problem properties
@@ -422,33 +448,45 @@ public class ContestsImportBusinessService(
                 Math.Abs(pg.OrderBy - sourceOrderBy) < 0.001))
             .ToList();
 
-        foreach (var problemGroup in problemGroupsToRemove)
-        {
-            result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> will be deleted.</p>");
+        var problemsToRemove = existingContest.ProblemGroups
+            .SelectMany(pg => pg.Problems)
+            .Where(p => !sourceProblemNames.Contains(p.Name))
+            .Concat(problemGroupsToRemove.SelectMany(pg => pg.Problems))
+            .ToList();
 
+        foreach (var problem in problemsToRemove)
+        {
             if (!dryRun)
             {
-                await problemGroupsBusiness.Delete(problemGroup.Id);
+                await problemsBusiness.Delete(problem.Id);
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> deleted successfully.</p>");
             }
-        }
-
-        foreach (var problemGroup in existingContest.ProblemGroups)
-        {
-            var problemsToRemove = problemGroup.Problems
-                .Where(p => !sourceProblemNames.Contains(p.Name))
-                .ToList();
-
-            foreach (var problem in problemsToRemove)
+            else
             {
                 result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>----Delete:</b> Problem <b>\"{problem.Name}\"</b> will be deleted.</p>");
-
-                if (!dryRun)
-                {
-                    await problemsBusiness.Delete(problem.Id);
-                }
             }
         }
 
+        foreach (var problemGroup in problemGroupsToRemove)
+        {
+            if (!dryRun)
+            {
+                problemGroup.IsDeleted = true;
+                problemGroup.DeletedOn = DateTime.UtcNow;
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> deleted successfully.</p>");
+            }
+            else
+            {
+                result.AppendLine(CultureInfo.InvariantCulture, $"<p><b>--Delete:</b> Problem group <b>\"{problemGroup.OrderBy}\"</b> will be deleted.</p>");
+            }
+        }
+
+        if (!dryRun)
+        {
+            await contestsData.SaveChanges();
+        }
+
+        logger.LogInformation("Contest {ContestId} updated successfully", existingContest.Id);
         result.AppendLine(CultureInfo.InvariantCulture, $"<p>Contest <b>\"{sourceContest.Name}\"</b> updated successfully.</p>");
         result.AppendLine("<hr>");
     }

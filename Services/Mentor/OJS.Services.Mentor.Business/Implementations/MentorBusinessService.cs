@@ -8,8 +8,8 @@ using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Build.Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using OJS.Common.Constants;
 using OJS.Common.Enumerations;
 using OJS.Common.Extensions;
 using OJS.Data.Models;
@@ -21,54 +21,32 @@ using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Mentor.Business;
 using OJS.Services.Mentor.Models;
+using OJS.Services.Ui.Business;
 using OJS.Services.Ui.Data;
 using OpenAI;
 using OpenAI.Chat;
 using TiktokenSharp;
+using static OJS.Common.GlobalConstants.FileExtensions;
 using Table = DocumentFormat.OpenXml.Wordprocessing.Table;
 using static OJS.Common.GlobalConstants.Settings;
 
-public class MentorBusinessService : IMentorBusinessService
+public class MentorBusinessService(
+    IDataService<UserMentor> userMentorData,
+    IDataService<MentorPromptTemplate> mentorPromptTemplateData,
+    IHttpClientFactory httpClientFactory,
+    IDataService<Setting> settingData,
+    IContestsDataService contestsData,
+    ICacheService cache,
+    ILogger<MentorBusinessService> logger,
+    OpenAIClient openAiClient,
+    IProblemResourcesBusinessService problemResourcesBusinessService)
+    : IMentorBusinessService
 {
-    private const string SvnHttpClientName = "Svn";
-    private const string DefaultHttpClientName = "Default";
-    private const string Docx = "docx";
-    private const string Svn = "svn";
     private const string DocumentNotFoundOrEmpty = "Judge was unable to find the problem's description. Please contact an administrator and report the problem.";
-
-    private readonly IDataService<UserMentor> userMentorData;
-    private readonly IDataService<MentorPromptTemplate> mentorPromptTemplateData;
-    private readonly IHttpClientFactory httpClientFactory;
-    private readonly IDataService<Setting> settingData;
-    private readonly IContestsDataService contestsData;
-    private readonly ICacheService cache;
-    private readonly ILogger<MentorBusinessService> logger;
-    private readonly IConfiguration configuration;
-    private readonly OpenAIClient openAiClient;
-
-    public MentorBusinessService(
-        IDataService<UserMentor> userMentorData,
-        IDataService<MentorPromptTemplate> mentorPromptTemplateData,
-        IHttpClientFactory httpClientFactory,
-        IDataService<Setting> settingData,
-        IContestsDataService contestsData,
-        ICacheService cache,
-        ILogger<MentorBusinessService> logger,
-        OpenAIClient openAiClient)
-    {
-        this.userMentorData = userMentorData;
-        this.mentorPromptTemplateData = mentorPromptTemplateData;
-        this.httpClientFactory = httpClientFactory;
-        this.settingData = settingData;
-        this.contestsData = contestsData;
-        this.cache = cache;
-        this.logger = logger;
-        this.openAiClient = openAiClient;
-    }
 
     public async Task<ConversationResponseModel> StartConversation(ConversationRequestModel model)
     {
-        var settings = await this.settingData
+        var settings = await settingData
             .GetQuery(s => s.Name.Contains(Mentor))
             .AsNoTracking()
             .ToDictionaryAsync(k => k.Name, v => v.Value);
@@ -85,7 +63,7 @@ public class MentorBusinessService : IMentorBusinessService
             throw new BusinessServiceException($"Your message exceeds the {maxUserInputLength}-character limit. Please shorten it.");
         }
 
-        var userMentor = await this.userMentorData
+        var userMentor = await userMentorData
             .GetQuery(um => um.Id == model.UserId)
             .FirstOrDefaultAsync();
 
@@ -102,8 +80,8 @@ public class MentorBusinessService : IMentorBusinessService
                 QuotaResetTime = DateTime.UtcNow.AddMinutes(GetNumericValue(settings, nameof(MentorQuotaResetTimeInMinutes))),
             };
 
-            await this.userMentorData.Add(userMentor);
-            await this.userMentorData.SaveChanges();
+            await userMentorData.Add(userMentor);
+            await userMentorData.SaveChanges();
         }
 
         if (DateTime.UtcNow >= userMentor.QuotaResetTime)
@@ -119,26 +97,21 @@ public class MentorBusinessService : IMentorBusinessService
                 Content = $"Достигнахте лимита на съобщенията си, моля опитайте отново след {GetTimeUntilNextMessage(userMentor.QuotaResetTime)}.",
                 Role = MentorMessageRole.Information,
                 SequenceNumber = model.Messages.Max(m => m.SequenceNumber) + 1,
-                ProblemId = model.ProblemId,
             });
 
             return GetResponseModel(model, maxUserInputLength);
         }
 
-        var currentProblemMessages = model.Messages
-            .Where(m => m.ProblemId == model.ProblemId && m.Role != MentorMessageRole.Information)
-            .ToList();
-
         var messagesToSend = new List<ChatMessage>();
 
-        var systemMessage = await this.cache.Get(
-            string.Format(CultureInfo.InvariantCulture, CacheConstants.MentorSystemMessage, model.UserId, model.ProblemId),
+        var systemMessage = await cache.Get(
+            string.Format(CultureInfo.InvariantCulture, CacheConstants.MentorSystemMessageForProblem, model.ProblemId),
             async () => await this.GetSystemMessage(model),
             CacheConstants.OneHourInSeconds);
         systemMessage.Content = RemoveRedundantWhitespace(systemMessage.Content);
         messagesToSend.Add(CreateChatMessage(systemMessage.Role, systemMessage.Content));
 
-        var recentMessages = currentProblemMessages
+        var recentMessages = model.Messages
             .Where(m => m.Role is not MentorMessageRole.System and not MentorMessageRole.Information)
             .OrderByDescending(m => m.SequenceNumber)
             .Take(GetNumericValue(settings, nameof(MentorMessagesSentCount)))
@@ -148,7 +121,6 @@ public class MentorBusinessService : IMentorBusinessService
                 Content = m.Content,
                 Role = m.Role,
                 SequenceNumber = m.SequenceNumber,
-                ProblemId = m.ProblemId,
             })
             .ToList();
 
@@ -176,10 +148,22 @@ public class MentorBusinessService : IMentorBusinessService
 
         messagesToSend.AddRange(recentMessages.Select(m => CreateChatMessage(m.Role, m.Content)));
 
-        var chat = this.openAiClient.GetChatClient(mentorModel);
+        var chat = openAiClient.GetChatClient(mentorModel);
         var response = await chat.CompleteChatAsync(messagesToSend, new ChatCompletionOptions
         {
             MaxOutputTokenCount = GetNumericValue(settings, nameof(MentorMaxOutputTokenCount)),
+            EndUserId = model.UserId,
+            Metadata =
+            {
+                { "CategoryName", model.CategoryName },
+                { "ContestName", model.ContestName },
+                { "ProblemName", model.ProblemName },
+                { "SubmissionTypeName" , model.SubmissionTypeName },
+                { "ContestId", model.ContestId.ToString(CultureInfo.InvariantCulture) },
+                { "ProblemId", model.ProblemId.ToString(CultureInfo.InvariantCulture) },
+                { "UserId", model.UserId },
+                { "ProblemIsExtractedSuccessfully", systemMessage.ProblemIsExtractedSuccessfully ? "true" : "false" },
+            },
         });
 
         if (response is null)
@@ -194,12 +178,11 @@ public class MentorBusinessService : IMentorBusinessService
             Content = assistantContent,
             Role = MentorMessageRole.Assistant,
             SequenceNumber = model.Messages.Max(m => m.SequenceNumber) + 1,
-            ProblemId = model.ProblemId,
         });
 
         userMentor.RequestsMade++;
         userMentor.TotalRequestsMade++;
-        await this.userMentorData.SaveChanges();
+        await userMentorData.SaveChanges();
 
         return GetResponseModel(model, maxUserInputLength);
     }
@@ -219,7 +202,7 @@ public class MentorBusinessService : IMentorBusinessService
             var body = wordDocument.MainDocumentPart?.Document.Body;
             if (body is null)
             {
-                throw new BusinessServiceException(DocumentNotFoundOrEmpty);
+                throw new BusinessServiceException(DocumentNotFoundOrEmpty + " Document body is null.");
             }
 
             var sections = new Dictionary<string, (int Index, List<string> Data, OpenXmlElement Element)>();
@@ -277,7 +260,7 @@ public class MentorBusinessService : IMentorBusinessService
         }
         catch (Exception)
         {
-            this.logger.LogFileParsingFailure(problemId, contestId);
+            logger.LogFileParsingFailure(problemId, contestId);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
     }
@@ -410,7 +393,7 @@ public class MentorBusinessService : IMentorBusinessService
             }
 
             // Log the percentage of content truncated
-            this.logger.LogPercentageOfMessageContentTruncated(percentageTruncated, problemId);
+            logger.LogPercentageOfMessageContentTruncated(percentageTruncated, problemId);
 
             // Stop if we've removed enough tokens
             if (tokensToRemove <= 0)
@@ -423,7 +406,7 @@ public class MentorBusinessService : IMentorBusinessService
         if (removedMessageCount > 0)
         {
             // Log the number of messages removed
-            this.logger.LogTruncatedMentorMessages(initialMessageCount, removedMessageCount, problemId);
+            logger.LogTruncatedMentorMessages(initialMessageCount, removedMessageCount, problemId);
         }
     }
 
@@ -544,6 +527,7 @@ public class MentorBusinessService : IMentorBusinessService
         int maxUserInputLength)
     {
         var responseModel = model.Map<ConversationResponseModel>();
+        responseModel.ProblemId = model.ProblemId;
         responseModel.MaxUserInputLength = maxUserInputLength;
         return responseModel;
     }
@@ -560,12 +544,12 @@ public class MentorBusinessService : IMentorBusinessService
          *  .FirstOrDefaultAsync() will always return a template. This
          *  will be changed in the future.
          */
-        var template = await this.mentorPromptTemplateData
+        var template = await mentorPromptTemplateData
             .GetQuery()
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        var problemsResources = await this.contestsData
+        var problemsResources = await contestsData
             .GetByIdQuery(model.ContestId)
             .AsNoTracking()
             .Select(c => c.ProblemGroups
@@ -577,8 +561,8 @@ public class MentorBusinessService : IMentorBusinessService
 
         var wordFiles = problemsResources
             .Where(pr =>
-                   pr is { File: not null, FileExtension: Docx } ||
-                   pr.Link is not null && pr.Link.Split('.').Last().Equals(Docx, StringComparison.Ordinal))
+                   (pr.File is not null && pr.FileExtension?.Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal) == true) ||
+                   (pr.Link is not null && pr.Link.Split('.').Last().Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal)))
             .ToList();
 
         /*
@@ -590,6 +574,7 @@ public class MentorBusinessService : IMentorBusinessService
 
         if (problemsDescription is null)
         {
+            logger.LogProblemDescriptionResourceNotFound(model.ProblemId, model.ContestId);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
 
@@ -612,41 +597,44 @@ public class MentorBusinessService : IMentorBusinessService
                 model.CategoryName,
                 model.SubmissionTypeName),
             Role = MentorMessageRole.System,
-            // The system message should always be first ( in ascending order )
+            // The system message should always be first (in ascending order)
             SequenceNumber = int.MinValue,
-            ProblemId = model.ProblemId,
+            ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
         };
     }
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
     {
-        var fileBytes = link.Contains($"/{Svn}", StringComparison.OrdinalIgnoreCase)
-            ? await this.DownloadSvnResource(link, problemId, contestId)
-            : await this.DownloadResource(link, problemId, contestId);
+        link = problemResourcesBusinessService.SafeConvertToSvnLink(link);
+        using var client = this.CreateClientForLink(link);
+        var fileBytes = await this.FetchResource(link, client, problemId, contestId);
 
         if (!IsExpectedFormat(fileBytes))
         {
-            this.logger.LogInvalidDocumentFormat(problemId, contestId, link);
+            logger.LogInvalidDocumentFormat(problemId, contestId, link);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
 
         return fileBytes;
     }
 
-    private async Task<byte[]> DownloadResource(string url, int problemId, int contestId)
+    private HttpClient CreateClientForLink(string link)
     {
-        var client = this.httpClientFactory.CreateClient(DefaultHttpClientName);
-        return await this.FetchResource(url, client, problemId, contestId);
-    }
+        if (!Uri.TryCreate(link, UriKind.Absolute, out var uri))
+        {
+            throw new BusinessServiceException($"Invalid URL provided for Problem: {link}", nameof(link));
+        }
 
-    private async Task<byte[]> DownloadSvnResource(string path, int problemId, int contestId)
-    {
-        var index = path.IndexOf(Svn, StringComparison.OrdinalIgnoreCase);
-        var resourcePath = path[(index + Svn.Length)..].TrimStart('/');
+        // 1) Try the SVN client for links from the SVN server
+        var svnClient = httpClientFactory.CreateClient(ServiceConstants.SvnHttpClientName);
+        if (svnClient.BaseAddress != null
+            && string.Equals(svnClient.BaseAddress.Host, uri.Host, StringComparison.OrdinalIgnoreCase))
+        {
+            return svnClient;
+        }
 
-        using var client = this.httpClientFactory.CreateClient(SvnHttpClientName);
-
-        return await this.FetchResource(resourcePath, client, problemId, contestId);
+        // 2) Fallback: use the default client
+        return httpClientFactory.CreateClient(ServiceConstants.DefaultHttpClientName);
     }
 
     private async Task<byte[]> FetchResource(string link, HttpClient client, int problemId, int contestId)
@@ -657,7 +645,12 @@ public class MentorBusinessService : IMentorBusinessService
 
             if (response is not { IsSuccessStatusCode: true })
             {
-                this.logger.LogHttpRequestFailure(problemId, contestId, response?.StatusCode ?? HttpStatusCode.ServiceUnavailable, link);
+                logger.LogHttpRequestFailure(
+                    problemId,
+                    contestId,
+                    response?.StatusCode ?? HttpStatusCode.ServiceUnavailable,
+                    response?.RequestMessage?.RequestUri?.AbsoluteUri ?? link,
+                    response?.ReasonPhrase);
                 throw new BusinessServiceException(DocumentNotFoundOrEmpty);
             }
 
@@ -665,15 +658,15 @@ public class MentorBusinessService : IMentorBusinessService
 
             if (fileBytes.Length == 0)
             {
-                this.logger.LogFileNotFoundOrEmpty(problemId, contestId, link);
+                logger.LogFileNotFoundOrEmpty(problemId, contestId, link);
                 throw new BusinessServiceException(DocumentNotFoundOrEmpty);
             }
 
             return fileBytes;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            this.logger.LogResourceDownloadFailure(problemId, contestId, link);
+            logger.LogResourceDownloadFailure(problemId, contestId, link, ex);
             throw new BusinessServiceException(DocumentNotFoundOrEmpty);
         }
     }

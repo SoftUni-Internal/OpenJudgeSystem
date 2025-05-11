@@ -57,7 +57,6 @@
                     MemoryLimit = submission.MemoryLimit,
                     TimeLimit = submission.TimeLimit,
                     Input = submission.Input,
-                    VerboseLogFileMaxBytes = this.executionConfig.SubmissionVerboseLogFileMaxBytes,
                 };
             }
             catch (Exception ex)
