@@ -522,6 +522,16 @@ public class MentorBusinessService(
     private static int GetNumericValue(Dictionary<string, string> settings, string key)
         => int.Parse(settings[key], CultureInfo.InvariantCulture);
 
+    private static ConversationResponseModel GetResponseModel(
+        ConversationRequestModel model,
+        int maxUserInputLength)
+    {
+        var responseModel = model.Map<ConversationResponseModel>();
+        responseModel.ProblemId = model.ProblemId;
+        responseModel.MaxUserInputLength = maxUserInputLength;
+        return responseModel;
+    }
+
     public async Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model)
     {
         /*
@@ -587,16 +597,6 @@ public class MentorBusinessService(
             SequenceNumber = int.MinValue,
             ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
         };
-    }
-
-    private static ConversationResponseModel GetResponseModel(
-        ConversationRequestModel model,
-        int maxUserInputLength)
-    {
-        var responseModel = model.Map<ConversationResponseModel>();
-        responseModel.ProblemId = model.ProblemId;
-        responseModel.MaxUserInputLength = maxUserInputLength;
-        return responseModel;
     }
 
     private static int CalculateMaxUserInputLength(Dictionary<string, string> settings)
