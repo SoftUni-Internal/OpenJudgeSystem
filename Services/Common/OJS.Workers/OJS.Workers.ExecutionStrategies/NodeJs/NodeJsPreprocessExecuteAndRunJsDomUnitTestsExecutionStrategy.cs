@@ -16,9 +16,11 @@ using OJS.Workers.Executors;
 using static OJS.Workers.ExecutionStrategies.NodeJs.NodeJsConstants;
 
 public class NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy<TSettings>
-    : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TSettings>
+    : NodeJsPreprocessExecuteAndCheckExecutionStrategy<TSettings>
     where TSettings : NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategySettings
 {
+    protected const string TestsPlaceholder = "#testsCode#";
+
     public NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy(
         IOjsSubmission submission,
         IProcessExecutorFactory processExecutorFactory,
@@ -48,6 +50,9 @@ public class NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy<TSetti
         }
     }
 
+    protected virtual IEnumerable<string> AdditionalExecutionArguments
+        => [TestsReporterArgument, JsonReportName];
+
     protected override string JsCodeRequiredModules => base.JsCodeRequiredModules + @",
     jsdom = require('" + this.Settings.JsDomModulePath + @"'),
     jq = require('" + this.Settings.JQueryModulePath + @"'),
@@ -57,7 +62,7 @@ public class NodeJsPreprocessExecuteAndRunJsDomUnitTestsExecutionStrategy<TSetti
 
     protected override string JsCodeEvaluation => TestsPlaceholder;
 
-    protected override string TestFuncVariables => base.TestFuncVariables + ", '_'";
+    protected virtual string TestFuncVariables => "'assert', 'expect', 'should', 'sinon', '_'";
 
     protected virtual string BuildTests(IEnumerable<TestContext> tests)
     {

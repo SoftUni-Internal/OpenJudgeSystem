@@ -7,6 +7,7 @@ using OJS.Services.Common;
 using OJS.Services.Worker.Business;
 using OJS.Services.Infrastructure.Extensions;
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using OJS.PubSub.Worker.Models.Submissions;
 using OJS.Services.Common.Extensions;
@@ -53,6 +54,7 @@ public class SubmissionsForProcessingConsumer(
         try
         {
             var submission = context.Message.Map<SubmissionServiceModel>();
+            var asJson = JsonSerializer.Serialize(submission);
             logger.LogExecutingSubmission(submission.Id, submission.TrimDetails());
             var executionResult = await submissionsBusiness.ExecuteSubmission(submission);
             logger.LogProducedExecutionResult(submission.Id, executionResult);

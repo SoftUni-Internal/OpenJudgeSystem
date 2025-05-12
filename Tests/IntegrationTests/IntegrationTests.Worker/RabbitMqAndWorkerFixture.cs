@@ -239,9 +239,63 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await this.publisherChannel.CloseAsync();
-        await this.rabbitMqConnection.CloseAsync();
-        await this.workerContainer.StopAsync();
-        await this.rabbitMqContainer.StopAsync();
+        try
+        {
+            if (this.publisherChannel != null)
+            {
+                await this.publisherChannel.CloseAsync();
+                this.publisherChannel.Dispose();
+            }
+
+            if (this.consumerChannel != null)
+            {
+                await this.consumerChannel.CloseAsync();
+                this.consumerChannel.Dispose();
+            }
+
+            if (this.rabbitMqConnection != null)
+            {
+                await this.rabbitMqConnection.CloseAsync();
+                this.rabbitMqConnection.Dispose();
+            }
+
+            if (this.workerContainer != null)
+            {
+                await this.workerContainer.StopAsync();
+                await this.workerContainer.DisposeAsync();
+            }
+
+            if (this.rabbitMqContainer != null)
+            {
+                await this.rabbitMqContainer.StopAsync();
+                await this.rabbitMqContainer.DisposeAsync();
+            }
+
+            // Clean up the tar file
+            var tarFilePath = Path.Combine(Path.GetTempPath(), "judge-worker-intergration-tests-latest.tar");
+            if (File.Exists(tarFilePath))
+            {
+                try
+                {
+                    File.Delete(tarFilePath);
+                }
+                catch (IOException)
+                {
+                    // If we can't delete it now, it will be cleaned up by the OS later
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during cleanup: {ex.Message}");
+        }
     }
+}
+
+[CollectionDefinition("Worker collection")]
+public class WorkerCollection : ICollectionFixture<RabbitMqAndWorkerFixture>
+{
+    // This class has no code, and is never created. Its purpose is simply
+    // to be the place to apply [CollectionDefinition] and all the
+    // ICollectionFixture<> interfaces.
 }
