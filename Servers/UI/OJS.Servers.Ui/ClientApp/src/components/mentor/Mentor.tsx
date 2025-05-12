@@ -59,10 +59,7 @@ const Mentor = (props: IMentorProps) => {
         isLoading,
     } ] = useStartConversationMutation({ fixedCacheKey: `problem-${problemId}` });
 
-    const [ getSystemMessage, {
-        data: systemMessageData,
-        isLoading: isLoadingSystemMessage,
-    } ] = useLazyGetSystemMessageQuery();
+    const [ getSystemMessage, { isLoading: isLoadingSystemMessage } ] = useLazyGetSystemMessageQuery();
 
     const isInputLengthExceeded = useMemo(
         () => inputMessage.length > (conversationResponseData?.maxUserInputLength ?? 4096),
@@ -113,12 +110,6 @@ const Mentor = (props: IMentorProps) => {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [ localConversationMessages ]);
-
-    useEffect(() => {
-        if (systemMessageData) {
-            setLocalConversationMessages((prev) => [ ...prev, systemMessageData ]);
-        }
-    }, [ systemMessageData ]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -200,10 +191,10 @@ const Mentor = (props: IMentorProps) => {
         setShowBubble(false);
     };
 
-    const handleCheckSystemMessage = () => {
+    const handleCheckSystemMessage = async () => {
         if (problemId && problemName && contestId && contestName && categoryName && submissionTypeName &&
             !localConversationMessages.some((m) => m.role === ChatMessageRole.System)) {
-            getSystemMessage({
+            const { data } = await getSystemMessage({
                 userId: user?.id || '',
                 problemId,
                 problemName,
@@ -212,6 +203,10 @@ const Mentor = (props: IMentorProps) => {
                 categoryName,
                 submissionTypeName,
             });
+
+            if (data) {
+                setLocalConversationMessages([ ...localConversationMessages, data ]);
+            }
         }
     };
 
