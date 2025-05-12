@@ -301,17 +301,27 @@ const Mentor = (props: IMentorProps) => {
                             {localConversationDate !== null && getMentorConversationDate(localConversationDate)}
                         </div>
                         {localConversationMessages.map((message) => (
-                            <div className={styles.messageContainer} key={message.sequenceNumber}>
-                                {(message.role === ChatMessageRole.Assistant || message.role === ChatMessageRole.Information) && (
-                                    <div className={styles.mentorMessageAvatar}>
-                                        <img src={mentorAvatar} alt="Mentor Avatar" />
-                                    </div>
+                            <div
+                              className={`${styles.messageContainer} ${
+                                  message.role === ChatMessageRole.System
+                                      ? styles.systemMessageContainer
+                                      : ''
+                              }`}
+                              key={message.sequenceNumber}
+                            >
+                                {(message.role === ChatMessageRole.Assistant ||
+                                  message.role === ChatMessageRole.Information) && (
+                                  <div className={styles.mentorMessageAvatar}>
+                                      <img src={mentorAvatar} alt="Mentor Avatar" />
+                                  </div>
                                 )}
                                 <div
                                   className={`${styles.message} ${
                                       message.role === ChatMessageRole.User
                                           ? styles.userMessage
-                                          : styles.mentorMessage
+                                          : message.role === ChatMessageRole.System
+                                              ? styles.systemMessage
+                                              : styles.mentorMessage
                                   }`}
                                 >
                                     <ReactMarkdown className={styles.markdownContent}>

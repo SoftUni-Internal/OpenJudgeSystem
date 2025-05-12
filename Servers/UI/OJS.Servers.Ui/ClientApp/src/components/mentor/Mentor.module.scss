@@ -474,6 +474,63 @@
   color: colors.$dark-base-color-500 !important;
 }
 
+.systemMessageContainer {
+  width: 100%;
+  margin-bottom: spacings.$sp-16;
+}
+
+.systemMessage {
+  background-color: colors.$dark-base-color-100;
+  color: colors.$light-base-color-100 !important;
+  width: 100%;
+  max-width: 100%;
+  padding: spacings.$sp-16;
+  border-radius: 8px;
+  border-left: 4px solid colors.$primary-blue;
+
+  .markdownContent {
+    h1, h2, h3, h4, h5, h6 {
+      color: colors.$primary-blue;
+    }
+
+    code {
+      background-color: colors.$dark-base-color-400;
+    }
+
+    pre {
+      background-color: colors.$dark-base-color-400;
+      padding: spacings.$sp-16;
+      margin: spacings.$sp-12 0;
+    }
+
+    ul, ol {
+      padding-left: spacings.$sp-32;
+    }
+  }
+
+  @media (width <= 768px) {
+    padding: spacings.$sp-12;
+
+    .markdownContent {
+      pre {
+        padding: spacings.$sp-12;
+        margin: spacings.$sp-8 0;
+      }
+    }
+  }
+
+  @media (width <= 480px) {
+    padding: spacings.$sp-8;
+
+    .markdownContent {
+      pre {
+        padding: spacings.$sp-8;
+        margin: spacings.$sp-4 0;
+      }
+    }
+  }
+}
+
 .dialogActions {
   padding: spacings.$sp-16 !important;
   gap: spacings.$sp-8;
