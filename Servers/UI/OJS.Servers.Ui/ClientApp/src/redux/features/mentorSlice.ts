@@ -96,12 +96,17 @@ export const mentorSlice = createSlice({
 
             state.conversationsByProblemId[compositeKey].messages = applyMessageLimits(filteredMessages);
         },
+
+        clearAllMessages: (state) => {
+            state.conversationsByProblemId = {};
+        }
     },
 });
 
 export const {
     addMessages,
     updateMessages,
+    clearAllMessages,
 } = mentorSlice.actions;
 
 export default mentorSlice.reducer;

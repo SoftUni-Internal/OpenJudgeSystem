@@ -35,7 +35,7 @@ const LoginForm = () => {
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
     const [ userName, setUsername ] = useState<string>('');
     const [ password, setPassword ] = useState<string>('');
-    const [ rememberMe, setRememberMe ] = useState<boolean>(false);
+    const [ rememberMe, setRememberMe ] = useState<boolean>(true);
     const [ loginErrorMessage, setLoginErrorMessage ] = useState<string>('');
     const [ usernameFormError, setUsernameFormError ] = useState('');
     const [ passwordFormError, setPasswordFormError ] = useState('');
