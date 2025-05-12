@@ -47,6 +47,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  width: 100%;
 
   @media (width <= 768px) {
     gap: 0.75rem;
@@ -54,6 +55,33 @@
 
   @media (width <= 480px) {
     gap: 0.5rem;
+  }
+}
+
+.closeButtonContainer {
+  margin-left: auto;
+}
+
+.closeButton {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 8px !important;
+  color: colors.$white-color !important;
+  z-index: 10 !important;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  @media (width <= 768px) {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 4px !important;
+    top: 4px !important;
+    right: 4px !important;
   }
 }
 

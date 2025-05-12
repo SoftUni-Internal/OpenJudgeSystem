@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { IoMdSend } from 'react-icons/io';
+import { IoMdClose, IoMdSend } from 'react-icons/io';
 import ReactMarkdown from 'react-markdown';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -232,6 +232,12 @@ const Mentor = (props: IMentorProps) => {
               disableAutoFocus
             >
                 <DialogTitle className={styles.dialogTitle}>
+                    <Button
+                      onClick={handleToggleChat}
+                      className={styles.closeButton}
+                    >
+                      <IoMdClose />
+                    </Button>
                     <div className={styles.mentorTitleContainer}>
                         <div className={styles.mentorTitleAvatar}>
                             <img src={mentorAvatar} alt="Mentor Avatar" />
