@@ -323,6 +323,7 @@
   gap: 1rem;
   max-height: 50px;
   font-size: 24px !important;
+  position: relative; /* For absolute positioning of close button */
 
   @media (width <= 768px) {
     font-size: 20px !important;
@@ -334,6 +335,30 @@
     font-size: 18px !important;
     padding: spacings.$sp-8;
     max-height: 70px;
+  }
+}
+
+.systemMessageButton {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  color: colors.$white-color !important;
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  min-width: auto !important;
+  border-radius: 4px !important;
+  text-transform: none !important;
+  margin-left: 8px !important;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  &:disabled {
+    color: rgba(255, 255, 255, 0.5) !important;
+  }
+
+  @media (width <= 768px) {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
   }
 }
 

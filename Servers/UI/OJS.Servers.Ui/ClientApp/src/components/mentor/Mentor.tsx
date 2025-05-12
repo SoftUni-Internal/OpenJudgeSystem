@@ -12,7 +12,7 @@ import { ChatMessageRole } from 'src/common/enums';
 import { IMentorConversationMessage } from 'src/common/types';
 import useTheme from 'src/hooks/use-theme';
 import { addMessages } from 'src/redux/features/mentorSlice';
-import { useStartConversationMutation } from 'src/redux/services/mentorService';
+import { useLazyGetSystemMessageQuery, useStartConversationMutation } from 'src/redux/services/mentorService';
 import { useAppDispatch, useAppSelector } from 'src/redux/store';
 import concatClassNames from 'src/utils/class-names';
 import { getMentorConversationDate } from 'src/utils/dates';
@@ -58,6 +58,11 @@ const Mentor = (props: IMentorProps) => {
         error,
         isLoading,
     } ] = useStartConversationMutation({ fixedCacheKey: `problem-${problemId}` });
+
+    const [ getSystemMessage, {
+        data: systemMessageData,
+        isLoading: isLoadingSystemMessage,
+    } ] = useLazyGetSystemMessageQuery();
 
     const isInputLengthExceeded = useMemo(
         () => inputMessage.length > (conversationResponseData?.maxUserInputLength ?? 4096),
@@ -108,6 +113,12 @@ const Mentor = (props: IMentorProps) => {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
     }, [ localConversationMessages ]);
+
+    useEffect(() => {
+        if (systemMessageData) {
+            setLocalConversationMessages((prev) => [ ...prev, systemMessageData ]);
+        }
+    }, [ systemMessageData ]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -189,6 +200,21 @@ const Mentor = (props: IMentorProps) => {
         setShowBubble(false);
     };
 
+    const handleCheckSystemMessage = () => {
+        if (problemId && problemName && contestId && contestName && categoryName && submissionTypeName &&
+            !localConversationMessages.some((m) => m.role === ChatMessageRole.System)) {
+            getSystemMessage({
+                userId: user?.id || '',
+                problemId,
+                problemName,
+                contestId,
+                contestName,
+                categoryName,
+                submissionTypeName,
+            });
+        }
+    };
+
     if (!isMentorAllowed) {
         // eslint-disable-next-line react/jsx-no-useless-fragment
         return <></>;
@@ -236,7 +262,7 @@ const Mentor = (props: IMentorProps) => {
                       onClick={handleToggleChat}
                       className={styles.closeButton}
                     >
-                      <IoMdClose />
+                        <IoMdClose />
                     </Button>
                     <div className={styles.mentorTitleContainer}>
                         <div className={styles.mentorTitleAvatar}>
@@ -248,6 +274,17 @@ const Mentor = (props: IMentorProps) => {
                                 <span className={styles.problemNameText}>{problemName}</span>
                             )}
                         </div>
+                        {user?.isAdmin && (
+                            <Button
+                              onClick={handleCheckSystemMessage}
+                              className={styles.systemMessageButton}
+                              disabled={isLoadingSystemMessage}
+                            >
+                                {isLoadingSystemMessage
+                                    ? 'Loading...'
+                                    : 'Check System Message'}
+                            </Button>
+                        )}
                     </div>
                 </DialogTitle>
 

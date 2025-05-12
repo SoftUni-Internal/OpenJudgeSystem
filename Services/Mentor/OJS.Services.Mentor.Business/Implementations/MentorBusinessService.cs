@@ -187,6 +187,73 @@ public class MentorBusinessService(
         return GetResponseModel(model, maxUserInputLength);
     }
 
+    public async Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model)
+    {
+        /*
+         *  In the first version of the mentor, there will be only a single
+         *  template in the database. This is why we can be sure that
+         *  .FirstOrDefaultAsync() will always return a template. This
+         *  will be changed in the future.
+         */
+        var template = await mentorPromptTemplateData
+            .GetQuery()
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+
+        var problemsResources = await contestsData
+            .GetByIdQuery(model.ContestId)
+            .AsNoTracking()
+            .Select(c => c.ProblemGroups
+                .SelectMany(pg => pg.Problems
+                    .SelectMany(p => p.Resources
+                        .Where(r => r.Type == ProblemResourceType.ProblemDescription))))
+            .SelectMany(resources => resources)
+            .ToListAsync();
+
+        var wordFiles = problemsResources
+            .Where(pr =>
+                   (pr.File is not null && pr.FileExtension?.Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal) == true) ||
+                   (pr.Link is not null && pr.Link.Split('.').Last().Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal)))
+            .ToList();
+
+        /*
+         *  There are 2 cases when it comes to document retrieval:
+         *  1. The problem has its own problem resource ( Word file ) ( e.g. online / onsite exam ).
+         *  2. All the problems' descriptions are in a single Word file ( e.g. Lab / Exercise ).
+         */
+        var problemsDescription = wordFiles.FirstOrDefault(pr => pr.ProblemId == model.ProblemId) ?? wordFiles.FirstOrDefault();
+
+        if (problemsDescription is null)
+        {
+            logger.LogProblemDescriptionResourceNotFound(model.ProblemId, model.ContestId);
+            throw new BusinessServiceException(DocumentNotFoundOrEmpty);
+        }
+
+        var file = problemsDescription.File ??
+            (problemsDescription.Link is not null
+            ? await this.DownloadDocument(problemsDescription.Link, model.ProblemId, model.ContestId)
+            : []);
+
+        var number = GetProblemNumber(model.ProblemName);
+        var text = this.ExtractSectionFromDocument(file, model.ProblemName, number, model.ProblemId, model.ContestId);
+
+        return new ConversationMessageModel
+        {
+            Content = string.Format(
+                CultureInfo.InvariantCulture,
+                template!.Template,
+                model.ProblemName,
+                text,
+                model.ContestName,
+                model.CategoryName,
+                model.SubmissionTypeName),
+            Role = MentorMessageRole.System,
+            // The system message should always be first (in ascending order)
+            SequenceNumber = int.MinValue,
+            ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
+        };
+    }
+
     private string ExtractSectionFromDocument(
         byte[] bytes,
         string problemName,
@@ -535,73 +602,6 @@ public class MentorBusinessService(
     private static int CalculateMaxUserInputLength(Dictionary<string, string> settings)
         // The parenthesis should not be removed, they are used to define the priority of the arithmetic operations.
         => (GetNumericValue(settings, nameof(MentorMaxInputTokenCount)) * 4 * GetNumericValue(settings, nameof(PercentageOfMentorMaxInputTokenCountUsedByUser))) / 100;
-
-    private async Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model)
-    {
-        /*
-         *  In the first version of the mentor, there will be only a single
-         *  template in the database. This is why we can be sure that
-         *  .FirstOrDefaultAsync() will always return a template. This
-         *  will be changed in the future.
-         */
-        var template = await mentorPromptTemplateData
-            .GetQuery()
-            .AsNoTracking()
-            .FirstOrDefaultAsync();
-
-        var problemsResources = await contestsData
-            .GetByIdQuery(model.ContestId)
-            .AsNoTracking()
-            .Select(c => c.ProblemGroups
-                .SelectMany(pg => pg.Problems
-                    .SelectMany(p => p.Resources
-                        .Where(r => r.Type == ProblemResourceType.ProblemDescription))))
-            .SelectMany(resources => resources)
-            .ToListAsync();
-
-        var wordFiles = problemsResources
-            .Where(pr =>
-                   (pr.File is not null && pr.FileExtension?.Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal) == true) ||
-                   (pr.Link is not null && pr.Link.Split('.').Last().Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal)))
-            .ToList();
-
-        /*
-         *  There are 2 cases when it comes to document retrieval:
-         *  1. The problem has its own problem resource ( Word file ) ( e.g. online / onsite exam ).
-         *  2. All the problems' descriptions are in a single Word file ( e.g. Lab / Exercise ).
-         */
-        var problemsDescription = wordFiles.FirstOrDefault(pr => pr.ProblemId == model.ProblemId) ?? wordFiles.FirstOrDefault();
-
-        if (problemsDescription is null)
-        {
-            logger.LogProblemDescriptionResourceNotFound(model.ProblemId, model.ContestId);
-            throw new BusinessServiceException(DocumentNotFoundOrEmpty);
-        }
-
-        var file = problemsDescription.File ??
-            (problemsDescription.Link is not null
-            ? await this.DownloadDocument(problemsDescription.Link, model.ProblemId, model.ContestId)
-            : []);
-
-        var number = GetProblemNumber(model.ProblemName);
-        var text = this.ExtractSectionFromDocument(file, model.ProblemName, number, model.ProblemId, model.ContestId);
-
-        return new ConversationMessageModel
-        {
-            Content = string.Format(
-                CultureInfo.InvariantCulture,
-                template!.Template,
-                model.ProblemName,
-                text,
-                model.ContestName,
-                model.CategoryName,
-                model.SubmissionTypeName),
-            Role = MentorMessageRole.System,
-            // The system message should always be first (in ascending order)
-            SequenceNumber = int.MinValue,
-            ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
-        };
-    }
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
     {

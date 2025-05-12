@@ -3,7 +3,7 @@ import { ChatMessageRole } from 'src/common/enums';
 import { updateMessages } from 'src/redux/features/mentorSlice';
 
 import { defaultPathIdentifier } from '../../common/constants';
-import { IMentorConversationRequestModel, IMentorConversationResponseModel } from '../../common/types';
+import { IMentorConversationRequestModel, IMentorConversationResponseModel, IMentorConversationMessage } from '../../common/types';
 
 const mentorService = createApi({
     reducerPath: 'mentorService',
@@ -35,9 +35,19 @@ const mentorService = createApi({
                 }
             },
         }),
+        getSystemMessage: builder.query<IMentorConversationMessage, Omit<IMentorConversationRequestModel, 'messages'>>({
+            query: (params) => ({
+                url: '/GetSystemMessage',
+                method: 'GET',
+                params,
+            }),
+        }),
     }),
 });
 
-export const { useStartConversationMutation } = mentorService;
+export const {
+    useStartConversationMutation,
+    useLazyGetSystemMessageQuery,
+} = mentorService;
 
 export default mentorService;
