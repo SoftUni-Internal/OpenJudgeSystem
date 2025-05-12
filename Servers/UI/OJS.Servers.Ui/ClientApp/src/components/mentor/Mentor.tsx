@@ -16,6 +16,7 @@ import { useStartConversationMutation } from 'src/redux/services/mentorService';
 import { useAppDispatch, useAppSelector } from 'src/redux/store';
 import concatClassNames from 'src/utils/class-names';
 import { getMentorConversationDate } from 'src/utils/dates';
+import { getCompositeKey } from 'src/utils/id-generator';
 
 import mentorAvatar from '../../assets/mentor.png';
 
@@ -41,8 +42,8 @@ const Mentor = (props: IMentorProps) => {
     const [ showBubble, setShowBubble ] = useState(true);
     const [ inputMessage, setInputMessage ] = useState('');
 
-    const conversationData = useAppSelector((state) => problemId !== undefined && state.mentor?.conversationsByProblemId
-        ? state.mentor.conversationsByProblemId[problemId]
+    const conversationData = useAppSelector((state) => problemId && user?.id
+        ? state.mentor?.conversationsByProblemId?.[getCompositeKey(user.id, problemId)]
         : undefined);
 
     // Local state for UI purposes
@@ -146,6 +147,7 @@ const Mentor = (props: IMentorProps) => {
         }
 
         dispatch(addMessages({
+            userId: user.id,
             problemId,
             messages,
             setConversationDate: localConversationDate === null,

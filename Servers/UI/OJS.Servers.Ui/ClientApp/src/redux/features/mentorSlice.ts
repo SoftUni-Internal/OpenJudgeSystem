@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { ChatMessageRole } from '../../common/enums';
 import { IMentorConversationMessage } from '../../common/types';
+import { getCompositeKey } from 'src/utils/id-generator';
 
 // Maximum number of messages to store per problem
 // This helps prevent storage issues while still maintaining a good conversation history
@@ -9,7 +10,7 @@ const MAX_MESSAGES_PER_PROBLEM = 50;
 
 interface IMentorState {
     // Store conversations by problemId
-    conversationsByProblemId: Record<number, {
+    conversationsByProblemId: Record<string, {
     messages: IMentorConversationMessage[];
     conversationDate: Date | null;
     }>;
@@ -35,11 +36,11 @@ const applyMessageLimits = (messages: IMentorConversationMessage[]): IMentorConv
 
 const ensureConversationExists = (
     state: IMentorState,
-    problemId: number,
+    compositeKey: string,
     createDate: boolean = false,
 ): void => {
-    if (!state.conversationsByProblemId[problemId]) {
-        state.conversationsByProblemId[problemId] = {
+    if (!state.conversationsByProblemId[compositeKey]) {
+        state.conversationsByProblemId[compositeKey] = {
             messages: [],
             conversationDate: createDate
                 ? new Date()
@@ -54,40 +55,46 @@ export const mentorSlice = createSlice({
     reducers: {
         // Add a message to a specific problem's conversation
         addMessages: (state, action: PayloadAction<{
+            userId: string;
             problemId: number;
             messages: IMentorConversationMessage[];
             setConversationDate?: boolean;
         }>) => {
-            const { problemId, messages, setConversationDate } = action.payload;
+            const { userId, problemId, messages, setConversationDate } = action.payload;
 
-            ensureConversationExists(state, problemId);
+            const compositeKey = getCompositeKey(userId, problemId);
+
+            ensureConversationExists(state, compositeKey);
 
             messages.forEach((msg) => {
-                state.conversationsByProblemId[problemId].messages.push(msg);
+                state.conversationsByProblemId[compositeKey].messages.push(msg);
             });
 
-            state.conversationsByProblemId[problemId].messages =
-                applyMessageLimits(state.conversationsByProblemId[problemId].messages);
+            state.conversationsByProblemId[compositeKey].messages =
+                applyMessageLimits(state.conversationsByProblemId[compositeKey].messages);
 
-            if (setConversationDate && !state.conversationsByProblemId[problemId].conversationDate) {
-                state.conversationsByProblemId[problemId].conversationDate = new Date();
+            if (setConversationDate && !state.conversationsByProblemId[compositeKey].conversationDate) {
+                state.conversationsByProblemId[compositeKey].conversationDate = new Date();
             }
         },
 
         // Update all messages for a problem (used when receiving response from API)
         updateMessages: (state, action: PayloadAction<{
+            userId: string;
             problemId: number;
             messages: IMentorConversationMessage[];
         }>) => {
-            const { problemId, messages } = action.payload;
+            const { userId, problemId, messages } = action.payload;
 
-            ensureConversationExists(state, problemId);
+            const compositeKey = getCompositeKey(userId, problemId);
+
+            ensureConversationExists(state, compositeKey);
 
             // Filter out system messages
             const filteredMessages = messages
                 .filter((m) => m.role !== ChatMessageRole.System);
 
-            state.conversationsByProblemId[problemId].messages = applyMessageLimits(filteredMessages);
+            state.conversationsByProblemId[compositeKey].messages = applyMessageLimits(filteredMessages);
         },
     },
 });

@@ -26,6 +26,7 @@ const mentorService = createApi({
                 try {
                     const { data } = await queryFulfilled;
                     dispatch(updateMessages({
+                        userId: data.userId,
                         problemId: data.problemId,
                         messages: data.messages.filter((m) => m.role !== ChatMessageRole.System),
                     }));
