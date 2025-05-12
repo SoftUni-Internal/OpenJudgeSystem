@@ -532,6 +532,10 @@ public class MentorBusinessService(
         return responseModel;
     }
 
+    private static int CalculateMaxUserInputLength(Dictionary<string, string> settings)
+        // The parenthesis should not be removed, they are used to define the priority of the arithmetic operations.
+        => (GetNumericValue(settings, nameof(MentorMaxInputTokenCount)) * 4 * GetNumericValue(settings, nameof(PercentageOfMentorMaxInputTokenCountUsedByUser))) / 100;
+
     public async Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model)
     {
         /*
@@ -598,10 +602,6 @@ public class MentorBusinessService(
             ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
         };
     }
-
-    private static int CalculateMaxUserInputLength(Dictionary<string, string> settings)
-        // The parenthesis should not be removed, they are used to define the priority of the arithmetic operations.
-        => (GetNumericValue(settings, nameof(MentorMaxInputTokenCount)) * 4 * GetNumericValue(settings, nameof(PercentageOfMentorMaxInputTokenCountUsedByUser))) / 100;
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
     {
