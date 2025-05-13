@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { getCompositeKey } from 'src/utils/id-generator';
 
 import { ChatMessageRole } from '../../common/enums';
 import { IMentorConversationMessage } from '../../common/types';
-import { getCompositeKey } from 'src/utils/id-generator';
 
 // Maximum number of messages to store per problem
 // This helps prevent storage issues while still maintaining a good conversation history
@@ -99,7 +99,7 @@ export const mentorSlice = createSlice({
 
         clearAllMessages: (state) => {
             state.conversationsByProblemId = {};
-        }
+        },
     },
 });
 

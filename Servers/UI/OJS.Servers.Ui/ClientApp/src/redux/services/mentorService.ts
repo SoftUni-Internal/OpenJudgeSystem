@@ -3,7 +3,7 @@ import { ChatMessageRole } from 'src/common/enums';
 import { updateMessages } from 'src/redux/features/mentorSlice';
 
 import { defaultPathIdentifier } from '../../common/constants';
-import { IMentorConversationRequestModel, IMentorConversationResponseModel, IMentorConversationMessage } from '../../common/types';
+import { IMentorConversationMessage, IMentorConversationRequestModel, IMentorConversationResponseModel } from '../../common/types';
 
 const mentorService = createApi({
     reducerPath: 'mentorService',
