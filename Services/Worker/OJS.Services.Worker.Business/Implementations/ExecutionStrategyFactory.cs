@@ -72,6 +72,7 @@ namespace OJS.Services.Worker.Business.Implementations
                 case ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck:
                 case ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck:
                 case ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck:
+                case ExecutionStrategyType.DotNetCore8CompileExecuteAndCheck:
                     executionStrategy = new DotNetCoreCompileExecuteAndCheckExecutionStrategy<DotNetCoreCompileExecuteAndCheckExecutionStrategySettings>(
                         submission,
                         processExecutorFactory,
@@ -90,6 +91,7 @@ namespace OJS.Services.Worker.Business.Implementations
                 case ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore5UnitTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore6UnitTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore8UnitTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreUnitTestsExecutionStrategy<DotNetCoreUnitTestsExecutionStrategySettings>(
                         submission,
                         processExecutorFactory,
@@ -100,6 +102,7 @@ namespace OJS.Services.Worker.Business.Implementations
                 case ExecutionStrategyType.DotNetCoreProjectExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore8ProjectExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectExecutionStrategy<DotNetCoreProjectExecutionStrategySettings>(
                         submission,
                         processExecutorFactory,
@@ -110,6 +113,7 @@ namespace OJS.Services.Worker.Business.Implementations
                 case ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy:
                 case ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy:
+                case ExecutionStrategyType.DotNetCore8ProjectTestsExecutionStrategy:
                     executionStrategy = new DotNetCoreProjectTestsExecutionStrategy<DotNetCoreProjectTestsExecutionStrategySettings>(
                         submission,
                         processExecutorFactory,
