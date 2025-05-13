@@ -1,0 +1,3 @@
+﻿namespace IntegrationTests.Worker.TypeScript.TypeScriptCodeMochaUnitsTestsNodeJs20;
+
+public record TypeScriptCodeMochaUnitsTestsNodeJs20Parameters(string Code);
