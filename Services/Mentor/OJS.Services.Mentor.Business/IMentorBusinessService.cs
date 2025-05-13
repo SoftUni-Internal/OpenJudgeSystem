@@ -6,4 +6,6 @@ using OJS.Services.Mentor.Models;
 public interface IMentorBusinessService : IService
 {
     Task<ConversationResponseModel> StartConversation(ConversationRequestModel model);
+
+    Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model);
 }
