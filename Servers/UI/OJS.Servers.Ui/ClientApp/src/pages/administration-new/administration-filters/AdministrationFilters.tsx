@@ -85,6 +85,8 @@ const BOOL_DROPDOWN_VALUES = [
     { name: 'False', value: 'false' },
 ];
 
+const columnFieldMapping = new Map<string, string>();
+
 const mapStringToFilterColumnTypeEnum = (type: string) => {
     if (type === 'number') {
         return FilterColumnTypeEnum.NUMBER;
@@ -100,6 +102,7 @@ const mapStringToFilterColumnTypeEnum = (type: string) => {
 };
 
 interface IAdministrationSorter {
+    field: string;
     columnName: string;
     orderBy: SortingEnum;
     availableColumns: string[];
@@ -141,6 +144,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
     }), [ filterColumns ]);
 
     const defaultSorter = useMemo<IAdministrationSorter>(() => ({
+        field: '',
         columnName: '',
         orderBy: SortingEnum.ASC,
         availableColumns: sortingColumns,
@@ -232,8 +236,11 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                 return;
             }
 
+            // Use field for backend filtering if available, otherwise fall back to columnName
+            const sorterField = (sorter.field || sorter.columnName.replace(/\s/g, '')).toLowerCase();
+
             // eslint-disable-next-line consistent-return
-            return `${sorter.columnName.replace(/\s/g, '').toLowerCase()}=${sorter.orderBy}`;
+            return `${sorterField}=${sorter.orderBy}`;
         };
 
         const sorterFormattedArray = selectedSorters.map(formatSorterToString).filter((sorter) => sorter);
@@ -500,6 +507,14 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
 
         const newSortersArray = [ ...selectedSorters ].map((element, idx) => {
             if (idx === indexToUpdate) {
+                if (updateProperty === 'columnName') {
+                    // When columnName is updated, also update the field
+                    return {
+                        ...element,
+                        columnName: value,
+                        field: columnFieldMapping.get(value) || value,
+                    };
+                }
                 return { ...element, [updateProperty]: value };
             }
             return element;
@@ -767,13 +782,24 @@ const mapUrlToSorters = (
         const sorterColumn = paramChunks[0];
         const sorterOrderBy = paramChunks[1];
 
-        const columnName = columns.find((c) => c.toLowerCase() === sorterColumn) || '';
+        // Try to find the column name that matches the field
+        const matchingEntry = Array.from(columnFieldMapping.entries()).find(([ , field ]) => field.toLowerCase() === sorterColumn.toLowerCase());
+        let columnName = matchingEntry
+            ? matchingEntry[0]
+            : '';
+
+        // If not found by field, use the sorterColumn as is (for backward compatibility)
+        if (!columnName) {
+            columnName = columns.find((c) => c.toLowerCase() === sorterColumn) || '';
+        }
+
         const orderBy = sorterOrderBy === 'ASC'
             ? SortingEnum.ASC
             : SortingEnum.DESC;
         const availableColumns = columns.filter((column) => !urlSelectedSorters.some((s) => s.columnName === column));
 
         const sorter: IAdministrationSorter = {
+            field: sorterColumn, // Use the original sorterColumn as field
             columnName,
             orderBy,
             availableColumns: [ ...availableColumns, columnName ],
@@ -936,8 +962,16 @@ const applyQueryParam = (
     return valueToReturn;
 };
 
-const mapGridColumnsToAdministrationSortingProps =
-    (dataColumns: GridColDef[]): string[] => dataColumns.map((column) => column.headerName?.replace(/\s/g, '') ?? '').filter((el) => el);
+const mapGridColumnsToAdministrationSortingProps = (dataColumns: GridColDef[]): string[] => {
+    columnFieldMapping.clear();
+
+    // Create the mapping and return column names as before
+    return dataColumns.map((column) => {
+        const columnName = column.headerName ?? '';
+        columnFieldMapping.set(columnName, column.field);
+        return columnName;
+    }).filter((el) => el);
+};
 
 export {
     type IAdministrationFilter,
