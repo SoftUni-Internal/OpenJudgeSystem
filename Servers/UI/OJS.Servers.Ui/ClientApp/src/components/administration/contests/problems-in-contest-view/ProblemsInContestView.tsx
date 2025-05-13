@@ -265,6 +265,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
                       notFilterableGridColumnDef={
                         returnProblemsNonFilterableColumns(
                             onEditClick,
+                            setSuccessMessage,
                             openCopyModal,
                             openRetestModal,
                             retakeData,
