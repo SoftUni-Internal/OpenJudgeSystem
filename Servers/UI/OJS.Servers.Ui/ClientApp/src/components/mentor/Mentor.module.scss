@@ -73,7 +73,7 @@
   z-index: 10 !important;
 
   &:hover {
-    background-color: rgb(255 255 255 / 0.1) !important;
+    background-color: rgb(255 255 255 / 10%) !important;
   }
 
   @media (width <= 768px) {
@@ -339,7 +339,7 @@
 }
 
 .systemMessageButton {
-  background-color: rgb(255 255 255 / 0.2) !important;
+  background-color: rgb(255 255 255 / 20%) !important;
   color: colors.$white-color !important;
   font-size: 12px !important;
   padding: 4px 8px !important;
@@ -349,11 +349,11 @@
   margin-left: 8px !important;
 
   &:hover {
-    background-color: rgb(255 255 255 / 0.3) !important;
+    background-color: rgb(255 255 255 / 30%) !important;
   }
 
   &:disabled {
-    color: rgb(255 255 255 / 0.5) !important;
+    color: rgb(255 255 255 / 50%) !important;
   }
 
   @media (width <= 768px) {
