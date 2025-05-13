@@ -1,4 +1,4 @@
-﻿namespace IntegrationTests.Worker.TypeScript;
+﻿namespace IntegrationTests.Worker.TypeScript.TypeScriptCodeMochaUnitsTestsNodeJs20;
 
 using OJS.PubSub.Worker.Models.Submissions;
 using OJS.Services.Common.Models.Submissions.ExecutionDetails;
@@ -11,11 +11,11 @@ public class TypeScriptCodeMochaUnitsTestsNodeJs20SubmissionFactory : BaseSubmis
         var submission = new SubmissionForProcessingPubSubModel
         {
             Id = this.GetNextId(),
-            ExecutionType = (ExecutionType)2,
-            ExecutionStrategy = (ExecutionStrategyType)75,
+            ExecutionType = ExecutionType.TestsExecution,
+            ExecutionStrategy = ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha,
             CompilerType = (CompilerType)13,
-            FileContent = Array.Empty<byte>(),
-            AdditionalFiles = Array.Empty<byte>(),
+            FileContent = [],
+            AdditionalFiles = [],
             Code = strategyParameters.Code,
             TimeLimit = 100,
             ExecutionStrategyBaseTimeLimit = null,
@@ -29,10 +29,9 @@ public class TypeScriptCodeMochaUnitsTestsNodeJs20SubmissionFactory : BaseSubmis
                 TaskId = null,
                 CheckerType = "TrimChecker",
                 CheckerParameter = null,
-                // TaskSkeleton = "K6ksSFUISS0uycxLDwGxbRWKS4qAHIUahbzS3KTUImteLgA=",
                 TaskSkeletonAsString = null,
-                Tests = new List<TestContext>
-                {
+                Tests =
+                [
                     new TestContext
                     {
                         Id = 387475,
@@ -335,7 +334,7 @@ public class TypeScriptCodeMochaUnitsTestsNodeJs20SubmissionFactory : BaseSubmis
                         IsTrialTest = false,
                         OrderBy = 0
                     }
-                }
+                ]
             }
         };
 
