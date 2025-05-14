@@ -54,7 +54,9 @@ public class CompilerFactory : ICompilerFactory
         {
             ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck => this.settings.CSharpDotNet3CoreCompilerPath,
             ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck => this.settings.CSharpDotNetCore5CompilerPath,
-            _ => this.settings.CSharpDotNetCore6CompilerPath,
+            ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck => this.settings.CSharpDotNetCore6CompilerPath,
+            ExecutionStrategyType.DotNetCore8CompileExecuteAndCheck => this.settings.CSharpDotNetCore8CompilerPath,
+            _ => throw new ArgumentException($"Unsupported .NET Core version for strategy type: {type}")
         };
 
     private string GetDotNetCoreSharedAssembliesPath(ExecutionStrategyType type)
@@ -62,7 +64,9 @@ public class CompilerFactory : ICompilerFactory
         {
             ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck => this.settings.DotNetCore3SharedAssembliesPath,
             ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck => this.settings.DotNetCore5SharedAssembliesPath,
-            _ => this.settings.DotNetCore6SharedAssembliesPath,
+            ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck => this.settings.DotNetCore6SharedAssembliesPath,
+            ExecutionStrategyType.DotNetCore8CompileExecuteAndCheck => this.settings.DotNetCore8SharedAssembliesPath,
+            _ => throw new ArgumentException($"Unsupported .NET Core version for strategy type: {type}")
         };
 
     private string GetJavaCompilerPath(ExecutionStrategyType strategyType)

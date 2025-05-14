@@ -16,6 +16,8 @@ public class UserMentorInListModel : IMapFrom<UserMentor>
 
     public int? QuotaLimit { get; set; }
 
+    public int TotalRequestsMade { get; set; }
+
     public DateTime CreatedOn { get; set; }
 
     public DateTime? ModifiedOn { get; set; }
