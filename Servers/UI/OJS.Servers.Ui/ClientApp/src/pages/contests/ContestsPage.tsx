@@ -89,8 +89,6 @@ const ContestsPage = () => {
 
     useEffect(() => {
         if (allContests && !isNilOrEmpty(allContests)) {
-            console.log('allContests fetched', allContests);
-            console.log('type of allContests fetched', typeof allContests);
             dispatch(setContests(allContests));
         }
     }, [ allContests, dispatch ]);

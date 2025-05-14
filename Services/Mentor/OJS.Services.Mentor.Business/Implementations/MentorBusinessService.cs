@@ -536,7 +536,7 @@ public class MentorBusinessService(
         // The parenthesis should not be removed, they are used to define the priority of the arithmetic operations.
         => (GetNumericValue(settings, nameof(MentorMaxInputTokenCount)) * 4 * GetNumericValue(settings, nameof(PercentageOfMentorMaxInputTokenCountUsedByUser))) / 100;
 
-    private async Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model)
+    public async Task<ConversationMessageModel> GetSystemMessage(ConversationRequestModel model)
     {
         /*
          *  In the first version of the mentor, there will be only a single
