@@ -85,6 +85,7 @@ interface IContestEditProps {
     setParentSuccessMessage: Function;
     onDeleteSuccess? : Function;
     skipGettingContest?: boolean;
+    initialCategoryId?: number;
 }
 
 const NAME_PROP = 'name';
@@ -97,6 +98,7 @@ const ContestEdit = (props:IContestEditProps) => {
         setParentSuccessMessage,
         onDeleteSuccess,
         skipGettingContest = false,
+        initialCategoryId,
     } = props;
 
     const navigate = useNavigate();
@@ -109,7 +111,7 @@ const ContestEdit = (props:IContestEditProps) => {
     const [ contest, setContest ] = useState<IContestAdministration>({
         allowedIps: '',
         allowParallelSubmissionsInTasks: false,
-        categoryId: 0,
+        categoryId: initialCategoryId || 0,
         categoryName: '',
         contestPassword: null,
         description: null,
@@ -588,6 +590,7 @@ const ContestEdit = (props:IContestEditProps) => {
                                       {option.name}
                                   </MenuItem>
                               )}
+                              disabled={!isEditMode && initialCategoryId !== undefined}
                             />
                         </FormControl>
                     </Box>

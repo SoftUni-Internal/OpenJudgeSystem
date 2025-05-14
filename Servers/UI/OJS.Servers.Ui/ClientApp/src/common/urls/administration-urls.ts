@@ -10,6 +10,10 @@ export const GET_ALL_ENDPOINT = 'GetAll';
 
 export const EXCEL_RESULTS_ENDPOINT = 'GetExcelFile';
 
+// Query Parameters
+export const OPEN_CREATE_PARAM = 'openCreate';
+export const CATEGORY_ID_PARAM = 'categoryId';
+
 // Paths
 export const NEW_ADMINISTRATION_PATH = 'administration';
 export const CONTESTS_PATH = 'contests';
