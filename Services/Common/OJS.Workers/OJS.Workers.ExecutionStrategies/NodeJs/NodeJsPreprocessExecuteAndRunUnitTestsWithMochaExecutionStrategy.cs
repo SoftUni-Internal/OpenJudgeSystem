@@ -4,8 +4,13 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 using OJS.Workers.Common;
+using OJS.Workers.Common.Extensions;
+using OJS.Workers.Common.Helpers;
+using OJS.Workers.Common.Models;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
 
@@ -16,6 +21,32 @@ public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TS
     where TSettings : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings
 {
     protected const string TestsPlaceholder = "#testsCode#";
+    protected const string UserCodePlaceholder = "#userCode#";
+    protected const string SolutionSkeletonPlaceholder = "#solutionSkeleton#";
+
+    private string JsTemplateContent => @$"
+    // Imports
+    const chai = require('{this.Settings.ChaiModulePath}');
+    const sinon = require('{this.Settings.SinonModulePath}');
+    const sinonChai = require('{this.Settings.SinonChaiModulePath}');
+
+    chai.use(sinonChai);
+
+    const expect = chai.expect;
+    const assert = chai.assert;
+    const should = chai.should();
+
+    // Skeleton
+    {SolutionSkeletonPlaceholder}
+
+    // User code
+    let result = {UserCodePlaceholder}
+
+    // Tests
+    describe('Tests', function () {{
+        {TestsPlaceholder}
+    }});
+";
 
     public NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy(
         IOjsSubmission submission,
@@ -61,28 +92,71 @@ public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TS
 	expect = chai.expect,
 	should = chai.should()";
 
-    protected override string JsCodeEvaluation => @"
-	it('Test', function(done) {
-		let content = '';
-        process.stdin.resume();
-        process.stdin.on('data', function(buf) { content += buf.toString(); });
-        process.stdin.on('end', function() {
-            let inputData = content.trim();
-
-	        let testFunc = new Function('result', " + this.TestFuncVariables + @", inputData);
-            testFunc.call({}, result,  " + this.TestFuncVariables.Replace("'", string.Empty) + @");
-
-	        done();
-        });
-    });";
-
-    protected override string JsCodePostevaulationCode => @"
-});";
-
     protected virtual string TestFuncVariables => "'assert', 'expect', 'should', 'sinon'";
 
     protected virtual IEnumerable<string> AdditionalExecutionArguments
         => [TestsReporterArgument, JsonReportName];
+
+    protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
+        IExecutionContext<TestsInputModel> executionContext,
+        IExecutionResult<TestResult> result)
+    {
+        // Prepare JavaScript file with combined user code and tests
+        var jsTemplate = this.JsTemplateContent;
+        var userCode = executionContext.Code.Trim();
+        jsTemplate = jsTemplate
+            .Replace(SolutionSkeletonPlaceholder, executionContext.Input.TaskSkeletonAsString)
+            .Replace(UserCodePlaceholder, userCode);
+
+        // Process each test and wrap it in an it() block
+        if (executionContext.Input.Tests.Any())
+        {
+            var formattedTests = FormatTests(executionContext.Input.Tests, false);
+            jsTemplate = jsTemplate.Replace(TestsPlaceholder, formattedTests);
+        }
+
+        // Save the combined JavaScript file
+        var jsCodeSavePath = FileHelpers.SaveStringToTempFile(this.WorkingDirectory, jsTemplate);
+
+        // Execute tests using Node.js
+        var executor = this.CreateRestrictedExecutor();
+        var checker = executionContext.Input.GetChecker();
+
+        var testResults = await this.ProcessTests(
+            executionContext,
+            executor,
+            checker,
+            jsCodeSavePath);
+        result.Results.AddRange(testResults);
+
+        return result;
+    }
+
+    protected static string FormatTests(IEnumerable<TestContext> tests, bool isTypeScript)
+    {
+        var formattedTests = new List<string>();
+        var testCounter = 1;
+
+        foreach (var test in tests)
+        {
+            // Use simple sequential test names
+            var testName = $"Test{testCounter}";
+            var testContent = test.Input.Trim();
+
+            // Format the test with proper it() wrapper
+            var formattedTest = $@"
+            {(isTypeScript ? "// @ts-ignore" : "")}
+            it('{testName}', function () {{
+                    {testContent}
+                }})";
+
+            formattedTests.Add(formattedTest);
+            testCounter++;
+        }
+
+        // Join all formatted tests
+        return string.Join("\n", formattedTests);
+    }
 
     protected override async Task<List<TestResult>> ProcessTests(
         IExecutionContext<TestsInputModel> executionContext,
@@ -92,32 +166,37 @@ public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TS
     {
         var testResults = new List<TestResult>();
 
+        // Configure arguments for Mocha with Node.js
         var arguments = new List<string>
         {
             this.Settings.MochaModulePath,
-            codeSavePath
+            codeSavePath,
         };
         arguments.AddRange(this.AdditionalExecutionArguments);
 
+        // Execute Mocha with Node.js
+        var processExecutionResult = await executor.Execute(
+            this.Settings.NodeJsExecutablePath,
+            executionContext.TimeLimit,
+            executionContext.MemoryLimit,
+            string.Empty,
+            arguments);
+
+        // Parse the results
+        var mochaResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput);
+
+        // Map results to each test
+        var currentTest = 0;
         foreach (var test in executionContext.Input.Tests)
         {
-            var processExecutionResult = await executor.Execute(
-                this.Settings.NodeJsExecutablePath,
-                executionContext.TimeLimit,
-                executionContext.MemoryLimit,
-                test.Input,
-                arguments);
-
-            var mochaResult = JsonExecutionResult.Parse(processExecutionResult.ReceivedOutput);
-
             var message = "yes";
             if (!string.IsNullOrEmpty(mochaResult.Error))
             {
                 message = mochaResult.Error;
             }
-            else if (mochaResult.TotalPassingTests != 1)
+            else if (currentTest < mochaResult.TestErrors.Count && mochaResult.TestErrors[currentTest] != null)
             {
-                message = $"Unexpected error: {mochaResult.TestErrors[0]}";
+                message = $"Test failed: {mochaResult.TestErrors[currentTest]}";
             }
 
             var testResult = CheckAndGetTestResult(
@@ -125,6 +204,8 @@ public class NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TS
                 processExecutionResult,
                 checker,
                 message);
+
+            currentTest++;
             testResults.Add(testResult);
         }
 
