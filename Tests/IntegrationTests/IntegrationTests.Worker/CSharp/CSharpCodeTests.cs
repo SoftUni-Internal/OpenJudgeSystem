@@ -2,7 +2,7 @@
 
 using OJS.Workers.Common.Models;
 
-[Collection("Worker Tests Collection")]
+[Collection(nameof(WorkerTestsCollection))]
 public class CSharpCodeTests : BaseStrategyTest<CSharpCodeSubmissionFactory, CSharpCodeParameters>
 {
     public CSharpCodeTests(RabbitMqAndWorkerFixture fixture)

@@ -1,9 +1,8 @@
-﻿namespace IntegrationTests.Worker.TypeScript;
+﻿namespace IntegrationTests.Worker.TypeScript.TypeScriptCodeMochaUnitsTestsNodeJs20;
 
-using IntegrationTests.Worker.TypeScript.TypeScriptCodeMochaUnitsTestsNodeJs20;
 using OJS.Workers.Common.Models;
 
-[Collection("Worker Tests Collection")]
+[Collection(nameof(WorkerTestsCollection))]
 public class TypeScriptCodeMochaUnitsTestsNodeJs20Tests : BaseStrategyTest<TypeScriptCodeMochaUnitsTestsNodeJs20SubmissionFactory, TypeScriptCodeMochaUnitsTestsNodeJs20Parameters>
 {
     public TypeScriptCodeMochaUnitsTestsNodeJs20Tests(RabbitMqAndWorkerFixture fixture)
