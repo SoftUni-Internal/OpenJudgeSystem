@@ -12,50 +12,22 @@ using OJS.Workers.Compilers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
 
-public class TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TSettings>(
+public class TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TSettings>(
     IOjsSubmission submission,
     IProcessExecutorFactory processExecutorFactory,
     IExecutionStrategySettingsProvider settingsProvider,
     ILogger<BaseExecutionStrategy<TSettings>> logger,
     ICompilerFactory compilerFactory)
-    : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TSettings>(submission, processExecutorFactory,
+    : NodeJsPreprocessExecuteAndRunAllUnitTestsWithMochaExecutionStrategy<TSettings>(submission, processExecutorFactory,
         settingsProvider, logger)
     where TSettings : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings
 {
-    private string TypeScriptTemplateContent => @$"
-    // Imports
-    // @ts-ignore
-    const chai = require('{this.Settings.ChaiModulePath}');
-    // @ts-ignore
-    const sinon = require('{this.Settings.SinonModulePath}');
-    // @ts-ignore
-    const sinonChai = require('{this.Settings.SinonChaiModulePath}');
-
-    chai.use(sinonChai);
-
-    const expect = chai.expect;
-    const assert = chai.assert;
-    const should = chai.should();
-
-    // Skeleton
-    {SolutionSkeletonPlaceholder}
-
-    // User code
-    let result = {UserCodePlaceholder}
-
-    // Tests
-    // @ts-ignore
-    describe('Tests', function () {{
-        {TestsPlaceholder}
-    }});
-";
-
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
         IExecutionResult<TestResult> result)
     {
         // Prepare TypeScript file with combined user code and tests
-        var typeScriptTemplate = this.TypeScriptTemplateContent;
+        var typeScriptTemplate = this.GetTemplateContent(isTypeScript: true);
         var userCode = executionContext.Code.Trim();
         typeScriptTemplate = typeScriptTemplate
             .Replace(SolutionSkeletonPlaceholder, executionContext.Input.TaskSkeletonAsString)

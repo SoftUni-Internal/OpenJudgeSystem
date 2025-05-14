@@ -179,16 +179,23 @@ namespace OJS.Services.Worker.Business.Implementations
                         compilerFactory);
                     break;
                 case ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha:
-                    executionStrategy = new TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
+                    executionStrategy = new TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
                         submission,
                         processExecutorFactory,
                         executionStrategySettingsProvider,
-                        loggerFactory.CreateStrategyLogger<TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes),
+                        loggerFactory.CreateStrategyLogger<TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes),
                         compilerFactory);
                     break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                 case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
+                        submission,
+                        processExecutorFactory,
+                        executionStrategySettingsProvider,
+                        loggerFactory.CreateStrategyLogger<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes));
+                    break;
+                case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha:
+                    executionStrategy = new NodeJsPreprocessExecuteAndRunAllUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
                         submission,
                         processExecutorFactory,
                         executionStrategySettingsProvider,

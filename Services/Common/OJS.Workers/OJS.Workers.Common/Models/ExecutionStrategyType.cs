@@ -70,5 +70,6 @@
         NodeJsV20RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = 73,
         TypeScriptV20PreprocessExecuteAndCheck = 74,
         TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha = 75,
+        NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha = 76,
     }
 }
