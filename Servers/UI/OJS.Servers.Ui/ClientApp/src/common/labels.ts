@@ -126,6 +126,7 @@ export const TITLE = 'Title';
 // Users Mentors
 export const QUOTA_RESET_TIME = 'Quota Reset Time';
 export const REQUESTS_MADE = 'Requests Made';
+export const TOTAL_REQUESTS_MADE = 'Total Requests Made';
 export const QUOTA_LIMIT = 'Quota Limit';
 
 // Mentor Prompt Templates
