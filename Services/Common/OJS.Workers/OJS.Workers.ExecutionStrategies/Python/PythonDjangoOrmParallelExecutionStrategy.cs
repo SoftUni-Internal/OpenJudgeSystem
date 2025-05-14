@@ -36,7 +36,7 @@ public class PythonDjangoOrmParallelExecutionStrategy<TSettings> : PythonDjangoO
         this.SaveTests(tests);
 
         // Use Django's built-in parallel test execution
-        var testPatterns = tests.Select((test, index) =>
+        var testPatterns = tests.Select((_, index) =>
             this.TestPaths[index].Split(Path.DirectorySeparatorChar).Last()).ToList();
 
         // Join all test patterns with spaces to pass to Django's test command
