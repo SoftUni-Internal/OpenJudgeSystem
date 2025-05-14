@@ -2,7 +2,7 @@
 
 using OJS.Workers.Common.Models;
 
-[Collection("Worker Tests Collection")]
+[Collection(nameof(WorkerTestsCollection))]
 public class TypeScriptCodeNodeJs20Tests : BaseStrategyTest<TypeScriptCodeNodeJs20SubmissionFactory, TypeScriptCodeNodeJs20Parameters>
 {
     public TypeScriptCodeNodeJs20Tests(RabbitMqAndWorkerFixture fixture)

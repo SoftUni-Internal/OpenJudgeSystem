@@ -1,6 +1,6 @@
 ﻿using IntegrationTests.Worker;
 
-[CollectionDefinition("Worker Tests Collection", DisableParallelization = true)]
+[CollectionDefinition(nameof(WorkerTestsCollection), DisableParallelization = true)]
 public class WorkerTestsCollection : ICollectionFixture<RabbitMqAndWorkerFixture>
 {
 }
