@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using OJS.Workers.Common;
 using OJS.Workers.Common.Exceptions;
-    using OJS.Workers.Common.Extensions;
+using OJS.Workers.Common.Extensions;
 using OJS.Workers.Common.Helpers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
@@ -112,7 +112,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
         return result;
     }
 
-    private static void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
+    protected static void ChangeDbConnection(string pathToSettingsFile, string pattern = DatabaseConfigRegexPattern, string replacement = SqlLiteConfig)
     {
         var settingsContent = File.ReadAllText(pathToSettingsFile);
 
@@ -145,7 +145,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
         return processExecutionResult;
     }
 
-    private async Task CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
+    protected async Task CreateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
     {
         var result = await this.Execute(
             PyenvAppFileName,
@@ -161,7 +161,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
         throw new ArgumentException($"Failed to create virtual environment! {GetErrorOutput(result)}");
     }
 
-    private async Task ActivateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
+    protected async Task ActivateVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
     {
         var result = await this.Execute(
             PyenvAppFileName,
@@ -177,7 +177,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
         throw new ArgumentException("Failed to activate virtual environment! " + GetErrorOutput(result));
     }
 
-    private void DeleteVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
+    protected void DeleteVirtualEnvironment(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
         => this.Execute(
             PyenvAppFileName,
             this.ExecutionArguments.Concat([$"virtualenv-delete {envName}"]),
@@ -186,7 +186,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
             MaximumTimeForEnvDeletion,
             "y");
 
-    private async Task ExportDjangoSettingsModule(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
+    protected async Task ExportDjangoSettingsModule(IExecutor executor, IExecutionContext<TestsInputModel> executionContext, string envName)
     {
         var result = await this.Execute(
             "/bin/bash",
@@ -202,7 +202,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
         throw new ArgumentException("Failed to export DJANGO_SETTINGS_MODULE! " + GetErrorOutput(result));
     }
 
-    private async Task ApplyMigrations(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
+    protected async Task ApplyMigrations(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
     {
         var result = await this.Execute(
             this.Settings.PythonExecutablePath,
@@ -218,7 +218,7 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
         throw new SolutionException("Failed to apply migrations! " + GetErrorOutput(result));
     }
 
-    private Task<ProcessExecutionResult> Execute(
+    protected Task<ProcessExecutionResult> Execute(
         string fileName,
         IEnumerable<string> arguments,
         IExecutor executor,

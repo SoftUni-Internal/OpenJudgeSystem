@@ -64,6 +64,7 @@ namespace OJS.Workers.Common
             public const string PythonProjectUnitTests = "python-project-unit-tests";
             public const string PythontUnitTests = "python-unit-tests";
             public const string PythonDjangoOrmExecutionStrategy = "python-django-orm-project-tests";
+            public const string PythonDjangoOrmParallelExecutionStrategy = "python-django-orm-parallel-project-tests";
 
             // Php
             public const string PhpCode = "php-code";
@@ -135,6 +136,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
                     { ExecutionStrategyNames.PythontUnitTests, ExecutionStrategyType.PythonUnitTests },
                     { ExecutionStrategyNames.PythonDjangoOrmExecutionStrategy, ExecutionStrategyType.PythonDjangoOrmExecutionStrategy },
+                    { ExecutionStrategyNames.PythonDjangoOrmParallelExecutionStrategy, ExecutionStrategyType.PythonDjangoOrmParallelExecutionStrategy },
 
                     // Go
                     { ExecutionStrategyNames.GoCode, ExecutionStrategyType.GolangCompileExecuteAndCheck },

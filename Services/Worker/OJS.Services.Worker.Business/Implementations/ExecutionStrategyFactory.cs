@@ -354,6 +354,13 @@ namespace OJS.Services.Worker.Business.Implementations
                         executionStrategySettingsProvider,
                         loggerFactory.CreateStrategyLogger<PythonDjangoOrmExecutionStrategy<PythonDjangoOrmExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes));
                     break;
+                case ExecutionStrategyType.PythonDjangoOrmParallelExecutionStrategy:
+                    executionStrategy = new PythonDjangoOrmParallelExecutionStrategy<PythonDjangoOrmExecutionStrategySettings>(
+                        submission,
+                        processExecutorFactory,
+                        executionStrategySettingsProvider,
+                        loggerFactory.CreateStrategyLogger<PythonDjangoOrmExecutionStrategy<PythonDjangoOrmExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes));
+                    break;
                 case ExecutionStrategyType.NotFound:
                 default:
                     throw new ArgumentOutOfRangeException(nameof(executionStrategy), "Invalid execution strategy type.");

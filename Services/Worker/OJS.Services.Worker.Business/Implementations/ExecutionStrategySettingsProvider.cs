@@ -444,7 +444,8 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
                     this.submissionProcessorIdentifier)
 
                 as TSettings,
-            ExecutionStrategyType.PythonDjangoOrmExecutionStrategy => new
+            ExecutionStrategyType.PythonDjangoOrmExecutionStrategy or
+            ExecutionStrategyType.PythonDjangoOrmParallelExecutionStrategy=> new
                 PythonDjangoOrmExecutionStrategySettings(
                     GetBaseTimeUsed(submission, this.settings.PythonV311BaseTimeUsedInMilliseconds),
                     GetBaseMemoryUsed(submission, this.settings.PythonV311BaseMemoryUsedInBytes),

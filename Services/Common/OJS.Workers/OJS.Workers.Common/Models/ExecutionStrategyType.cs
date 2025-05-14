@@ -74,5 +74,6 @@
         DotNetCore8ProjectExecutionStrategy = 77,
         DotNetCore8ProjectTestsExecutionStrategy = 78,
         DotNetCore8UnitTestsExecutionStrategy = 79,
+        PythonDjangoOrmParallelExecutionStrategy = 80,
     }
 }
