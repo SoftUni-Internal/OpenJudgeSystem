@@ -37,7 +37,7 @@ internal static class ServiceCollectionExtensions
         => services
             .AddGridServices()
             .AddValidators()
-            .AddWebServer<Program>(configuration)
+            .AddWebServer<Program>(configuration, environment)
             .AddHttpClients(configuration)
             .AddTransient(typeof(IDataService<>), typeof(AdministrationDataService<>))
             .AddTransient<ITransactionsProvider, TransactionsProvider<OjsDbContext>>()

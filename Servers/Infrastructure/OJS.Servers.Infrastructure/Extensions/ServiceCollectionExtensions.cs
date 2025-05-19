@@ -17,6 +17,7 @@ namespace OJS.Servers.Infrastructure.Extensions
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Microsoft.Net.Http.Headers;
@@ -55,6 +56,9 @@ namespace OJS.Servers.Infrastructure.Extensions
     using System.Text.Json;
     using System.Threading.Tasks;
     using OpenAI;
+    using OpenTelemetry.Metrics;
+    using OpenTelemetry.Resources;
+    using OpenTelemetry.Trace;
     using static OJS.Common.GlobalConstants;
     using static OJS.Common.GlobalConstants.FileExtensions;
     using static OJS.Servers.Infrastructure.ServerConstants.Authorization;
@@ -66,7 +70,8 @@ namespace OJS.Servers.Infrastructure.Extensions
 
         public static IServiceCollection AddWebServer<TStartup>(
             this IServiceCollection services,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IHostEnvironment environment)
         {
             services.AddExceptionHandler<GlobalExceptionHandler>();
 
@@ -74,7 +79,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .AddAutoMapperConfigurations<TStartup>()
                 .AddConventionServices<TStartup>()
                 .AddHttpContextServices()
-                .AddLokiHttpClient(configuration)
+                .AddOtelCollectorHttpClient(configuration)
                 .AddOptionsWithValidation<ApplicationConfig>()
                 .AddOptionsWithValidation<HealthCheckConfig>();
 
@@ -91,6 +96,7 @@ namespace OJS.Servers.Infrastructure.Extensions
 
             return services
                 .AddAuthorizationPolicies()
+                .AddOpenTelemetry(configuration, environment)
                 .AddHealthMonitoring();
         }
 
@@ -365,14 +371,18 @@ namespace OJS.Servers.Infrastructure.Extensions
             return services;
         }
 
-        private static IServiceCollection AddLokiHttpClient(this IServiceCollection services, IConfiguration configuration)
+        private static IServiceCollection AddOtelCollectorHttpClient(this IServiceCollection services, IConfiguration configuration)
         {
             var applicationConfig = configuration.GetSectionWithValidation<ApplicationConfig>();
 
-            services.AddHttpClient(ServiceConstants.LokiHttpClientName, client =>
+            if (applicationConfig.OtlpCollectorBaseUrl == null)
+            {
+                return services;
+            }
+
+            services.AddHttpClient(ServiceConstants.OtelCollectorHttpClientName, client =>
             {
                 client.BaseAddress = new Uri(applicationConfig.OtlpCollectorBaseUrl);
-                client.DefaultRequestHeaders.Add(HeaderNames.Authorization, applicationConfig.OtlpCollectorBasicAuthHeaderValue);
             });
 
             return services;
@@ -393,6 +403,74 @@ namespace OJS.Servers.Infrastructure.Extensions
                 Credentials = new NetworkCredential(svnConfig.Username, svnConfig.Password),
             });
             services.AddHttpClient(ServiceConstants.DefaultHttpClientName);
+
+            return services;
+        }
+
+        public static IServiceCollection AddOpenTelemetry(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
+        {
+            var otlpCollectorBaseUrl = configuration.GetSectionWithValidation<ApplicationConfig>().OtlpCollectorBaseUrl;
+            var otlpCollectorEndpoint = otlpCollectorBaseUrl != null
+                ? new Uri(otlpCollectorBaseUrl)
+                : null;
+
+            var otel = services.AddOpenTelemetry();
+
+            // Configure OpenTelemetry Resources with the application name
+            otel.ConfigureResource(resource => resource
+                .AddService(serviceName: environment.GetShortApplicationName()));
+
+            // Add Metrics for ASP.NET Core and our custom metrics and export to Prometheus
+            otel.WithMetrics(metrics =>
+            {
+                metrics
+                    .AddRuntimeInstrumentation()
+                    // Metrics provider from OpenTelemetry
+                    .AddAspNetCoreInstrumentation()
+                    // Metrics provides by ASP.NET Core in .NET 8
+                    .AddMeter("Microsoft.AspNetCore.Hosting")
+                    .AddMeter("Microsoft.AspNetCore.Server.Kestrel")
+                    // Metrics provided by System.Net libraries
+                    .AddMeter("System.Net.Http")
+                    .AddMeter("System.Net.NameResolution");
+
+                if (otlpCollectorEndpoint != null)
+                {
+                    metrics.AddOtlpExporter(otlpOptions =>
+                    {
+                        otlpOptions.Endpoint = otlpCollectorEndpoint;
+                    });
+                }
+                else
+                {
+                    metrics.AddConsoleExporter();
+                }
+            });
+
+            // Add Tracing for ASP.NET Core and our custom ActivitySource and export to Jaeger
+            otel.WithTracing(tracing =>
+            {
+                if (environment.IsDevelopment())
+                {
+                    // In development, always sample traces, so we can see them in the console
+                    tracing.SetSampler<AlwaysOnSampler>();
+                }
+
+                tracing.AddAspNetCoreInstrumentation();
+                tracing.AddHttpClientInstrumentation();
+
+                if (otlpCollectorEndpoint != null)
+                {
+                    tracing.AddOtlpExporter(otlpOptions =>
+                    {
+                        otlpOptions.Endpoint = otlpCollectorEndpoint;
+                    });
+                }
+                else
+                {
+                    tracing.AddConsoleExporter();
+                }
+            });
 
             return services;
         }

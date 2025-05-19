@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   ui:
     build:
@@ -129,14 +127,49 @@ services:
 # Monitoring
   loki:
     image: grafana/loki:3.1.0
+    container_name: loki_instance
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
     volumes:
       - loki_data:/loki
 
+  alloy:
+    image: grafana/alloy:latest
+    container_name: alloy_instance
+    ports:
+      - "4318:4318"   # OTLP HTTP
+      - "4317:4317"   # OTLP gRPC
+      - "12345:12345"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./observability/config.alloy:/etc/alloy/config.alloy
+    command: ["run", "/etc/alloy/config.alloy"]
+    depends_on:
+      - loki
+      - tempo
+      - prometheus
+
+  tempo:
+    image: grafana/tempo:2.4.1
+    container_name: tempo_instance
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./observability/tempo.yaml:/etc/tempo.yaml
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus_instance
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus.yaml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+
   grafana:
     image: grafana/grafana:latest
+    container_name: grafana_instance
     ports:
       - "3000:3000"
     environment:
@@ -160,6 +193,20 @@ services:
           isDefault: true
           version: 1
           editable: false
+
+        - name: Tempo
+          type: tempo
+          access: proxy
+          url: grpc://alloy:4317
+          jsonData:
+            httpMethod: POST
+            tracesEndpoint: /v1/traces
+
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://prometheus:9090
+
         EOF
         /run.sh
     volumes:

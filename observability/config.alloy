@@ -1,0 +1,39 @@
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://prometheus:9090/api/v1/write"
+  }
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+}
+
+otelcol.exporter.otlp "local" {
+  client {
+    endpoint = "tempo:4317"
+  }
+}
+
+otelcol.exporter.prometheus "to_prometheus" {
+  forward_to = [
+    prometheus.remote_write.local.receiver,
+  ]
+}
+
+otelcol.exporter.loki "to_loki" {
+  forward_to = [
+    loki.write.local.receiver,
+  ]
+}
+
+otelcol.receiver.otlp "default" {
+  grpc {}
+  http {}
+  output {
+    metrics = [otelcol.exporter.prometheus.to_prometheus.input]
+    logs = [otelcol.exporter.loki.to_loki.input]
+    traces = [otelcol.exporter.otlp.local.input]
+  }
+}
