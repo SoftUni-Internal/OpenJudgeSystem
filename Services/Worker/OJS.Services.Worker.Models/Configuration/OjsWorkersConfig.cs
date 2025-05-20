@@ -155,6 +155,12 @@ public class OjsWorkersConfig : BaseConfig
     public string PythonExecutablePath { get; set; } = string.Empty;
 
     [Required]
+    public string EslintExecutablePath { get; set; } = string.Empty;
+
+    [Required]
+    public string EslintPluginModulePath { get; set; } = string.Empty;
+
+    [Required]
     public string SqlServerLocalDbMasterDbConnectionString { get; set; } = string.Empty;
 
     [Required]
