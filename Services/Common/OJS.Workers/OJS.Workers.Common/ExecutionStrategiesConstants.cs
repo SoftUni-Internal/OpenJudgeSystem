@@ -15,16 +15,20 @@ namespace OJS.Workers.Common
             public const string CsharpDotNetCoreCode = "csharp-dot-net-core-code";
             public const string CsharpDotNetCore5Code = "csharp-dot-net-core-5-code";
             public const string CsharpDotNetCore6Code = "csharp-dot-net-core-6-code";
+            public const string CsharpDotNetCore8Code = "csharp-dot-net-core-8-code";
 
             public const string CSharpDotNetCoreProjectTests = "dot-net-core-project-tests";
             public const string CSharpDotNetCore5ProjectTests = "dot-net-core-5-project-tests";
             public const string CSharpDotNetCore6ProjectTests = "dot-net-core-6-project-tests";
+            public const string CSharpDotNetCore8ProjectTests = "dot-net-core-8-project-tests";
             public const string CSharpDotNetCoreProject = "dot-net-core-project";
             public const string CSharpDotNetCore5Project = "dot-net-core-5-project";
             public const string CSharpDotNetCore6Project = "dot-net-core-6-project";
+            public const string CSharpDotNetCore8Project = "dot-net-core-8-project";
             public const string CSharpDotNetCoreUnitTests = "dot-net-core-unit-tests";
             public const string CSharpDotNetCore5UnitTests = "dot-net-core-5-unit-tests";
             public const string CSharpDotNetCore6UnitTests = "dot-net-core-6-unit-tests";
+            public const string CSharpDotNetCore8UnitTests = "dot-net-core-8-unit-tests";
 
             // Java
             public const string JavaCode = "java-code";
@@ -61,6 +65,7 @@ namespace OJS.Workers.Common
             public const string PythonProjectUnitTests = "python-project-unit-tests";
             public const string PythontUnitTests = "python-unit-tests";
             public const string PythonDjangoOrmExecutionStrategy = "python-django-orm-project-tests";
+            public const string PythonDjangoOrmParallelExecutionStrategy = "python-django-orm-parallel-project-tests";
 
             // Php
             public const string PhpCode = "php-code";
@@ -111,15 +116,19 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.CsharpDotNetCoreCode, ExecutionStrategyType.DotNetCoreCompileExecuteAndCheck },
                     { ExecutionStrategyNames.CsharpDotNetCore5Code, ExecutionStrategyType.DotNetCore5CompileExecuteAndCheck },
                     { ExecutionStrategyNames.CsharpDotNetCore6Code, ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck },
+                    { ExecutionStrategyNames.CsharpDotNetCore8Code, ExecutionStrategyType.DotNetCore8CompileExecuteAndCheck },
                     { ExecutionStrategyNames.CSharpDotNetCoreProject, ExecutionStrategyType.DotNetCoreProjectExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore5Project, ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore6Project, ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy },
+                    { ExecutionStrategyNames.CSharpDotNetCore8Project, ExecutionStrategyType.DotNetCore8ProjectExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCoreProjectTests, ExecutionStrategyType.DotNetCoreProjectTestsExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore5ProjectTests, ExecutionStrategyType.DotNetCore5ProjectTestsExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore6ProjectTests, ExecutionStrategyType.DotNetCore6ProjectTestsExecutionStrategy },
+                    { ExecutionStrategyNames.CSharpDotNetCore8ProjectTests, ExecutionStrategyType.DotNetCore8ProjectTestsExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCoreUnitTests, ExecutionStrategyType.DotNetCoreUnitTestsExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore5UnitTests, ExecutionStrategyType.DotNetCore5UnitTestsExecutionStrategy },
                     { ExecutionStrategyNames.CSharpDotNetCore6UnitTests, ExecutionStrategyType.DotNetCore6UnitTestsExecutionStrategy },
+                    { ExecutionStrategyNames.CSharpDotNetCore8UnitTests, ExecutionStrategyType.DotNetCore8UnitTestsExecutionStrategy },
 
                     // Python
                     { ExecutionStrategyNames.PythonCode, ExecutionStrategyType.PythonExecuteAndCheck },
@@ -128,6 +137,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.PythonProjectUnitTests, ExecutionStrategyType.PythonProjectUnitTests },
                     { ExecutionStrategyNames.PythontUnitTests, ExecutionStrategyType.PythonUnitTests },
                     { ExecutionStrategyNames.PythonDjangoOrmExecutionStrategy, ExecutionStrategyType.PythonDjangoOrmExecutionStrategy },
+                    { ExecutionStrategyNames.PythonDjangoOrmParallelExecutionStrategy, ExecutionStrategyType.PythonDjangoOrmParallelExecutionStrategy },
 
                     // Go
                     { ExecutionStrategyNames.GoCode, ExecutionStrategyType.GolangCompileExecuteAndCheck },

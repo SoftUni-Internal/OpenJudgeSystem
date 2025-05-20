@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { IoMdSend } from 'react-icons/io';
+import { IoMdClose, IoMdSend } from 'react-icons/io';
 import ReactMarkdown from 'react-markdown';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -12,10 +12,11 @@ import { ChatMessageRole } from 'src/common/enums';
 import { IMentorConversationMessage } from 'src/common/types';
 import useTheme from 'src/hooks/use-theme';
 import { addMessages } from 'src/redux/features/mentorSlice';
-import { useStartConversationMutation } from 'src/redux/services/mentorService';
+import { useLazyGetSystemMessageQuery, useStartConversationMutation } from 'src/redux/services/mentorService';
 import { useAppDispatch, useAppSelector } from 'src/redux/store';
 import concatClassNames from 'src/utils/class-names';
 import { getMentorConversationDate } from 'src/utils/dates';
+import { getCompositeKey } from 'src/utils/id-generator';
 
 import mentorAvatar from '../../assets/mentor.png';
 
@@ -41,8 +42,8 @@ const Mentor = (props: IMentorProps) => {
     const [ showBubble, setShowBubble ] = useState(true);
     const [ inputMessage, setInputMessage ] = useState('');
 
-    const conversationData = useAppSelector((state) => problemId !== undefined && state.mentor?.conversationsByProblemId
-        ? state.mentor.conversationsByProblemId[problemId]
+    const conversationData = useAppSelector((state) => problemId && user?.id
+        ? state.mentor?.conversationsByProblemId?.[getCompositeKey(user.id, problemId)]
         : undefined);
 
     // Local state for UI purposes
@@ -57,6 +58,8 @@ const Mentor = (props: IMentorProps) => {
         error,
         isLoading,
     } ] = useStartConversationMutation({ fixedCacheKey: `problem-${problemId}` });
+
+    const [ getSystemMessage, { isLoading: isLoadingSystemMessage } ] = useLazyGetSystemMessageQuery();
 
     const isInputLengthExceeded = useMemo(
         () => inputMessage.length > (conversationResponseData?.maxUserInputLength ?? 4096),
@@ -146,6 +149,7 @@ const Mentor = (props: IMentorProps) => {
         }
 
         dispatch(addMessages({
+            userId: user.id,
             problemId,
             messages,
             setConversationDate: localConversationDate === null,
@@ -185,6 +189,25 @@ const Mentor = (props: IMentorProps) => {
     const handleToggleChat = () => {
         setIsOpen(!isOpen);
         setShowBubble(false);
+    };
+
+    const handleCheckSystemMessage = async () => {
+        if (problemId && problemName && contestId && contestName && categoryName && submissionTypeName &&
+            !localConversationMessages.some((m) => m.role === ChatMessageRole.System)) {
+            const { data } = await getSystemMessage({
+                userId: user?.id || '',
+                problemId,
+                problemName,
+                contestId,
+                contestName,
+                categoryName,
+                submissionTypeName,
+            });
+
+            if (data) {
+                setLocalConversationMessages([ ...localConversationMessages, data ]);
+            }
+        }
     };
 
     if (!isMentorAllowed) {
@@ -230,6 +253,12 @@ const Mentor = (props: IMentorProps) => {
               disableAutoFocus
             >
                 <DialogTitle className={styles.dialogTitle}>
+                    <Button
+                      onClick={handleToggleChat}
+                      className={styles.closeButton}
+                    >
+                        <IoMdClose />
+                    </Button>
                     <div className={styles.mentorTitleContainer}>
                         <div className={styles.mentorTitleAvatar}>
                             <img src={mentorAvatar} alt="Mentor Avatar" />
@@ -240,6 +269,17 @@ const Mentor = (props: IMentorProps) => {
                                 <span className={styles.problemNameText}>{problemName}</span>
                             )}
                         </div>
+                        {user?.isAdmin && (
+                            <Button
+                              onClick={handleCheckSystemMessage}
+                              className={styles.systemMessageButton}
+                              disabled={isLoadingSystemMessage}
+                            >
+                                {isLoadingSystemMessage
+                                    ? 'Loading...'
+                                    : 'Check System Message'}
+                            </Button>
+                        )}
                     </div>
                 </DialogTitle>
 
@@ -256,17 +296,27 @@ const Mentor = (props: IMentorProps) => {
                             {localConversationDate !== null && getMentorConversationDate(localConversationDate)}
                         </div>
                         {localConversationMessages.map((message) => (
-                            <div className={styles.messageContainer} key={message.sequenceNumber}>
-                                {(message.role === ChatMessageRole.Assistant || message.role === ChatMessageRole.Information) && (
-                                    <div className={styles.mentorMessageAvatar}>
-                                        <img src={mentorAvatar} alt="Mentor Avatar" />
-                                    </div>
+                            <div
+                              className={`${styles.messageContainer} ${
+                                  message.role === ChatMessageRole.System
+                                      ? styles.systemMessageContainer
+                                      : ''
+                              }`}
+                              key={message.sequenceNumber}
+                            >
+                                {(message.role === ChatMessageRole.Assistant ||
+                                  message.role === ChatMessageRole.Information) && (
+                                  <div className={styles.mentorMessageAvatar}>
+                                      <img src={mentorAvatar} alt="Mentor Avatar" />
+                                  </div>
                                 )}
                                 <div
                                   className={`${styles.message} ${
                                       message.role === ChatMessageRole.User
                                           ? styles.userMessage
-                                          : styles.mentorMessage
+                                          : message.role === ChatMessageRole.System
+                                              ? styles.systemMessage
+                                              : styles.mentorMessage
                                   }`}
                                 >
                                     <ReactMarkdown className={styles.markdownContent}>

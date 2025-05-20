@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { CONTEST_CATEGORIES_HIERARCHY_PATH } from 'src/common/urls/administration-urls';
+import { CATEGORY_ID_PARAM, CONTEST_CATEGORIES_HIERARCHY_PATH, CONTESTS_PATH, OPEN_CREATE_PARAM } from 'src/common/urls/administration-urls';
 import AdministrationLink from 'src/components/guidelines/buttons/AdministrationLink';
 import { CONTESTS_BULK_EDIT } from 'src/utils/constants';
 
@@ -89,8 +89,6 @@ const ContestsPage = () => {
 
     useEffect(() => {
         if (allContests && !isNilOrEmpty(allContests)) {
-            console.log('allContests fetched', allContests);
-            console.log('type of allContests fetched', typeof allContests);
             dispatch(setContests(allContests));
         }
     }, [ allContests, dispatch ]);
@@ -169,10 +167,16 @@ const ContestsPage = () => {
                     </div>
                     <div className={styles.headingActions}>
                         {selectedCategory?.id && selectedCategory?.children.length === 0 && (
-                            <AdministrationLink
-                              text="Edit Contests"
-                              to={`/${CONTEST_CATEGORIES_HIERARCHY_PATH}?${CONTESTS_BULK_EDIT}=${selectedCategory?.id}`}
-                            />
+                            <>
+                                <AdministrationLink
+                                  text="Edit Contests"
+                                  to={`/${CONTEST_CATEGORIES_HIERARCHY_PATH}?${CONTESTS_BULK_EDIT}=${selectedCategory.id}`}
+                                />
+                                <AdministrationLink
+                                  text="Create Contest"
+                                  to={`/${CONTESTS_PATH}?${OPEN_CREATE_PARAM}=true&${CATEGORY_ID_PARAM}=${selectedCategory.id}`}
+                                />
+                            </>
                         )}
                         <ContestStrategies
                           setSearchParams={setSearchParams}

@@ -413,13 +413,9 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
                     "6.0.1")
 
                 as TSettings,
-            ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy => new
-                DotNetCoreProjectExecutionStrategySettings(
-                    GetBaseTimeUsed(submission, this.settings.DotNetCliBaseTimeUsedInMilliseconds),
-                    GetBaseMemoryUsed(submission, this.settings.DotNetCliBaseMemoryUsedInBytes))
-
-                as TSettings,
-            ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy => new
+            ExecutionStrategyType.DotNetCore5ProjectExecutionStrategy or
+            ExecutionStrategyType.DotNetCore6ProjectExecutionStrategy or
+            ExecutionStrategyType.DotNetCore8ProjectExecutionStrategy => new
                 DotNetCoreProjectExecutionStrategySettings(
                     GetBaseTimeUsed(submission, this.settings.DotNetCliBaseTimeUsedInMilliseconds),
                     GetBaseMemoryUsed(submission, this.settings.DotNetCliBaseMemoryUsedInBytes))
@@ -449,7 +445,8 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
                     this.submissionProcessorIdentifier)
 
                 as TSettings,
-            ExecutionStrategyType.PythonDjangoOrmExecutionStrategy => new
+            ExecutionStrategyType.PythonDjangoOrmExecutionStrategy or
+            ExecutionStrategyType.PythonDjangoOrmParallelExecutionStrategy=> new
                 PythonDjangoOrmExecutionStrategySettings(
                     GetBaseTimeUsed(submission, this.settings.PythonV311BaseTimeUsedInMilliseconds),
                     GetBaseMemoryUsed(submission, this.settings.PythonV311BaseMemoryUsedInBytes),
@@ -460,6 +457,31 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
             ExecutionStrategyType.NotFound => throw new ArgumentException(
                 $"Cannot get settings for {ExecutionStrategyType.NotFound} strategy.",
                 nameof(executionStrategyType)),
+            ExecutionStrategyType.DotNetCore8CompileExecuteAndCheck => new
+                DotNetCoreCompileExecuteAndCheckExecutionStrategySettings(
+                    GetBaseTimeUsed(submission, this.settings.DotNetCscBaseTimeUsedInMilliseconds),
+                    GetBaseMemoryUsed(submission, this.settings.DotNetCscBaseMemoryUsedInBytes),
+                    this.settings.DotNetCore8RuntimeVersion)
+
+                as TSettings,
+            ExecutionStrategyType.DotNetCore8ProjectTestsExecutionStrategy => new
+                DotNetCoreProjectTestsExecutionStrategySettings(
+                    GetBaseTimeUsed(submission, this.settings.DotNetCliBaseTimeUsedInMilliseconds),
+                    GetBaseMemoryUsed(submission, this.settings.DotNetCliBaseMemoryUsedInBytes),
+                    "net8.0",
+                    "8.0.0",
+                    "8.0.0")
+
+                as TSettings,
+            ExecutionStrategyType.DotNetCore8UnitTestsExecutionStrategy => new
+                DotNetCoreUnitTestsExecutionStrategySettings(
+                    GetBaseTimeUsed(submission, this.settings.DotNetCliBaseTimeUsedInMilliseconds),
+                    GetBaseMemoryUsed(submission, this.settings.DotNetCliBaseMemoryUsedInBytes),
+                    "net8.0",
+                    "8.0.0",
+                    "8.0.0")
+
+                as TSettings,
             _ => throw new ArgumentOutOfRangeException(nameof(executionStrategyType), executionStrategyType, null),
         };
     }

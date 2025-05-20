@@ -70,6 +70,11 @@
         NodeJsV20RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests = 73,
         TypeScriptV20PreprocessExecuteAndCheck = 74,
         TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha = 75,
-        NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha = 76,
+        DotNetCore8CompileExecuteAndCheck = 76,
+        DotNetCore8ProjectExecutionStrategy = 77,
+        DotNetCore8ProjectTestsExecutionStrategy = 78,
+        DotNetCore8UnitTestsExecutionStrategy = 79,
+        PythonDjangoOrmParallelExecutionStrategy = 80,
+        NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha = 81,
     }
 }

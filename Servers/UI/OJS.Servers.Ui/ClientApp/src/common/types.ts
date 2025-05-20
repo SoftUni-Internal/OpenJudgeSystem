@@ -505,6 +505,7 @@ interface IEnumType {
 }
 
 interface IAdministrationFilterColumn {
+    field: string;
     columnName: string;
     columnType: FilterColumnTypeEnum;
     enumValues?: Array<string> | null;

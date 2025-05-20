@@ -47,6 +47,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  width: 100%;
 
   @media (width <= 768px) {
     gap: 0.75rem;
@@ -54,6 +55,33 @@
 
   @media (width <= 480px) {
     gap: 0.5rem;
+  }
+}
+
+.closeButtonContainer {
+  margin-left: auto;
+}
+
+.closeButton {
+  position: absolute !important;
+  top: 8px !important;
+  right: 8px !important;
+  min-width: 40px !important;
+  min-height: 40px !important;
+  padding: 8px !important;
+  color: colors.$white-color !important;
+  z-index: 10 !important;
+
+  &:hover {
+    background-color: rgb(255 255 255 / 10%) !important;
+  }
+
+  @media (width <= 768px) {
+    min-width: 32px !important;
+    min-height: 32px !important;
+    padding: 4px !important;
+    top: 4px !important;
+    right: 4px !important;
   }
 }
 
@@ -295,6 +323,7 @@
   gap: 1rem;
   max-height: 50px;
   font-size: 24px !important;
+  position: relative; /* For absolute positioning of close button */
 
   @media (width <= 768px) {
     font-size: 20px !important;
@@ -306,6 +335,30 @@
     font-size: 18px !important;
     padding: spacings.$sp-8;
     max-height: 70px;
+  }
+}
+
+.systemMessageButton {
+  background-color: rgb(255 255 255 / 20%) !important;
+  color: colors.$white-color !important;
+  font-size: 12px !important;
+  padding: 4px 8px !important;
+  min-width: auto !important;
+  border-radius: 4px !important;
+  text-transform: none !important;
+  margin-left: 8px !important;
+
+  &:hover {
+    background-color: rgb(255 255 255 / 30%) !important;
+  }
+
+  &:disabled {
+    color: rgb(255 255 255 / 50%) !important;
+  }
+
+  @media (width <= 768px) {
+    font-size: 10px !important;
+    padding: 2px 6px !important;
   }
 }
 
@@ -419,6 +472,63 @@
 .mentorMessage {
   background-color: colors.$light-base-color-100;
   color: colors.$dark-base-color-500 !important;
+}
+
+.systemMessageContainer {
+  width: 100%;
+  margin-bottom: spacings.$sp-16;
+}
+
+.systemMessage {
+  background-color: colors.$dark-base-color-100;
+  color: colors.$light-base-color-100 !important;
+  width: 100%;
+  max-width: 100%;
+  padding: spacings.$sp-16;
+  border-radius: 8px;
+  border-left: 4px solid colors.$primary-blue;
+
+  .markdownContent {
+    h1, h2, h3, h4, h5, h6 {
+      color: colors.$primary-blue;
+    }
+
+    code {
+      background-color: colors.$dark-base-color-400;
+    }
+
+    pre {
+      background-color: colors.$dark-base-color-400;
+      padding: spacings.$sp-16;
+      margin: spacings.$sp-12 0;
+    }
+
+    ul, ol {
+      padding-left: spacings.$sp-32;
+    }
+  }
+
+  @media (width <= 768px) {
+    padding: spacings.$sp-12;
+
+    .markdownContent {
+      pre {
+        padding: spacings.$sp-12;
+        margin: spacings.$sp-8 0;
+      }
+    }
+  }
+
+  @media (width <= 480px) {
+    padding: spacings.$sp-8;
+
+    .markdownContent {
+      pre {
+        padding: spacings.$sp-8;
+        margin: spacings.$sp-4 0;
+      }
+    }
+  }
 }
 
 .dialogActions {

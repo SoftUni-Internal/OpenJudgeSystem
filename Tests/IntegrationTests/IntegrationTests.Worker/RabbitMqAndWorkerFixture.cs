@@ -239,9 +239,26 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await this.publisherChannel.CloseAsync();
-        await this.rabbitMqConnection.CloseAsync();
-        await this.workerContainer.StopAsync();
-        await this.rabbitMqContainer.StopAsync();
+        try
+        {
+            await this.publisherChannel.CloseAsync();
+            this.publisherChannel.Dispose();
+
+            await this.consumerChannel.CloseAsync();
+            this.consumerChannel.Dispose();
+
+            await this.rabbitMqConnection.CloseAsync();
+            this.rabbitMqConnection.Dispose();
+
+            await this.workerContainer.StopAsync();
+            await this.workerContainer.DisposeAsync();
+
+            await this.rabbitMqContainer.StopAsync();
+            await this.rabbitMqContainer.DisposeAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error during cleanup: {ex.Message}");
+        }
     }
 }

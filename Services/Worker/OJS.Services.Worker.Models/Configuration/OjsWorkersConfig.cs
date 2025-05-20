@@ -17,6 +17,9 @@ public class OjsWorkersConfig : BaseConfig
     public string CSharpDotNetCore6CompilerPath { get; set; } = string.Empty;
 
     [Required]
+    public string CSharpDotNetCore8CompilerPath { get; set; } = string.Empty;
+
+    [Required]
     public string DotNetCompilerPath { get; set; } = string.Empty;
 
     [Required]
@@ -29,6 +32,9 @@ public class OjsWorkersConfig : BaseConfig
     public string DotNetCore6RuntimeVersion { get; set; } = string.Empty;
 
     [Required]
+    public string DotNetCore8RuntimeVersion { get; set; } = string.Empty;
+
+    [Required]
     public string DotNetCore3SharedAssembliesPath { get; set; } = string.Empty;
 
     [Required]
@@ -36,6 +42,9 @@ public class OjsWorkersConfig : BaseConfig
 
     [Required]
     public string DotNetCore6SharedAssembliesPath { get; set; } = string.Empty;
+
+    [Required]
+    public string DotNetCore8SharedAssembliesPath { get; set; } = string.Empty;
 
     [Required]
     public string MavenPath { get; set; } = string.Empty;

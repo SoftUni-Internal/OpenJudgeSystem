@@ -125,7 +125,8 @@ public class DotNetCoreCompileExecuteAndCheckExecutionStrategy<TSettings> : Base
 
     protected override string PreprocessCode<TInput>(IExecutionContext<TInput> executionContext)
     {
-        if (this.Type != ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck ||
+        if ((this.Type != ExecutionStrategyType.DotNetCore6CompileExecuteAndCheck &&
+             this.Type != ExecutionStrategyType.DotNetCore8CompileExecuteAndCheck) ||
             string.IsNullOrWhiteSpace(executionContext.Code))
         {
             return base.PreprocessCode(executionContext);
@@ -164,7 +165,7 @@ public class DotNetCoreCompileExecuteAndCheckExecutionStrategy<TSettings> : Base
         CompileResult compileResult,
         out string[] arguments)
     {
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         arguments =
         [

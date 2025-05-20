@@ -95,7 +95,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         type: 'string',
         filterable: false,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params) => params.value && (
             <ExternalLink
               to={getContestsByCategoryUrl({
                   categoryId: params.row.parentId,
