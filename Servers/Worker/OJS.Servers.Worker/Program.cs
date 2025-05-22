@@ -19,11 +19,9 @@ internal class Program
         var builder = WebApplication.CreateBuilder(args);
         var services = builder.Services;
         var configuration = builder.Configuration;
-        var environment = builder.Environment;
-        var host = builder.Host;
 
         services
-            .AddWebServer<Program>(configuration, environment)
+            .AddWebServer<Program>(configuration)
             .AddSingleton<ICompilerFactory, CompilerFactory>()
             .AddSingleton<IExecutionStrategySettingsProvider, ExecutionStrategySettingsProvider>()
             .AddMemoryCache();
@@ -39,7 +37,7 @@ internal class Program
             .AddOptionsWithValidation<OjsWorkersConfig>()
             .AddControllers();
 
-        host.UseLogger(builder.Environment);
+        builder.ConfigureOpenTelemetry();
 
         var app = builder.Build();
 

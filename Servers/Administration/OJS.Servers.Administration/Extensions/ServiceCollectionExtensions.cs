@@ -10,7 +10,6 @@ using OJS.Common;
 using OJS.Common.Exceptions;
 using OJS.Data;
 using OJS.Data.Models.Users;
-using OJS.Servers.Administration.Consumers;
 using OJS.Servers.Administration.Middleware;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Services.Administration.Business.Contests.Validators;
@@ -37,7 +36,7 @@ internal static class ServiceCollectionExtensions
         => services
             .AddGridServices()
             .AddValidators()
-            .AddWebServer<Program>(configuration, environment)
+            .AddWebServer<Program>(configuration)
             .AddHttpClients(configuration)
             .AddTransient(typeof(IDataService<>), typeof(AdministrationDataService<>))
             .AddTransient<ITransactionsProvider, TransactionsProvider<OjsDbContext>>()
