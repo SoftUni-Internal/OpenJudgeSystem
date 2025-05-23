@@ -17,7 +17,6 @@ namespace OJS.Servers.Infrastructure.Extensions
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Microsoft.Net.Http.Headers;
@@ -26,7 +25,6 @@ namespace OJS.Servers.Infrastructure.Extensions
     using OJS.Common.Exceptions;
     using OJS.Servers.Infrastructure.Configurations;
     using OJS.Servers.Infrastructure.Handlers;
-    using OJS.Servers.Infrastructure.Health;
     using OJS.Servers.Infrastructure.Policy;
     using OJS.Services.Common;
     using OJS.Services.Common.Implementations;
@@ -75,7 +73,6 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .AddAutoMapperConfigurations<TStartup>()
                 .AddConventionServices<TStartup>()
                 .AddHttpContextServices()
-                .AddOtelCollectorHttpClient(configuration)
                 .AddOptionsWithValidation<ApplicationConfig>()
                 .AddOptionsWithValidation<HealthCheckConfig>();
 
@@ -91,8 +88,7 @@ namespace OJS.Servers.Infrastructure.Extensions
             });
 
             return services
-                .AddAuthorizationPolicies()
-                .AddHealthMonitoring();
+                .AddAuthorizationPolicies();
         }
 
         /// <summary>
@@ -366,23 +362,6 @@ namespace OJS.Servers.Infrastructure.Extensions
             return services;
         }
 
-        private static IServiceCollection AddOtelCollectorHttpClient(this IServiceCollection services, IConfiguration configuration)
-        {
-            var applicationConfig = configuration.GetSectionWithValidation<ApplicationConfig>();
-
-            if (applicationConfig.OtlpCollectorBaseUrl == null)
-            {
-                return services;
-            }
-
-            services.AddHttpClient(ServiceConstants.OtelCollectorHttpClientName, client =>
-            {
-                client.BaseAddress = new Uri(applicationConfig.OtlpCollectorBaseUrl);
-            });
-
-            return services;
-        }
-
         public static IServiceCollection AddHttpClients(this IServiceCollection services, IConfiguration configuration)
         {
             var svnConfig = configuration.GetSectionWithValidation<SvnConfig>();
@@ -445,14 +424,6 @@ namespace OJS.Servers.Infrastructure.Extensions
         {
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             return Task.CompletedTask;
-        }
-
-        private static IServiceCollection AddHealthMonitoring(this IServiceCollection services)
-        {
-            services.AddHealthChecks()
-                .AddCheck<LokiHealthCheck>("loki");
-
-            return services;
         }
 
         private static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)

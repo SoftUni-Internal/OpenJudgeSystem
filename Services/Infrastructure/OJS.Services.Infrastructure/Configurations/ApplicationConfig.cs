@@ -11,9 +11,4 @@ public class ApplicationConfig : BaseConfig
 
     [Required]
     public string ApiKey { get; set; } = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the OpenTelemetry protocol collector base URL.
-    /// </summary>
-    public string? OtlpCollectorBaseUrl { get; set; }
 }

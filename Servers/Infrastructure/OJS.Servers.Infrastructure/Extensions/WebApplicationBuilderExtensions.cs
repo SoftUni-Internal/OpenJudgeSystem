@@ -3,27 +3,37 @@ namespace OJS.Servers.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
-using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
+using Serilog;
+using Serilog.Sinks.OpenTelemetry;
+using System.Collections.Generic;
 
 public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder ConfigureOpenTelemetry(this WebApplicationBuilder builder)
     {
-        var applicationName = builder.Environment.GetShortApplicationName().ToLower();
+        var otlpEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
+        var serviceName = builder.Configuration["OTEL_SERVICE_NAME"];
 
-        builder.Logging.AddOpenTelemetry(loggingBuilder =>
-        {
-            loggingBuilder.IncludeFormattedMessage = true;
-            loggingBuilder.IncludeScopes = true;
-        });
+        builder.Host.UseSerilog((hostingContext, configuration) => configuration
+            .ReadFrom.Configuration(hostingContext.Configuration)
+            .Enrich.FromLogContext()
+            .WriteTo.Async(wt => wt.Console())
+            .WriteTo.OpenTelemetry(options =>
+            {
+                options.Endpoint = otlpEndpoint;
+                options.Protocol = OtlpProtocol.Grpc;
+
+                options.ResourceAttributes = new Dictionary<string, object>
+                {
+                    ["service.name"] = serviceName,
+                    ["deployment.environment"] = builder.Environment.EnvironmentName.ToLower(),
+                };
+            }));
 
         var otel = builder.Services.AddOpenTelemetry();
-
-        otel.ConfigureResource(resource => resource.AddService(applicationName));
 
         otel.WithMetrics(metrics =>
         {
@@ -47,7 +57,6 @@ public static class WebApplicationBuilderExtensions
                 .AddEntityFrameworkCoreInstrumentation();
         });
 
-        var otlpEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
         if (otlpEndpoint != null)
         {
             otel.UseOtlpExporter();
