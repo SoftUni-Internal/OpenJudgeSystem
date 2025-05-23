@@ -138,13 +138,20 @@ services:
     image: grafana/alloy:latest
     container_name: alloy_instance
     ports:
-      - "4318:4318"   # OTLP HTTP
       - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
       - "12345:12345"
     volumes:
+      - alloy_data:/var/lib/alloy/data
       - /var/run/docker.sock:/var/run/docker.sock
       - ./observability/config.alloy:/etc/alloy/config.alloy
-    command: ["run", "/etc/alloy/config.alloy"]
+    env_file:
+      - ./Docker/envs/alloy.env
+    command:
+        - run
+        - --server.http.listen-addr=0.0.0.0:12345
+        - --storage.path=/var/lib/alloy/data
+        - /etc/alloy/config.alloy
     depends_on:
       - loki
       - tempo
@@ -162,10 +169,9 @@ services:
     container_name: prometheus_instance
     ports:
       - "9090:9090"
-    volumes:
-      - ./observability/prometheus.yaml:/etc/prometheus/prometheus.yml
     command:
-      - "--config.file=/etc/prometheus/prometheus.yml"
+      - --web.enable-remote-write-receiver
+      - --config.file=/etc/prometheus/prometheus.yml
 
   grafana:
     image: grafana/grafana:latest
@@ -176,45 +182,23 @@ services:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-    entrypoint:
-      - sh
-      - -euc
-      - |
-        mkdir -p /etc/grafana/provisioning/datasources
-        cat <<EOF > /etc/grafana/provisioning/datasources/ds.yaml
-        apiVersion: 1
-        datasources:
-        - name: Loki
-          type: loki
-          access: proxy
-          orgId: 1
-          url: http://loki:3100
-          basicAuth: false
-          isDefault: true
-          version: 1
-          editable: false
-
-        - name: Tempo
-          type: tempo
-          access: proxy
-          url: grpc://alloy:4317
-          jsonData:
-            httpMethod: POST
-            tracesEndpoint: /v1/traces
-
-        - name: Prometheus
-          type: prometheus
-          access: proxy
-          url: http://prometheus:9090
-
-        EOF
-        /run.sh
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./observability/grafana/dashboards:/etc/grafana/dashboards
+
+  aspire_dashboard:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    container_name: apire_dashboard_instance
+    ports:
+      - "18888:18888"
+      - "4317:18889"
 
 volumes:
   rabbitmq_data:
   loki_data:
+  alloy_data:
   grafana_data:
 networks:
   ojs_workers:
