@@ -125,81 +125,15 @@ services:
       networks:
         - ojs_workers
 # Monitoring
-  loki:
-    image: grafana/loki:3.1.0
-    container_name: loki_instance
-    ports:
-      - "3100:3100"
-    command: -config.file=/etc/loki/local-config.yaml
-    volumes:
-      - loki_data:/loki
-
-  alloy:
-    image: grafana/alloy:latest
-    container_name: alloy_instance
-    ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-      - "12345:12345"
-    volumes:
-      - alloy_data:/var/lib/alloy/data
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./observability/config.alloy:/etc/alloy/config.alloy
-    env_file:
-      - ./Docker/envs/alloy.env
-    command:
-        - run
-        - --server.http.listen-addr=0.0.0.0:12345
-        - --storage.path=/var/lib/alloy/data
-        - /etc/alloy/config.alloy
-    depends_on:
-      - loki
-      - tempo
-      - prometheus
-
-  tempo:
-    image: grafana/tempo:2.4.1
-    container_name: tempo_instance
-    command: [ "-config.file=/etc/tempo.yaml" ]
-    volumes:
-      - ./observability/tempo.yaml:/etc/tempo.yaml
-
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus_instance
-    ports:
-      - "9090:9090"
-    command:
-      - --web.enable-remote-write-receiver
-      - --config.file=/etc/prometheus/prometheus.yml
-
-  grafana:
-    image: grafana/grafana:latest
-    container_name: grafana_instance
-    ports:
-      - "3000:3000"
-    environment:
-      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-    volumes:
-      - grafana_data:/var/lib/grafana
-      - ./observability/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./observability/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
-      - ./observability/grafana/dashboards:/etc/grafana/dashboards
-
-  aspire_dashboard:
+  dashboard:
     image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
-    container_name: apire_dashboard_instance
+    container_name: dashboard_instance
     ports:
       - "18888:18888"
       - "4317:18889"
 
 volumes:
   rabbitmq_data:
-  loki_data:
-  alloy_data:
-  grafana_data:
 networks:
   ojs_workers:
     driver: bridge
