@@ -8,31 +8,35 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
-using System.Collections.Generic;
+using System.Globalization;
 
 public static class WebApplicationBuilderExtensions
 {
     public static WebApplicationBuilder ConfigureOpenTelemetry(this WebApplicationBuilder builder)
     {
         var otlpEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
-        var serviceName = builder.Configuration["OTEL_SERVICE_NAME"];
 
-        builder.Host.UseSerilog((hostingContext, configuration) => configuration
-            .ReadFrom.Configuration(hostingContext.Configuration)
-            .Enrich.FromLogContext()
-            .WriteTo.Async(wt => wt.Console())
-            .WriteTo.OpenTelemetry(options =>
+        // Configure logging
+        builder.Host.UseSerilog((hostingContext, serviceProvider, configuration) =>
+        {
+            configuration
+                .ReadFrom.Configuration(hostingContext.Configuration)
+                .Enrich.FromLogContext()
+                .Enrich.WithMachineName()
+                .Enrich.WithEnvironmentName()
+                .WriteTo.Async(wt => wt.Console(formatProvider: CultureInfo.InvariantCulture));
+
+            if (otlpEndpoint != null)
             {
-                options.Endpoint = otlpEndpoint;
-                options.Protocol = OtlpProtocol.Grpc;
-
-                options.ResourceAttributes = new Dictionary<string, object>
+                configuration.WriteTo.OpenTelemetry(options =>
                 {
-                    ["service.name"] = serviceName,
-                    ["deployment.environment"] = builder.Environment.EnvironmentName.ToLower(),
-                };
-            }));
+                    options.Endpoint = otlpEndpoint;
+                    options.Protocol = OtlpProtocol.Grpc;
+                });
+            }
+        });
 
+        // Configure metrics and tracing
         var otel = builder.Services.AddOpenTelemetry();
 
         otel.WithMetrics(metrics =>
@@ -59,6 +63,7 @@ public static class WebApplicationBuilderExtensions
 
         if (otlpEndpoint != null)
         {
+            // UseOtlpExporter() will use the endpoint from the OTEL_EXPORTER_OTLP_ENDPOINT environment variable
             otel.UseOtlpExporter();
         }
 

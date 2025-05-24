@@ -8,6 +8,8 @@ using OJS.Data;
 using OJS.Servers.Administration.Middleware;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Services.Administration.Business.Contests;
+using Serilog;
+using Serilog.Events;
 using System;
 using static OJS.Common.GlobalConstants;
 using static Common.GlobalConstants.Roles;
@@ -16,6 +18,8 @@ internal static class WebApplicationExtensions
 {
     public static WebApplication ConfigureWebApplication(this WebApplication app, IConfiguration configuration)
     {
+        SetupRequestLoggingBehavior(app);
+
         app.UseCorsPolicy();
         app.UseDefaults();
 
@@ -58,6 +62,34 @@ internal static class WebApplicationExtensions
 
         return app
             .UseAndMapHangfireDashboard();
+    }
+
+    private static void SetupRequestLoggingBehavior(WebApplication app)
+    {
+        app.UseSerilogRequestLogging(options =>
+        {
+            options.GetLevel = (httpContext, elapsed, ex) =>
+            {
+                var isSuccessfulHealthCheck = httpContext.Request.Path.StartsWithSegments("/api/health") &&
+                                              httpContext.Response.StatusCode == StatusCodes.Status200OK;
+
+                // Suppress successful health checks
+                if (httpContext.Request.Path.StartsWithSegments("/healthchecks-ui")
+                    || isSuccessfulHealthCheck)
+                {
+                    return LogEventLevel.Debug;
+                }
+
+                if (TimeSpan.FromMilliseconds(elapsed) > TimeSpan.FromSeconds(1))
+                {
+                    return LogEventLevel.Warning;
+                }
+
+                return ex != null || httpContext.Response.StatusCode >= 500
+                    ? LogEventLevel.Error
+                    : LogEventLevel.Information;
+            };
+        });
     }
 
     private static WebApplication SeedSettings(this WebApplication app)
