@@ -5,12 +5,15 @@ namespace OJS.Servers.Infrastructure.Extensions
     using HealthChecks.UI.Client;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+    using Microsoft.AspNetCore.Http;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using OJS.Common;
     using OJS.Servers.Infrastructure.Filters;
     using OJS.Services.Infrastructure;
+    using Serilog;
+    using Serilog.Events;
     using System;
     using static OJS.Common.GlobalConstants.Urls;
     using static OJS.Servers.Infrastructure.ServerConstants.Authorization;
@@ -19,6 +22,8 @@ namespace OJS.Servers.Infrastructure.Extensions
     {
         public static WebApplication UseDefaults(this WebApplication app)
         {
+            SetupRequestLoggingBehavior(app);
+
             // Exception is handled in the exception handler, configured in services.
             // Passing empty lambda as a workaround suggested here: https://github.com/dotnet/aspnetcore/issues/51888
             app.UseExceptionHandler(_ => { });
@@ -102,6 +107,33 @@ namespace OJS.Servers.Infrastructure.Extensions
             AutoMapperSingleton.Init(mapper);
 
             return app;
+        }
+
+        private static void SetupRequestLoggingBehavior(WebApplication app)
+        {
+            app.UseSerilogRequestLogging(options =>
+            {
+                options.GetLevel = (httpContext, elapsed, ex) =>
+                {
+                    var isSuccessfulHealthCheck = httpContext.Request.Path.StartsWithSegments("/api/health") &&
+                                                  httpContext.Response.StatusCode == StatusCodes.Status200OK;
+
+                    if (isSuccessfulHealthCheck)
+                    {
+                        // Suppress successful health checks
+                        return LogEventLevel.Debug;
+                    }
+
+                    if (TimeSpan.FromMilliseconds(elapsed) > TimeSpan.FromSeconds(1))
+                    {
+                        return LogEventLevel.Warning;
+                    }
+
+                    return ex != null || httpContext.Response.StatusCode >= 500
+                        ? LogEventLevel.Error
+                        : LogEventLevel.Information;
+                };
+            });
         }
     }
 }
