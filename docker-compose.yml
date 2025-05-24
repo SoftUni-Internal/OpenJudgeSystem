@@ -130,7 +130,7 @@ services:
     container_name: dashboard_instance
     ports:
       - "18888:18888"
-      - "4317:18889"
+      - "18889:18889"
 
 volumes:
   rabbitmq_data:
