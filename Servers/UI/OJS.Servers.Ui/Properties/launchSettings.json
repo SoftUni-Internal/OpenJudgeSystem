@@ -23,7 +23,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "OTEL_EXPORTER_OTLP_ENDPOINT": "http://127.0.0.1:4317",
-        "OTEL_RESOURCE_ATTRIBUTES": "service.name=ui-api, deployment.environment=development"
+        "OTEL_RESOURCE_ATTRIBUTES": "service.name=ui-api, deployment.environment=local"
       }
     }
   }
