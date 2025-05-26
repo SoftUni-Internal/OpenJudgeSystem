@@ -22,7 +22,7 @@
       "applicationUrl": "http://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://localhost:18889",
+        "OTEL_EXPORTER_OTLP_ENDPOINT": "http://127.0.0.1:18889",
         "OTEL_RESOURCE_ATTRIBUTES": "service.name=administration-api, deployment.environment=local"
       }
     }
