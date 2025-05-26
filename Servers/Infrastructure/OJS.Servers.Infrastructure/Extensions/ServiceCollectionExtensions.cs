@@ -273,7 +273,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                 });
             });
 
-            var clientName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty + ".Client";
+            var clientName = (Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty) + "_client";
 
             services
                 .AddSingleton<IConnection>(_ =>
