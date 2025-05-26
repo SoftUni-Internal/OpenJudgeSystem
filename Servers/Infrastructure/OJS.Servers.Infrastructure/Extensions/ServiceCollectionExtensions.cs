@@ -273,6 +273,8 @@ namespace OJS.Servers.Infrastructure.Extensions
                 });
             });
 
+            var clientName = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty + ".Client";
+
             services
                 .AddSingleton<IConnection>(_ =>
                     new ConnectionFactory
@@ -281,6 +283,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                         VirtualHost = messageQueueConfig.VirtualHost,
                         UserName = messageQueueConfig.User,
                         Password = messageQueueConfig.Password,
+                        ClientProvidedName = clientName,
                     }.CreateConnectionAsync()
                         .GetAwaiter()
                         .GetResult())
