@@ -17,7 +17,7 @@ public static class WebApplicationBuilderExtensions
         var otlpEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
 
         // Configure logging
-        builder.Host.UseSerilog((hostingContext, serviceProvider, configuration) =>
+        builder.Host.UseSerilog((hostingContext, configuration) =>
         {
             configuration
                 .ReadFrom.Configuration(hostingContext.Configuration)
