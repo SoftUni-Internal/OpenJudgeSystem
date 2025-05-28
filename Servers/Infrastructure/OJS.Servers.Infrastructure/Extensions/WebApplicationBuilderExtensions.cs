@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
@@ -38,6 +39,11 @@ public static class WebApplicationBuilderExtensions
 
         // Configure metrics and tracing
         var otel = builder.Services.AddOpenTelemetry();
+
+        otel.ConfigureResource(resource =>
+            resource
+                .AddTelemetrySdk()
+                .AddEnvironmentVariableDetector());
 
         otel.WithMetrics(metrics =>
         {
