@@ -1,5 +1,7 @@
 namespace OJS.Servers.Infrastructure.Extensions;
 
+using MassTransit.Logging;
+using MassTransit.Monitoring;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -50,7 +52,8 @@ public static class WebApplicationBuilderExtensions
             metrics
                 .AddHttpClientInstrumentation()
                 .AddAspNetCoreInstrumentation()
-                .AddRuntimeInstrumentation();
+                .AddRuntimeInstrumentation()
+                .AddMeter(InstrumentationOptions.MeterName); // For MassTransit
         });
 
         otel.WithTracing(tracing =>
@@ -64,7 +67,8 @@ public static class WebApplicationBuilderExtensions
             tracing
                 .AddHttpClientInstrumentation()
                 .AddAspNetCoreInstrumentation()
-                .AddEntityFrameworkCoreInstrumentation();
+                .AddEntityFrameworkCoreInstrumentation()
+                .AddSource(DiagnosticHeaders.DefaultListenerName); // For MassTransit
         });
 
         if (otlpEndpoint != null)
