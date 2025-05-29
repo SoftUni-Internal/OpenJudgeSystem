@@ -40,7 +40,7 @@
         public ActionResult Login(string returnUrl)
         {
             this.ViewBag.ReturnUrl = returnUrl;
-            return this.View();
+            return this.View(new LoginViewModel());
         }
 
         [HttpPost]
