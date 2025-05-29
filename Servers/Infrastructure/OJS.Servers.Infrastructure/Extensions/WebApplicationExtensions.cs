@@ -11,6 +11,7 @@ namespace OJS.Servers.Infrastructure.Extensions
     using Microsoft.Extensions.DependencyInjection;
     using OJS.Common;
     using OJS.Servers.Infrastructure.Filters;
+    using OJS.Servers.Infrastructure.Middleware;
     using OJS.Services.Infrastructure;
     using Serilog;
     using Serilog.Events;
@@ -23,6 +24,9 @@ namespace OJS.Servers.Infrastructure.Extensions
         public static WebApplication UseDefaults(this WebApplication app)
         {
             SetupRequestLoggingBehavior(app);
+
+            // Add correlation ID middleware early in the pipeline
+            app.UseMiddleware<CorrelationIdMiddleware>();
 
             // Exception is handled in the exception handler, configured in services.
             // Passing empty lambda as a workaround suggested here: https://github.com/dotnet/aspnetcore/issues/51888

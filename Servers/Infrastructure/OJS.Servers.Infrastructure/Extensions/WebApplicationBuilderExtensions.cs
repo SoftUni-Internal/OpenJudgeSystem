@@ -12,6 +12,7 @@ using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Sinks.OpenTelemetry;
 using System.Globalization;
+using OJS.Servers.Infrastructure.Telemetry;
 
 public static class WebApplicationBuilderExtensions
 {
@@ -60,15 +61,28 @@ public static class WebApplicationBuilderExtensions
         {
             if (builder.Environment.IsDevelopment())
             {
-                // In development, always sample traces, so we can see them in the console
                 tracing.SetSampler<AlwaysOnSampler>();
             }
 
             tracing
-                .AddHttpClientInstrumentation()
-                .AddAspNetCoreInstrumentation()
-                .AddEntityFrameworkCoreInstrumentation()
                 .AddSource(DiagnosticHeaders.DefaultListenerName); // For MassTransit
+
+            // Add all OJS ActivitySources
+            foreach (var sourceName in OjsActivitySources.AllSourceNames)
+            {
+                tracing.AddSource(sourceName);
+            }
+
+            tracing
+                .AddHttpClientInstrumentation(options =>
+                {
+                    options.RecordException = true;
+                })
+                .AddAspNetCoreInstrumentation(options =>
+                {
+                    options.RecordException = true;
+                })
+                .AddEntityFrameworkCoreInstrumentation();
         });
 
         if (otlpEndpoint != null)

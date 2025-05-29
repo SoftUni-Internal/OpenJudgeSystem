@@ -38,6 +38,7 @@ namespace OJS.Servers.Infrastructure.Extensions
     using OJS.Services.Infrastructure.ResilienceStrategies;
     using OJS.Services.Infrastructure.ResilienceStrategies.Implementations;
     using OJS.Services.Infrastructure.ResilienceStrategies.Listeners;
+    using OJS.Services.Common.Telemetry;
     using Polly;
     using Polly.CircuitBreaker;
     using Polly.Retry;
@@ -74,6 +75,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .AddAutoMapperConfigurations<TStartup>()
                 .AddConventionServices<TStartup>()
                 .AddHttpContextServices()
+                .AddTracing()
                 .AddOptionsWithValidation<ApplicationConfig>()
                 .AddOptionsWithValidation<HealthCheckConfig>();
 
@@ -298,6 +300,9 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .AddHttpContextAccessor()
                 .AddTransient(s =>
                     s.GetRequiredService<IHttpContextAccessor>().HttpContext?.User ?? new ClaimsPrincipal());
+
+        public static IServiceCollection AddTracing(this IServiceCollection services)
+            => services.AddTransient<ITracingService, TracingService>();
 
         public static IServiceCollection AddOptionsWithValidation<T>(this IServiceCollection services)
             where T : BaseConfig
