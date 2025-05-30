@@ -89,12 +89,10 @@ public static class OjsActivitySources
     public static class SubmissionActivities
     {
         public const string Received = "submission.received";
-        public const string Validation = "submission.validation";
         public const string Queued = "submission.queued";
-        public const string Processing = "submission.processing";
+        public const string ProcessingStarted = "submission.processing_started";
         public const string Execution = "submission.execution";
-        public const string Completed = "submission.completed";
-        public const string Failed = "submission.failed";
+        public const string ProcessingExecutionResult = "submission.processing_result";
         public const string Retest = "submission.retest";
     }
 

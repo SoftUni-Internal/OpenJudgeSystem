@@ -36,17 +36,12 @@ public class SubmissionsForProcessingConsumer(
     public Task Consume(ConsumeContext<SubmissionForProcessingPubSubModel> context)
         => tracingService.TraceAsync(
             OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.Processing,
+            OjsActivitySources.SubmissionActivities.Execution,
             async activity =>
             {
                 var startedExecutionOn = dates.GetUtcNowOffset();
                 var workerName = hostInfoService.GetHostIp();
 
-                // Enrich activity with submission and worker context
-                activity?.SetTag(OjsActivitySources.CommonTags.SubmissionId, context.Message.Id);
-                activity?.SetTag(OjsActivitySources.CommonTags.ProblemId, context.Message.TestsExecutionDetails?.TaskId);
-                activity?.SetTag(OjsActivitySources.CommonTags.Operation, "process_submission");
-                activity?.SetTag(OjsActivitySources.CommonTags.Component, "worker_consumer");
                 activity?.SetTag("worker.name", workerName);
                 activity?.SetTag("submission.verbosely", context.Message.Verbosely);
                 activity?.SetTag("submission.strategy", context.Message.ExecutionStrategy);
@@ -71,23 +66,14 @@ public class SubmissionsForProcessingConsumer(
                     var submission = context.Message.Map<SubmissionServiceModel>();
                     logger.LogExecutingSubmission(submission.Id, submission.TrimDetails());
 
-                    // Execute submission directly - the restored activity is already the parent
-                    // EntityFramework and MassTransit will automatically create child activities under Activity.Current
-                    if (activity != null)
-                    {
-                        // Add execution-specific context to the main processing activity
-                        tracingService.AddTechnicalContext(activity, "execute_code", "submission_executor");
-                        activity.SetTag("submission.content_length", submission.FileContent?.Length ?? 0);
-                    }
+                    activity?.SetTag("submission.content_length", submission.FileContent?.Length ?? 0);
 
-                    // Execute submission - EF and MassTransit traces will be children of the current activity
                     var executionResult = await submissionsBusiness.ExecuteSubmission(submission);
 
                     logger.LogProducedExecutionResult(submission.Id, executionResult);
                     result.SetExecutionResult(executionResult);
 
-                    // Add success metrics
-                    activity?.SetTag("processing.result", "success");
+                    activity?.SetTag("execution.result", "success");
                     activity?.SetTag("execution.points", executionResult.TaskResult?.Points ?? 0);
                 }
                 catch (Exception exception)
@@ -130,6 +116,6 @@ public class SubmissionsForProcessingConsumer(
                 logger.LogPublishedProcessedSubmission(context.Message.Id, result.WorkerName);
             },
             tags: null,
-            BusinessContext.ForSubmission(context.Message.Id),
+            BusinessContext.ForSubmission(context.Message.Id, context.Message.TestsExecutionDetails?.TaskId),
             continueFromMessageHeaders: context);
 }
