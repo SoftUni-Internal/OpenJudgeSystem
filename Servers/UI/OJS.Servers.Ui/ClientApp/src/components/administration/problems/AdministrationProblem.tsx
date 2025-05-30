@@ -59,7 +59,7 @@ const AdministrationProblem = () => {
 
     const returnResourceInProblemView = (key:string) => (
         <div id={PROBLEM_LISTED_DATA.RESOURCES}>
-            <ResourcesInProblemView key={key} problemId={Number(problemId)} />
+            <ResourcesInProblemView key={key} parentId={Number(problemId)} isForContest={false} />
         </div>
     );
 

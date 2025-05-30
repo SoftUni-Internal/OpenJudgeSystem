@@ -501,6 +501,25 @@ const ContestSolutionSubmitPage = () => {
         );
     }, [ selectedContestDetailsProblem ]);
 
+    const renderContestResources = useCallback(() => {
+        if (!contest?.resources || contest.resources.length === 0) {
+            return null;
+        }
+
+        return (
+            <div className={styles.contestResourcesWrapper}>
+                <span className={styles.contestResourcesLabel}>Contest Resources:</span>
+                {contest.resources.map((resource: IProblemResourceType) => (
+                    <ProblemResource
+                      key={`contest-resource-${resource.id}`}
+                      resource={resource}
+                      problem={contest.name}
+                    />
+                ))}
+            </div>
+        );
+    }, [ contest ]);
+
     const renderProblemResourcesAndParameters = useCallback(() => {
         if (!selectedContestDetailsProblem) {
             return;
@@ -820,6 +839,7 @@ const ContestSolutionSubmitPage = () => {
                     Show all results
                 </div>
             </div>
+            {renderContestResources()}
             <div className={styles.problemsAndEditorWrapper}>
                 <ContestProblems
                   problems={updatedProblems || problems || []}

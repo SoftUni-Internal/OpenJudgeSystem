@@ -3,13 +3,13 @@ import { useLocation } from 'react-router';
 
 import TabsInView from '../common/tabs/TabsInView';
 
-import ProblemResourceForm from './problem-resource-form/ProblemResourceForm';
+import ResourceForm from './problem-resource-form/ResourceForm';
 
-const AdministrationProblemResource = () => {
+const AdministrationResource = () => {
     const { pathname } = useLocation();
     const [ , , , problemId ] = pathname.split('/');
     const returnProblemForm = () => (
-        <ProblemResourceForm id={Number(problemId)} />
+        <ResourceForm id={Number(problemId)} />
     );
 
     return (
@@ -19,4 +19,4 @@ const AdministrationProblemResource = () => {
     );
 };
 
-export default AdministrationProblemResource;
+export default AdministrationResource;

@@ -1,21 +1,17 @@
 ﻿namespace OJS.Services.Administration.Models.ProblemResources;
 
 using OJS.Common.Enumerations;
-using OJS.Data.Models.Problems;
 using OJS.Services.Infrastructure.Models.Mapping;
 using System;
+using OJS.Data.Models.Resources;
 
-public class ProblemResourceInListModel : IMapFrom<ProblemResource>
+public class ResourceInListModel : IMapFrom<Resource>
 {
     public int Id { get; set; }
 
     public string Name { get; set; } = string.Empty;
 
     public ProblemResourceType Type { get; set; }
-
-    public int ProblemId { get; set; }
-
-    public string? ProblemName { get; set; }
 
     public string? FileExtension { get; set; }
 

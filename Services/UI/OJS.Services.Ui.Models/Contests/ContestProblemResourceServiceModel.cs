@@ -3,6 +3,7 @@
     using AutoMapper;
     using OJS.Common.Enumerations;
     using OJS.Data.Models.Problems;
+    using OJS.Data.Models.Resources;
     using OJS.Services.Infrastructure.Models.Mapping;
 
     public class ContestProblemResourceServiceModel : IMapExplicitly

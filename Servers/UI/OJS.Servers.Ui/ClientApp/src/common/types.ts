@@ -140,10 +140,11 @@ interface IProblemResourceAdministrationModel {
     orderBy: number;
     file: File | null;
     hasFile: boolean;
-    problemId: number;
+    parentId: number;
+    resourceType: string;
 }
 
-interface IProblemResouceInLinstModel {
+interface IResourceInListModel {
     id: number;
     name: string;
     link: string;
@@ -151,8 +152,9 @@ interface IProblemResouceInLinstModel {
     fileExtension: string;
     orderBy: number;
     isDeleted: boolean;
-    problemId: number;
+    parentId: number;
     problemName: string;
+    contestName: string;
     createdOn: Date;
     modifiedOn: Date;
 }
@@ -192,6 +194,7 @@ interface IContestDetailsResponseType {
     description: string;
     type: ContestVariation;
     problems: IProblemType[];
+    resources: IProblemResourceType[];
     canViewResults: boolean;
     isOnlineExam: boolean;
     isWithRandomTasks: boolean;
@@ -331,6 +334,7 @@ interface ICompeteContestResponseType {
     contest: IContestDetailsResponseType | null;
     shouldEnterPassword: boolean;
     allowMentor: boolean;
+    resources: IProblemResourceType[];
 }
 
 interface IPagedResultType<TItem> {
@@ -910,7 +914,7 @@ export type {
     IIndexContestCategoriesType,
     IContestCategoryAdministration,
     ITestsDropdownData,
-    IProblemResouceInLinstModel,
+    IResourceInListModel,
     IProblemResourceAdministrationModel,
     ITestsUploadModel,
     IFileModel,

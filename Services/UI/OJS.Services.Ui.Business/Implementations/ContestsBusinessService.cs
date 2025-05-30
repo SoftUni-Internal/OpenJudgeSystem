@@ -9,6 +9,7 @@ namespace OJS.Services.Ui.Business.Implementations
     using FluentExtensions.Extensions;
     using Microsoft.EntityFrameworkCore;
     using OJS.Data.Models.Participants;
+    using OJS.Data.Models.Resources;
     using OJS.Services.Common;
     using OJS.Services.Common.Data;
     using OJS.Services.Common.Models.Contests;
@@ -38,6 +39,7 @@ namespace OJS.Services.Ui.Business.Implementations
         private readonly IContestsCacheService contestsCacheService;
         private readonly ILecturersInContestsCacheService lecturersInContestsCache;
         private readonly IContestDetailsValidationService contestDetailsValidationService;
+        private readonly IContestResourcesDataService contestResourcesDataService;
 
         public ContestsBusinessService(
             IContestsDataService contestsData,
@@ -51,7 +53,8 @@ namespace OJS.Services.Ui.Business.Implementations
             IContestParticipantsCacheService contestParticipantsCacheService,
             IContestsCacheService contestsCacheService,
             ILecturersInContestsCacheService lecturersInContestsCache,
-            IContestDetailsValidationService contestDetailsValidationService)
+            IContestDetailsValidationService contestDetailsValidationService,
+            IContestResourcesDataService contestResourcesDataService)
         {
             this.contestsData = contestsData;
             this.activityService = activityService;
@@ -65,6 +68,7 @@ namespace OJS.Services.Ui.Business.Implementations
             this.contestsCacheService = contestsCacheService;
             this.lecturersInContestsCache = lecturersInContestsCache;
             this.contestDetailsValidationService = contestDetailsValidationService;
+            this.contestResourcesDataService = contestResourcesDataService;
         }
 
         public async Task<ContestDetailsServiceModel> GetContestDetails(int id)
@@ -293,6 +297,12 @@ namespace OJS.Services.Ui.Business.Implementations
             var category = await this.contestCategoriesCache.GetById(contest?.CategoryId);
 
             participant.Contest = contest;
+
+            if (participant.Contest != null)
+            {
+                participant.Contest.Resources = await this.contestResourcesDataService.GetByContestQuery(model.ContestId).ToListAsync();
+            }
+
             participant.AllowMentor = category is { AllowMentor: true };
             var participantForActivity = participant.Map<ParticipantForActivityServiceModel>();
 

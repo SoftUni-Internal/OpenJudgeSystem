@@ -12,7 +12,7 @@ using static OJS.Common.GlobalConstants.HeaderKeys;
 using static OJS.Common.GlobalConstants.HeaderValues;
 using static OJS.Common.GlobalConstants.MimeTypes;
 
-public class ProblemResourcesController(IProblemResourcesBusinessService problemResourcesBusinessService)
+public class ResourcesController(IResourcesBusinessService resourcesBusinessService)
     : BaseApiController
 {
     /// <summary>
@@ -26,7 +26,7 @@ public class ProblemResourcesController(IProblemResourcesBusinessService problem
     [ProducesResponseType(typeof(FileContentResult), Status200OK)]
     public async Task<IActionResult> GetResource(int id)
     {
-        var resource = await problemResourcesBusinessService.GetResource(id);
+        var resource = await resourcesBusinessService.GetResource(id);
 
         this.Response.Headers.Append(ContentDisposition, $"{ContentDispositionFileNameUtf8}{Uri.EscapeDataString(resource.Name)}.{resource.FileExtension}");
         return this.File(resource.File!, ApplicationOctetStream);

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import ResourcesInProblemView
+    from 'src/components/administration/problems/problem-resources-in-problem-view/ResourcesInProblemView';
 
 import { ContestVariation } from '../../../common/contest-types';
 import useScrollToTab from '../../../hooks/common/use-scroll-to-tab';
@@ -15,7 +17,8 @@ import ProblemsInContestView from './problems-in-contest-view/ProblemsInContestV
 
 enum CONTEST_LISTED_DATA {
     PROBLEMS = 'problems',
-    PARTICIPANTS = 'participants'
+    PARTICIPANTS = 'participants',
+    RESOURCES = 'resources'
 }
 
 const AdministrationContestPage = () => {
@@ -49,6 +52,12 @@ const AdministrationContestPage = () => {
           setParentSuccessMessage={setSuccessMessage}
           skipGettingContest
         />
+    );
+
+    const returnResourceInProblemView = (key:string) => (
+        <div id={CONTEST_LISTED_DATA.RESOURCES}>
+            <ResourcesInProblemView key={key} parentId={Number(contestId)} isForContest />
+        </div>
     );
 
     const renderProblemsInContestView = (key: string) => (
@@ -90,6 +99,7 @@ const AdministrationContestPage = () => {
               tabs={[
                   { value: CONTEST_LISTED_DATA.PROBLEMS, label: 'Problems', node: renderProblemsInContestView },
                   { value: CONTEST_LISTED_DATA.PARTICIPANTS, label: 'Participants', node: renderParticipantsInContestView },
+                  { value: CONTEST_LISTED_DATA.RESOURCES, label: 'Resources', node: returnResourceInProblemView },
               ]}
             />
         </>

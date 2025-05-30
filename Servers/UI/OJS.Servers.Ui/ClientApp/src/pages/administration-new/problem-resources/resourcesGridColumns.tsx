@@ -6,13 +6,13 @@ import { ProblemResourceType } from '../../../common/enums';
 import { CREATED_ON, MODIFIED_ON, PROBLEM_RESOURCE } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
 import { IEnumType } from '../../../common/types';
-import { NEW_ADMINISTRATION_PATH, PROBLEM_RESOURCES_PATH, PROBLEMS_PATH } from '../../../common/urls/administration-urls';
+import { NEW_ADMINISTRATION_PATH, PROBLEM_RESOURCES_PATH } from '../../../common/urls/administration-urls';
 import DeleteButton from '../../../components/administration/common/delete/DeleteButton';
 import DownloadIconButton from '../../../components/administration/common/download/DownloadIconButton';
 import QuickEditButton from '../../../components/administration/common/edit/QuickEditButton';
 import RedirectButton from '../../../components/administration/common/edit/RedirectButton';
 import { AdministrationGridColDef } from '../../../components/administration/utils/mui-utils';
-import { useDeleteProblemResourceMutation, useDownloadResourceQuery } from '../../../redux/services/admin/problemResourcesAdminService';
+import { useDeleteResourceMutation, useDownloadResourceQuery } from '../../../redux/services/admin/resourcesAdminService';
 import { adminFormatDate } from '../../../utils/administration/administration-dates';
 import { getStringObjectKeys } from '../../../utils/object-utils';
 
@@ -81,32 +81,6 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
-        field: 'problemId',
-        headerName: 'Problem Id',
-        flex: 0,
-        type: 'number',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
-    },
-    {
-        field: 'problemName',
-        headerName: 'Problem Name',
-        flex: 0.5,
-        type: 'string',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        renderCell: (params) => (
-            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
-                {params.row.problemName}
-            </Link>
-        ),
-    },
-    {
         field: 'isDeleted',
         headerName: 'Is Deleted',
         flex: 1,
@@ -161,7 +135,7 @@ export const returnProblemResourceNonFilterableColumns = (
                   id={Number(params.row.id)}
                   name={`${PROBLEM_RESOURCE}`}
                   text={DELETE_CONFIRMATION_MESSAGE}
-                  mutation={useDeleteProblemResourceMutation}
+                  mutation={useDeleteResourceMutation}
                   onSuccess={onSuccessfulDelete}
                   setParentSuccessMessage={setParentSuccessMessage}
                 />

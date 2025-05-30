@@ -11,6 +11,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using OJS.Data.Models.Resources;
     using Resource = OJS.Common.Resources.ProblemGroupsBusiness;
     using SharedResource = OJS.Common.Resources.ContestsGeneral;
     using OJS.Services.Infrastructure.Extensions;

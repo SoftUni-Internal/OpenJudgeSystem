@@ -118,7 +118,7 @@ namespace OJS.Servers.Infrastructure.Extensions
             services
                 .AddDbContext<TDbContext>(options =>
                 {
-                    options.UseSqlServer(connectionString);
+                    options.UseSqlServer(connectionString, opts => opts.CommandTimeout(600));
                 });
 
             services

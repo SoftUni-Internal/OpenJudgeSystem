@@ -3,16 +3,16 @@ import { useSearchParams } from 'react-router-dom';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
-import ProblemResourceForm from '../../../components/administration/problem-resources/problem-resource-form/ProblemResourceForm';
+import ResourceForm from '../../../components/administration/problem-resources/problem-resource-form/ResourceForm';
 import { getColors, useAdministrationTheme } from '../../../hooks/use-administration-theme-provider';
-import { useGetAllAdminProblemResourcesQuery, useLazyExportProblemResourcesToExcelQuery } from '../../../redux/services/admin/problemResourcesAdminService';
+import { useGetAllAdminResourcesQuery, useLazyExportResourcesToExcelQuery } from '../../../redux/services/admin/resourcesAdminService';
 import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
-import problemResourceFilterableColumns, { returnProblemResourceNonFilterableColumns } from './problemResourcesGridColumns';
+import problemResourceFilterableColumns, { returnProblemResourceNonFilterableColumns } from './resourcesGridColumns';
 
-const AdministrationProblemResourcesPage = () => {
+const AdministrationResourcesPage = () => {
     const [ searchParams ] = useSearchParams();
     const { themeMode } = useAdministrationTheme();
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
@@ -22,7 +22,7 @@ const AdministrationProblemResourcesPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
-    const { refetch: retakeData, data, error } = useGetAllAdminProblemResourcesQuery(queryParams);
+    const { refetch: retakeData, data, error } = useGetAllAdminResourcesQuery(queryParams);
 
     const onClose = () => {
         retakeData();
@@ -41,7 +41,7 @@ const AdministrationProblemResourcesPage = () => {
           open={openEditModal}
           onClose={onClose}
         >
-            <ProblemResourceForm
+            <ResourceForm
               id={problemResourceId}
               onSuccess={onClose}
               setParentSuccessMessage={setSuccessMessage}
@@ -62,9 +62,9 @@ const AdministrationProblemResourcesPage = () => {
               modals={[
                   { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i) },
               ]}
-              excelMutation={useLazyExportProblemResourcesToExcelQuery}
+              excelMutation={useLazyExportResourcesToExcelQuery}
             />
         </>
     );
 };
-export default AdministrationProblemResourcesPage;
+export default AdministrationResourcesPage;

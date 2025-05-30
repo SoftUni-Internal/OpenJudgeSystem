@@ -10,11 +10,11 @@ import { IProblemResourceAdministrationModel } from '../../../../common/types';
 import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
 import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import {
-    useCreateProblemResourceMutation,
+    useCreateResourceMutation,
     useDownloadResourceQuery,
-    useGetProblemResourceByIdQuery,
-    useUpdateProblemResourceMutation,
-} from '../../../../redux/services/admin/problemResourcesAdminService';
+    useGetResourceByIdQuery,
+    useUpdateResourceMutation,
+} from '../../../../redux/services/admin/resourcesAdminService';
 import downloadFile from '../../../../utils/file-download-utils';
 import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
@@ -32,13 +32,14 @@ enum PROBLEM_RESOURCE_LISTED_DATA {
 
 interface IProblemResourceFormProps {
     id: number;
+    isForContest?: boolean;
     isEditMode?: boolean;
     problemId? : number;
     onSuccess?: Function;
     setParentSuccessMessage?: Function;
 }
-const ProblemResourceForm = (props :IProblemResourceFormProps) => {
-    const { id, isEditMode = true, problemId = 0, onSuccess, setParentSuccessMessage } = props;
+const ResourceForm = (props :IProblemResourceFormProps) => {
+    const { id, isForContest, isEditMode = true, problemId = 0, onSuccess, setParentSuccessMessage } = props;
 
     const [ currentResource, setCurrentResource ] = useState<IProblemResourceAdministrationModel>({
         id: 0,
@@ -48,8 +49,14 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
         type: ProblemResourceType.ProblemDescription,
         file: null,
         hasFile: false,
-        problemId: 0,
+        parentId: 0,
+        resourceType: isEditMode
+            ? ''
+            : isForContest
+                ? 'ContestResource'
+                : 'ProblemResource',
     });
+
     const [ tabName, setTabName ] = useState(PROBLEM_RESOURCE_LISTED_DATA.LINK);
     const [ skipDownload, setSkipDownload ] = useState<boolean>(true);
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
@@ -60,7 +67,7 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
         error: resourceError,
         isLoading: isGetting,
         refetch: refetchResource,
-    } = useGetProblemResourceByIdQuery(id, { skip: !isEditMode });
+    } = useGetResourceByIdQuery(id, { skip: !isEditMode });
 
     const [
         create,
@@ -70,7 +77,7 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
             isSuccess: isSuccessfullyCreated,
             isLoading: isCreating,
         },
-    ] = useCreateProblemResourceMutation();
+    ] = useCreateResourceMutation();
 
     const [
         update,
@@ -79,7 +86,7 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
             error: updateErrorData,
             isSuccess: isSuccessfullyUpdated,
             isLoading: isUpdating,
-        } ] = useUpdateProblemResourceMutation();
+        } ] = useUpdateResourceMutation();
 
     const {
         data: downloadData,
@@ -171,16 +178,17 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
         formData.append('orderBy', currentResource.orderBy?.toString() || '');
         formData.append('link', currentResource.link || '');
         formData.append('type', currentResource.type.toString());
+        formData.append('resourceType', currentResource.resourceType.toString());
 
         if (currentResource.file) {
             formData.append('file', currentResource.file);
         }
         if (isEditMode) {
-            formData.append('problemId', currentResource.problemId?.toString() || '');
+            formData.append('parentId', currentResource.parentId?.toString() || '');
 
             update(formData);
         } else {
-            formData.append('problemId', problemId?.toString() || '');
+            formData.append('parentId', problemId?.toString() || '');
 
             create(formData);
         }
@@ -303,4 +311,4 @@ const ProblemResourceForm = (props :IProblemResourceFormProps) => {
         </>
     );
 };
-export default ProblemResourceForm;
+export default ResourceForm;

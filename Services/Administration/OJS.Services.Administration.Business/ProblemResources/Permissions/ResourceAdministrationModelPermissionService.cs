@@ -8,13 +8,14 @@ using OJS.Services.Administration.Models.ProblemResources;
 using OJS.Services.Common.Models.Users;
 using System.Linq;
 using System.Threading.Tasks;
+using OJS.Data.Models.Resources;
 
-public class ProblemResourceAdministrationModelPermissionService : IEntityPermissionsService<ProblemResource, ProblemResourceAdministrationModel>
+public class ResourceAdministrationModelPermissionService : IEntityPermissionsService<Resource, ResourceAdministrationModel>
 {
     private readonly IProblemsDataService problemsDataService;
     private readonly IContestsBusinessService contestsBusinessService;
 
-    public ProblemResourceAdministrationModelPermissionService(
+    public ResourceAdministrationModelPermissionService(
         IProblemsDataService problemsDataService,
         IContestsBusinessService contestsBusinessService)
     {
@@ -22,11 +23,13 @@ public class ProblemResourceAdministrationModelPermissionService : IEntityPermis
         this.contestsBusinessService = contestsBusinessService;
     }
 
-    public async Task<bool> HasPermission(UserInfoModel user, ProblemResourceAdministrationModel model, string operation)
+    public async Task<bool> HasPermission(UserInfoModel user, ResourceAdministrationModel model, string operation)
     {
-        var contestId = await this.problemsDataService.GetByIdQuery(model.ProblemId)
-            .Select(p => p.ProblemGroup.ContestId)
-            .FirstOrDefaultAsync();
+        var contestId = model.ResourceType == nameof(ProblemResource)
+            ? await this.problemsDataService.GetByIdQuery(model.ParentId)
+                .Select(p => p.ProblemGroup.ContestId)
+                .FirstOrDefaultAsync()
+            : model.ParentId;
 
         return await this.contestsBusinessService.UserHasContestPermissions(
             contestId,

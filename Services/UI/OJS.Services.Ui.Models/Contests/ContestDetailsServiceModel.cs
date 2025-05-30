@@ -8,6 +8,7 @@ using OJS.Services.Infrastructure.Models.Mapping;
 using System.Collections.Generic;
 using OJS.Services.Ui.Models.Submissions;
 using System;
+using OJS.Data.Models.Resources;
 
 public class ContestDetailsServiceModel : IMapExplicitly, ICanBeCompetedAndPracticed, IMapTo<ContestForActivityServiceModel>, IContestForActivityServiceModel
 {
@@ -73,12 +74,15 @@ public class ContestDetailsServiceModel : IMapExplicitly, ICanBeCompetedAndPract
 
     public ICollection<ContestProblemServiceModel> Problems { get; set; } = [];
 
+    public virtual ICollection<ContestResource> Resources { get; set; } = [];
+
     public void RegisterMappings(IProfileExpression configuration) =>
         configuration
             .CreateMap<Contest, ContestDetailsServiceModel>()
             .ForMember(d => d.HasContestPassword, opt => opt.MapFrom(s => !string.IsNullOrEmpty(s.ContestPassword)))
             .ForMember(d => d.HasPracticePassword, opt => opt.MapFrom(s => !string.IsNullOrEmpty(s.PracticePassword)))
             .ForMember(d => d.Problems, opt => opt.Ignore())
+            .ForMember(d => d.Resources, opt => opt.Ignore())
             .ForMember(d => d.IsAdminOrLecturerInContest, opt => opt.Ignore())
             .ForMember(d => d.CanViewCompeteResults, opt => opt.Ignore())
             .ForMember(d => d.CanViewPracticeResults, opt => opt.Ignore())

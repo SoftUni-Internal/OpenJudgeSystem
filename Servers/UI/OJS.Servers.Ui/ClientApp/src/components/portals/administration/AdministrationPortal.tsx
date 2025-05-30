@@ -86,8 +86,8 @@ import ParticipantsAdministrationPage
     from '../../../pages/administration-new/participants/ParticipantsAdministrationPage';
 import AdministrationProblemGroupsPage
     from '../../../pages/administration-new/problem-groups/AdministrationProblemGroupsPage';
-import AdministrationProblemResourcesPage
-    from '../../../pages/administration-new/problem-resources/AdministrationProblemResourcesPage';
+import AdministrationResourcesPage
+    from '../../../pages/administration-new/problem-resources/AdministrationResourcesPage';
 import AdministrationProblemsPage from '../../../pages/administration-new/problems/AdministrationProblemsPage';
 import AdministrationRolesPage from '../../../pages/administration-new/roles/AdministrationRolesPage';
 import AdministrationSettingsPage from '../../../pages/administration-new/settings/SettingsAdministrationPage';
@@ -113,7 +113,7 @@ import { useAppSelector } from '../../../redux/store';
 import AdministrationContestPage from '../../administration/contests/AdministrationContestPage';
 import AdministrationExamGroupPage from '../../administration/exam-groups/AdministrationExamGroupPage';
 import AdministrationProblemGroup from '../../administration/problem-groups/AdministrationProblemGroup';
-import AdministrationProblemResource from '../../administration/problem-resources/AdministrationProblemResource';
+import AdministrationResource from '../../administration/problem-resources/AdministrationResource';
 import AdministrationProblem from '../../administration/problems/AdministrationProblem';
 import AdministrationRole from '../../administration/roles/AdministrationRole';
 import AdministrationSubmissionTypeDocumentPage
@@ -175,7 +175,7 @@ const administrationItems = [
         visibleOnlyForAdmin: false,
     },
     {
-        name: 'Problem Resources',
+        name: 'Resources',
         icon: <GiFiles className={styles.iconSize} />,
         path: `${PROBLEM_RESOURCES_PATH}`,
         visibleOnlyForAdmin: false,
@@ -440,12 +440,12 @@ const AdministrationPortal = () => {
         },
         {
             path: `${PROBLEM_RESOURCES_PATH}`,
-            Element: AdministrationProblemResourcesPage,
+            Element: AdministrationResourcesPage,
             visibleOnlyForAdmin: false,
         },
         {
             path: `${PROBLEM_RESOURCES_PATH}/:id`,
-            Element: AdministrationProblemResource,
+            Element: AdministrationResource,
             visibleOnlyForAdmin: false,
         },
         {

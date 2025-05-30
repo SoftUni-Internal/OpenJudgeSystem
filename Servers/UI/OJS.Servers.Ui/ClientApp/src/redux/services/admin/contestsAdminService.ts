@@ -3,9 +3,9 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import {
     IContestActivity, IContestAdministration, IContestAutocomplete, IContestsBulkEdit, IFileModel, IGetAllAdminParams,
     IIndexContestsType,
-    IPagedResultType,
+    IPagedResultType, IResourceInListModel,
 } from '../../../common/types';
-import { IContestDetailsUrlParams } from '../../../common/url-types';
+import {IContestDetailsUrlParams, IGetByParentId} from '../../../common/url-types';
 import { CREATE_ENDPOINT, DELETE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, GET_ALL_ENDPOINT, GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import { SimillarityType } from '../../../pages/administration-new/submissions-simillarity/SubmissionsSimillarity';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
@@ -121,6 +121,19 @@ const contestService = createApi({
                 body: model,
             }),
         }),
+
+        getContestResources: builder.query<IPagedResultType<IResourceInListModel>, IGetByParentId>({
+            query: ({ parentId, filter, page, itemsPerPage, sorting }) => ({
+                url: `GetResources/${parentId}`,
+                params: {
+                    filter,
+                    page,
+                    itemsPerPage,
+                    sorting,
+                },
+            }),
+            keepUnusedDataFor: 5,
+        }),
     }),
 });
 
@@ -139,5 +152,6 @@ export const {
     useExportSimilaritiesToExcelMutation,
     useTransferParticipantsMutation,
     useBulkEditContestsMutation,
+    useGetContestResourcesQuery,
 } = contestService;
 export default contestService;

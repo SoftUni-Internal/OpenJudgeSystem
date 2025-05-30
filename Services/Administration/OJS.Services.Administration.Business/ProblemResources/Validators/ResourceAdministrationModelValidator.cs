@@ -3,15 +3,15 @@
 using FluentValidation;
 
 using OJS.Common.Enumerations;
-using OJS.Data.Models.Problems;
-using OJS.Services.Administration.Data;
+using OJS.Data.Models.Resources;
 using OJS.Services.Administration.Models.ProblemResources;
+using OJS.Services.Common.Data;
 using OJS.Services.Common.Data.Validation;
 
-public class ProblemResourceAdministrationModelValidator : BaseAdministrationModelValidator<ProblemResourceAdministrationModel, int, ProblemResource>
+public class ResourceAdministrationModelValidator : BaseAdministrationModelValidator<ResourceAdministrationModel, int, Resource>
 {
-    public ProblemResourceAdministrationModelValidator(IProblemResourcesDataService problemResourcesDataService)
-        : base(problemResourcesDataService)
+    public ResourceAdministrationModelValidator(IDataService<Resource> resourcesDataService)
+        : base(resourcesDataService)
     {
         this.RuleFor(model => model.Name)
             .NotNull()
@@ -19,7 +19,7 @@ public class ProblemResourceAdministrationModelValidator : BaseAdministrationMod
             .WithMessage("The resource's name is mandatory.")
             .When(x => x is { OperationType: CrudOperationType.Create or CrudOperationType.Update });
 
-        this.RuleFor(model => model.ProblemId)
+        this.RuleFor(model => model.ParentId)
             .GreaterThanOrEqualTo(0)
             .WithMessage("The Problem Id cannot be less than 0.")
             .When(x => x is { OperationType: CrudOperationType.Create or CrudOperationType.Update });
@@ -35,7 +35,7 @@ public class ProblemResourceAdministrationModelValidator : BaseAdministrationMod
             .When(x => x is { OperationType: CrudOperationType.Create });
     }
 
-    private static bool NotContainBothLinkAndFile(ProblemResourceAdministrationModel model)
+    private static bool NotContainBothLinkAndFile(ResourceAdministrationModel model)
     {
         if (model.File != null && !string.IsNullOrEmpty(model.Link))
         {
@@ -45,6 +45,6 @@ public class ProblemResourceAdministrationModelValidator : BaseAdministrationMod
         return true;
     }
 
-    private static bool ContainEitherLinkOrFile(ProblemResourceAdministrationModel model)
+    private static bool ContainEitherLinkOrFile(ResourceAdministrationModel model)
         => !string.IsNullOrEmpty(model.Link) || model.File is { Length: > 0 };
 }

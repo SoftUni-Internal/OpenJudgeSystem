@@ -2,11 +2,12 @@
 {
     using OJS.Data;
     using OJS.Data.Models.Problems;
+    using OJS.Data.Models.Resources;
     using OJS.Services.Common.Data.Implementations;
 
-    public class ProblemResourcesDataService : DataService<ProblemResource>, IProblemResourcesDataService
+    public class ResourcesDataService : DataService<ProblemResource>, IProblemResourcesDataService
     {
-        public ProblemResourcesDataService(OjsDbContext problemResources)
+        public ResourcesDataService(OjsDbContext problemResources)
             : base(problemResources)
         {
         }
