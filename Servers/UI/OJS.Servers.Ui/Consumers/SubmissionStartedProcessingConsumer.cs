@@ -4,30 +4,43 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using OJS.Common.Enumerations;
 using OJS.PubSub.Worker.Models.Submissions;
+using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Services.Common.Data;
+using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure.Constants;
 using System.Threading.Tasks;
 
 public class SubmissionStartedProcessingConsumer(
     ISubmissionsForProcessingCommonDataService submissionsForProcessingCommonData,
-    ILogger<SubmissionStartedProcessingConsumer> logger)
+    ILogger<SubmissionStartedProcessingConsumer> logger,
+    ITracingService tracingService)
     : IConsumer<SubmissionStartedProcessingPubSubModel>
 {
     public async Task Consume(ConsumeContext<SubmissionStartedProcessingPubSubModel> context)
-    {
-        var submissionId = context.Message.SubmissionId;
+        => await tracingService.TraceAsync(
+            OjsActivitySources.submissions,
+            OjsActivitySources.SubmissionActivities.ProcessingStarted,
+            async activity =>
+            {
+                var submissionId = context.Message.SubmissionId;
 
-        var submissionForProcessing = await submissionsForProcessingCommonData.GetBySubmission(submissionId);
+                var submissionForProcessing = await submissionsForProcessingCommonData.GetBySubmission(submissionId);
 
-        if (submissionForProcessing == null)
-        {
-            logger.LogSubmissionForProcessingNotFoundForSubmission(null, submissionId);
-            return;
-        }
+                if (submissionForProcessing == null)
+                {
+                    activity?.SetTag("submission.submission_for_processing_state_updated", false);
+                    logger.LogSubmissionForProcessingNotFoundForSubmission(null, submissionId);
+                    return;
+                }
 
-        await submissionsForProcessingCommonData.SetProcessingState(
-            submissionForProcessing,
-            SubmissionProcessingState.Processing,
-            context.Message.ProcessingStartedAt);
-    }
+                await submissionsForProcessingCommonData.SetProcessingState(
+                    submissionForProcessing,
+                    SubmissionProcessingState.Processing,
+                    context.Message.ProcessingStartedAt);
+
+                activity?.SetTag("submission.submission_for_processing_state_updated", true);
+            },
+            tags: null,
+            BusinessContext.ForSubmission(context.Message.SubmissionId),
+            continueFromMessageHeaders: context);
 }

@@ -5,43 +5,57 @@ using System.Collections.Generic;
 using MassTransit;
 using System;
 using System.Threading;
+using System.Diagnostics;
+using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 
 public class PublisherService(IPublishEndpoint publishEndpoint) : IPublisherService
 {
     private const int DefaultTimeoutMilliseconds = 3000;
+    private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
     public async Task Publish<T>(T obj, CancellationToken? cancellationToken = null)
         where T : class
     {
-        if (cancellationToken != null)
+        var token = cancellationToken ?? new CancellationTokenSource(DefaultTimeoutMilliseconds).Token;
+
+        await publishEndpoint.Publish(obj, InjectTraceContext, token);
+    }
+
+    /// <summary>
+    /// Injects current trace context into message headers using a MessageProperties approach.
+    /// </summary>
+    private static void InjectTraceContext<T>(PublishContext<T> context) where T : class
+    {
+        var currentActivity = Activity.Current;
+        if (currentActivity == null)
         {
-            await publishEndpoint.Publish(obj, cancellationToken.Value);
             return;
         }
 
-        using var cancellationTokenSource = new CancellationTokenSource(DefaultTimeoutMilliseconds);
+        // Get the ActivityContext to inject
+        var activityContext = currentActivity.Context;
+        var contextToInject = activityContext != default ? activityContext : Activity.Current?.Context ?? default;
 
-        // Await the result of the Publish, otherwise the cancellation token source might be disposed prematurely.
-        await publishEndpoint.Publish(obj, cancellationTokenSource.Token);
+        // Inject the ActivityContext into the message headers using OpenTelemetry propagator
+        var propagationContext = new PropagationContext(contextToInject, Baggage.Current);
+        Propagator.Inject(propagationContext, context, InjectTraceContextToMessageProperties);
+        return;
+
+        static void InjectTraceContextToMessageProperties(PublishContext<T> messageProperties, string key, string value)
+        {
+            messageProperties.Headers.Set(key, value);
+        }
     }
 
     public async Task PublishBatch<T>(IReadOnlyCollection<T> objs, CancellationToken? cancellationToken = null)
         where T : class
     {
-        if (cancellationToken != null)
-        {
-            await publishEndpoint.PublishBatch(objs, cancellationToken.Value);
-            return;
-        }
-
-        // The timeout is calculated based on the number of objects to be published. The more objects, the more time is needed.
-        // The timeout is limited to 10 times the default timeout, which is taken if more than 100_000 objects are to be published.
+        // Calculate timeout based on batch size
         var objectsCountTimeoutMultiplier = (int)Math.Min(10, objs.Count * 0.1);
         var timeoutMultiplier = Math.Max(1, objectsCountTimeoutMultiplier);
+        var token = cancellationToken ?? new CancellationTokenSource(DefaultTimeoutMilliseconds * timeoutMultiplier).Token;
 
-        using var cancellationTokenSource = new CancellationTokenSource(DefaultTimeoutMilliseconds * timeoutMultiplier);
-
-        // Await the result of the Publish, otherwise the cancellation token source might be disposed prematurely.
-        await publishEndpoint.PublishBatch(objs, cancellationTokenSource.Token);
+        await publishEndpoint.PublishBatch(objs, InjectTraceContext, token);
     }
 }
