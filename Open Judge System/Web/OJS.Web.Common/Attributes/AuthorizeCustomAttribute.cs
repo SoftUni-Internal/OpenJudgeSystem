@@ -19,7 +19,7 @@
 
             var authority = request.Url.Authority;
             var loginUrl = $"{scheme}://{authority}/Account/Login";
-            string returnUrl = request.RawUrl ?? "/";
+            var returnUrl = request.RawUrl ?? "/";
 
             var redirectUrl = $"{loginUrl}?returnUrl={Uri.EscapeDataString(returnUrl)}";
 
