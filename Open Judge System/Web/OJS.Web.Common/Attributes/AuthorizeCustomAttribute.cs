@@ -12,11 +12,16 @@
             // Generate the redirect URL with HTTPS if needed.
             // When apps work on http, but Load Balancer calls them over HTTPS,
             // we want to redirect back to https.
-            string redirectUrl = request.IsSecureConnection
-                ? $"{request.UrlReferrer.Scheme}://{request.UrlReferrer.Authority}/Account/Login"
-                : "/Account/Login"; // Default behavior (HTTP)
+            var forwardedProto = request.Headers["X-Forwarded-Proto"];
+            var scheme = !string.IsNullOrEmpty(forwardedProto)
+                ? forwardedProto
+                : (request.IsSecureConnection ? "https" : "http");
 
-            redirectUrl += "?returnUrl=" + Uri.EscapeDataString(request.RawUrl);
+            var authority = request.Url.Authority;
+            var loginUrl = $"{scheme}://{authority}/Account/Login";
+            string returnUrl = request.RawUrl ?? "/";
+
+            var redirectUrl = $"{loginUrl}?returnUrl={Uri.EscapeDataString(returnUrl)}";
 
             filterContext.Result = new RedirectResult(redirectUrl);
         }
