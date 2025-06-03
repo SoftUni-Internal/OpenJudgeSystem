@@ -19,7 +19,7 @@ public abstract class Resource : DeletableAuditInfoEntity<int>, IOrderableEntity
     {
         nameof(ContestResource) => ((ContestResource)this).ContestId ?? throw new ArgumentException($"The property {nameof(ContestResource.ContestId)} is null."),
         nameof(ProblemResource) => ((ProblemResource)this).ProblemId ?? throw new ArgumentException($"The property {nameof(ProblemResource.ProblemId)} is null."),
-        _ => throw new InvalidOperationException($"Unknown resource type: {this.ResourceType}")
+        _ => throw new InvalidOperationException($"Unknown resource type: {this.ResourceType}"),
     };
 
     [Required]

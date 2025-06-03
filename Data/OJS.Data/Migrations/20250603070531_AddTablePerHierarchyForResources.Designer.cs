@@ -12,7 +12,7 @@ using OJS.Data;
 namespace OJS.Data.Migrations
 {
     [DbContext(typeof(OjsDbContext))]
-    [Migration("20250527063312_AddTablePerHierarchyForResources")]
+    [Migration("20250603070531_AddTablePerHierarchyForResources")]
     partial class AddTablePerHierarchyForResources
     {
         /// <inheritdoc />
@@ -826,7 +826,7 @@ namespace OJS.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Resource");
+                    b.ToTable("Resources");
 
                     b.HasDiscriminator<string>("ResourceType").HasValue("Resource");
 

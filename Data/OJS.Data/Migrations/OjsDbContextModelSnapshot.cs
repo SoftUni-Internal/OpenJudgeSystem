@@ -823,7 +823,7 @@ namespace OJS.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Resource");
+                    b.ToTable("Resources");
 
                     b.HasDiscriminator<string>("ResourceType").HasValue("Resource");
 
