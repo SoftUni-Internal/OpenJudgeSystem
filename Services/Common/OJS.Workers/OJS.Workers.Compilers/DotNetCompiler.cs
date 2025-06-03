@@ -38,7 +38,7 @@ namespace OJS.Workers.Compilers
         {
             var arguments = new StringBuilder();
             arguments.Append("build ");
-            arguments.Append($"-o {this.CompilationDirectory} ");
+            arguments.Append($"-o {this.CompilationDirectory} --no-restore --no-dependencies --nologo ");
             arguments.Append($"\"{inputFile}\" ");
             arguments.Append(additionalArguments);
             return arguments.ToString().Trim();
