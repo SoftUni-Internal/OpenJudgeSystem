@@ -204,7 +204,7 @@ public abstract class Compiler : ICompiler
                         process.Kill();
                     }
 
-                    return new CompilerOutput(1, "Compiler process timed out.");
+                    return new CompilerOutput(1, "Compiler process timed out and was killed. Output: " + outputBuilder);
                 }
 
                 outputWaitHandle.WaitOne(300);
