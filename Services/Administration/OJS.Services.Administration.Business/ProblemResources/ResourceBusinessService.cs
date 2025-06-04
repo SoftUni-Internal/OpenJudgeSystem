@@ -83,6 +83,9 @@ public class ResourceBusinessService : IResourcesBusinessService
             case ContestResource cr:
                 await this.contestResourceDataService.Add(cr);
                 break;
+
+            default:
+                throw new BusinessServiceException("Unsupported resource type.");
         }
 
         await this.problemsCache.ClearProblemCacheById(resource.ParentId);
