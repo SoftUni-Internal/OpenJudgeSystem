@@ -2,12 +2,11 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import {
-    IFileModel,
+    IContestResourceInListModel, IFileModel,
     IGetAllAdminParams,
     IPagedResultType,
-    IResourceInListModel,
     IProblemResourceAdministrationModel,
-    IContestResourceInListModel, IProblemResourceInListModel
+    IProblemResourceInListModel,
 } from '../../../common/types';
 import { CREATE_ENDPOINT, DELETE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';

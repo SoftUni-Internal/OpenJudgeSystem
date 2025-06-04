@@ -5,7 +5,7 @@ import {
     IIndexContestsType,
     IPagedResultType, IResourceInListModel,
 } from '../../../common/types';
-import {IContestDetailsUrlParams, IGetByParentId} from '../../../common/url-types';
+import { IContestDetailsUrlParams, IGetByParentId } from '../../../common/url-types';
 import { CREATE_ENDPOINT, DELETE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, GET_ALL_ENDPOINT, GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import { SimillarityType } from '../../../pages/administration-new/submissions-simillarity/SubmissionsSimillarity';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
