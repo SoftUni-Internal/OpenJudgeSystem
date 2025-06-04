@@ -107,7 +107,14 @@ RUN mvn clean install
 
 USER root
 
-ENV NUGET_PACKAGES=/judge-resources/dotnet/nuget-packages
+# Grant restricted user access to Node.js and Python env
+RUN chgrp -R restricted_user /root/.nvm && \
+    chmod +x /root && chmod -R g+rx /root/.nvm && chmod -R g+rx /root/.pyenv
+
+# Clean up
+RUN apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Environment varialbes needed during runtime
 ENV NUGET_CONFIG_FILE=/root/.nuget/NuGet/NuGet.Config
 ENV DOTNET_CLI_DISABLE_RESTORE_FIRST_RUN=true
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
@@ -116,12 +123,5 @@ ENV PATH="/usr/lib/dotnet:$PATH"
 
 # Go
 ENV GO111MODULE=off
-
-# Grant restricted user access to Node.js and Python env
-RUN chgrp -R restricted_user /root/.nvm && \
-    chmod +x /root && chmod -R g+rx /root/.nvm && chmod -R g+rx /root/.pyenv
-
-# Clean up
-RUN apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 CMD ["/bin/sh", "-c", "tail -f /dev/null"]
