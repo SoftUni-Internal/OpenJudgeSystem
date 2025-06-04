@@ -1,26 +1,4 @@
-FROM ubuntu:22.04
-
-ENV TZ=Etc/UTC
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
-
-# Base Setup
-RUN apt-get update && apt-get install -y --no-install-recommends \
-      curl \
-      sudo \
-      apt-transport-https \
-      ca-certificates \
-      gnupg \
-      lsb-release \
-      build-essential \
-      locales \
-      acl \
-      unzip && \
-    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
-    sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
-    locale-gen && \
-    rm -rf /var/lib/apt/lists/*
+FROM ghcr.io/softuni-internal/judge_worker_dotnet_base:latest
 
 # Add restricted_user
 RUN useradd -m -s /bin/bash restricted_user && \
@@ -29,8 +7,6 @@ RUN useradd -m -s /bin/bash restricted_user && \
 
 # Install supported languages and frameworks
 RUN apt-get update && apt-get install -y \
-      dotnet-sdk-8.0 \
-      dotnet-sdk-6.0 \
       openjdk-11-jdk \
       openjdk-21-jdk \
       python3.9 \
@@ -50,7 +26,7 @@ RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /
     rm -rf /var/lib/apt/lists/*
 
 # Install Maven
-ENV MAVEN_VERSION 3.9.1
+ENV MAVEN_VERSION=3.9.1
 WORKDIR /judge-resources
 RUN curl -O https://archive.apache.org/dist/maven/maven-3/$MAVEN_VERSION/binaries/apache-maven-$MAVEN_VERSION-bin.tar.gz && \
     tar -xzvf apache-maven-$MAVEN_VERSION-bin.tar.gz && \
@@ -96,8 +72,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       libpq-dev && \
     rm -rf /var/lib/apt/lists/*
 
-ENV PYENV_ROOT /root/.pyenv
-ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
+ENV PYENV_ROOT=/root/.pyenv
+ENV PATH=$PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 RUN curl https://pyenv.run | bash && \
     pyenv update && \
     pyenv install 3.11.5
@@ -131,6 +107,12 @@ RUN mvn clean install
 
 USER root
 
+ENV NUGET_PACKAGES=/judge-resources/dotnet/nuget-packages
+ENV DOTNET_CLI_DISABLE_RESTORE_FIRST_RUN=true
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
+ENV DOTNET_NOLOGO=true
+ENV PATH="/usr/lib/dotnet:$PATH"
+
 # Go
 ENV GO111MODULE=off
 
@@ -141,4 +123,4 @@ RUN chgrp -R restricted_user /root/.nvm && \
 # Clean up
 RUN apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-CMD tail -f /dev/null
+CMD ["/bin/sh", "-c", "tail -f /dev/null"]
