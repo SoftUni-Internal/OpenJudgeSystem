@@ -108,6 +108,7 @@ RUN mvn clean install
 USER root
 
 ENV NUGET_PACKAGES=/judge-resources/dotnet/nuget-packages
+ENV NUGET_CONFIG_FILE=/root/.nuget/NuGet/NuGet.Config
 ENV DOTNET_CLI_DISABLE_RESTORE_FIRST_RUN=true
 ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
 ENV DOTNET_NOLOGO=true

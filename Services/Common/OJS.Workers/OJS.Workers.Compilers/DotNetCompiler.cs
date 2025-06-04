@@ -39,7 +39,6 @@ namespace OJS.Workers.Compilers
             var arguments = new StringBuilder();
             arguments.Append("build ");
             arguments.Append($"-o {this.CompilationDirectory} ");
-            arguments.Append($"--configfile /root/.nuget/NuGet/NuGet.Config ");
             arguments.Append($"\"{inputFile}\" ");
             arguments.Append(additionalArguments);
             return arguments.ToString().Trim();
