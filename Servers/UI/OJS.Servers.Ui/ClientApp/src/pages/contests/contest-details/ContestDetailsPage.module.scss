@@ -58,6 +58,14 @@
     margin: spacings.$sp-24 0;
   }
 
+  .contestResourcesWrapper {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    line-height: 1.5;
+    margin: spacings.$sp-24 0;
+  }
+
   .allowedLanguages {
     font-size: variables.$f-size-18;
     font-weight: font-weights.$font-weight-bold;

@@ -74,7 +74,7 @@ public class ContestDetailsServiceModel : IMapExplicitly, ICanBeCompetedAndPract
 
     public ICollection<ContestProblemServiceModel> Problems { get; set; } = [];
 
-    public virtual ICollection<ContestResource> Resources { get; set; } = [];
+    public ICollection<ContestResourceDetailsServiceModel> Resources { get; set; } = [];
 
     public void RegisterMappings(IProfileExpression configuration) =>
         configuration

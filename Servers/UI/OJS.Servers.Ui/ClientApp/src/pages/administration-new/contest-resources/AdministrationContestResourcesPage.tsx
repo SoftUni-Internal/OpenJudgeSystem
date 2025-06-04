@@ -1,18 +1,21 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
 import ResourceForm from '../../../components/administration/problem-resources/problem-resource-form/ResourceForm';
 import { getColors, useAdministrationTheme } from '../../../hooks/use-administration-theme-provider';
-import { useGetAllAdminResourcesQuery, useLazyExportResourcesToExcelQuery } from '../../../redux/services/admin/resourcesAdminService';
+import {
+    useGetAllAdminContestResourcesQuery,
+    useLazyExportResourcesToExcelQuery,
+} from '../../../redux/services/admin/resourcesAdminService';
 import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
-import problemResourceFilterableColumns, { returnProblemResourceNonFilterableColumns } from './resourcesGridColumns';
+import contestResourcesFilterableColumns, { returnContestResourcesNonFilterableColumns } from './contestResourcesGridColumns';
 
-const AdministrationResourcesPage = () => {
+const AdministrationContestResourcesPage = () => {
     const [ searchParams ] = useSearchParams();
     const { themeMode } = useAdministrationTheme();
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
@@ -22,10 +25,10 @@ const AdministrationResourcesPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
-    const { refetch: retakeData, data, error } = useGetAllAdminResourcesQuery(queryParams);
+    const { refetch, data, error } = useGetAllAdminContestResourcesQuery(queryParams);
 
     const onClose = () => {
-        retakeData();
+        refetch();
         setOpenEditModal(false);
     };
 
@@ -52,8 +55,8 @@ const AdministrationResourcesPage = () => {
         <>
             {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
-              filterableGridColumnDef={problemResourceFilterableColumns}
-              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, retakeData, setSuccessMessage)}
+              filterableGridColumnDef={contestResourcesFilterableColumns}
+              notFilterableGridColumnDef={returnContestResourcesNonFilterableColumns(onEditClick, refetch, setSuccessMessage)}
               data={data}
               error={error}
               queryParams={queryParams}
@@ -67,4 +70,4 @@ const AdministrationResourcesPage = () => {
         </>
     );
 };
-export default AdministrationResourcesPage;
+export default AdministrationContestResourcesPage;

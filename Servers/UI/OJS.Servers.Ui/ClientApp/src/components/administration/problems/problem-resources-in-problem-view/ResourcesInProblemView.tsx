@@ -10,7 +10,7 @@ import {
 import AdministrationGridView, { defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import problemResourceFilterableColumns, {
     returnProblemResourceNonFilterableColumns,
-} from '../../../../pages/administration-new/problem-resources/resourcesGridColumns';
+} from '../../../../pages/administration-new/problem-resources/problemResourcesGridColumns';
 import { renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import CreateButton from '../../common/create/CreateButton';

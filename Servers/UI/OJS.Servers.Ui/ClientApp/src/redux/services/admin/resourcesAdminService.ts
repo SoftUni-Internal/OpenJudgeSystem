@@ -1,7 +1,14 @@
 /* eslint-disable import/group-exports */
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { IFileModel, IGetAllAdminParams, IPagedResultType, IResourceInListModel, IProblemResourceAdministrationModel } from '../../../common/types';
+import {
+    IFileModel,
+    IGetAllAdminParams,
+    IPagedResultType,
+    IResourceInListModel,
+    IProblemResourceAdministrationModel,
+    IContestResourceInListModel, IProblemResourceInListModel
+} from '../../../common/types';
 import { CREATE_ENDPOINT, DELETE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
@@ -9,9 +16,22 @@ export const resourcesAdminService = createApi({
     reducerPath: 'resources',
     baseQuery: getCustomBaseQuery('resources'),
     endpoints: (builder) => ({
-        getAllAdminResources: builder.query<IPagedResultType<IResourceInListModel>, IGetAllAdminParams>({
+        getAllAdminContestResources: builder.query<IPagedResultType<IContestResourceInListModel>, IGetAllAdminParams>({
             query: ({ filter, page, itemsPerPage, sorting }) => ({
-                url: 'GetAll',
+                url: 'GetAllContestResources',
+                params: {
+                    filter,
+                    page,
+                    itemsPerPage,
+                    sorting,
+                },
+            }),
+            keepUnusedDataFor: 0,
+        }),
+
+        getAllAdminProblemResources: builder.query<IPagedResultType<IProblemResourceInListModel>, IGetAllAdminParams>({
+            query: ({ filter, page, itemsPerPage, sorting }) => ({
+                url: 'GetAllProblemResources',
                 params: {
                     filter,
                     page,
@@ -69,7 +89,8 @@ export const resourcesAdminService = createApi({
 });
 
 export const {
-    useGetAllAdminResourcesQuery,
+    useGetAllAdminContestResourcesQuery,
+    useGetAllAdminProblemResourcesQuery,
     useDeleteResourceMutation,
     useGetResourceByIdQuery,
     useCreateResourceMutation,

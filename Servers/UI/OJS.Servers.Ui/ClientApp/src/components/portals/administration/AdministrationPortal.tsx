@@ -42,6 +42,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import StyledTooltip from 'src/components/administration/common/styled-tooltip/StyledTooltip';
 import UserActions from 'src/components/administration/common/user-actions/UserActions';
 import AdministrationAccessLogsPage from 'src/pages/administration-new/access-logs/AdministrationAccessLogsPage';
+import AdministrationContestResourcesPage
+    from 'src/pages/administration-new/contest-resources/AdministrationContestResourcesPage';
 import AdministrationMentorPromptTemplatesPage
     from 'src/pages/administration-new/mentor-prompt-templates/AdministrationMentorPromptTemplatesPage';
 import AdministrationUsersMentorsPage from 'src/pages/administration-new/users-mentors/AdministrationUsersMentorsPage';
@@ -53,7 +55,7 @@ import {
     ACCESS_LOGS_PATH,
     CHECKERS_PATH,
     CONTEST_CATEGORIES_HIERARCHY_PATH,
-    CONTEST_CATEGORIES_PATH,
+    CONTEST_CATEGORIES_PATH, CONTEST_RESOURCES_PATH,
     CONTESTS_PATH,
     EXAM_GROUPS_PATH, MENTOR_PROMPT_TEMPLATES_PATH,
     NEW_ADMINISTRATION_PATH,
@@ -86,8 +88,8 @@ import ParticipantsAdministrationPage
     from '../../../pages/administration-new/participants/ParticipantsAdministrationPage';
 import AdministrationProblemGroupsPage
     from '../../../pages/administration-new/problem-groups/AdministrationProblemGroupsPage';
-import AdministrationResourcesPage
-    from '../../../pages/administration-new/problem-resources/AdministrationResourcesPage';
+import AdministrationProblemResourcesPage
+    from '../../../pages/administration-new/problem-resources/AdministrationProblemResourcesPage';
 import AdministrationProblemsPage from '../../../pages/administration-new/problems/AdministrationProblemsPage';
 import AdministrationRolesPage from '../../../pages/administration-new/roles/AdministrationRolesPage';
 import AdministrationSettingsPage from '../../../pages/administration-new/settings/SettingsAdministrationPage';
@@ -175,9 +177,15 @@ const administrationItems = [
         visibleOnlyForAdmin: false,
     },
     {
-        name: 'Resources',
+        name: 'Problem Resources',
         icon: <GiFiles className={styles.iconSize} />,
         path: `${PROBLEM_RESOURCES_PATH}`,
+        visibleOnlyForAdmin: false,
+    },
+    {
+        name: 'Contest Resources',
+        icon: <GiFiles className={styles.iconSize} />,
+        path: `${CONTEST_RESOURCES_PATH}`,
         visibleOnlyForAdmin: false,
     },
     {
@@ -439,8 +447,13 @@ const AdministrationPortal = () => {
             visibleOnlyForAdmin: false,
         },
         {
+            path: `${CONTEST_RESOURCES_PATH}`,
+            Element: AdministrationContestResourcesPage,
+            visibleOnlyForAdmin: false,
+        },
+        {
             path: `${PROBLEM_RESOURCES_PATH}`,
-            Element: AdministrationResourcesPage,
+            Element: AdministrationProblemResourcesPage,
             visibleOnlyForAdmin: false,
         },
         {

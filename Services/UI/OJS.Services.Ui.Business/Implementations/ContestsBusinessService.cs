@@ -9,7 +9,6 @@ namespace OJS.Services.Ui.Business.Implementations
     using FluentExtensions.Extensions;
     using Microsoft.EntityFrameworkCore;
     using OJS.Data.Models.Participants;
-    using OJS.Data.Models.Resources;
     using OJS.Services.Common;
     using OJS.Services.Common.Data;
     using OJS.Services.Common.Models.Contests;
@@ -126,6 +125,7 @@ namespace OJS.Services.Ui.Business.Implementations
             if ((!canShowProblemsInPractice && !canShowProblemsInCompete) || !canShowProblemsForAnonymous)
             {
                 contest!.Problems = [];
+                contest!.Resources = [];
             }
 
             if (isLecturerInContestOrAdmin || competeParticipant != null)
@@ -300,7 +300,10 @@ namespace OJS.Services.Ui.Business.Implementations
 
             if (participant.Contest != null)
             {
-                participant.Contest.Resources = await this.contestResourcesDataService.GetByContestQuery(model.ContestId).ToListAsync();
+                participant.Contest.Resources = await this.contestResourcesDataService
+                    .GetByContestQuery(model.ContestId)
+                    .MapCollection<ContestResourceDetailsServiceModel>()
+                    .ToListAsync();
             }
 
             participant.AllowMentor = category is { AllowMentor: true };

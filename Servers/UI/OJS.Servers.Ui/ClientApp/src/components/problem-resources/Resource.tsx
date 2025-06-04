@@ -14,7 +14,7 @@ interface IProblemResourceProps {
     problem: string;
 }
 
-const ProblemResource = ({ resource, problem }: IProblemResourceProps) => {
+const Resource = ({ resource, problem }: IProblemResourceProps) => {
     const { link, name: linkName, id } = resource;
     const [ isUnauthorized, setIsUnauthorized ] = useState(false);
     const navigate = useNavigate();
@@ -93,4 +93,4 @@ const ProblemResource = ({ resource, problem }: IProblemResourceProps) => {
     );
 };
 
-export default ProblemResource;
+export default Resource;

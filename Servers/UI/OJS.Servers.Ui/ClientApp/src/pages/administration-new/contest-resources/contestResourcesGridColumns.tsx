@@ -16,7 +16,7 @@ import { useDeleteResourceMutation, useDownloadResourceQuery } from '../../../re
 import { adminFormatDate } from '../../../utils/administration/administration-dates';
 import { getStringObjectKeys } from '../../../utils/object-utils';
 
-const problemResourceFilterableColumns: AdministrationGridColDef[] = [
+const contestResourcesFilterableColumns: AdministrationGridColDef[] = [
     {
         field: 'id',
         headerName: 'Id',
@@ -31,6 +31,16 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
     {
         field: 'name',
         headerName: 'Name',
+        flex: 0.5,
+        type: 'string',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'contestName',
+        headerName: 'Contest Name',
         flex: 0.5,
         type: 'string',
         filterable: false,
@@ -110,7 +120,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnProblemResourceNonFilterableColumns = (
+export const returnContestResourcesNonFilterableColumns = (
     onEditClick: Function,
     onSuccessfulDelete: () => void,
     setParentSuccessMessage: Function,
@@ -147,4 +157,5 @@ export const returnProblemResourceNonFilterableColumns = (
             </div>
         ),
     } ] as GridColDef[];
-export default problemResourceFilterableColumns;
+
+export default contestResourcesFilterableColumns;

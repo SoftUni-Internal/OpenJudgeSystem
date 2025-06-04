@@ -159,6 +159,14 @@ interface IResourceInListModel {
     modifiedOn: Date;
 }
 
+interface IContestResourceInListModel extends IResourceInListModel {
+    contestName: string;
+}
+
+interface IProblemResourceInListModel extends IResourceInListModel {
+    contestName: string;
+}
+
 interface IProblemType {
     id: number;
     name: string;
@@ -971,4 +979,6 @@ export type {
     IFilterColumn,
     IFilterEnum,
     IProfilePageContests,
+    IProblemResourceInListModel,
+    IContestResourceInListModel,
 };
