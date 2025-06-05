@@ -103,7 +103,8 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
 
                 as TSettings,
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha or
-            ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha => new
+            ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha or
+            ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha => new
                 NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings(
                     GetBaseTimeUsed(submission, this.settings.NodeJsBaseTimeUsedInMilliseconds),
                     GetBaseMemoryUsed(submission, this.settings.NodeJsBaseMemoryUsedInBytes),
