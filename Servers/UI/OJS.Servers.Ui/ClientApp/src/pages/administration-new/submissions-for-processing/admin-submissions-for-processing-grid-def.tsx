@@ -1,5 +1,9 @@
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { SubmissionProcessingState, TestType } from 'src/common/enums';
+import { ICustomFilter, IEnumType } from 'src/common/types';
+import { testTypesToFEStringsMapping } from 'src/components/administration/tests/types';
+import { getStringObjectKeys } from 'src/utils/object-utils';
 
 import { AdministrationGridColDef } from '../../../components/administration/utils/mui-utils';
 import { adminFormatDate, adminPreciseFormatDate } from '../../../utils/administration/administration-dates';
@@ -40,11 +44,13 @@ const dataColumns: AdministrationGridColDef[] = [
         headerName: 'State',
         align: 'center',
         headerAlign: 'center',
-        type: 'string',
+        type: 'enum',
         flex: 0.8,
         filterable: false,
         sortable: false,
-    },
+        enumValues: getStringObjectKeys(SubmissionProcessingState),
+        valueFormatter: (params) => SubmissionProcessingState[params.value],
+    } as GridColDef & IEnumType,
     {
         field: 'enqueuedAt',
         headerName: 'Enqueued At',
