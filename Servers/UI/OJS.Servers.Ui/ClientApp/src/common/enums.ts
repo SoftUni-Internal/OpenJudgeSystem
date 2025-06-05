@@ -21,6 +21,13 @@ enum ProblemGroupTypes {
     ExcludedFromHomework = 1,
 }
 
+enum TestType
+{
+    Compete = 'Standard',
+    Practice = 'Trial',
+    Open = 'Open',
+}
+
 enum SubmissionStatus {
     All = 1,
     Processing = 2,
@@ -158,6 +165,16 @@ enum ExceptionType {
     Other = 4,
 }
 
+enum SubmissionProcessingState
+{
+    Invalid = 0,
+    Pending = 1,
+    Enqueued = 2,
+    Processing = 3,
+    Processed = 4,
+    Faulted = 5,
+}
+
 export {
     ThemeMode,
     FilterColumnTypeEnum,
@@ -172,4 +189,6 @@ export {
     CheckboxSearchValues,
     ChatMessageRole,
     ExceptionType,
+    TestType,
+    SubmissionProcessingState,
 };
