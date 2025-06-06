@@ -5,7 +5,9 @@ using OJS.Common.Enumerations;
 using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.PubSub.Worker.Models.Submissions;
+using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Services.Common.Models.Submissions.ExecutionContext;
+using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Extensions;
@@ -21,19 +23,22 @@ public class SubmissionsCommonBusinessService : ISubmissionsCommonBusinessServic
     private readonly ISubmissionsForProcessingCommonDataService submissionForProcessingData;
     private readonly ILogger<SubmissionsCommonBusinessService> logger;
     private readonly IDatesService dates;
+    private readonly ITracingService tracingService;
 
     public SubmissionsCommonBusinessService(
         IPublisherService publisher,
         ISubmissionsCommonDataService submissionsCommonDataService,
         ISubmissionsForProcessingCommonDataService submissionForProcessingData,
         ILogger<SubmissionsCommonBusinessService> logger,
-        IDatesService dates)
+        IDatesService dates,
+        ITracingService tracingService)
     {
         this.publisher = publisher;
         this.submissionsCommonDataService = submissionsCommonDataService;
         this.submissionForProcessingData = submissionForProcessingData;
         this.logger = logger;
         this.dates = dates;
+        this.tracingService = tracingService;
     }
 
     public SubmissionServiceModel BuildSubmissionForProcessing(
@@ -64,34 +69,60 @@ public class SubmissionsCommonBusinessService : ISubmissionsCommonBusinessServic
         => this.BuildSubmissionForProcessing(submission, submission.Problem, submission.SubmissionType!, executeVerbosely);
 
     public async Task PublishSubmissionForProcessing(SubmissionServiceModel submission, SubmissionForProcessing submissionForProcessing)
-    {
-        var pubSubModel = submission.Map<SubmissionForProcessingPubSubModel>();
-        var enqueuedAt = this.dates.GetUtcNowOffset();
+        => await this.tracingService.TraceAsync(
+            OjsActivitySources.submissions,
+            OjsActivitySources.SubmissionActivities.Queued,
+            async activity =>
+            {
+                // Add technical context
+                this.tracingService.AddTechnicalContext(activity!, "publish_to_queue", "message_queue");
 
-        try
-        {
-            await this.publisher.Publish(pubSubModel);
-        }
-        catch (Exception ex)
-        {
-            // We log the exception and return. The submission will be retried later by the background job for Pending submissions.
-            this.logger.LogExceptionPublishingSubmission(submission.Id, ex);
-            return;
-        }
+                var pubSubModel = submission.Map<SubmissionForProcessingPubSubModel>();
 
-        // We detach the entity to ensure we get fresh data from the database.
-        this.submissionForProcessingData.Detach(submissionForProcessing);
-        var freshSubmissionForProcessing = await this.submissionForProcessingData.Find(submissionForProcessing.Id);
+                // Trace context is automatically injected into RabbitMQ headers by MassTransit filters
+                // No need to manually add trace context to the message model
 
-        if (freshSubmissionForProcessing == null || freshSubmissionForProcessing.SubmissionId != submission.Id)
-        {
-            this.logger.LogSubmissionForProcessingNotFoundForSubmission(submissionForProcessing.Id, submission.Id);
-            return;
-        }
+                var enqueuedAt = this.dates.GetUtcNowOffset();
 
-        await this.submissionForProcessingData
-            .SetProcessingState(freshSubmissionForProcessing, SubmissionProcessingState.Enqueued, enqueuedAt);
-    }
+                try
+                {
+                    await this.publisher.Publish(pubSubModel);
+
+                    // Add success metrics
+                    activity?.SetTag("publish.success", true);
+                    activity?.SetTag("enqueued_at", enqueuedAt.UtcDateTime.ToString("o"));
+                }
+                catch (Exception ex)
+                {
+                    // We log the exception and return. The submission will be retried later by the background job for Pending submissions.
+                    this.logger.LogExceptionPublishingSubmission(submission.Id, ex);
+                    activity?.SetTag("publish.success", false);
+                    this.tracingService.MarkAsFailed(activity!, ex);
+                    return;
+                }
+
+                // We detach the entity to ensure we get fresh data from the database.
+                this.submissionForProcessingData.Detach(submissionForProcessing);
+                var freshSubmissionForProcessing = await this.submissionForProcessingData.Find(submissionForProcessing.Id);
+
+                if (freshSubmissionForProcessing == null || freshSubmissionForProcessing.SubmissionId != submission.Id)
+                {
+                    this.logger.LogSubmissionForProcessingNotFoundForSubmission(submissionForProcessing.Id, submission.Id);
+                    return;
+                }
+
+                await this.submissionForProcessingData
+                    .SetProcessingState(freshSubmissionForProcessing, SubmissionProcessingState.Enqueued, enqueuedAt);
+
+                // Add final success metrics
+                activity?.SetTag("submission.submission_for_processing_state_updated", true);
+            },
+            new Dictionary<string, object?>
+            {
+                ["submission.execution_strategy"] = submission.ExecutionStrategy.ToString(),
+                ["submission.verbosely"] = submission.Verbosely,
+            },
+            BusinessContext.ForSubmission(submission.Id, submission.TestsExecutionDetails?.TaskId));
 
     public async Task<int> PublishSubmissionsForProcessing(ICollection<SubmissionServiceModel> submissions)
     {

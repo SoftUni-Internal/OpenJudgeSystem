@@ -15,7 +15,8 @@ public static class JsCodePreEvaluationCodeProvider
 
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha or
             ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha or
-            ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha
+            ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha or
+            ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha
                 => GetForNodeJsPreprocessExecuteAndRunUnitTestsWithMocha(),
 
             ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests

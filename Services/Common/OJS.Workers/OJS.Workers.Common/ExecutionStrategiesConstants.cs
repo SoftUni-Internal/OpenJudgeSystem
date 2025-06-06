@@ -50,6 +50,7 @@ namespace OJS.Workers.Common
             public const string JavaScriptJsDomUnitTestsV20 = "javascript-js-dom-unit-testsV20";
             public const string JavaScriptUnitTestsWithMocha = "javascript-unit-tests-with-mocha";
             public const string JavaScriptUnitTestsWithMochaV20 = "javascript-unit-tests-with-mochaV20";
+            public const string JavaScriptAllUnitTestsWithMochaV20 = "javascript-all-unit-tests-with-mochaV20";
             public const string JavaScriptCodeAgainstUnitTestsWithMocha = "javascript-code-against-unit-tests-with-mocha";
             public const string JavaScriptCodeAgainstUnitTestsWithMochaV20 = "javascript-code-against-unit-tests-with-mochaV20";
 
@@ -154,6 +155,7 @@ namespace OJS.Workers.Common
                     { ExecutionStrategyNames.JavaScriptCodeV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndCheck },
                     { ExecutionStrategyNames.JavaScriptUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha },
                     { ExecutionStrategyNames.JavaScriptUnitTestsWithMochaV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha },
+                    { ExecutionStrategyNames.JavaScriptAllUnitTestsWithMochaV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha },
                     { ExecutionStrategyNames.JavaScriptJsDomUnitTests, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunJsDomUnitTests },
                     { ExecutionStrategyNames.JavaScriptJsDomUnitTestsV20, ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunJsDomUnitTests },
                     { ExecutionStrategyNames.JavaScriptCodeAgainstUnitTestsWithMocha, ExecutionStrategyType.NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecutionStrategy },

@@ -11,7 +11,7 @@ public class SubmissionsForProcessingAdministrationServiceModel : BaseAdministra
 {
     public int SubmissionId { get; set; }
 
-    public string State { get; set; } = SubmissionProcessingState.Invalid.ToString();
+    public SubmissionProcessingState State { get; set; } = SubmissionProcessingState.Invalid;
 
     public DateTimeOffset? EnqueuedAt { get; set; }
 
@@ -25,8 +25,6 @@ public class SubmissionsForProcessingAdministrationServiceModel : BaseAdministra
 
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<SubmissionForProcessing, SubmissionsForProcessingAdministrationServiceModel>()
-            .ForMember(sfpam => sfpam.State, opt
-                => opt.MapFrom(sfp => sfp.State.ToString()))
             .ForMember(sfpam => sfpam.OperationType, opt
                 => opt.Ignore());
 }
