@@ -189,7 +189,7 @@ const ContestDetailsPage = () => {
             <div className={styles.actionBtnWrapper}>
                 <ContestButton isCompete={isCompete} isDisabled={isDisabled} id={id!} name={name ?? ''} />
                 {
-                    canViewResults
+                    canViewResults && !isDisabled
                         ? renderResultsAsLink(isCompete)
                         : renderResultsText(isCompete)
                 }
