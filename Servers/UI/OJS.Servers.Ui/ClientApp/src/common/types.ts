@@ -504,11 +504,16 @@ interface IEnumType {
     enumValues?: Array<string>;
 }
 
+interface ICustomFilter {
+    customFilter?: (value: string) => string;
+}
+
 interface IAdministrationFilterColumn {
     field: string;
     columnName: string;
     columnType: FilterColumnTypeEnum;
     enumValues?: Array<string> | null;
+    customFilter?: (value: string) => string;
 }
 
 interface IFilterColumn {
@@ -974,4 +979,5 @@ export type {
     IFilterEnum,
     IProfilePageContests,
     IExcelFilter,
+    ICustomFilter,
 };
