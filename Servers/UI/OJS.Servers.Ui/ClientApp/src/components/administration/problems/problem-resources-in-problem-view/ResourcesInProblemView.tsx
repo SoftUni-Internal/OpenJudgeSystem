@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ResourceType } from 'src/common/enums';
 import { useGetContestResourcesQuery } from 'src/redux/services/admin/contestsAdminService';
 import { useGetProblemResourcesQuery } from 'src/redux/services/admin/problemsAdminService';
 
@@ -19,17 +20,19 @@ import ResourceForm from '../../problem-resources/problem-resource-form/Resource
 
 interface IResourceInProblemViewProps {
     parentId: number;
-    isForContest: boolean;
+    type: ResourceType;
 }
 
 const ResourcesInProblemView = (props : IResourceInProblemViewProps) => {
-    const { parentId, isForContest } = props;
+    const { parentId, type } = props;
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
     const [ showCreateModal, setShowCreateModal ] = useState<boolean>(false);
     const { themeMode } = useAdministrationTheme();
     const [ problemResourceId, setProblemResourceId ] = useState<number>(0);
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', defaultSorterToAdd));
+
+    const isForContest = type === ResourceType.ContestResource;
 
     const {
         refetch: retakeProblemResourcesData,
@@ -77,7 +80,7 @@ const ResourcesInProblemView = (props : IResourceInProblemViewProps) => {
             >
                 <ResourceForm
                   id={problemResourceId}
-                  isForContest={isForContest}
+                  type={type}
                   isEditMode={!isCreate}
                   problemId={parentId}
                   onSuccess={onProblemCreate}

@@ -41,8 +41,8 @@ const testsAdminService = createApi({
             }),
         }),
         getTestsByProblemId: builder.query<IPagedResultType<ITestInListData>, IGetByParentId>({
-            query: ({ problemId, filter, page, itemsPerPage, sorting }) => ({
-                url: `/GetByProblemId/${problemId}`,
+            query: ({ parentId, filter, page, itemsPerPage, sorting }) => ({
+                url: `/GetByProblemId/${parentId}`,
                 params: {
                     filter,
                     page,

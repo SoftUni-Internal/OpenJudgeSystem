@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
+import { ResourceType } from 'src/common/enums';
 
 import useScrollToTab from '../../../hooks/common/use-scroll-to-tab';
 import { useGetContestActivityQuery } from '../../../redux/services/admin/contestsAdminService';
@@ -59,7 +60,7 @@ const AdministrationProblem = () => {
 
     const returnResourceInProblemView = (key:string) => (
         <div id={PROBLEM_LISTED_DATA.RESOURCES}>
-            <ResourcesInProblemView key={key} parentId={Number(problemId)} isForContest={false} />
+            <ResourcesInProblemView key={key} parentId={Number(problemId)} type={ResourceType.ProblemResource} />
         </div>
     );
 

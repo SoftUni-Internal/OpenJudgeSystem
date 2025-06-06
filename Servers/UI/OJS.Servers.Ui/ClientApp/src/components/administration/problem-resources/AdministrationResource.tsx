@@ -7,9 +7,9 @@ import ResourceForm from './problem-resource-form/ResourceForm';
 
 const AdministrationResource = () => {
     const { pathname } = useLocation();
-    const [ , , , problemId ] = pathname.split('/');
+    const [ , , , parentId ] = pathname.split('/');
     const returnProblemForm = () => (
-        <ResourceForm id={Number(problemId)} />
+        <ResourceForm id={Number(parentId)} />
     );
 
     return (

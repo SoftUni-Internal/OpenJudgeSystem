@@ -4,7 +4,7 @@ import { Box, Divider, FormControl, FormGroup, InputLabel, MenuItem, Select, Tex
 import isNaN from 'lodash/isNaN';
 import TabsInView from 'src/components/administration/common/tabs/TabsInView';
 
-import { ProblemResourceType } from '../../../../common/enums';
+import { ProblemResourceType, ResourceType } from '../../../../common/enums';
 import { NAME, ORDER_BY, TYPE } from '../../../../common/labels';
 import { IProblemResourceAdministrationModel } from '../../../../common/types';
 import useDelayedSuccessEffect from '../../../../hooks/common/use-delayed-success-effect';
@@ -32,14 +32,14 @@ enum PROBLEM_RESOURCE_LISTED_DATA {
 
 interface IProblemResourceFormProps {
     id: number;
-    isForContest?: boolean;
+    type?: ResourceType;
     isEditMode?: boolean;
     problemId? : number;
     onSuccess?: Function;
     setParentSuccessMessage?: Function;
 }
 const ResourceForm = (props :IProblemResourceFormProps) => {
-    const { id, isForContest, isEditMode = true, problemId = 0, onSuccess, setParentSuccessMessage } = props;
+    const { id, type, isEditMode = true, problemId = 0, onSuccess, setParentSuccessMessage } = props;
 
     const [ currentResource, setCurrentResource ] = useState<IProblemResourceAdministrationModel>({
         id: 0,
@@ -50,11 +50,9 @@ const ResourceForm = (props :IProblemResourceFormProps) => {
         file: null,
         hasFile: false,
         parentId: 0,
-        resourceType: isEditMode
+        resourceType: isEditMode || !type
             ? ''
-            : isForContest
-                ? 'ContestResource'
-                : 'ProblemResource',
+            : ResourceType[type],
     });
 
     const [ tabName, setTabName ] = useState(PROBLEM_RESOURCE_LISTED_DATA.LINK);
@@ -155,12 +153,12 @@ const ResourceForm = (props :IProblemResourceFormProps) => {
 
     const onChange = (e: any) => {
         const { target } = e;
-        const { name, type, value, checked } = target;
+        const { name, propertyType, value, checked } = target;
         setCurrentResource((prevState) => ({
             ...prevState,
-            [name]: type === 'checkbox'
+            [name]: propertyType === 'checkbox'
                 ? checked
-                : type === 'number'
+                : propertyType === 'number'
                     ? value === ''
                         ? ''
                         : Number(value)

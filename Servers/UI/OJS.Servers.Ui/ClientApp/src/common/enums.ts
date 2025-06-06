@@ -165,14 +165,18 @@ enum ExceptionType {
     Other = 4,
 }
 
-enum SubmissionProcessingState
-{
+enum SubmissionProcessingState {
     Invalid = 0,
     Pending = 1,
     Enqueued = 2,
     Processing = 3,
     Processed = 4,
     Faulted = 5,
+}
+
+enum ResourceType {
+    ContestResource = 0,
+    ProblemResource = 1,
 }
 
 export {
@@ -191,4 +195,5 @@ export {
     ExceptionType,
     TestType,
     SubmissionProcessingState,
+    ResourceType,
 };

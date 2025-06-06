@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ResourceType } from 'src/common/enums';
 import ResourcesInProblemView
     from 'src/components/administration/problems/problem-resources-in-problem-view/ResourcesInProblemView';
 
@@ -56,7 +57,7 @@ const AdministrationContestPage = () => {
 
     const returnResourceInProblemView = (key:string) => (
         <div id={CONTEST_LISTED_DATA.RESOURCES}>
-            <ResourcesInProblemView key={key} parentId={Number(contestId)} isForContest />
+            <ResourcesInProblemView key={key} parentId={Number(contestId)} type={ResourceType.ContestResource} />
         </div>
     );
 
