@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { ExcelFilterOperators } from 'src/common/enums';
+import { useLazyExportProblemResourcesToExcelQuery } from 'src/redux/services/admin/problemResourcesAdminService';
 
 import { IGetAllAdminParams } from '../../../../common/types';
 import { getColors, useAdministrationTheme } from '../../../../hooks/use-administration-theme-provider';
@@ -101,6 +103,8 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
                   { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i, false) },
                   { showModal: showCreateModal, modal: (i) => renderProblemResourceModal(i, true) },
               ]}
+              excelMutation={useLazyExportProblemResourcesToExcelQuery}
+              excelFilters={[ { propertyName: 'problemId', operator: ExcelFilterOperators.Equals, value: problemId } ]}
             />
         </>
     );

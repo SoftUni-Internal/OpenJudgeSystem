@@ -875,6 +875,12 @@ interface IProfilePageContests {
     requirePasswordForPractice: boolean;
 }
 
+interface IExcelFilter {
+    propertyName: string;
+    value: string | number;
+    operator: string;
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export type {
     IIndexContestsType,
@@ -967,4 +973,5 @@ export type {
     IFilterColumn,
     IFilterEnum,
     IProfilePageContests,
+    IExcelFilter,
 };

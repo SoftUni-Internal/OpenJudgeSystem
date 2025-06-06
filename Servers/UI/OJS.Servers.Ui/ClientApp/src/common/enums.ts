@@ -158,6 +158,11 @@ enum ExceptionType {
     Other = 4,
 }
 
+enum ExcelFilterOperators {
+    Contains = 'contains',
+    Equals = 'equals',
+}
+
 export {
     ThemeMode,
     FilterColumnTypeEnum,
@@ -172,4 +177,5 @@ export {
     CheckboxSearchValues,
     ChatMessageRole,
     ExceptionType,
+    ExcelFilterOperators,
 };

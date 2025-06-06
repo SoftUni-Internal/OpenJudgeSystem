@@ -158,7 +158,6 @@ export const {
     useCreateProblemMutation,
     useCopyMutation,
     useGetResourcesQuery,
-    useGetAllByNameQuery,
     useLazyExportProblemsToExcelQuery,
     useDownloadAdditionalFilesQuery,
 

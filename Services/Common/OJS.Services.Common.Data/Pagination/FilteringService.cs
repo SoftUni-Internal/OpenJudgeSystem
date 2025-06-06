@@ -144,6 +144,10 @@ public class FilteringService : IFilteringService
                 DateTimeOffset.TryParse,
                 nameof(DateTimeOffset));
         }
+        else if (IsEnumerableButNotString(propertyType))
+        {
+            expression = BuildCollectionContainsExpression(filter.Value, memberExpression, propertyType, filter.OperatorType);
+        }
 
         if (expression == null)
         {
@@ -152,6 +156,40 @@ public class FilteringService : IFilteringService
 
         return Expression.Lambda<Func<T, bool>>(expression, parameter);
     }
+
+    private static Expression BuildCollectionContainsExpression(
+        string filterValue,
+        MemberExpression property,
+        Type propertyType,
+        OperatorType operatorType)
+    {
+        if (operatorType != OperatorType.Contains)
+        {
+            throw new ArgumentOutOfRangeException($"Collection filtering supports only the 'Contains' operator, not {operatorType}.");
+        }
+
+        // Extract generic type from IEnumerable<T>
+        var elementType = propertyType.IsGenericType
+            ? propertyType.GetGenericArguments()[0]
+            : propertyType.GetElementType() ?? throw new InvalidOperationException("Cannot determine generic type of collection.");
+
+        // Try to convert filterValue to the correct type
+        var parsedValue = Convert.ChangeType(filterValue, elementType);
+
+        var containsMethod = propertyType.GetMethod("Contains", [elementType]);
+        if (containsMethod == null)
+        {
+            // Fallback to Enumerable.Contains<T>(IEnumerable<T>, T)
+            var enumerableContains = typeof(Enumerable).GetMethods()
+                .First(m => m.Name == "Contains" && m.GetParameters().Length == 2)
+                .MakeGenericMethod(elementType);
+
+            return Expression.Call(enumerableContains, property, Expression.Constant(parsedValue, elementType));
+        }
+
+        return Expression.Call(property, containsMethod, Expression.Constant(parsedValue, elementType));
+    }
+
 
     private static Expression BuildEnumExpression(string filterValue, Type propertyType, MemberExpression property)
     {
@@ -315,17 +353,22 @@ public class FilteringService : IFilteringService
     private static Expression GetNullableTypesOperation(MemberExpression property,  OperatorType operatorType)
     {
         switch (operatorType)
-            {
-                case OperatorType.Equals:
-                    return Expression.Equal(property, Expression.Constant(null, property.Type));
-                case OperatorType.NotEquals:
-                    return Expression.NotEqual(property, Expression.Constant(null, property.Type));
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        $"Property of type int? cannot have {operatorType} operator");
-            }
+        {
+            case OperatorType.Equals:
+                return Expression.Equal(property, Expression.Constant(null, property.Type));
+            case OperatorType.NotEquals:
+                return Expression.NotEqual(property, Expression.Constant(null, property.Type));
+            default:
+                throw new ArgumentOutOfRangeException(
+                    $"Property of type int? cannot have {operatorType} operator");
+        }
     }
 
     private static bool IsNullableType(Type type)
         => Nullable.GetUnderlyingType(type) != null || !type.IsValueType;
+
+    private static bool IsEnumerableButNotString(Type type)
+        => typeof(System.Collections.IEnumerable).IsAssignableFrom(type)
+           && type != typeof(string);
+
 }
