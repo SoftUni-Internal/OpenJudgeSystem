@@ -7,7 +7,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import { ACTION_NOT_ALLOWED_MESSAGE, NOT_LOGGED_IN_MESSAGE } from '../../common/messages';
-import { AdjacencyList, ExceptionData, IGetAllAdminParams, IPagedResultType } from '../../common/types';
+import { AdjacencyList, ExceptionData, IExcelFilter, IGetAllAdminParams, IPagedResultType } from '../../common/types';
 import ExportExcel from '../../components/administration/common/export-excel/ExportExcel';
 import LegendBox from '../../components/administration/common/legend-box/LegendBox';
 import { AdministrationGridColDef } from '../../components/administration/utils/mui-utils';
@@ -43,6 +43,7 @@ interface IAdministrationGridViewProps<T> {
     excelMutation?: any;
     defaultFilter?: string;
     defaultSorter?: string;
+    excelFilters?: IExcelFilter[];
 }
 
 interface IVisibleColumns {
@@ -89,6 +90,7 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
         specificRowIdName: specifyColumnIdName,
         defaultFilter = defaultFilterToAdd,
         defaultSorter = defaultSorterToAdd,
+        excelFilters,
     } = props;
 
     const [ searchParams, setSearchParams ] = useSearchParams();
@@ -129,7 +131,12 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
                         </Box>
                     </Tooltip>
                 )}
-            <ExportExcel mutation={excelMutation} disabled={!excelMutation} queryParams={queryParams} />
+            <ExportExcel
+              mutation={excelMutation}
+              disabled={!excelMutation}
+              queryParams={queryParams}
+              excelFilters={excelFilters}
+            />
         </div>
     );
 

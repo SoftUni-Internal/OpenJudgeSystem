@@ -4,6 +4,9 @@ using AutoMapper;
 using OJS.Data.Models.Users;
 using OJS.Services.Infrastructure.Models.Mapping;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using OJS.Services.Infrastructure.Extensions;
 
 public class UserInListModel : IMapExplicitly
 {
@@ -29,6 +32,10 @@ public class UserInListModel : IMapExplicitly
 
     public DateTime? ModifiedOn { get; set; }
 
+    public IEnumerable<string> RoleIds { get; set; } = [];
+
+    public IEnumerable<int> ExamGroupIds { get; set; } = [];
+
     public void RegisterMappings(IProfileExpression configuration)
         => configuration.CreateMap<UserProfile, UserInListModel>()
             .ForMember(uilm => uilm.Age, opt
@@ -40,5 +47,9 @@ public class UserInListModel : IMapExplicitly
             .ForMember(uilm => uilm.LastName, opt
                 => opt.MapFrom(u => u.UserSettings.LastName))
             .ForMember(uilm => uilm.City, opt
-                => opt.MapFrom(u => u.UserSettings.City));
+                => opt.MapFrom(u => u.UserSettings.City))
+            .ForMember(uilm => uilm.RoleIds, opt
+                => opt.MapFrom(u => u.UsersInRoles.Select(r => r.RoleId)))
+            .ForMember(uilm => uilm.ExamGroupIds, opt
+                => opt.MapFrom(s => s.UsersInExamGroups.Select(uieg => uieg.ExamGroupId)));
 }
