@@ -35,7 +35,7 @@
                 public static void Main(string[] args)
                 {
                     var writter = new ExtendedTextWrapper(Console.Out);
-                    new AutoRun(typeof(TestsLauncher).GetTypeInfo().Assembly).Execute(args, new ExtendedTextWrapper(Console.Out), Console.In);
+                    new AutoRun(typeof(TestsLauncher).GetTypeInfo().Assembly).Execute(args, writter, Console.In);
                 }
             }";
 
