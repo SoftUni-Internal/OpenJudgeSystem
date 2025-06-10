@@ -22,7 +22,7 @@ const TabsInView = (props: ITabsInViewProps) => {
     return (
         <Slide direction="left" in mountOnEnter unmountOnExit timeout={300}>
             <Box>
-                {form && form()}
+                {form?.()}
                 <Box sx={{ padding: '2rem' }}>
                     <Tabs
                       sx={{ minWidth: '100%', display: 'flex', justifyContent: 'space-around' }}

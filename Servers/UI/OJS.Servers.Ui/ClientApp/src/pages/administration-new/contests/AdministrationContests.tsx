@@ -103,6 +103,29 @@ const AdministrationContestsPage = () => {
         }
     }, [ searchParams, hasProcessedParams, setSearchParams ]);
 
+    // Handle query parameters for exporting contest results to excel
+    useEffect(() => {
+        const exportType = searchParams.get('exportType');
+        const contestIdParam = searchParams.get('contestId');
+
+        if (exportType && contestIdParam && !hasProcessedParams) {
+            const parsedId = Number(contestIdParam);
+            const parsedType = exportType === 'compete'
+                ? 0
+                : 1;
+
+            setContestId(parsedId);
+            setExcelExportType(parsedType);
+            exportResults({ id: parsedId, type: parsedType });
+
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.delete('exportType');
+            newSearchParams.delete('contestId');
+            setSearchParams(newSearchParams);
+            setHasProcessedParams(true);
+        }
+    }, [ searchParams, hasProcessedParams, setSearchParams, exportResults ]);
+
     const onEditClick = (id: number) => {
         setOpenEditContestModal(true);
         setContestId(id);

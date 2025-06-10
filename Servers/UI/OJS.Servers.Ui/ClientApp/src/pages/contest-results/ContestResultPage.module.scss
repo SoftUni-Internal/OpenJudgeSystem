@@ -19,3 +19,14 @@
 .paginationControlsLower {
   padding: spacings.$sp-8 0 spacings.$sp-16 0;
 }
+
+.actionsWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.exportResultsButton {
+  margin: 0 0 1.2rem 0;
+  place-self: end;
+}
