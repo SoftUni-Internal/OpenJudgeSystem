@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Ionic.Zip;
 using Microsoft.Extensions.Logging;
@@ -12,6 +13,7 @@ using OJS.Workers.Common.Exceptions;
 using OJS.Workers.Common.Extensions;
 using OJS.Workers.Common.Helpers;
 using OJS.Workers.Common.Models;
+using OJS.Workers.ExecutionStrategies.Eslint;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.ExecutionStrategies.Python;
 using OJS.Workers.Executors;
@@ -30,7 +32,8 @@ public class RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests<TSettings>
     private const string TestsDirectoryName = "test";
     private const string UserApplicationDirectoryName = "app";
     private const string NginxConfFileName = "nginx.conf";
-    private readonly Regex testTimeoutRegex = new Regex(@"Timeout (?:of )?\d+ms exceeded\.");
+    private readonly Regex testTimeoutRegex = new(@"Timeout (?:of )?\d+ms exceeded\.");
+    private const string EslintConfigFileName = "eslint.config.js";
 
     public RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests(
         IOjsSubmission submission,
@@ -39,7 +42,47 @@ public class RunSpaAndExecuteMochaTestsExecutionStrategySeparateTests<TSettings>
         ILogger<BaseExecutionStrategy<TSettings>> logger)
         : base(submission, processExecutorFactory, settingsProvider, logger)
     {
+        if (!FileHelpers.FileExists(this.Settings.EslintExecutablePath))
+        {
+            throw new ArgumentException($"Eslint not found in: {this.Settings.EslintExecutablePath}", nameof(this.Settings.EslintExecutablePath));
+        }
     }
+
+    private string EslintConfigContent => @"
+const importPlugin = require('" + this.Settings.EslintPluginModulePath + @"');
+
+module.exports = [
+    {
+        files: ['**/*.js'],
+        languageOptions: {
+            ecmaVersion: 2021,
+            sourceType: 'module',
+            globals: {
+                window: 'readonly',
+                document: 'readonly',
+                console: 'readonly',
+            },
+        },
+        plugins: {
+            import: importPlugin,
+        },
+        rules: {
+            'import/no-unresolved': ['error', { caseSensitive: true }],
+            'import/named': 'error',
+            'import/default': 'error',
+            'import/namespace': 'error',
+        },
+        settings: {
+          'import/resolver': {
+            node: {
+              extensions: ['.js'],
+            }
+          }
+        }
+    }
+];";
+
+
     private static string NginxFileContent => $@"
 worker_processes  1;
 
@@ -247,6 +290,7 @@ finally:
         }
 
         this.SaveNginxFile();
+        this.SaveEslintConfig();
 
         var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
         var executor = this.CreateStandardExecutor();
@@ -265,6 +309,15 @@ finally:
             {
                 this.Logger.LogUnexpectedProcessOutput(preExecutionResult);
                 throw new ArgumentException("Failed to run the strategy pre execute step. Please contact a developer.");
+            }
+
+            // Run ESLint validation before running tests
+            var eslintResult = await this.RunEslintValidation(executor, executionContext);
+            if (!string.IsNullOrEmpty(eslintResult))
+            {
+                result.IsCompiledSuccessfully = false;
+                result.CompilerComment = $"ESLint validation failed:\n{eslintResult}";
+                return result;
             }
 
             return await this.RunTests(string.Empty, executor, checker, executionContext, result);
@@ -568,5 +621,49 @@ except Exception as e:
         var cleanupFilePath = this.SavePythonCodeTemplateToTempFile(cleanupScript);
 
         return await this.Execute(executionContext, executor, cleanupFilePath);
+    }
+
+    private void SaveEslintConfig()
+    {
+        var eslintConfigPath = FileHelpers.BuildPath(this.UserApplicationPath, EslintConfigFileName);
+        FileHelpers.SaveStringToFile(this.EslintConfigContent, eslintConfigPath);
+    }
+
+    private async Task<string> RunEslintValidation(IExecutor executor, IExecutionContext<TestsInputModel> executionContext)
+    {
+        var arguments = new[]
+        {
+            "--format", "json",
+        };
+
+        var processExecutionResult = await executor.Execute(
+            this.Settings.EslintExecutablePath,
+            executionContext.TimeLimit,
+            executionContext.MemoryLimit,
+            executionArguments: arguments,
+            workingDirectory: this.UserApplicationPath);
+
+        if (processExecutionResult.ExitCode != 0)
+        {
+            try
+            {
+                var errors = JsonSerializer.Deserialize<List<EslintError>>(processExecutionResult.ReceivedOutput);
+                if (errors != null)
+                {
+                    var formattedErrors = errors
+                        .SelectMany(error => error.Messages
+                            .Where(message => !message.Message.Contains("node_modules"))
+                            .Select(message => $"{error.FilePath}:{message.Line}:{message.Column} - {message.Message}"));
+
+                    return string.Join(Environment.NewLine, formattedErrors);
+                }
+            }
+            catch (JsonException)
+            {
+                return processExecutionResult.ReceivedOutput;
+            }
+        }
+
+        return string.Empty;
     }
 }

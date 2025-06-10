@@ -504,11 +504,16 @@ interface IEnumType {
     enumValues?: Array<string>;
 }
 
+interface ICustomFilter {
+    customFilter?: (value: string) => string;
+}
+
 interface IAdministrationFilterColumn {
     field: string;
     columnName: string;
     columnType: FilterColumnTypeEnum;
     enumValues?: Array<string> | null;
+    customFilter?: (value: string) => string;
 }
 
 interface IFilterColumn {
@@ -875,6 +880,12 @@ interface IProfilePageContests {
     requirePasswordForPractice: boolean;
 }
 
+interface IExcelFilter {
+    propertyName: string;
+    value: string | number;
+    operator: string;
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export type {
     IIndexContestsType,
@@ -967,4 +978,6 @@ export type {
     IFilterColumn,
     IFilterEnum,
     IProfilePageContests,
+    IExcelFilter,
+    ICustomFilter,
 };
