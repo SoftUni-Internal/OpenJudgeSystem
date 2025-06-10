@@ -91,7 +91,22 @@ const AdministrationThemeProvider: FC<IAdministrationThemeProviderProps> = ({ ch
                     },
                 },
             },
-            MuiDataGrid: { styleOverrides: { root: { borderRadius: '14px', borderWidth: '1px' } } },
+            MuiDataGrid: {
+                styleOverrides: {
+                    root: {
+                        borderRadius: '14px',
+                        borderWidth: '1px',
+                        backgroundColor: getColors(themeMode).background.default,
+                        '& .MuiDataGrid-cell': { backgroundColor: getColors(themeMode).background.default },
+                        '& .MuiDataGrid-row': { backgroundColor: getColors(themeMode).background.default },
+                        '& .MuiDataGrid-columnHeaders': {
+                            backgroundColor: getColors(themeMode).background.default,
+                            '& .MuiDataGrid-columnHeader': { backgroundColor: getColors(themeMode).background.default },
+                            '& .MuiDataGrid-columnHeaderTitle': { color: getColors(themeMode).textColors.primary },
+                        },
+                    },
+                },
+            },
             MuiButton: { styleOverrides: { root: { borderRadius: 8 } } },
             MuiCssBaseline: {
                 styleOverrides: {

@@ -17,7 +17,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'submissionId',
@@ -43,12 +43,12 @@ const dataColumns: AdministrationGridColDef[] = [
         headerName: 'State',
         align: 'center',
         headerAlign: 'center',
-        type: 'enum',
+        type: 'singleSelect',
         flex: 0.8,
         filterable: false,
         sortable: false,
         enumValues: getStringObjectKeys(SubmissionProcessingState),
-        valueFormatter: (params) => SubmissionProcessingState[params.value],
+        valueFormatter: (_, row) => SubmissionProcessingState[row.value],
     } as GridColDef & IEnumType,
     {
         field: 'enqueuedAt',
@@ -60,7 +60,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: true,
         sortable: true,
-        valueFormatter: (params) => adminPreciseFormatDate(params.value),
+        valueFormatter: (_, row) => adminPreciseFormatDate(row.value),
     },
     {
         field: 'processingStartedAt',
@@ -72,7 +72,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: true,
         sortable: true,
-        valueFormatter: (params) => adminPreciseFormatDate(params.value),
+        valueFormatter: (_, row) => adminPreciseFormatDate(row.value),
     },
     {
         field: 'processedAt',
@@ -84,7 +84,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: true,
         sortable: true,
-        valueFormatter: (params) => adminPreciseFormatDate(params.value),
+        valueFormatter: (_, row) => adminPreciseFormatDate(row.value),
     },
     {
         field: 'createdOn',
@@ -95,7 +95,7 @@ const dataColumns: AdministrationGridColDef[] = [
         width: 200,
         filterable: true,
         sortable: true,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -106,7 +106,7 @@ const dataColumns: AdministrationGridColDef[] = [
         width: 200,
         filterable: true,
         sortable: true,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 

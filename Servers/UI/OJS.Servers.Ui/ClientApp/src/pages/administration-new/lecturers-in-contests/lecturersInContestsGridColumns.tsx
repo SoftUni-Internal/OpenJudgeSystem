@@ -15,7 +15,7 @@ const lecturerInContestFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         flex: 0.5,
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'contestName',
