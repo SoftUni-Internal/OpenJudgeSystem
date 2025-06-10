@@ -40,9 +40,10 @@
     "react-router-dom": "^6.24.0",
     "redux-persist": "^6.0.0",
     "redux-persist-indexeddb-storage": "^1.0.4",
-    "sass": "^1.69.5",
+    "sass": "^1.89.2",
     "use-resize-observer": "^9.1.0",
     "uuid": "^9.0.0",
+    "vfile": "5.3.7",
     "vite": "^3.0.7",
     "yarn": "^1.22.17"
   },
@@ -97,5 +98,8 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "resolutions": {
+    "vfile": "5.3.7"
+  }
 }
