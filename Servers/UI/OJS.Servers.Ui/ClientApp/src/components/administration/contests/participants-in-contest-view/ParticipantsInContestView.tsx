@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { MdOutlineManageHistory } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ExcelFilterOperators } from 'src/common/enums';
 import ChangeParticipantsTime
     from 'src/components/administration/participants/change-participants-time/ChangeParticipantsTime';
 
@@ -11,7 +12,7 @@ import {
 } from '../../../../pages/administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import participantsFilteringColumns, { returnparticipantsNonFilterableColumns } from '../../../../pages/administration-new/participants/participantsGridColumns';
-import { useGetByContestIdQuery } from '../../../../redux/services/admin/participantsAdminService';
+import { useGetByContestIdQuery, useLazyExportParticipantsToExcelQuery } from '../../../../redux/services/admin/participantsAdminService';
 import { renderSuccessfullAlert } from '../../../../utils/render-utils';
 import CreateButton from '../../common/create/CreateButton';
 import AdministrationModal from '../../common/modals/administration-modal/AdministrationModal';
@@ -118,6 +119,8 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
                   ]}
                   setQueryParams={setQueryParams}
                   withSearchParams={false}
+                  excelMutation={useLazyExportParticipantsToExcelQuery}
+                  excelFilters={[ { propertyName: 'contestId', operator: ExcelFilterOperators.Equals, value: contestId } ]}
                 />
             </div>
         </>

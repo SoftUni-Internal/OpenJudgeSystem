@@ -13,7 +13,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import debounce from 'lodash/debounce';
 
 import { FilterColumnTypeEnum, SortingEnum } from '../../../common/enums';
-import { IAdministrationFilterColumn, IEnumType, IGetAllAdminParams } from '../../../common/types';
+import { IAdministrationFilterColumn, ICustomFilter, IEnumType, IGetAllAdminParams } from '../../../common/types';
 import { getColors, useAdministrationTheme } from '../../../hooks/use-administration-theme-provider';
 import { getDateAsLocal } from '../../../utils/administration/administration-dates';
 import concatClassNames from '../../../utils/class-names';
@@ -181,11 +181,16 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
             if (!filter.column || !filter.operator || !filter.value) {
                 return;
             }
-
-            // Use field for backend filtering if available, otherwise fall back to columnName
+            // Find the column definition to check for customFilter
+            const columnDef = filterColumns.find((c) => c.columnName === filter.column);
+            if (columnDef && typeof columnDef.customFilter === 'function') {
+                // Use the customFilter function to generate the filter string
+                // eslint-disable-next-line consistent-return
+                return columnDef.customFilter(filter.value);
+            }
+            // Default behavior
             const filterField = filter.field || filter.column;
-
-            // eslint-disable-next-line consistent-return, max-len
+            // eslint-disable-next-line consistent-return
             return `${filterField}${filterParamsSeparator}${filter.operator}${filterParamsSeparator}${filter.value}`.toLowerCase();
         };
 
@@ -678,7 +683,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
  */
 
 const mapGridColumnsToAdministrationFilterProps =
-(dataColumns: Array<GridColDef& IEnumType>): IAdministrationFilterColumn[] => dataColumns.map((column) => {
+(dataColumns: Array<GridColDef & IEnumType & ICustomFilter>): IAdministrationFilterColumn[] => dataColumns.map((column) => {
     const mappedEnumType = mapStringToFilterColumnTypeEnum(column.type || '');
     return {
         field: column.field,
@@ -687,6 +692,7 @@ const mapGridColumnsToAdministrationFilterProps =
         enumValues: mappedEnumType === FilterColumnTypeEnum.ENUM
             ? column.enumValues
             : null,
+        customFilter: column.customFilter,
     };
 });
 

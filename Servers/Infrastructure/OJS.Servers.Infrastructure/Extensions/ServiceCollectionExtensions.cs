@@ -25,7 +25,6 @@ namespace OJS.Servers.Infrastructure.Extensions
     using OJS.Common.Exceptions;
     using OJS.Servers.Infrastructure.Configurations;
     using OJS.Servers.Infrastructure.Handlers;
-    using OJS.Servers.Infrastructure.Health;
     using OJS.Servers.Infrastructure.Policy;
     using OJS.Services.Common;
     using OJS.Services.Common.Implementations;
@@ -39,6 +38,7 @@ namespace OJS.Servers.Infrastructure.Extensions
     using OJS.Services.Infrastructure.ResilienceStrategies;
     using OJS.Services.Infrastructure.ResilienceStrategies.Implementations;
     using OJS.Services.Infrastructure.ResilienceStrategies.Listeners;
+    using OJS.Services.Common.Telemetry;
     using Polly;
     using Polly.CircuitBreaker;
     using Polly.Retry;
@@ -55,6 +55,7 @@ namespace OJS.Servers.Infrastructure.Extensions
     using System.Text.Json;
     using System.Threading.Tasks;
     using OpenAI;
+    using RabbitMQ.Client;
     using static OJS.Common.GlobalConstants;
     using static OJS.Common.GlobalConstants.FileExtensions;
     using static OJS.Servers.Infrastructure.ServerConstants.Authorization;
@@ -74,7 +75,7 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .AddAutoMapperConfigurations<TStartup>()
                 .AddConventionServices<TStartup>()
                 .AddHttpContextServices()
-                .AddLokiHttpClient(configuration)
+                .AddTracing()
                 .AddOptionsWithValidation<ApplicationConfig>()
                 .AddOptionsWithValidation<HealthCheckConfig>();
 
@@ -90,8 +91,7 @@ namespace OJS.Servers.Infrastructure.Extensions
             });
 
             return services
-                .AddAuthorizationPolicies()
-                .AddHealthMonitoring();
+                .AddAuthorizationPolicies();
         }
 
         /// <summary>
@@ -275,6 +275,23 @@ namespace OJS.Servers.Infrastructure.Extensions
                 });
             });
 
+            var clientName = (Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty) + "_client";
+
+            services
+                .AddSingleton<IConnection>(_ =>
+                    new ConnectionFactory
+                    {
+                        HostName = messageQueueConfig.Host,
+                        VirtualHost = messageQueueConfig.VirtualHost,
+                        UserName = messageQueueConfig.User,
+                        Password = messageQueueConfig.Password,
+                        ClientProvidedName = clientName,
+                    }.CreateConnectionAsync()
+                        .GetAwaiter()
+                        .GetResult())
+                .AddHealthChecks()
+                .AddRabbitMQ();
+
             return services;
         }
 
@@ -283,6 +300,9 @@ namespace OJS.Servers.Infrastructure.Extensions
                 .AddHttpContextAccessor()
                 .AddTransient(s =>
                     s.GetRequiredService<IHttpContextAccessor>().HttpContext?.User ?? new ClaimsPrincipal());
+
+        public static IServiceCollection AddTracing(this IServiceCollection services)
+            => services.AddTransient<ITracingService, TracingService>();
 
         public static IServiceCollection AddOptionsWithValidation<T>(this IServiceCollection services)
             where T : BaseConfig
@@ -365,19 +385,6 @@ namespace OJS.Servers.Infrastructure.Extensions
             return services;
         }
 
-        private static IServiceCollection AddLokiHttpClient(this IServiceCollection services, IConfiguration configuration)
-        {
-            var applicationConfig = configuration.GetSectionWithValidation<ApplicationConfig>();
-
-            services.AddHttpClient(ServiceConstants.LokiHttpClientName, client =>
-            {
-                client.BaseAddress = new Uri(applicationConfig.OtlpCollectorBaseUrl);
-                client.DefaultRequestHeaders.Add(HeaderNames.Authorization, applicationConfig.OtlpCollectorBasicAuthHeaderValue);
-            });
-
-            return services;
-        }
-
         public static IServiceCollection AddHttpClients(this IServiceCollection services, IConfiguration configuration)
         {
             var svnConfig = configuration.GetSectionWithValidation<SvnConfig>();
@@ -440,14 +447,6 @@ namespace OJS.Servers.Infrastructure.Extensions
         {
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             return Task.CompletedTask;
-        }
-
-        private static IServiceCollection AddHealthMonitoring(this IServiceCollection services)
-        {
-            services.AddHealthChecks()
-                .AddCheck<LokiHealthCheck>("loki");
-
-            return services;
         }
 
         private static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
