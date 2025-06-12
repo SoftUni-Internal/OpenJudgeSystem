@@ -73,6 +73,7 @@ public class WorkersBusyRatioMonitor(
         this.busyRatioRollingAverage.AddMeasurement(busyRatio);
         this.totalWorkersCountRollingAverage.AddMeasurement(workersTotalCount);
         this.submissionsAwaitingExecutionCountRollingAverage.AddMeasurement(queue.MessagesReady);
+        logger.LogMeasuredWorkersBusyRatio(busyRatio, workersTotalCount, queue.MessagesReady);
     }
 
     public void StopMonitoring() => this.IsMonitoringRunning = false;
