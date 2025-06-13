@@ -319,9 +319,9 @@ const Mentor = (props: IMentorProps) => {
                                               : styles.mentorMessage
                                   }`}
                                 >
-                                    <ReactMarkdown className={styles.markdownContent}>
-                                        {message.content}
-                                    </ReactMarkdown>
+                                    <div className={styles.markdownContent}>
+                                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                                    </div>
                                 </div>
                             </div>
                         ))}
