@@ -33,6 +33,9 @@ public class SubmissionStartedProcessingConsumer(
                 }
                 else if (submissionForProcessing.State == SubmissionProcessingState.Enqueued)
                 {
+                    // Update the processing state only if the submission is still in the enqueued state.
+                    // It's possible that the submission is already being processed and marked as processed.
+                    // In this case, we don't want to revert the state to processing.
                     await submissionsForProcessingCommonData.SetProcessingState(
                         submissionForProcessing,
                         SubmissionProcessingState.Processing,
