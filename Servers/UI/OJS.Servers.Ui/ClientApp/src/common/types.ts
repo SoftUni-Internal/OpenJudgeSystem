@@ -455,6 +455,7 @@ interface ISubmissionsAdminGridViewType {
     participantName: string;
     problemId: number;
     problemName: string;
+    workerName: string;
     submissionTypeId: number;
     submissionTypeName: string;
     isDeleted: boolean;
