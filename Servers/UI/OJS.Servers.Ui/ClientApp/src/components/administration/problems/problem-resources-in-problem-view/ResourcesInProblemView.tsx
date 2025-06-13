@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ResourceType } from 'src/common/enums';
+import { ExcelFilterOperators, ResourceType } from 'src/common/enums';
 import { useGetContestResourcesQuery } from 'src/redux/services/admin/contestsAdminService';
 import { useGetProblemResourcesQuery } from 'src/redux/services/admin/problemsAdminService';
+import { useLazyExportResourcesToExcelQuery } from 'src/redux/services/admin/resourcesAdminService';
 
 import { IGetAllAdminParams } from '../../../../common/types';
 import { getColors, useAdministrationTheme } from '../../../../hooks/use-administration-theme-provider';
@@ -126,6 +127,8 @@ const ResourcesInProblemView = (props : IResourceInProblemViewProps) => {
                   { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i, false) },
                   { showModal: showCreateModal, modal: (i) => renderProblemResourceModal(i, true) },
               ]}
+              excelMutation={useLazyExportResourcesToExcelQuery}
+              excelFilters={[ { propertyName: 'problemId', operator: ExcelFilterOperators.Equals, value: problemId } ]}
             />
         </>
     );

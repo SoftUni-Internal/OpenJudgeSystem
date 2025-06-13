@@ -310,7 +310,7 @@ const SubmissionGridRow = ({
                                 </Popover>
                             </td>
                         )
-                        : <td />
+                        : <td aria-hidden="true" />
                     : null
             }
             {

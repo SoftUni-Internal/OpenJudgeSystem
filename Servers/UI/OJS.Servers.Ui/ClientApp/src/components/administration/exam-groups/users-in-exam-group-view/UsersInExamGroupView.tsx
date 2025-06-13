@@ -3,6 +3,7 @@ import { useState } from 'react';
 import QueueIcon from '@mui/icons-material/Queue';
 import { IconButton, Tooltip } from '@mui/material';
 import { GridRenderCellParams } from '@mui/x-data-grid';
+import { ExcelFilterOperators } from 'src/common/enums';
 
 import { DISABLED_USER_TO_EXAM_GROUP_BUTTON } from '../../../../common/messages';
 import { IGetAllAdminParams } from '../../../../common/types';
@@ -12,7 +13,10 @@ import {
 } from '../../../../pages/administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import { useDeleteUserFromExamGroupMutation } from '../../../../redux/services/admin/examGroupsAdminService';
-import { useGetByExamGroupIdQuery } from '../../../../redux/services/admin/usersAdminService';
+import {
+    useGetByExamGroupIdQuery,
+    useLazyExportUsersToExcelQuery,
+} from '../../../../redux/services/admin/usersAdminService';
 import { flexCenterObjectStyles } from '../../../../utils/object-utils';
 import CreateButton from '../../common/create/CreateButton';
 import AdministrationModal from '../../common/modals/administration-modal/AdministrationModal';
@@ -209,6 +213,8 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
           ]}
           setQueryParams={setQueryParams}
           withSearchParams={false}
+          excelMutation={useLazyExportUsersToExcelQuery}
+          excelFilters={[ { propertyName: 'examGroupIds', operator: ExcelFilterOperators.Contains, value: examGroupId } ]}
         />
     );
 };

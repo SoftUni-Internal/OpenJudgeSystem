@@ -165,7 +165,13 @@ enum ExceptionType {
     Other = 4,
 }
 
-enum SubmissionProcessingState {
+enum ExcelFilterOperators {
+    Contains = 'contains',
+    Equals = 'equals',
+}
+
+enum SubmissionProcessingState
+{
     Invalid = 0,
     Pending = 1,
     Enqueued = 2,
@@ -193,6 +199,7 @@ export {
     CheckboxSearchValues,
     ChatMessageRole,
     ExceptionType,
+    ExcelFilterOperators,
     TestType,
     SubmissionProcessingState,
     ResourceType,
