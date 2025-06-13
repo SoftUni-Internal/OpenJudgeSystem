@@ -128,7 +128,7 @@ const ResourcesInProblemView = (props : IResourceInProblemViewProps) => {
                   { showModal: showCreateModal, modal: (i) => renderProblemResourceModal(i, true) },
               ]}
               excelMutation={useLazyExportResourcesToExcelQuery}
-              excelFilters={[ { propertyName: 'problemId', operator: ExcelFilterOperators.Equals, value: problemId } ]}
+              excelFilters={[ { propertyName: 'problemId', operator: ExcelFilterOperators.Equals, value: parentId } ]}
             />
         </>
     );
