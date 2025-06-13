@@ -88,7 +88,7 @@ const ContestDetailsPage = () => {
 
         return resources.map((resource: IProblemResourceType, index: number) => (
             <span key={`contest-resource-${resource.id}`}>
-                <Resource resource={resource} problem={name} />
+                <Resource resource={resource} />
                 {resources.length > 1 && index < resources.length - 1 && ' | '}
             </span>
         ));
@@ -107,7 +107,6 @@ const ContestDetailsPage = () => {
                         <div key={`p-r-${resource.id}`} className={styles.problemResourceWrapper}>
                             <Resource
                               resource={resource}
-                              problem={problem.name}
                             />
                         </div>
                     ))}

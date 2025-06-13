@@ -26,4 +26,6 @@ public class ProblemResourceInListModel : IMapFrom<ProblemResource>
     public DateTime? ModifiedOn { get; set; }
 
     public string ProblemName { get; set; } = string.Empty;
+
+    public int ProblemId { get; set; }
 }

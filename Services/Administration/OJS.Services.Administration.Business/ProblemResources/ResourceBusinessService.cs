@@ -41,19 +41,7 @@ public class ResourceBusinessService : IResourcesBusinessService
             throw new BusinessServiceException($"Resource with id {id} was not found.");
         }
 
-        switch (resource)
-        {
-            case ProblemResource pr:
-                this.problemResourcesDataService.Delete(pr);
-                break;
-
-            case ContestResource cr:
-                this.contestResourceDataService.Delete(cr);
-                break;
-
-            default:
-                throw new BusinessServiceException("Unsupported resource type.");
-        }
+        this.resourceDataService.Delete(resource);
 
         await this.problemsCache.ClearProblemCacheById(resource.ParentId);
 

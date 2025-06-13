@@ -39,6 +39,16 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
+        field: 'problemId',
+        headerName: 'Problem Id',
+        flex: 0.5,
+        type: 'string',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
         field: 'problemName',
         headerName: 'Problem Name',
         flex: 0.5,

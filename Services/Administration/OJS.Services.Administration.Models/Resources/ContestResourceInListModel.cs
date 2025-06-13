@@ -26,4 +26,6 @@ public class ContestResourceInListModel : IMapFrom<ContestResource>
     public DateTime? ModifiedOn { get; set; }
 
     public string ContestName { get; set; } = string.Empty;
+
+    public int ContestId { get; set; }
 }

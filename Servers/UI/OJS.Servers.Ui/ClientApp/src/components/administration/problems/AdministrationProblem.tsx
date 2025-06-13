@@ -9,7 +9,7 @@ import { renderErrorMessagesAlert } from '../../../utils/render-utils';
 import TabsInView from '../common/tabs/TabsInView';
 
 import ProblemForm from './problem-form/ProblemForm';
-import ResourcesInProblemView from './problem-resources-in-problem-view/ResourcesInProblemView';
+import ResourcesInView from './problem-resources-in-problem-view/ResourcesInView';
 import TestsInProblemView from './tests-in-problem-view/TestsInProblemView';
 
 enum PROBLEM_LISTED_DATA {
@@ -60,7 +60,7 @@ const AdministrationProblem = () => {
 
     const returnResourceInProblemView = (key:string) => (
         <div id={PROBLEM_LISTED_DATA.RESOURCES}>
-            <ResourcesInProblemView key={key} parentId={Number(problemId)} type={ResourceType.ProblemResource} />
+            <ResourcesInView key={key} parentId={Number(problemId)} type={ResourceType.ProblemResource} />
         </div>
     );
 

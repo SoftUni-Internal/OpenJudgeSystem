@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { ResourceType } from 'src/common/enums';
-import ResourcesInProblemView
-    from 'src/components/administration/problems/problem-resources-in-problem-view/ResourcesInProblemView';
+import ResourcesInView
+    from 'src/components/administration/problems/problem-resources-in-problem-view/ResourcesInView';
 
 import { ContestVariation } from '../../../common/contest-types';
 import useScrollToTab from '../../../hooks/common/use-scroll-to-tab';
@@ -57,7 +57,7 @@ const AdministrationContestPage = () => {
 
     const returnResourceInProblemView = (key:string) => (
         <div id={CONTEST_LISTED_DATA.RESOURCES}>
-            <ResourcesInProblemView key={key} parentId={Number(contestId)} type={ResourceType.ContestResource} />
+            <ResourcesInView key={key} parentId={Number(contestId)} type={ResourceType.ContestResource} />
         </div>
     );
 

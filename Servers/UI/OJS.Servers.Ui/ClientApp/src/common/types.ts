@@ -161,10 +161,12 @@ interface IResourceInListModel {
 
 interface IContestResourceInListModel extends IResourceInListModel {
     contestName: string;
+    contestId: number;
 }
 
 interface IProblemResourceInListModel extends IResourceInListModel {
     problemName: string;
+    problemId: number;
 }
 
 interface IProblemType {

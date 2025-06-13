@@ -39,6 +39,16 @@ const contestResourcesFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
+        field: 'contestId',
+        headerName: 'Contest Id',
+        flex: 0.5,
+        type: 'string',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
         field: 'contestName',
         headerName: 'Contest Name',
         flex: 0.5,

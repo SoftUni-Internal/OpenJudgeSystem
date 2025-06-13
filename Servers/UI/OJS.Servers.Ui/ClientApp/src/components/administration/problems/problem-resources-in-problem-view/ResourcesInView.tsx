@@ -24,7 +24,7 @@ interface IResourceInProblemViewProps {
     type: ResourceType;
 }
 
-const ResourcesInProblemView = (props : IResourceInProblemViewProps) => {
+const ResourcesInView = (props : IResourceInProblemViewProps) => {
     const { parentId, type } = props;
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
@@ -134,4 +134,4 @@ const ResourcesInProblemView = (props : IResourceInProblemViewProps) => {
     );
 };
 
-export default ResourcesInProblemView;
+export default ResourcesInView;
