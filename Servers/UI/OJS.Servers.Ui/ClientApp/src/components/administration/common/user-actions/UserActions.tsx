@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useState } from 'react';
+import React, { ChangeEvent, FC, RefObject, useState } from 'react';
 import { CiSquareMore } from 'react-icons/ci';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -16,7 +16,7 @@ interface IUserActionsProps {
     themeMode: ThemeMode;
     showMenu: boolean;
     setShowMenu: (show: boolean) => void;
-    iconButtonRef: React.RefObject<HTMLButtonElement>;
+    iconButtonRef: RefObject<HTMLButtonElement | null>;
 }
 
 const MaterialUISwitch = styled(Switch)(({ theme }) => ({

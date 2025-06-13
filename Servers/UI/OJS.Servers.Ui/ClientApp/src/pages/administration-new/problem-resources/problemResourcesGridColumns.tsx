@@ -26,7 +26,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
@@ -45,10 +45,10 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         align: 'center',
-        type: 'enum',
+        type: 'singleSelect',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemResourceType),
-        valueFormatter: (params) => ProblemResourceType[params.value],
+        valueFormatter: (_, row) => ProblemResourceType[row.value],
     } as GridColDef & IEnumType,
     {
         field: 'fileExtension',
@@ -89,7 +89,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'problemName',
@@ -123,7 +123,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -132,7 +132,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 

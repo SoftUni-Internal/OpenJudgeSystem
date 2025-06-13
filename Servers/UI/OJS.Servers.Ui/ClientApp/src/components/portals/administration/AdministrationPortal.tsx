@@ -310,7 +310,7 @@ const AdministrationPortal = () => {
 
     const [ open, setOpen ] = useState(true);
     const [ showMenu, setShowMenu ] = useState<boolean>(false);
-    const iconButtonRef = useRef(null);
+    const iconButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         const locationPathnameElements = location.pathname.split('/');

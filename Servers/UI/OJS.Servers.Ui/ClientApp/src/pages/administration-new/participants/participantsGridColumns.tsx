@@ -21,7 +21,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         flex: 0.5,
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'userName',
@@ -94,7 +94,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -103,7 +103,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'participationStartTime',
@@ -112,7 +112,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'participationEndTime',
@@ -121,7 +121,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'lastSubmissionTime',
@@ -130,7 +130,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 

@@ -169,7 +169,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -178,7 +178,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'startedExecutionOn',
@@ -187,7 +187,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1.5,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'completedExecutionOn',
@@ -196,7 +196,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1.5,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'fileExtension',
