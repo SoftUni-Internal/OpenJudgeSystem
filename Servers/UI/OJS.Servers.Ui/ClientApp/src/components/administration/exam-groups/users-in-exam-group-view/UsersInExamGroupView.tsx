@@ -50,7 +50,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
             filterable: false,
             sortable: false,
             flex: 1,
-            valueFormatter: (params) => params.value.toString(),
+            valueFormatter: (_, row) => row.value?.toString(),
         },
         {
             field: 'userName',

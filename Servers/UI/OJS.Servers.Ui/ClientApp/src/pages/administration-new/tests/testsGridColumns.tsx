@@ -25,7 +25,7 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'orderBy',
@@ -63,13 +63,13 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         field: 'type',
         headerName: 'Test Type',
         flex: 1,
-        type: 'enum',
+        type: 'singleSelect',
         filterable: false,
         sortable: false,
         align: 'center',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(TestType),
-        valueFormatter: (params) => testTypesToFEStringsMapping[params.value],
+        valueFormatter: (_, row) => testTypesToFEStringsMapping[row.value],
         customFilter: (value: string) => {
             if (value === 'Compete') {
                 return 'isOpenTest~equals~false&&;isTrialTest~equals~false';
@@ -110,7 +110,7 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
 ];
 
