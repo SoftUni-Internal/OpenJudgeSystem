@@ -559,5 +559,7 @@ public record RunSpaAndExecuteMochaTestsExecutionStrategySettings(
     string JsProjNodeModulesPath,
     string MochaModulePath,
     string ChaiModulePath,
-    string PlaywrightChromiumModulePath)
+    string PlaywrightChromiumModulePath,
+    string EslintExecutablePath,
+    string EslintPluginModulePath)
     : PythonExecuteAndCheckExecutionStrategySettings(BaseTimeUsed, BaseMemoryUsed, PythonExecutablePath);

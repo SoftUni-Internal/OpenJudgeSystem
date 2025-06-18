@@ -34,7 +34,7 @@ const submissionTypeDocumentsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'submissionTypeDocumentTitle',

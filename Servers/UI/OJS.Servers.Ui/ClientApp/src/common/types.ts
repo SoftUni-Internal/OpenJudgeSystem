@@ -455,6 +455,7 @@ interface ISubmissionsAdminGridViewType {
     participantName: string;
     problemId: number;
     problemName: string;
+    workerName: string;
     submissionTypeId: number;
     submissionTypeName: string;
     isDeleted: boolean;
@@ -880,6 +881,12 @@ interface IProfilePageContests {
     requirePasswordForPractice: boolean;
 }
 
+interface IExcelFilter {
+    propertyName: string;
+    value: string | number;
+    operator: string;
+}
+
 // eslint-disable-next-line import/prefer-default-export
 export type {
     IIndexContestsType,
@@ -972,5 +979,6 @@ export type {
     IFilterColumn,
     IFilterEnum,
     IProfilePageContests,
+    IExcelFilter,
     ICustomFilter,
 };

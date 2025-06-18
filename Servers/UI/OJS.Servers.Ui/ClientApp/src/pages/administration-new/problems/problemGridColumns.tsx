@@ -31,7 +31,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
@@ -52,7 +52,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'contestId',
@@ -117,13 +117,13 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         field: 'problemGroupType',
         headerName: 'Problem Group Type',
         flex: 1,
-        type: 'enum',
+        type: 'singleSelect',
         filterable: false,
         align: 'center',
         sortable: false,
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemGroupTypes),
-        valueFormatter: (params) => ProblemGroupTypes[params.value],
+        valueFormatter: (_, row) => ProblemGroupTypes[row.value],
     } as GridColDef & IEnumType,
     {
         field: 'practiceTestsCount',
@@ -162,7 +162,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -171,7 +171,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 

@@ -38,6 +38,9 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(52, LogLevel.Information, "Background job for {JobDescription} is added or updated")]
     public static partial void LogBackgroundJobAddedOrUpdated(this ILogger logger, string jobDescription);
 
+    [LoggerMessage(53, LogLevel.Information, "Measured busy workers ratio: {BusyRatio}. Total workers: {WorkersTotalCount}. Submissions awaiting execution: {SubmissionsAwaitingExecution}.")]
+    public static partial void LogMeasuredWorkersBusyRatio(this ILogger logger, double busyRatio, int workersTotalCount, int submissionsAwaitingExecution);
+
     // Resilience pipelines
     [LoggerMessage(100, LogLevel.Error, "Circuit breaker {CircuitBreakerState}. Total number of times {CircuitBreakerState}: {TimesChanged}. Event: {ResilienceEvent}. Outcome: [{ResilienceOutcome}]. Pipeline: {ResiliencePipeline}. Strategy: {ResilienceStrategy}.")]
     public static partial void LogCircuitBreakerStateChanged(this ILogger logger, string circuitBreakerState, int timesChanged, string resilienceEvent, string resilienceOutcome, string? resiliencePipeline, string? resilienceStrategy);

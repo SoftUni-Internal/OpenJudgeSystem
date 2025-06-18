@@ -6,8 +6,8 @@
 import { SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import { TreeItem } from '@mui/x-tree-view';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
-import { TreeItem2 } from '@mui/x-tree-view/TreeItem2';
 
 import { IContestCategory } from '../../../common/types';
 import { getAllContestsPageUrl } from '../../../common/urls/compose-client-urls';
@@ -81,7 +81,7 @@ const ContestCategories = (props: IContestCategoriesProps) => {
     }, [ categoryId ]);
 
     const handleExpandedItemsChange = (
-        event: SyntheticEvent,
+        event: SyntheticEvent | null,
         itemIds: string[],
     ) => {
         setExpandedItems(itemIds);
@@ -118,7 +118,7 @@ const ContestCategories = (props: IContestCategoriesProps) => {
 
         if (category.children.length > 0) {
             return (
-                <TreeItem2
+                <TreeItem
                   itemId={`${category.id}`}
                   key={category.id}
                   label={category.name}
@@ -126,7 +126,7 @@ const ContestCategories = (props: IContestCategoriesProps) => {
                   classes={{ content: categoryListItemContentClassNames }}
                 >
                     {category.children.map((child) => renderCategory(child, true))}
-                </TreeItem2>
+                </TreeItem>
             );
         }
 

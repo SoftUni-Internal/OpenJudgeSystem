@@ -15,7 +15,7 @@ COPY Services/Infrastructure ./Services/Infrastructure
 WORKDIR Servers/Worker/OJS.Servers.Worker
 RUN dotnet publish OJS.Servers.Worker.csproj -c Release --verbosity q -o /app
 
-FROM ghcr.io/softuni-internal/judge_worker_base:latest
+FROM ghcr.io/softuni-internal/judge_worker_base:dev-latest
 WORKDIR /app
 COPY --from=build-env /app .
 
