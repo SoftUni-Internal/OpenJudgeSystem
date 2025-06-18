@@ -1,0 +1,249 @@
+/* stylelint-disable selector-no-qualifying-type */
+
+@use 'src/styles/variables';
+@use 'src/styles/colors';
+
+.diffDetailsText {
+  display: inline-block;
+  margin-bottom: 10px;
+  text-align: start;
+  width: 50%;
+
+  > h4 {
+    font-size: variables.$f-size-14;
+  }
+}
+
+.diffWrapper {
+  font-family: Consolas, monospace;
+}
+
+// Removes + and - signs in the beginning of each line
+td[class*='marker'] {
+  display: none;
+}
+
+pre[class*='content-text'] {
+  padding-left: 5px;
+}
+
+.lightDiff {
+  pre[class*='content-text'] {
+    pre {
+      color: colors.$light-text-color;
+    }
+  }
+
+  // Expected output
+  td[class*='gutter'][class*='removed'],
+  td[class*='empty-gutter'] {
+    background: #cdffd8;
+  }
+
+  td[class*='diff-removed'] {
+    background: #fff;
+  }
+
+  span[class*='word-removed'] {
+    // Difference marker background
+    background: #acf2bd;
+  }
+
+  // User output
+  td[class*='gutter'][class*='added'],
+  td[class*='empty-gutter'] {
+    background: #ffdce0;
+  }
+
+  td[class*='diff-added'] {
+    background: #fff;
+  }
+
+  span[class*='word-added'] {
+    // Difference marker background
+    background: #fdb8c0;
+  }
+}
+
+.darkDiff {
+  // Expected output
+  td[class*='gutter'][class*='removed'] {
+    background: #034148;
+  }
+
+  td[class*='diff-removed'] {
+    background: #2e303c;
+  }
+
+  span[class*='word-removed'] {
+    // Difference marker background
+    background: #055d67;
+  }
+
+  // User output
+  td[class*='gutter'][class*='added'] {
+    background: #632b30;
+  }
+
+  td[class*='diff-added'] {
+    background: #2e303c;
+  }
+
+  span[class*='word-added'] {
+    // Difference marker background
+    background: #7d383f;
+  }
+}
+
+.splitDiffTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
+  background: #fafbfc;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+.splitDiffLineNumberCell {
+  width: 2.5em;
+  min-width: 2.5em;
+  max-width: 2.5em;
+  text-align: right;
+  background: #f3f4f6;
+  color: #b3b3b3;
+  user-select: none;
+  font-size: 0.95em;
+  border-bottom: 1px solid #eaecef;
+  padding: 8px 8px 8px 0;
+  vertical-align: top;
+}
+
+.darkDiff .splitDiffLineNumberCell {
+  background: #23272e;
+  color: #6c757d;
+  border-bottom: 1px solid #444c56;
+}
+
+.splitDiffLineNumber {
+  font-variant-numeric: tabular-nums;
+}
+
+.diffScrollableBody {
+  display: block;
+  max-height: 400px;
+  overflow: auto;
+  width: 100%;
+}
+
+.splitDiffCell {
+  vertical-align: top;
+  white-space: pre-wrap;
+  padding: 8px 16px;
+  font-family: inherit;
+  font-size: 1rem;
+  border-bottom: 1px solid #eaecef;
+  width: 50%;
+  background: #fafbfc;
+  transition: background 0.2s;
+}
+
+.splitDiffHeaderRow {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.splitDiffHeader {
+  background: #fafbfc;
+  font-weight: 600;
+  font-size: 1rem;
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 2px solid #e1e4e8;
+  color: #24292f;
+  letter-spacing: 0.02em;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.lineAdded {
+  border-left: none;
+}
+.lineRemoved {
+  border-left: none;
+}
+
+.wordAdded {
+  background: #acf2bd;
+  color: #22863a;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+.wordRemoved {
+  background: #fdb8c0;
+  color: #b31d28;
+  border-radius: 2px;
+  padding: 0 2px;
+}
+
+.darkDiff .splitDiffTable {
+  background: #23272e;
+}
+.darkDiff .splitDiffCell {
+  background: #23272e;
+  color: #f3f1f1;
+  border-bottom: 1px solid #444c56;
+}
+.darkDiff .splitDiffHeader {
+  background: #23272e;
+  color: #f3f1f1;
+  border-bottom: 2px solid #444c56;
+}
+.darkDiff .lineAdded {
+  border-left: none;
+}
+.darkDiff .lineRemoved {
+  border-left: none;
+}
+.darkDiff .wordAdded {
+  background: #22863a;
+  color: #acf2bd;
+}
+.darkDiff .wordRemoved {
+  background: #b31d28;
+  color: #fdb8c0;
+}
+
+.splitDiffCell:hover {
+  background: #f6f8fa;
+}
+.darkDiff .splitDiffCell:hover {
+  background: #2d333b;
+}
+
+.emptyCell {
+  background: transparent;
+}
+
+.splitDiffSeparator {
+  border-left: 2px solid #e1e4e8;
+}
+
+.darkDiff .splitDiffSeparator {
+  border-left: 2px solid #444c56;
+}
+
+.diffHeaderRow {
+  display: flex;
+  width: 100%;
+  margin-bottom: 4px;
+}
+
+.diffHeaderCell {
+  width: 50%;
+  text-align: left;
+  font-weight: 600;
+}
