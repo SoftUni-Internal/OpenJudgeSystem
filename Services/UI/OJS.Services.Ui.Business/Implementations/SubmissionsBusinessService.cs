@@ -54,7 +54,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private readonly ILecturersInContestsCacheService lecturersInContestsCache;
     private readonly ISubmissionDetailsValidationService submissionDetailsValidationService;
     private readonly ISubmitSubmissionValidationService submitSubmissionValidationService;
-    private readonly ISubmissionResultsValidationService submissionResultsValidationService;
     private readonly ISubmissionFileDownloadValidationService submissionFileDownloadValidationService;
     private readonly IRetestSubmissionValidationService retestSubmissionValidationService;
     private readonly IPublisherService publisher;
@@ -83,7 +82,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         ILecturersInContestsCacheService lecturersInContestsCache,
         ISubmissionDetailsValidationService submissionDetailsValidationService,
         ISubmitSubmissionValidationService submitSubmissionValidationService,
-        ISubmissionResultsValidationService submissionResultsValidationService,
         ISubmissionFileDownloadValidationService submissionFileDownloadValidationService,
         IRetestSubmissionValidationService retestSubmissionValidationService,
         ISubmissionsForProcessingCommonDataService submissionsForProcessingData,
@@ -112,7 +110,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.participantScoresBusinessService = participantScoresBusinessService;
         this.submissionDetailsValidationService = submissionDetailsValidationService;
         this.submitSubmissionValidationService = submitSubmissionValidationService;
-        this.submissionResultsValidationService = submissionResultsValidationService;
         this.submissionFileDownloadValidationService = submissionFileDownloadValidationService;
         this.retestSubmissionValidationService = retestSubmissionValidationService;
         this.publisher = publisher;
@@ -301,24 +298,26 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         var problem =
             await this.problemsDataService.OneByIdTo<ProblemForSubmissionDetailsServiceModel>(problemId);
 
+        if (problem == null)
+        {
+            return new PagedResult<SubmissionForSubmitSummaryServiceModel>();
+        }
+
         var user = this.userProviderService.GetCurrentUser();
 
         var participant = await this.participantsDataService
-            .GetAllByContestByUserAndIsOfficial(problem?.ProblemGroupContestId ?? 0, user.Id, isOfficial)
+            .GetAllByContestByUserAndIsOfficial(problem.ProblemGroupContestId, user.Id, isOfficial)
             .AsNoTracking()
             .MapCollection<ParticipantServiceModel>()
             .FirstOrDefaultAsync();
 
-        var validationResult =
-            this.submissionResultsValidationService.GetValidationResult((user, problem, participant, isOfficial));
-
-        if (!validationResult.IsValid)
+        if (participant == null)
         {
-            throw new BusinessServiceException(validationResult.Message);
+            return new PagedResult<SubmissionForSubmitSummaryServiceModel>();
         }
 
         var query = this.submissionsData
-            .GetAllByProblemAndParticipant(problemId, participant!.Id);
+            .GetAllByProblemAndParticipant(problemId, participant.Id);
 
         var submissions = await
             this.ApplyFiltersAndSorters<SubmissionForSubmitSummaryServiceModel>(requestModel, query)
