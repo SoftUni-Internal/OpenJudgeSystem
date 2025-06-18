@@ -10,21 +10,22 @@ namespace OJS.Servers.Infrastructure.Extensions
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using OJS.Common;
+    using OJS.Common.Extensions;
     using OJS.Servers.Infrastructure.Filters;
     using OJS.Servers.Infrastructure.Middleware;
     using OJS.Services.Infrastructure;
     using Serilog;
     using Serilog.Events;
     using System;
+    using System.Diagnostics;
     using static OJS.Common.GlobalConstants.Urls;
     using static OJS.Servers.Infrastructure.ServerConstants.Authorization;
+    using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources.CommonTags;
 
     public static class WebApplicationExtensions
     {
         public static WebApplication UseDefaults(this WebApplication app)
         {
-            SetupRequestLoggingBehavior(app);
-
             // Add correlation ID middleware early in the pipeline
             app.UseMiddleware<CorrelationIdMiddleware>();
 
@@ -36,6 +37,23 @@ namespace OJS.Servers.Infrastructure.Extensions
 
             app.UseAuthentication();
             app.UseAuthorization();
+
+            // Add user ID to logs and traces
+            app.Use(async (context, next) =>
+            {
+                var userId = context.User.GetId();
+                if (!string.IsNullOrEmpty(userId) && Activity.Current != null)
+                {
+                    Activity.Current.SetTag(UserId, userId);
+                }
+
+                using (Serilog.Context.LogContext.PushProperty(nameof(UserId), userId ?? "anonymous"))
+                {
+                    await next();
+                }
+            });
+
+            SetupRequestLoggingBehavior(app);
 
             app.MapHealthMonitoring();
             app.MapControllers();
