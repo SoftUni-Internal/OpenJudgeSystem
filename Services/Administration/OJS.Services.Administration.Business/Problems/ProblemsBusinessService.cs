@@ -155,7 +155,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
             .ToList()
             .ForEachSequential(this.Delete);
 
-    public async Task<ServiceResult> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId)
+    public async Task<ServiceResult<VoidResult>> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId)
     {
         var problem = await this.problemsData
             .GetByIdQuery(id)
@@ -168,22 +168,22 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         if (problem?.ProblemGroup.ContestId == contestId)
         {
-            return new ServiceResult(Resource.CannotCopyProblemsIntoSameContest);
+            return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemsIntoSameContest);
         }
 
         if (!await this.contestsData.ExistsById(contestId))
         {
-            return new ServiceResult(SharedResource.ContestNotFound);
+            return ServiceResult.NotFound<VoidResult>("Contest", context: new { contestId });
         }
 
         if (await this.contestsData.IsActiveById(contestId))
         {
-            return new ServiceResult(Resource.CannotCopyProblemsIntoActiveContest);
+            return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemsIntoActiveContest);
         }
 
         await this.CopyProblemToContest(problem, contestId, problemGroupId);
 
-        return ServiceResult.Success;
+        return ServiceResult.EmptySuccess;
     }
 
     public override async Task<ProblemAdministrationModel> Get(int id)

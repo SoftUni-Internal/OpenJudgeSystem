@@ -14,7 +14,7 @@ public interface IProblemsBusinessService : IAdministrationOperationService<Prob
 
     Task DeleteByContest(int contestId);
 
-    Task<ServiceResult> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId);
+    Task<ServiceResult<VoidResult>> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId);
 
     Task<(MemoryStream outputStream, string zipFileName)> DownloadAdditionalFiles(int problemId);
 }

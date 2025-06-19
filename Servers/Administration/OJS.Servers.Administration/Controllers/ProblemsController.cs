@@ -133,9 +133,9 @@ public class ProblemsController : BaseAdminApiController<Problem, int, ProblemIn
         var result = await this.problemGroupsBusinessService
             .CopyAllToContestBySourceAndDestinationContest(model.SourceContestId, model.DestinationContestId);
 
-        if (result.IsError)
+        if (!result.IsSuccess)
         {
-            return this.BadRequest($"Copy failed due to an unexpected error: {result.Error}");
+            return this.BadRequest($"Copy failed due to an unexpected error: {result.ErrorMessage}");
         }
 
         return this.Ok("Problems successfully copied.");
@@ -171,9 +171,9 @@ public class ProblemsController : BaseAdminApiController<Problem, int, ProblemIn
             model.DestinationContestId,
             model.ProblemGroupId);
 
-        if (result.IsError)
+        if (!result.IsSuccess)
         {
-            return this.BadRequest(result.Error);
+            return this.BadRequest(result.ErrorMessage);
         }
 
         return this.Ok("Successfully copied problem");

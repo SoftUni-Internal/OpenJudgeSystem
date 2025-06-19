@@ -100,7 +100,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
             await this.ReevaluateProblemsAndProblemGroupsOrder(contestId);
         }
 
-        public async Task<ServiceResult> DeleteById(int id)
+        public async Task<ServiceResult<VoidResult>> DeleteById(int id)
         {
             var problemGroup = await this.problemGroupsData.GetByIdQuery(id)
                 .Include(p => p.Problems)
@@ -110,7 +110,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
             {
                 if (problemGroup.Problems.Any(p => !p.IsDeleted))
                 {
-                    return new ServiceResult(Resource.CannotDeleteProblemGroupWithProblems);
+                    return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotDeleteProblemGroupWithProblems);
                 }
 
                 this.problemGroupsData.Delete(problemGroup);
@@ -119,26 +119,26 @@ namespace OJS.Services.Administration.Business.ProblemGroups
                 await this.ReevaluateProblemsAndProblemGroupsOrder(problemGroup.ContestId);
             }
 
-            return ServiceResult.Success;
+            return ServiceResult.EmptySuccess;
         }
 
-        public async Task<ServiceResult> CopyAllToContestBySourceAndDestinationContest(
+        public async Task<ServiceResult<VoidResult>> CopyAllToContestBySourceAndDestinationContest(
             int sourceContestId,
             int destinationContestId)
         {
             if (sourceContestId == destinationContestId)
             {
-                return new ServiceResult(Resource.CannotCopyProblemGroupsIntoSameContest);
+                return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemGroupsIntoSameContest);
             }
 
             if (!await this.contestsData.ExistsById(destinationContestId))
             {
-                return new ServiceResult(SharedResource.ContestNotFound);
+                return ServiceResult.NotFound<VoidResult>("Contest", SharedResource.ContestNotFound, destinationContestId);
             }
 
             if (await this.contestsData.IsActiveById(destinationContestId))
             {
-                return new ServiceResult(Resource.CannotCopyProblemGroupsIntoActiveContest);
+                return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemGroupsIntoActiveContest);
             }
 
             var sourceContestProblemGroups = await this.problemGroupsData
@@ -154,7 +154,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
             await sourceContestProblemGroups
                 .ForEachSequential(async pg => await this.CopyProblemGroupToContest(pg, destinationContestId));
 
-            return ServiceResult.Success;
+            return ServiceResult.EmptySuccess;
         }
 
         public async Task ReevaluateProblemsAndProblemGroupsOrder(int contestId)

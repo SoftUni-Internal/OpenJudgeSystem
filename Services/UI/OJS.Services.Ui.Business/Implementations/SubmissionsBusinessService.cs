@@ -26,11 +26,11 @@ using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using OJS.Data.Models.Problems;
 using OJS.Services.Common.Data.Pagination;
+using OJS.Services.Common.Models;
 using OJS.Services.Common.Models.Pagination;
 using OJS.Services.Ui.Business.Cache;
 using OJS.Workers.Common.Extensions;
@@ -290,7 +290,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
     }
 
-    public async Task<PagedResult<SubmissionForSubmitSummaryServiceModel>> GetUserSubmissionsByProblem(
+    public async Task<ServiceResult<PagedResult<SubmissionForSubmitSummaryServiceModel>>> GetUserSubmissionsByProblem(
         int problemId,
         bool isOfficial,
         PaginationRequestModel requestModel)
@@ -300,20 +300,20 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         if (problem == null)
         {
-            return new PagedResult<SubmissionForSubmitSummaryServiceModel>();
+            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>("Problem", context: new { problemId });
         }
 
         var user = this.userProviderService.GetCurrentUser();
 
         var participant = await this.participantsDataService
-            .GetAllByContestByUserAndIsOfficial(problem.ProblemGroupContestId, user.Id, isOfficial)
+            .GetAllByContestByUserAndIsOfficial(problem?.ProblemGroupContestId ?? 0, user.Id, isOfficial)
             .AsNoTracking()
             .MapCollection<ParticipantServiceModel>()
             .FirstOrDefaultAsync();
 
         if (participant == null)
         {
-            return new PagedResult<SubmissionForSubmitSummaryServiceModel>();
+            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>("Participant", context: new { problemId, isOfficial });
         }
 
         var query = this.submissionsData
@@ -333,7 +333,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             submission.Result.MaxPoints = problem!.MaximumPoints;
         }
 
-        return submissions;
+        return ServiceResult.Success(submissions);
     }
 
     public async Task Submit(SubmitSubmissionServiceModel model)

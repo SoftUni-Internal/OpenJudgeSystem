@@ -2,12 +2,14 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OJS.Common.Enumerations;
 using OJS.Servers.Infrastructure.Controllers;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Servers.Ui.Models;
 using OJS.Servers.Ui.Models.Submissions.Details;
 using OJS.Services.Common;
+using OJS.Services.Common.Models;
 using OJS.Services.Common.Models.Submissions;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Ui.Business;
@@ -19,11 +21,11 @@ using OJS.Services.Common.Models.Pagination;
 using static OJS.Common.GlobalConstants.MimeTypes;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static OJS.Common.GlobalConstants.Roles;
-using static OJS.Services.Common.Constants.PaginationConstants.Submissions;
 
 public class SubmissionsController(
     ISubmissionsBusinessService submissionsBusiness,
-    IFileSystemService fileSystem)
+    IFileSystemService fileSystem,
+    ILogger<SubmissionsController> logger)
     : BaseApiController
 {
     /// <summary>
@@ -80,8 +82,8 @@ public class SubmissionsController(
         [FromQuery] PaginationRequestModel requestModel)
         => await submissionsBusiness
             .GetUserSubmissionsByProblem(problemId, isOfficial, requestModel)
-            .Map<PagedResultResponse<FullDetailsPublicSubmissionsResponseModel>>()
-            .ToOkResult();
+            .Map<ServiceResult<PagedResultResponse<FullDetailsPublicSubmissionsResponseModel>>>()
+            .ToActionResult(logger);
 
     /// <summary>
     /// Gets submission details by provided submission id.

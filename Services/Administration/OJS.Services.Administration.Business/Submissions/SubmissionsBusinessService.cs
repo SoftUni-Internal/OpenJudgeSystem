@@ -49,7 +49,7 @@ namespace OJS.Services.Administration.Business.Submissions
             this.testRunsData = testRunsData;
         }
 
-        public async Task<ServiceResult> Retest(Submission submission, bool verbosely)
+        public async Task<ServiceResult<VoidResult>> Retest(Submission submission, bool verbosely)
         {
             var submissionProblemId = submission.ProblemId;
             var submissionParticipantId = submission.ParticipantId;
@@ -78,7 +78,7 @@ namespace OJS.Services.Administration.Business.Submissions
                 submissionForProcessing = await this.submissionsForProcessingDataService.AddOrUpdate(submission.Id);
                 await this.submissionsData.SaveChanges();
 
-                return ServiceResult.Success;
+                return ServiceResult.EmptySuccess;
             });
 
             var submissionServiceModel = this.submissionsCommonBusinessService.BuildSubmissionForProcessing(submission, verbosely);
@@ -87,7 +87,7 @@ namespace OJS.Services.Administration.Business.Submissions
             return result;
         }
 
-        public async Task<ServiceResult> Retest(int id, bool verbosely = false)
+        public async Task<ServiceResult<VoidResult>> Retest(int id, bool verbosely = false)
         {
             var submission = await this.submissionsData.GetNonDeletedWithNonDeletedProblemTestsAndSubmissionTypes(id);
             if (submission == null || submission.Id == 0)

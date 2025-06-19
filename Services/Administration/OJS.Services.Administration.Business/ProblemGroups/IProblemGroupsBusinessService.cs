@@ -8,9 +8,9 @@ namespace OJS.Services.Administration.Business.ProblemGroups
 
     public interface IProblemGroupsBusinessService : IAdministrationOperationService<ProblemGroup, int, ProblemGroupsAdministrationModel>
     {
-        Task<ServiceResult> DeleteById(int id);
+        Task<ServiceResult<VoidResult>> DeleteById(int id);
 
-        Task<ServiceResult> CopyAllToContestBySourceAndDestinationContest(
+        Task<ServiceResult<VoidResult>> CopyAllToContestBySourceAndDestinationContest(
             int sourceContestId,
             int destinationContestId);
 

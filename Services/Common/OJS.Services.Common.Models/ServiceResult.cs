@@ -1,13 +1,24 @@
 namespace OJS.Services.Common.Models
 {
-    public class ServiceResult
+    using OJS.Common.Constants;
+
+    public static class ServiceResult
     {
-        public ServiceResult(string? error) => this.Error = error;
+        public static ServiceResult<VoidResult> EmptySuccess => Success(VoidResult.instance);
 
-        public static ServiceResult Success => new(null);
+        public static ServiceResult<T> Success<T>(T data)
+            => new(true, data, null, null, null, null, null);
 
-        public string? Error { get; }
+        public static ServiceResult<T> NotFound<T>(string resourceType, string? message = null, object? context = null)
+            => new(false, default, message ?? $"{resourceType} not found", ServiceConstants.ErrorCodes.NotFound, resourceType, null, context);
 
-        public bool IsError => !string.IsNullOrWhiteSpace(this.Error);
+        public static ServiceResult<T> AccessDenied<T>(string? message = null, object? context = null)
+            => new(false, default, message ?? "Access denied", ServiceConstants.ErrorCodes.AccessDenied, null, null, context);
+
+        public static ServiceResult<T> BusinessRuleViolation<T>(string message, object? context = null)
+            => new(false, default, message, ServiceConstants.ErrorCodes.BusinessRuleViolation, null, null, context);
+
+        public static ServiceResult<T> Failure<T>(string errorCode, string errorMessage, string? resourceType = null, string? propertyName = null, object? context = null)
+            => new(false, default, errorMessage, errorCode, resourceType, propertyName, context);
     }
 }
