@@ -158,7 +158,7 @@ const ContestSolutionSubmitPage = () => {
         problemId: Number(selectedContestDetailsProblem?.id),
         isOfficial: isCompete,
         ...queryParams,
-    }, { skip: !selectedContestDetailsProblem || !isRegisteredParticipant});
+    }, { skip: !selectedContestDetailsProblem || !isRegisteredParticipant });
 
     const textColorClassName = getColorClassName(themeColors.textColor);
     const lightBackgroundClassName = getColorClassName(themeColors.baseColor100);
