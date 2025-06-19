@@ -2,7 +2,7 @@ namespace OJS.Servers.Infrastructure.Extensions;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OJS.Services.Common.Models;
+using OJS.Services.Infrastructure;
 using System.Threading.Tasks;
 
 public static class TaskExtensions

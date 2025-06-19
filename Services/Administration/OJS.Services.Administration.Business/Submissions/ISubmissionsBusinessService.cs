@@ -4,6 +4,7 @@
     using OJS.Data.Models.Submissions;
     using OJS.Services.Common.Models;
     using OJS.Services.Administration.Models.Submissions;
+    using OJS.Services.Infrastructure;
 
     public interface ISubmissionsBusinessService : IAdministrationOperationService<Submission, int, SubmissionAdministrationServiceModel>
     {

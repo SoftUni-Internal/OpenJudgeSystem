@@ -1,4 +1,4 @@
-namespace OJS.Services.Common.Models;
+namespace OJS.Services.Infrastructure;
 
 public sealed class VoidResult
 {

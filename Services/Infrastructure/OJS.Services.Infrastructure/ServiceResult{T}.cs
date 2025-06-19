@@ -1,7 +1,8 @@
-﻿namespace OJS.Services.Common.Models
+﻿namespace OJS.Services.Infrastructure
 {
     using OJS.Services.Infrastructure.Models.Mapping;
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
 
     public class ServiceResult<T> : IMapFrom<ServiceResult<T>>
@@ -22,7 +23,9 @@
 
         public string? InstanceId { get; private set; }
 
-        internal ServiceResult(bool isSuccess, T? data, string? errorMessage, string? errorCode, string? resourceType, string? propertyName, object? errorContext)
+        public IDictionary<string, string[]>? Errors { get; private set; }
+
+        internal ServiceResult(bool isSuccess, T? data, string? errorMessage, string? errorCode, string? resourceType, string? propertyName, object? errorContext, IDictionary<string, string[]>? errors = null)
         {
             this.IsSuccess = isSuccess;
             this.Data = data;
@@ -31,6 +34,7 @@
             this.ResourceType = resourceType;
             this.PropertyName = propertyName;
             this.ErrorContext = errorContext;
+            this.Errors = errors;
 
             if (!isSuccess)
             {

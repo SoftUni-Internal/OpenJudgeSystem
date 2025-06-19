@@ -1,6 +1,7 @@
-namespace OJS.Services.Common.Models
+namespace OJS.Services.Infrastructure
 {
     using OJS.Common.Constants;
+    using System.Collections.Generic;
 
     public static class ServiceResult
     {
@@ -18,7 +19,7 @@ namespace OJS.Services.Common.Models
         public static ServiceResult<T> BusinessRuleViolation<T>(string message, object? context = null)
             => new(false, default, message, ServiceConstants.ErrorCodes.BusinessRuleViolation, null, null, context);
 
-        public static ServiceResult<T> Failure<T>(string errorCode, string errorMessage, string? resourceType = null, string? propertyName = null, object? context = null)
-            => new(false, default, errorMessage, errorCode, resourceType, propertyName, context);
+        public static ServiceResult<T> Failure<T>(string errorCode, string errorMessage, string? resourceType = null, string? propertyName = null, object? context = null, IDictionary<string, string[]>? errors = null)
+            => new(false, default, errorMessage, errorCode, resourceType, propertyName, context, errors);
     }
 }

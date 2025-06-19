@@ -3,7 +3,7 @@ namespace OJS.Servers.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OJS.Services.Common.Models;
+using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Constants;
 using System;
 using System.Collections.Generic;
@@ -50,22 +50,26 @@ public static class ControllerResultExtensions
             };
         }
 
-
         IActionResult CreateResponse(string title, int statusCode, Action logAction)
         {
-            var details = new ProblemDetails
+            var hasMultipleErrors = result.Errors is { Count: > 0 };
+
+            var details = hasMultipleErrors
+                ? new ValidationProblemDetails()
+                : new ProblemDetails();
+
+            details.Title = title;
+            details.Status = statusCode;
+            details.Detail = result.ErrorMessage;
+            details.Instance = result.InstanceId;
+            details.Extensions.Add("errorCode", result.ErrorCode);
+            details.Extensions.Add("errorContext", result.ErrorContext);
+            details.Extensions.Add("traceId", traceId);
+
+            if (hasMultipleErrors)
             {
-                Title = title,
-                Status = statusCode,
-                Detail = result.ErrorMessage,
-                Instance = result.InstanceId,
-                Extensions =
-                {
-                    ["errorCode"] = result.ErrorCode,
-                    ["errorContext"] = result.ErrorContext,
-                    ["traceId"] = traceId,
-                },
-            };
+                ((ValidationProblemDetails)details).Errors = result.Errors;
+            }
 
             logAction();
 

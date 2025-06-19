@@ -7,7 +7,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
     using OJS.Data.Models.Tests;
     using OJS.Services.Administration.Data;
     using OJS.Services.Administration.Models.ProblemGroups;
-    using OJS.Services.Common.Models;
+    using OJS.Services.Infrastructure;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
