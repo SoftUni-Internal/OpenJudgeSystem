@@ -16,10 +16,6 @@ services:
       - Docker/envs/common.env
     extra_hosts:
       - "db:host-gateway"
-    links:
-      - loki
-      - mq
-      - redis
     depends_on:
       - mq
       - redis
@@ -38,8 +34,6 @@ services:
       - ./Logs:/Logs
       - .:/app
       - /app/node_modules
-    links:
-      - ui
     depends_on:
       - ui
   administration:
@@ -57,10 +51,6 @@ services:
       - Docker/envs/common.env
     extra_hosts:
       - "db:host-gateway"
-    links:
-      - loki
-      - mq
-      - redis
     depends_on:
       - mq
       - redis
@@ -79,12 +69,9 @@ services:
     volumes:
       - /tmp/ExecutionStrategies:/tmp/ExecutionStrategies
       - /var/run/docker.sock:/var/run/docker.sock
-    links:
-      - loki
-      - mq
-      - sql_server
-      - mysql
-      - postgres
+    networks:
+      - default
+      - ojs_workers
     depends_on:
       - mq
       - sql_server
@@ -120,6 +107,8 @@ services:
     environment:
       ACCEPT_EULA: Y
       SA_PASSWORD: 1123QwER
+    networks:
+      - ojs_workers
   mysql:
     image: mysql/mysql-server:8.0.19
     command: --default-authentication-plugin=mysql_native_password
@@ -127,13 +116,16 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 1123QwER
       MYSQL_ROOT_HOST: '%'
+    networks:
+      - ojs_workers
   postgres:
       image: postgres:15
       restart: always
       environment:
         POSTGRES_PASSWORD: 1123QwER
         POSTGRES_USER: postgres
-
+      networks:
+        - ojs_workers
 # Monitoring
   loki:
     image: grafana/loki:3.1.0
@@ -177,3 +169,7 @@ volumes:
   rabbitmq_data:
   loki_data:
   grafana_data:
+networks:
+  ojs_workers:
+    driver: bridge
+    name: 'ojs_workers'

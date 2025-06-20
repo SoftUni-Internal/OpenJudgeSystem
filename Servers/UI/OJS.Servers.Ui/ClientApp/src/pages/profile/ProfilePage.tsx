@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import isNil from 'lodash/isNil';
 import BackToTop from 'src/components/common/back-to-top/BackToTop';
 
@@ -32,6 +32,7 @@ const ProfilePage = () => {
     const { username } = useParams();
     const { themeColors, getColorClassName } = useTheme();
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     // If {username} is present in url, then the profile should be loaded for this username,
     // otherwise the profile is loaded for the logged-in user
@@ -47,6 +48,13 @@ const ProfilePage = () => {
         isLoading: isProfileInfoLoading,
         error: isError,
     } ] = useLazyGetProfileQuery();
+
+    // Redirect to /login, only if trying to access personal profile while not authenticated
+    useEffect(() => {
+        if (isGetUserInfoCompleted && !isLoggedIn && isNilOrEmpty(profileUsername)) {
+            navigate('/login');
+        }
+    }, [ isLoggedIn, isGetUserInfoCompleted, navigate, profileUsername ]);
 
     useEffect(() => {
         if (isGetUserInfoCompleted && !isNilOrEmpty(profileUsername)) {
@@ -111,7 +119,7 @@ const ProfilePage = () => {
                 // Wait until currentUserIsProfileOwner is set as render operations depend on it
                 isLoggedIn && isNil(currentUserIsProfileOwner)
                     ? <SpinningLoader />
-                    
+
                     : isNil(profile)
                         ? renderError()
                         : <div className={getColorClassName(themeColors.textColor)}>
@@ -132,7 +140,7 @@ const ProfilePage = () => {
                                   isUserProfileOwner={currentUserIsProfileOwner}
                                 />
                             {currentUserIsProfileOwner && <LegacyInfoMessage />}
-                            {(currentUserIsProfileOwner || internalUser.canAccessAdministration) && 
+                            {(currentUserIsProfileOwner || internalUser.canAccessAdministration) &&
                                 <div className={styles.submissionsAndParticipationsToggle}>
                                     <Button
                                       type={toggleValue === 1
@@ -165,8 +173,7 @@ const ProfilePage = () => {
                                   isChosenInToggle={toggleValue === 2}
                                 />
                         </div>
-                        
-}
+            }
         </>
     );
 };

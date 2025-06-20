@@ -81,15 +81,19 @@ public class ContestsController : BaseApiController
     /// </summary>
     /// <param name="username">The username of the user.</param>
     /// <param name="model">The filters by which the contests should be filtered and page options.</param>
+    /// <param name="contestId">The contest based on which the result will be filtered.</param>
+    /// <param name="categoryId">The category based on which the result will be filtered.</param>
     /// <returns>A collection of contest participations.</returns>
     [HttpGet]
     [AllowAnonymous]
     [ProducesResponseType(typeof(PagedResultResponse<ContestForListingResponseModel>), Status200OK)]
     public async Task<IActionResult> GetParticipatedByUser(
         [FromQuery] string username,
-        [FromQuery] ContestFiltersRequestModel? model)
+        [FromQuery] ContestFiltersRequestModel? model,
+        [FromQuery] int? contestId,
+        [FromQuery] int? categoryId)
         => await this.contestsBusinessService
-            .GetParticipatedByUserByFiltersAndSorting(username, model?.Map<ContestFiltersServiceModel>())
+            .GetParticipatedByUserByFiltersAndSorting(username, model?.Map<ContestFiltersServiceModel>(), contestId, categoryId)
             .Map<PagedResultResponse<ContestForListingResponseModel>>()
             .ToOkResult();
 
@@ -104,5 +108,14 @@ public class ContestsController : BaseApiController
     public async Task<IActionResult> GetEmailsOfParticipantsInContest([Required] int contestId)
         => await this.contestsBusinessService
             .GetEmailsOfParticipantsInContest(contestId)
+            .ToOkResult();
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IEnumerable<ContestForListingResponseModel>), Status200OK)]
+    public async Task<IActionResult> GetAllParticipatedContests(
+        [FromQuery] string username)
+        => await this.contestsBusinessService
+            .GetAllParticipatedContests(username)
+            .Map<IEnumerable<ContestForListingResponseModel>>()
             .ToOkResult();
 }

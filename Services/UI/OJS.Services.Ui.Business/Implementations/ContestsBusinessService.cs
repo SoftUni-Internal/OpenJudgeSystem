@@ -404,14 +404,27 @@ namespace OJS.Services.Ui.Business.Implementations
 
         public async Task<PagedResult<ContestForListingServiceModel>> GetParticipatedByUserByFiltersAndSorting(
             string username,
-            ContestFiltersServiceModel? sortAndFilterModel)
+            ContestFiltersServiceModel? sortAndFilterModel,
+            int? contestId = null,
+            int? categoryId = null)
         {
             sortAndFilterModel = await this.GetNestedFilterCategoriesIfAny(sortAndFilterModel);
 
-            var participatedContestsInPage =
-                await this.contestsData.ApplyFiltersSortAndPagination<ContestForListingServiceModel>(
-                    this.contestsData.GetLatestForParticipantByUsername(username),
-                    sortAndFilterModel);
+            var participatedContests = this.contestsData.GetLatestForParticipantByUsername(username);
+
+            if (contestId.HasValue)
+            {
+                participatedContests = participatedContests.Where(c => c.Id == contestId.Value);
+            }
+
+            if (categoryId.HasValue)
+            {
+                participatedContests = participatedContests.Where(c => c.CategoryId == categoryId.Value);
+            }
+
+            var participatedContestsInPage = await this.contestsData.ApplyFiltersSortAndPagination<ContestForListingServiceModel>(
+                participatedContests,
+                sortAndFilterModel);
 
             var participantResultsByContest = new Dictionary<int, List<ParticipantResultServiceModel>>();
             var loggedInUser = this.userProviderService.GetCurrentUser();
@@ -519,6 +532,12 @@ namespace OJS.Services.Ui.Business.Implementations
                 .GetAllOfficialByContest(contestId)
                 .Select(participant => participant.User.Email!)
                 .ToListAsync();
+
+        public async Task<IEnumerable<ContestForListingServiceModel>> GetAllParticipatedContests(string username)
+             => await this.contestsData
+                 .GetLatestForParticipantByUsername(username)
+                 .MapCollection<ContestForListingServiceModel>()
+                 .ToListAsync();
 
         private static async Task<Dictionary<int, List<ParticipantResultServiceModel>>> MapParticipationResultsToContestsInPage(
             IQueryable<Participant> participants)

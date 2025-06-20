@@ -1,4 +1,4 @@
-import { expect,test } from './fixtures/auth.fixture';
+import { expect, test } from './fixtures/auth.fixture';
 
 test('Has title', async ({ page }) => {
     await page.goto('/') ;
@@ -14,6 +14,21 @@ test('Can log in', async ({ page, auth }) => {
     await expect(page).toHaveURL('/profile');
 });
 
+test('Can log out', async ({ page, auth }) => {
+    await auth.loginDefaultTestUser();
+    await page.goto('/profile');
+    await expect(page).toHaveURL('/profile');
+
+    await page.goto('/logout');
+
+    await expect(page.getByText('You are now successfully logged out')).toBeVisible();
+    await page.waitForURL('/');
+    await expect(page).toHaveURL('/');
+
+    const response = await page.goto('/profile');
+    expect(response?.status()).not.toBe(200);
+});
+
 test('Should contain the text "How to use SoftUni Judge Platform"', async ({ page }) => {
     await page.goto('/');
   
@@ -21,7 +36,6 @@ test('Should contain the text "How to use SoftUni Judge Platform"', async ({ pag
     const text = await page.locator('text=How to use SoftUni Judge Platform');
     await expect(text).toBeVisible();
 });
-  
 
 test('Should Check if the video is visible', async ({ page }) => {
     await page.goto('/');

@@ -1,9 +1,12 @@
 import React, { useCallback } from 'react';
 import { useSelector } from 'react-redux';
+import { useParams } from 'react-router-dom';
 import { Tooltip } from '@mui/material';
 import isEmpty from 'lodash/isEmpty';
 import isNil from 'lodash/isNil';
 
+import { ContestParticipationType } from '../../../common/constants';
+import { getContestsSolutionSubmitPageUrl } from '../../../common/urls/compose-client-urls';
 import { IContestResultsParticipationType, IContestResultsType } from '../../../hooks/contests/types';
 import useTheme from '../../../hooks/use-theme';
 import { IAuthorizationReduxState } from '../../../redux/features/authorizationSlice';
@@ -19,6 +22,8 @@ interface IContestResultsGridProps {
 
 const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
     const { isDarkMode, getColorClassName, themeColors } = useTheme();
+    const { participationType } = useParams();
+    const isCompete = participationType === ContestParticipationType.Compete;
 
     const { internalUser } = useSelector((state: {authorization: IAuthorizationReduxState}) => state.authorization);
 
@@ -64,7 +69,7 @@ const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
                       to={`/submissions/${bestSubmission.id}/details`}
                     />
             </td>
-            
+
             : <td
                   key={`p-r-i-${problemId}`}
                 >
@@ -80,24 +85,60 @@ const ContestResultsGrid = ({ items }: IContestResultsGridProps) => {
                     <tr className={headerClassName}>
                         {
                         getColumns(items!).map((column, idx) => {
+                            if (idx <= 1) { // Skip the first two columns (№ and Participants)
+                                return <td key={`t-r-i-${idx}`}>{column}</td>;
+                            }
+
+                            if (idx === getColumns(items!).length - 1) { // Skip the last column (Total Result)
+                                return <td key={`t-r-i-${idx}`}>{column}</td>;
+                            }
+
+                            // For problem names, create a link button
+                            const problem = items!.problems[idx - 2]; // -2 because we skipped the first two columns
                             if (column.length > 20) {
                                 return (
                                     <td key={`t-r-i-${idx}`}>
                                         <Tooltip title={column}>
-                                            <p>{`${column.substring(0, 19)}...`}</p>
+                                            <LinkButton
+                                              type={LinkButtonType.plain}
+                                              text={`${column.substring(0, 19)}...`}
+                                              to={getContestsSolutionSubmitPageUrl({
+                                                  isCompete,
+                                                  contestId: items!.id,
+                                                  contestName: items!.name,
+                                                  problemId: problem.id,
+                                                  orderBy: problem.orderBy,
+                                              })}
+                                              className={styles.problemLink}
+                                            />
                                         </Tooltip>
                                     </td>
                                 );
                             }
 
-                            return <td key={`t-r-i-${idx}`}>{column}</td>;
+                            return (
+                                <td key={`t-r-i-${idx}`}>
+                                    <LinkButton
+                                      type={LinkButtonType.plain}
+                                      text={column}
+                                      to={getContestsSolutionSubmitPageUrl({
+                                          isCompete,
+                                          contestId: items!.id,
+                                          contestName: items!.name,
+                                          problemId: problem.id,
+                                          orderBy: problem.orderBy,
+                                      })}
+                                      className={styles.problemLink}
+                                    />
+                                </td>
+                            );
                         })
                     }
                     </tr>
                 </thead>
                 <tbody>
                     {
-                    !isNil(items) && !isEmpty(items) && (items.pagedResults.items ?? []).map((participantResult, index) => 
+                    !isNil(items) && !isEmpty(items) && (items.pagedResults.items ?? []).map((participantResult, index) =>
                         <tr
                           key={`t-r-i-${participantResult.participantUsername}`}
                           className={concatClassNames(
