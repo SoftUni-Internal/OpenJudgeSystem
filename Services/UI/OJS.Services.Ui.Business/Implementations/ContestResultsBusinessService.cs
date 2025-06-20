@@ -15,6 +15,7 @@ using OJS.Data.Models.Problems;
 using OJS.Services.Common.Data;
 using OJS.Services.Common.Models.Contests;
 using OJS.Services.Infrastructure.Extensions;
+using OJS.Services.Infrastructure.Models;
 using OJS.Services.Ui.Business.Cache;
 
 public class ContestResultsBusinessService : IContestResultsBusinessService
@@ -51,10 +52,14 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
         this.contestsActivity = contestsActivity;
     }
 
-    public async Task<ContestResultsViewModel> GetContestResults(int contestId, bool official, bool isFullResults, int page)
+    public async Task<ServiceResult<ContestResultsViewModel>> GetContestResults(int contestId, bool official, bool isFullResults, int page)
     {
-        var contest = await this.contestsCache.GetContestDetailsServiceModel(contestId)
-            ?? throw new BusinessServiceException("Contest does not exist or is deleted.");
+        var contest = await this.contestsCache.GetContestDetailsServiceModel(contestId);
+
+        if (contest == null)
+        {
+            return ServiceResult.NotFound<ContestResultsViewModel>(nameof(Contest));
+        }
 
         var user = this.userProvider.GetCurrentUser();
         var isUserAdminOrLecturer = await this.lecturersInContestsCache.IsUserAdminOrLecturerInContest(contestId, contest.CategoryId, user);
@@ -64,7 +69,7 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
 
         if (!validationResult.IsValid)
         {
-            throw new BusinessServiceException(validationResult.Message);
+            return validationResult.ToServiceResult<ContestResultsViewModel>();
         }
 
         var problems = contest.Problems.MapCollection<Problem>().ToList();
@@ -87,7 +92,7 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
 
         results.UserIsInRoleForContest = isUserAdminOrLecturer;
 
-        return results;
+        return ServiceResult.Success(results);
     }
 
     public async Task<IEnumerable<UserPercentageResultsServiceModel?>> GetAllUserResultsPercentageByForContest(int? contestId)

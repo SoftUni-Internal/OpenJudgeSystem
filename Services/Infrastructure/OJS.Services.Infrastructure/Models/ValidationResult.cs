@@ -54,7 +54,7 @@ public class ValidationResult
             ErrorContext = errorContext,
         };
 
-    public static ValidationResult NotFound(string? message = null, string? resourceType = null, object? context = null)
+    public static ValidationResult NotFound(string? resourceType = null, string? message = null, object? context = null)
         => new()
         {
             IsValid = false,

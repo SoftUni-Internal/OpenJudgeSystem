@@ -9,7 +9,7 @@ namespace OJS.Services.Ui.Business
 
     public interface IContestsBusinessService : IService
     {
-        Task<ContestRegistrationDetailsServiceModel> GetContestRegistrationDetails(int id, bool isOfficial);
+        Task<ServiceResult<ContestRegistrationDetailsServiceModel>> GetContestRegistrationDetails(int id, bool isOfficial);
 
         Task<bool> RegisterUserForContest(
             int id,
@@ -19,9 +19,9 @@ namespace OJS.Services.Ui.Business
 
         Task ValidateContestPassword(int id, bool official, string password);
 
-        Task<ContestDetailsServiceModel> GetContestDetails(int id);
+        Task<ServiceResult<ContestDetailsServiceModel>> GetContestDetails(int id);
 
-        Task<ContestParticipationServiceModel> GetParticipationDetails(StartContestParticipationServiceModel model);
+        Task<ServiceResult<ContestParticipationServiceModel>> GetParticipationDetails(StartContestParticipationServiceModel model);
 
         Task<ContestsForHomeIndexServiceModel> GetAllForHomeIndex();
 

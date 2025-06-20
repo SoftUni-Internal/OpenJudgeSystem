@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OJS.Servers.Infrastructure.Controllers;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Servers.Infrastructure.Telemetry;
@@ -24,7 +25,8 @@ using static Microsoft.AspNetCore.Http.StatusCodes;
 public class CompeteController(
     IContestsBusinessService contestsBusiness,
     ISubmissionsBusinessService submissionsBusinessService,
-    ITracingService tracing)
+    ITracingService tracing,
+    ILogger<CompeteController> logger)
     : BaseApiController
 {
     /// <summary>
@@ -42,7 +44,7 @@ public class CompeteController(
                 ContestId = id,
                 IsOfficial = isOfficial,
             })
-            .ToOkResult();
+            .ToActionResult(logger);
 
     /// <summary>
     /// This endpoint retrieves registration details for a specified contest and user.
@@ -55,18 +57,9 @@ public class CompeteController(
     /// <returns>403 if user cannot compete contest.</returns>
     [HttpGet("{id:int}/register")]
     public async Task<IActionResult> Register(int id, [FromQuery] bool isOfficial)
-    {
-        try
-        {
-            return await contestsBusiness
-                .GetContestRegistrationDetails(id, isOfficial)
-                .ToOkResult();
-        }
-        catch (BusinessServiceException be)
-        {
-            return this.StatusCode((int)HttpStatusCode.Forbidden, be.Message);
-        }
-    }
+        => await contestsBusiness
+            .GetContestRegistrationDetails(id, isOfficial)
+            .ToActionResult(logger);
 
     /// <summary>
     /// Registers user for contest. If a password is submitted it gets validated. This endpoint creates a participant.
