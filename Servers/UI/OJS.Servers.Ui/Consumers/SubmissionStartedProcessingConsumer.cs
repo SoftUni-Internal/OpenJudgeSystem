@@ -26,19 +26,25 @@ public class SubmissionStartedProcessingConsumer(
 
                 var submissionForProcessing = await submissionsForProcessingCommonData.GetBySubmission(submissionId);
 
+                var isUpdated = false;
                 if (submissionForProcessing == null)
                 {
-                    activity?.SetTag("submission.submission_for_processing_state_updated", false);
                     logger.LogSubmissionForProcessingNotFoundForSubmission(null, submissionId);
-                    return;
+                }
+                else if (submissionForProcessing.State == SubmissionProcessingState.Enqueued)
+                {
+                    // Update the processing state only if the submission is still in the enqueued state.
+                    // It's possible that the submission is already being processed and marked as processed.
+                    // In this case, we don't want to revert the state to processing.
+                    await submissionsForProcessingCommonData.SetProcessingState(
+                        submissionForProcessing,
+                        SubmissionProcessingState.Processing,
+                        context.Message.ProcessingStartedAt);
+
+                    isUpdated = true;
                 }
 
-                await submissionsForProcessingCommonData.SetProcessingState(
-                    submissionForProcessing,
-                    SubmissionProcessingState.Processing,
-                    context.Message.ProcessingStartedAt);
-
-                activity?.SetTag("submission.submission_for_processing_state_updated", true);
+                activity?.SetTag("submission.submission_for_processing_state_updated", isUpdated);
             },
             tags: null,
             BusinessContext.ForSubmission(context.Message.SubmissionId),

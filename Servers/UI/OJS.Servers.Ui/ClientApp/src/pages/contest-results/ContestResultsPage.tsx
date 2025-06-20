@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router';
 import isNil from 'lodash/isNil';
+import { CONTESTS_PATH } from 'src/common/urls/administration-urls';
 import BackToTop from 'src/components/common/back-to-top/BackToTop';
+import AdministrationLink from 'src/components/guidelines/buttons/AdministrationLink';
 
 import { ContestParticipationType, ContestResultType } from '../../common/constants';
 import { contestParticipationType } from '../../common/contest-helpers';
@@ -110,22 +112,34 @@ const ContestResultsPage = () => {
                             Results For
                             {' '}
                             <LinkButton
-                              to={getContestsDetailsPageUrl({ contestId: Number(contestId!), contestName: contestResults?.name })}
+                              to={getContestsDetailsPageUrl({
+                                  contestId: Number(contestId!),
+                                  contestName: contestResults?.name,
+                              })}
                               text={contestResults?.name}
                               type={LinkButtonType.plain}
                               className={styles.contestName}
                             />
                         </Heading>
-                        <PaginationControls
-                          isDataFetching={isFetching}
-                          count={contestResults?.pagedResults.pagesCount ?? 0}
-                          page={selectedPage}
-                          onChange={(page:number) => {
-                              searchParams.set('page', page.toString());
-                              setSearchParams(searchParams);
-                          }}
-                          className={`${styles.paginationControlsUpper}`}
-                        />
+                        <div className={styles.actionsWrapper}>
+                            <PaginationControls
+                              isDataFetching={isFetching}
+                              count={contestResults?.pagedResults.pagesCount ?? 0}
+                              page={selectedPage}
+                              onChange={(page: number) => {
+                                  searchParams.set('page', page.toString());
+                                  setSearchParams(searchParams);
+                              }}
+                              className={`${styles.paginationControlsUpper}`}
+                            />
+                            <div className={styles.exportResultsButton}>
+                                <AdministrationLink
+                                  text="Export Results"
+                                  type={LinkButtonType.primary}
+                                  to={`/${CONTESTS_PATH}?exportType=${participationType.toLowerCase()}&contestId=${contestId}`}
+                                />
+                            </div>
+                        </div>
                         <ContestResultsGrid
                           items={contestResults ?? null}
                         />
@@ -133,7 +147,7 @@ const ContestResultsPage = () => {
                           isDataFetching={isFetching}
                           count={contestResults?.pagedResults.pagesCount ?? 0}
                           page={selectedPage}
-                          onChange={(page:number) => {
+                          onChange={(page: number) => {
                               searchParams.set('page', page.toString());
                               setSearchParams(searchParams);
                           }}
