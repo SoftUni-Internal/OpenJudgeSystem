@@ -17,7 +17,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using OJS.Services.Common.Models.Pagination;
-using OJS.Services.Infrastructure;
+using OJS.Services.Infrastructure.Models;
 using static OJS.Common.GlobalConstants.MimeTypes;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static OJS.Common.GlobalConstants.Roles;

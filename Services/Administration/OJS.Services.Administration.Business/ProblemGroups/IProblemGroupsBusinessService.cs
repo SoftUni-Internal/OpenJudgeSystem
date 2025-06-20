@@ -3,7 +3,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
     using OJS.Data.Models.Problems;
     using System.Threading.Tasks;
     using OJS.Services.Administration.Models.ProblemGroups;
-    using OJS.Services.Infrastructure;
+    using OJS.Services.Infrastructure.Models;
     using System.Collections.Generic;
 
     public interface IProblemGroupsBusinessService : IAdministrationOperationService<ProblemGroup, int, ProblemGroupsAdministrationModel>

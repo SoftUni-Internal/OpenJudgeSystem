@@ -4,13 +4,13 @@ namespace OJS.Services.Administration.Business.Submissions
     using Microsoft.EntityFrameworkCore;
     using OJS.Common;
     using OJS.Services.Common.Data;
-    using OJS.Services.Common.Models;
     using OJS.Data.Models.Submissions;
     using OJS.Services.Administration.Data;
     using OJS.Services.Administration.Models.Submissions;
     using OJS.Services.Infrastructure;
     using OJS.Services.Infrastructure.Exceptions;
     using OJS.Services.Infrastructure.Extensions;
+    using OJS.Services.Infrastructure.Models;
 
     public class SubmissionsBusinessService : AdministrationOperationService<Submission, int, SubmissionAdministrationServiceModel>, ISubmissionsBusinessService
     {

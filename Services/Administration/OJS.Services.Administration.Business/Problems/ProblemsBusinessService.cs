@@ -16,6 +16,7 @@ using OJS.Services.Common.Data;
 using OJS.Services.Common.Models;
 using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Extensions;
+using OJS.Services.Infrastructure.Models;
 using Settings;
 using System;
 using System.Collections.Generic;

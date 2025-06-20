@@ -1,4 +1,4 @@
-﻿namespace OJS.Services.Infrastructure
+﻿namespace OJS.Services.Infrastructure.Models
 {
     using OJS.Services.Infrastructure.Models.Mapping;
     using System;

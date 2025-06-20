@@ -1,4 +1,4 @@
-namespace OJS.Services.Infrastructure
+namespace OJS.Services.Infrastructure.Models
 {
     using OJS.Common.Constants;
     using System.Collections.Generic;

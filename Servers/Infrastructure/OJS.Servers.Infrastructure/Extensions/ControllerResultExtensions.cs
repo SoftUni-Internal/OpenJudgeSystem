@@ -3,15 +3,22 @@ namespace OJS.Servers.Infrastructure.Extensions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Constants;
+using OJS.Services.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using static OJS.Common.Constants.ServiceConstants;
 
 public static class ControllerResultExtensions
 {
+    public static async Task<IActionResult> ToActionResult<T>(this Task<ServiceResult<T>> resultTask, ILogger logger)
+    {
+        var result = await resultTask;
+        return result.ToActionResult(logger);
+    }
+
     public static IActionResult ToActionResult<T>(this ServiceResult<T> result, ILogger logger)
     {
         if (result.IsSuccess)
@@ -52,9 +59,7 @@ public static class ControllerResultExtensions
 
         IActionResult CreateResponse(string title, int statusCode, Action logAction)
         {
-            var hasMultipleErrors = result.Errors is { Count: > 0 };
-
-            var details = hasMultipleErrors
+            var details = result.Errors is { Count: > 0 }
                 ? new ValidationProblemDetails()
                 : new ProblemDetails();
 
@@ -66,9 +71,9 @@ public static class ControllerResultExtensions
             details.Extensions.Add("errorContext", result.ErrorContext);
             details.Extensions.Add("traceId", traceId);
 
-            if (hasMultipleErrors)
+            if (details is ValidationProblemDetails vpd && result.Errors != null)
             {
-                ((ValidationProblemDetails)details).Errors = result.Errors;
+                vpd.Errors = result.Errors;
             }
 
             logAction();

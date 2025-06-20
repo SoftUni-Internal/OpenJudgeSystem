@@ -2,9 +2,8 @@
 {
     using System.Threading.Tasks;
     using OJS.Data.Models.Submissions;
-    using OJS.Services.Common.Models;
     using OJS.Services.Administration.Models.Submissions;
-    using OJS.Services.Infrastructure;
+    using OJS.Services.Infrastructure.Models;
 
     public interface ISubmissionsBusinessService : IAdministrationOperationService<Submission, int, SubmissionAdministrationServiceModel>
     {
