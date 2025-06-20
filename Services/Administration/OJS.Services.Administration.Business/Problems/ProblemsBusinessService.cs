@@ -7,14 +7,13 @@ using Microsoft.EntityFrameworkCore;
 using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Data.Models;
+using OJS.Data.Models.Contests;
 using OJS.Data.Models.Problems;
 using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Problems;
 using OJS.Services.Common;
 using OJS.Services.Common.Data;
-using OJS.Services.Common.Models;
-using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Infrastructure.Models;
 using Settings;
@@ -26,7 +25,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using OJS.Workers.Common;
 using Resource = OJS.Common.Resources.ProblemsBusiness;
-using SharedResource = OJS.Common.Resources.ContestsGeneral;
 
 public class ProblemsBusinessService : AdministrationOperationService<Problem, int, ProblemAdministrationModel>, IProblemsBusinessService
 {
@@ -175,7 +173,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         if (!await this.contestsData.ExistsById(contestId))
         {
-            return ServiceResult.NotFound<VoidResult>("Contest", context: new { contestId });
+            return ServiceResult.NotFound<VoidResult>(nameof(Contest), context: new { contestId });
         }
 
         if (await this.contestsData.IsActiveById(contestId))
