@@ -298,14 +298,6 @@ namespace OJS.Services.Ui.Business.Implementations
 
             participant.Contest = contest;
 
-            if (participant.Contest != null)
-            {
-                participant.Contest.Resources = await this.contestResourcesDataService
-                    .GetByContestQuery(model.ContestId)
-                    .MapCollection<ContestResourceDetailsServiceModel>()
-                    .ToListAsync();
-            }
-
             participant.AllowMentor = category is { AllowMentor: true };
             var participantForActivity = participant.Map<ParticipantForActivityServiceModel>();
 
