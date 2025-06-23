@@ -180,6 +180,11 @@ enum SubmissionProcessingState
     Faulted = 5,
 }
 
+enum ResourceType {
+    ContestResource = 0,
+    ProblemResource = 1,
+}
+
 export {
     ThemeMode,
     FilterColumnTypeEnum,
@@ -197,4 +202,5 @@ export {
     ExcelFilterOperators,
     TestType,
     SubmissionProcessingState,
+    ResourceType,
 };

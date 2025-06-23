@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { ExcelFilterOperators } from 'src/common/enums';
-import { useLazyExportProblemResourcesToExcelQuery } from 'src/redux/services/admin/problemResourcesAdminService';
+import { ExcelFilterOperators, ResourceType } from 'src/common/enums';
+import { useGetContestResourcesQuery } from 'src/redux/services/admin/contestsAdminService';
+import { useGetProblemResourcesQuery } from 'src/redux/services/admin/problemsAdminService';
+import { useLazyExportResourcesToExcelQuery } from 'src/redux/services/admin/resourcesAdminService';
 
 import { IGetAllAdminParams } from '../../../../common/types';
 import { getColors, useAdministrationTheme } from '../../../../hooks/use-administration-theme-provider';
@@ -11,19 +13,19 @@ import AdministrationGridView, { defaultSorterToAdd } from '../../../../pages/ad
 import problemResourceFilterableColumns, {
     returnProblemResourceNonFilterableColumns,
 } from '../../../../pages/administration-new/problem-resources/problemResourcesGridColumns';
-import { useGetResourcesQuery } from '../../../../redux/services/admin/problemsAdminService';
 import { renderSuccessfullAlert } from '../../../../utils/render-utils';
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import CreateButton from '../../common/create/CreateButton';
 import AdministrationModal from '../../common/modals/administration-modal/AdministrationModal';
-import ProblemResourceForm from '../../problem-resources/problem-resource-form/ProblemResourceForm';
+import ResourceForm from '../../problem-resources/problem-resource-form/ResourceForm';
 
-interface IResourceInproblemViewProps {
-    problemId: number;
+interface IResourceInProblemViewProps {
+    parentId: number;
+    type: ResourceType;
 }
 
-const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
-    const { problemId } = props;
+const ResourcesInView = (props : IResourceInProblemViewProps) => {
+    const { parentId, type } = props;
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
     const [ openEditModal, setOpenEditModal ] = useState<boolean>(false);
     const [ showCreateModal, setShowCreateModal ] = useState<boolean>(false);
@@ -31,12 +33,22 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
     const [ problemResourceId, setProblemResourceId ] = useState<number>(0);
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString('', defaultSorterToAdd));
 
+    const isForContest = type === ResourceType.ContestResource;
+
     const {
-        refetch: retakeData,
-        data: resourcesData,
-        isLoading: isGettingResources,
-        error: resourcesError,
-    } = useGetResourcesQuery({ problemId: Number(problemId), ...queryParams });
+        refetch: retakeProblemResourcesData,
+        data: problemResourcesData,
+        isLoading: isGettingProblemResources,
+        error: problemResourcesError,
+        // eslint-disable-next-line no-undef
+    } = useGetProblemResourcesQuery({ parentId: Number(parentId), ...queryParams });
+
+    const {
+        refetch: retakeContestResourcesData,
+        data: contestResourcesData,
+        isLoading: isGettingContestResources,
+        error: contestResourcesError,
+    } = useGetContestResourcesQuery({ parentId: Number(parentId), ...queryParams });
 
     const onEditClick = (id: number) => {
         setOpenEditModal(true);
@@ -50,7 +62,12 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
 
         const onProblemCreate = () => {
             onClose();
-            retakeData();
+
+            if (isForContest) {
+                retakeProblemResourcesData();
+            } else {
+                retakeContestResourcesData();
+            }
         };
 
         return (
@@ -62,10 +79,11 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
                   : openEditModal}
               onClose={onClose}
             >
-                <ProblemResourceForm
+                <ResourceForm
                   id={problemResourceId}
+                  type={type}
                   isEditMode={!isCreate}
-                  problemId={problemId}
+                  problemId={parentId}
                   onSuccess={onProblemCreate}
                   setParentSuccessMessage={setSuccessMessage}
                 />
@@ -82,7 +100,7 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
 
     );
 
-    if (isGettingResources) {
+    if (isGettingProblemResources || isGettingContestResources) {
         return <SpinningLoader />;
     }
 
@@ -91,9 +109,15 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
             {renderSuccessfullAlert(successMessage)}
             <AdministrationGridView
               filterableGridColumnDef={problemResourceFilterableColumns}
-              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, retakeData, setSuccessMessage)}
-              data={resourcesData}
-              error={resourcesError}
+              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, isForContest
+                  ? retakeContestResourcesData
+                  : retakeProblemResourcesData, setSuccessMessage)}
+              data={isForContest
+                  ? contestResourcesData
+                  : problemResourcesData}
+              error={isForContest
+                  ? contestResourcesError
+                  : problemResourcesError}
               queryParams={queryParams}
               setQueryParams={setQueryParams}
               withSearchParams={false}
@@ -103,11 +127,11 @@ const ResourcesInProblemView = (props : IResourceInproblemViewProps) => {
                   { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i, false) },
                   { showModal: showCreateModal, modal: (i) => renderProblemResourceModal(i, true) },
               ]}
-              excelMutation={useLazyExportProblemResourcesToExcelQuery}
-              excelFilters={[ { propertyName: 'problemId', operator: ExcelFilterOperators.Equals, value: problemId } ]}
+              excelMutation={useLazyExportResourcesToExcelQuery}
+              excelFilters={[ { propertyName: 'problemId', operator: ExcelFilterOperators.Equals, value: parentId } ]}
             />
         </>
     );
 };
 
-export default ResourcesInProblemView;
+export default ResourcesInView;

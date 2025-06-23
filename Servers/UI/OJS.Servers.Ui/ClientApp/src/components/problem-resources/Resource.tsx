@@ -11,10 +11,9 @@ import styles from './ProblemResource.module.scss';
 
 interface IProblemResourceProps {
     resource: IProblemResourceType;
-    problem: string;
 }
 
-const ProblemResource = ({ resource, problem }: IProblemResourceProps) => {
+const Resource = ({ resource }: IProblemResourceProps) => {
     const { link, name: linkName, id } = resource;
     const [ isUnauthorized, setIsUnauthorized ] = useState(false);
     const navigate = useNavigate();
@@ -33,7 +32,7 @@ const ProblemResource = ({ resource, problem }: IProblemResourceProps) => {
         }
 
         downloadFile(problemResourceDownloadData.blob, problemResourceDownloadData.fileName);
-    }, [ problem, problemResourceDownloadData ]);
+    }, [ problemResourceDownloadData ]);
 
     // eslint-disable-next-line consistent-return
     useEffect(() => {
@@ -93,4 +92,4 @@ const ProblemResource = ({ resource, problem }: IProblemResourceProps) => {
     );
 };
 
-export default ProblemResource;
+export default Resource;

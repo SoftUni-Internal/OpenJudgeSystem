@@ -1,21 +1,17 @@
-﻿namespace OJS.Services.Administration.Models.ProblemResources;
+﻿namespace OJS.Services.Administration.Models.Resources;
 
-using OJS.Common.Enumerations;
-using OJS.Data.Models.Problems;
-using OJS.Services.Infrastructure.Models.Mapping;
 using System;
+using OJS.Common.Enumerations;
+using OJS.Data.Models.Resources;
+using OJS.Services.Infrastructure.Models.Mapping;
 
-public class ProblemResourceInListModel : IMapFrom<ProblemResource>
+public class ContestResourceInListModel : IMapFrom<ContestResource>
 {
     public int Id { get; set; }
 
     public string Name { get; set; } = string.Empty;
 
     public ProblemResourceType Type { get; set; }
-
-    public int ProblemId { get; set; }
-
-    public string? ProblemName { get; set; }
 
     public string? FileExtension { get; set; }
 
@@ -28,4 +24,8 @@ public class ProblemResourceInListModel : IMapFrom<ProblemResource>
     public DateTime CreatedOn { get; set; }
 
     public DateTime? ModifiedOn { get; set; }
+
+    public string ContestName { get; set; } = string.Empty;
+
+    public int ContestId { get; set; }
 }

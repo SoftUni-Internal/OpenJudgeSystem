@@ -1,9 +1,10 @@
 namespace OJS.Services.Administration.Models.ProblemResources;
 
 using OJS.Data.Models.Problems;
+using OJS.Data.Models.Resources;
 using OJS.Services.Infrastructure.Models.Mapping;
 
-public class ProblemResourceDownloadServiceModel : IMapFrom<ProblemResource>
+public class ResourceDownloadServiceModel : IMapFrom<ProblemResource>
 {
     public int Id { get; set; }
 
@@ -13,7 +14,7 @@ public class ProblemResourceDownloadServiceModel : IMapFrom<ProblemResource>
 
     public string? FileExtension { get; set; }
 
-    public int ProblemId { get; set; }
+    public int ParentId { get; set; }
 
     public string ProblemName { get; set; } = string.Empty;
 }

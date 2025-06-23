@@ -45,7 +45,7 @@ import FileUploader from '../../../components/file-uploader/FileUploader';
 import AdministrationLink from '../../../components/guidelines/buttons/AdministrationLink';
 import Button, { ButtonState } from '../../../components/guidelines/buttons/Button';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
-import ProblemResource from '../../../components/problem-resources/ProblemResource';
+import Resource from '../../../components/problem-resources/Resource';
 import SubmissionsGrid from '../../../components/submissions/submissions-grid/SubmissionsGrid';
 import useTheme from '../../../hooks/use-theme';
 import {
@@ -491,15 +491,31 @@ const ContestSolutionSubmitPage = () => {
         return (
             <div className={styles.problemResources}>
                 {resources.map((resource: IProblemResourceType) => (
-                    <ProblemResource
+                    <Resource
                       key={`resource-${resource.id}`}
                       resource={resource}
-                      problem={selectedContestDetailsProblem.name}
                     />
                 ))}
             </div>
         );
     }, [ selectedContestDetailsProblem ]);
+
+    const renderContestResources = useCallback(() => {
+        if (!contest?.resources || contest.resources.length === 0) {
+            return null;
+        }
+
+        return (
+            <div className={styles.contestResourcesWrapper}>
+                {contest.resources.map((resource: IProblemResourceType, index: number) => (
+                    <span key={`contest-resource-${resource.id}`}>
+                        <Resource resource={resource} />
+                        {contest.resources.length > 1 && index < contest.resources.length - 1 && ' | '}
+                    </span>
+                ))}
+            </div>
+        );
+    }, [ contest ]);
 
     const renderProblemResourcesAndParameters = useCallback(() => {
         if (!selectedContestDetailsProblem) {
@@ -820,6 +836,7 @@ const ContestSolutionSubmitPage = () => {
                     Show all results
                 </div>
             </div>
+            {renderContestResources()}
             <div className={styles.problemsAndEditorWrapper}>
                 <ContestProblems
                   problems={updatedProblems || problems || []}

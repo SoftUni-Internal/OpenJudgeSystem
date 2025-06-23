@@ -38,6 +38,7 @@ namespace OJS.Services.Ui.Business.Implementations
         private readonly IContestsCacheService contestsCacheService;
         private readonly ILecturersInContestsCacheService lecturersInContestsCache;
         private readonly IContestDetailsValidationService contestDetailsValidationService;
+        private readonly IContestResourcesDataService contestResourcesDataService;
 
         public ContestsBusinessService(
             IContestsDataService contestsData,
@@ -51,7 +52,8 @@ namespace OJS.Services.Ui.Business.Implementations
             IContestParticipantsCacheService contestParticipantsCacheService,
             IContestsCacheService contestsCacheService,
             ILecturersInContestsCacheService lecturersInContestsCache,
-            IContestDetailsValidationService contestDetailsValidationService)
+            IContestDetailsValidationService contestDetailsValidationService,
+            IContestResourcesDataService contestResourcesDataService)
         {
             this.contestsData = contestsData;
             this.activityService = activityService;
@@ -65,6 +67,7 @@ namespace OJS.Services.Ui.Business.Implementations
             this.contestsCacheService = contestsCacheService;
             this.lecturersInContestsCache = lecturersInContestsCache;
             this.contestDetailsValidationService = contestDetailsValidationService;
+            this.contestResourcesDataService = contestResourcesDataService;
         }
 
         public async Task<ContestDetailsServiceModel> GetContestDetails(int id)
@@ -122,6 +125,7 @@ namespace OJS.Services.Ui.Business.Implementations
             if ((!canShowProblemsInPractice && !canShowProblemsInCompete) || !canShowProblemsForAnonymous)
             {
                 contest!.Problems = [];
+                contest!.Resources = [];
             }
 
             if (isLecturerInContestOrAdmin || competeParticipant != null)
@@ -293,6 +297,7 @@ namespace OJS.Services.Ui.Business.Implementations
             var category = await this.contestCategoriesCache.GetById(contest?.CategoryId);
 
             participant.Contest = contest;
+
             participant.AllowMentor = category is { AllowMentor: true };
             var participantForActivity = participant.Map<ParticipantForActivityServiceModel>();
 

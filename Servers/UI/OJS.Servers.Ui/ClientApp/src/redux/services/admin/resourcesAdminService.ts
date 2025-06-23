@@ -1,17 +1,23 @@
 /* eslint-disable import/group-exports */
 import { createApi } from '@reduxjs/toolkit/query/react';
 
-import { IFileModel, IGetAllAdminParams, IPagedResultType, IProblemResouceInLinstModel, IProblemResourceAdministrationModel } from '../../../common/types';
+import {
+    IContestResourceInListModel, IFileModel,
+    IGetAllAdminParams,
+    IPagedResultType,
+    IProblemResourceAdministrationModel,
+    IProblemResourceInListModel,
+} from '../../../common/types';
 import { CREATE_ENDPOINT, DELETE_ENDPOINT, EXCEL_RESULTS_ENDPOINT, GET_ENDPOINT, UPDATE_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
-export const problemResourcesAdminService = createApi({
-    reducerPath: 'problemResources',
-    baseQuery: getCustomBaseQuery('problemResources'),
+export const resourcesAdminService = createApi({
+    reducerPath: 'resources',
+    baseQuery: getCustomBaseQuery('resources'),
     endpoints: (builder) => ({
-        getAllAdminProblemResources: builder.query<IPagedResultType<IProblemResouceInLinstModel>, IGetAllAdminParams>({
+        getAllAdminContestResources: builder.query<IPagedResultType<IContestResourceInListModel>, IGetAllAdminParams>({
             query: ({ filter, page, itemsPerPage, sorting }) => ({
-                url: 'GetAll',
+                url: 'GetAllContestResources',
                 params: {
                     filter,
                     page,
@@ -22,20 +28,33 @@ export const problemResourcesAdminService = createApi({
             keepUnusedDataFor: 0,
         }),
 
-        deleteProblemResource: builder.mutation<string, number >({
+        getAllAdminProblemResources: builder.query<IPagedResultType<IProblemResourceInListModel>, IGetAllAdminParams>({
+            query: ({ filter, page, itemsPerPage, sorting }) => ({
+                url: 'GetAllProblemResources',
+                params: {
+                    filter,
+                    page,
+                    itemsPerPage,
+                    sorting,
+                },
+            }),
+            keepUnusedDataFor: 0,
+        }),
+
+        deleteResource: builder.mutation<string, number >({
             query: (id) => ({
                 url: `/${DELETE_ENDPOINT}/${id}`,
                 method: 'DELETE',
             }),
         }),
 
-        getProblemResourceById:
+        getResourceById:
         builder.query<IProblemResourceAdministrationModel, number>({
             query: (id) => ({ url: `/${GET_ENDPOINT}/${id}` }),
             keepUnusedDataFor: 0,
         }),
 
-        updateProblemResource: builder.mutation<string, FormData >({
+        updateResource: builder.mutation<string, FormData >({
             query: (resource: FormData) => ({
                 url: `/${UPDATE_ENDPOINT}`,
                 method: 'PATCH',
@@ -46,14 +65,14 @@ export const problemResourcesAdminService = createApi({
             query: (resourceId) => ({ url: `/Download/${resourceId}` }),
             keepUnusedDataFor: 5,
         }),
-        createProblemResource: builder.mutation<string, FormData >({
+        createResource: builder.mutation<string, FormData >({
             query: (resource:FormData) => ({
                 url: `/${CREATE_ENDPOINT}`,
                 method: 'POST',
                 body: resource,
             }),
         }),
-        exportProblemResourcesToExcel: builder.query<IFileModel, IGetAllAdminParams>({
+        exportResourcesToExcel: builder.query<IFileModel, IGetAllAdminParams>({
             query: ({ filter, page, itemsPerPage, sorting }) => ({
                 url: `/${EXCEL_RESULTS_ENDPOINT}`,
                 params: {
@@ -69,13 +88,14 @@ export const problemResourcesAdminService = createApi({
 });
 
 export const {
+    useGetAllAdminContestResourcesQuery,
     useGetAllAdminProblemResourcesQuery,
-    useDeleteProblemResourceMutation,
-    useGetProblemResourceByIdQuery,
-    useCreateProblemResourceMutation,
-    useUpdateProblemResourceMutation,
+    useDeleteResourceMutation,
+    useGetResourceByIdQuery,
+    useCreateResourceMutation,
+    useUpdateResourceMutation,
     useDownloadResourceQuery,
-    useLazyExportProblemResourcesToExcelQuery,
-} = problemResourcesAdminService;
+    useLazyExportResourcesToExcelQuery,
+} = resourcesAdminService;
 
-export default problemResourcesAdminService;
+export default resourcesAdminService;

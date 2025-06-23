@@ -11,6 +11,7 @@ using OJS.Services.Infrastructure.Models.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OJS.Data.Models.Resources;
 
 public class ContestLegacyExportServiceModel : IMapExplicitly
 {

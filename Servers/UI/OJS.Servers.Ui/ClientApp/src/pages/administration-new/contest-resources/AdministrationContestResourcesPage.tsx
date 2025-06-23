@@ -6,16 +6,16 @@ import AdministrationModal from '../../../components/administration/common/modal
 import ResourceForm from '../../../components/administration/problem-resources/problem-resource-form/ResourceForm';
 import { getColors, useAdministrationTheme } from '../../../hooks/use-administration-theme-provider';
 import {
-    useGetAllAdminProblemResourcesQuery,
+    useGetAllAdminContestResourcesQuery,
     useLazyExportResourcesToExcelQuery,
 } from '../../../redux/services/admin/resourcesAdminService';
 import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
 
-import problemResourceFilterableColumns, { returnProblemResourceNonFilterableColumns } from './problemResourcesGridColumns';
+import contestResourcesFilterableColumns, { returnContestResourcesNonFilterableColumns } from './contestResourcesGridColumns';
 
-const AdministrationProblemResourcesPage = () => {
+const AdministrationContestResourcesPage = () => {
     const [ searchParams ] = useSearchParams();
     const { themeMode } = useAdministrationTheme();
     const [ successMessage, setSuccessMessage ] = useState<string | null>(null);
@@ -25,7 +25,7 @@ const AdministrationProblemResourcesPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
-    const { refetch, data, error } = useGetAllAdminProblemResourcesQuery(queryParams);
+    const { refetch, data, error } = useGetAllAdminContestResourcesQuery(queryParams);
 
     const onClose = () => {
         refetch();
@@ -55,8 +55,8 @@ const AdministrationProblemResourcesPage = () => {
         <>
             {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
-              filterableGridColumnDef={problemResourceFilterableColumns}
-              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, refetch, setSuccessMessage)}
+              filterableGridColumnDef={contestResourcesFilterableColumns}
+              notFilterableGridColumnDef={returnContestResourcesNonFilterableColumns(onEditClick, refetch, setSuccessMessage)}
               data={data}
               error={error}
               queryParams={queryParams}
@@ -70,4 +70,4 @@ const AdministrationProblemResourcesPage = () => {
         </>
     );
 };
-export default AdministrationProblemResourcesPage;
+export default AdministrationContestResourcesPage;

@@ -61,7 +61,7 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
         data: testsData,
         error,
         isLoading: isGettingData,
-    } = useGetTestsByProblemIdQuery({ problemId, ...queryParams });
+    } = useGetTestsByProblemIdQuery({ parentId: problemId, ...queryParams });
 
     const [ deleteByProblem,
         {

@@ -12,22 +12,24 @@ using OJS.Services.Ui.Models.Problems;
 using OJS.Services.Infrastructure.Extensions;
 using System;
 using System.Linq;
+using OJS.Data.Models.Resources;
+using OJS.Services.Common.Data;
 
-public class ProblemResourcesBusinessService(
-    IProblemResourcesDataService problemResourcesDataService,
+public class ResourcesBusinessService(
+    IDataService<Resource> resourcesDataService,
     IOptions<SvnConfig> svnConfigAccessor,
-    ILogger<ProblemResourcesBusinessService> logger)
-    : IProblemResourcesBusinessService
+    ILogger<ResourcesBusinessService> logger)
+    : IResourcesBusinessService
 {
     private readonly SvnConfig svnConfig = svnConfigAccessor.Value;
 
-    public async Task<ProblemResourceServiceModel> GetResource(int resourceId)
-        => await problemResourcesDataService
+    public async Task<ResourceServiceModel> GetResource(int resourceId)
+        => await resourcesDataService
             .GetByIdQuery(resourceId)
             .AsNoTracking()
-            .MapCollection<ProblemResourceServiceModel>()
+            .MapCollection<ResourceServiceModel>()
             .FirstOrDefaultAsync()
-            ?? throw new BusinessServiceException($"Problem resource with ID {resourceId} not found.");
+            ?? throw new BusinessServiceException($"Resource with ID {resourceId} not found.");
 
     public string SafeConvertToSvnLink(string link)
     {

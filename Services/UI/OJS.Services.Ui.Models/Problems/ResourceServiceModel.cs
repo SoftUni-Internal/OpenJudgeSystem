@@ -1,13 +1,13 @@
 ﻿namespace OJS.Services.Ui.Models.Problems;
 
-using OJS.Data.Models.Problems;
+using OJS.Data.Models.Resources;
 using OJS.Services.Infrastructure.Models.Mapping;
 
-public class ProblemResourceServiceModel : IMapFrom<ProblemResource>
+public class ResourceServiceModel : IMapFrom<Resource>
 {
     public int Id { get; set; }
 
-    public int ProblemId { get; set; }
+    public int ParentId { get; set; }
 
     public string Name { get; set; } = null!;
 

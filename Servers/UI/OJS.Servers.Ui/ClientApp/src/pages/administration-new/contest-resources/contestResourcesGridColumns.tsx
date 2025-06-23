@@ -6,7 +6,7 @@ import { ProblemResourceType } from '../../../common/enums';
 import { CREATED_ON, MODIFIED_ON, PROBLEM_RESOURCE } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
 import { IEnumType } from '../../../common/types';
-import { NEW_ADMINISTRATION_PATH, PROBLEM_RESOURCES_PATH, PROBLEMS_PATH } from '../../../common/urls/administration-urls';
+import { NEW_ADMINISTRATION_PATH, PROBLEM_RESOURCES_PATH } from '../../../common/urls/administration-urls';
 import DeleteButton from '../../../components/administration/common/delete/DeleteButton';
 import DownloadIconButton from '../../../components/administration/common/download/DownloadIconButton';
 import QuickEditButton from '../../../components/administration/common/edit/QuickEditButton';
@@ -16,7 +16,7 @@ import { useDeleteResourceMutation, useDownloadResourceQuery } from '../../../re
 import { adminFormatDate } from '../../../utils/administration/administration-dates';
 import { getStringObjectKeys } from '../../../utils/object-utils';
 
-const problemResourceFilterableColumns: AdministrationGridColDef[] = [
+const contestResourcesFilterableColumns: AdministrationGridColDef[] = [
     {
         field: 'id',
         headerName: 'Id',
@@ -39,8 +39,8 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
-        field: 'problemId',
-        headerName: 'Problem Id',
+        field: 'contestId',
+        headerName: 'Contest Id',
         flex: 0.5,
         type: 'string',
         filterable: false,
@@ -49,8 +49,8 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
-        field: 'problemName',
-        headerName: 'Problem Name',
+        field: 'contestName',
+        headerName: 'Contest Name',
         flex: 0.5,
         type: 'string',
         filterable: false,
@@ -101,32 +101,6 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
-        field: 'problemId',
-        headerName: 'Problem Id',
-        flex: 0,
-        type: 'number',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        valueFormatter: (_, row) => row.value?.toString(),
-    },
-    {
-        field: 'problemName',
-        headerName: 'Problem Name',
-        flex: 0.5,
-        type: 'string',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        renderCell: (params) => (
-            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
-                {params.row.problemName}
-            </Link>
-        ),
-    },
-    {
         field: 'isDeleted',
         headerName: 'Is Deleted',
         flex: 1,
@@ -156,7 +130,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
     },
 ];
 
-export const returnProblemResourceNonFilterableColumns = (
+export const returnContestResourcesNonFilterableColumns = (
     onEditClick: Function,
     onSuccessfulDelete: () => void,
     setParentSuccessMessage: Function,
@@ -193,4 +167,5 @@ export const returnProblemResourceNonFilterableColumns = (
             </div>
         ),
     } ] as GridColDef[];
-export default problemResourceFilterableColumns;
+
+export default contestResourcesFilterableColumns;

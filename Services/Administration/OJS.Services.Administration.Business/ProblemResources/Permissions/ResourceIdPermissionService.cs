@@ -7,13 +7,14 @@ using OJS.Services.Administration.Data;
 using OJS.Services.Common.Models.Users;
 using System.Linq;
 using System.Threading.Tasks;
+using OJS.Data.Models.Resources;
 
-public class ProblemResourceIdPermissionService : IEntityPermissionsService<ProblemResource, int>
+public class ResourceIdPermissionService : IEntityPermissionsService<Resource, int>
 {
     private readonly IProblemResourcesDataService problemResourcesDataService;
     private readonly IContestsBusinessService contestsBusinessService;
 
-    public ProblemResourceIdPermissionService(
+    public ResourceIdPermissionService(
         IProblemResourcesDataService problemResourcesDataService,
         IContestsBusinessService contestsBusinessService)
     {
