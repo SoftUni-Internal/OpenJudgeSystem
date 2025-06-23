@@ -404,7 +404,6 @@ const ContestSolutionSubmitPage = () => {
             if (!(d as any).error) {
                 refetch();
                 getSubmissionsData();
-                setIsSubmitButtonDisabled(true);
             }
         }).catch(() => { });
     }, [
