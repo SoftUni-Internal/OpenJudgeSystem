@@ -330,7 +330,7 @@ else
 
                     <div id="test-@(testResult.TestId)-input-data"></div>
 
-                    @if (testResult.ResultType == TestRunResultType.WrongAnswer || testResult.ExpectedOutputFragment != testResult.UserOutputFragment)
+                    @if (testResult.ResultType == TestRunResultType.WrongAnswer)
                     {
                         <div class="row top-buffer">
                             <div class="col-md-6">@Resource.Expected_output</div>
