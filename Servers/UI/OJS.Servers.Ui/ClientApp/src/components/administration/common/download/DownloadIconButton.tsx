@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { IconButton } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
-import { useDownloadResourceQuery } from 'src/redux/services/admin/problemResourcesAdminService';
+import { useDownloadResourceQuery } from 'src/redux/services/admin/resourcesAdminService';
 
 import downloadFile from '../../../../utils/file-download-utils';
 import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
