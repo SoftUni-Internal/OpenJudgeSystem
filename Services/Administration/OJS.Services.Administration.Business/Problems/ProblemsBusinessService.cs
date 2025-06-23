@@ -7,14 +7,15 @@ using Microsoft.EntityFrameworkCore;
 using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Data.Models;
+using OJS.Data.Models.Contests;
 using OJS.Data.Models.Problems;
 using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Problems;
 using OJS.Services.Common;
 using OJS.Services.Common.Data;
-using OJS.Services.Common.Models;
 using OJS.Services.Infrastructure.Extensions;
+using OJS.Services.Infrastructure.Models;
 using Settings;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using OJS.Workers.Common;
 using Resource = OJS.Common.Resources.ProblemsBusiness;
-using SharedResource = OJS.Common.Resources.ContestsGeneral;
 
 public class ProblemsBusinessService : AdministrationOperationService<Problem, int, ProblemAdministrationModel>, IProblemsBusinessService
 {
@@ -155,7 +155,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
             .ToList()
             .ForEachSequential(this.Delete);
 
-    public async Task<ServiceResult> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId)
+    public async Task<ServiceResult<VoidResult>> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId)
     {
         var problem = await this.problemsData
             .GetByIdQuery(id)
@@ -168,22 +168,22 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         if (problem?.ProblemGroup.ContestId == contestId)
         {
-            return new ServiceResult(Resource.CannotCopyProblemsIntoSameContest);
+            return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemsIntoSameContest);
         }
 
         if (!await this.contestsData.ExistsById(contestId))
         {
-            return new ServiceResult(SharedResource.ContestNotFound);
+            return ServiceResult.NotFound<VoidResult>(nameof(Contest), context: new { contestId });
         }
 
         if (await this.contestsData.IsActiveById(contestId))
         {
-            return new ServiceResult(Resource.CannotCopyProblemsIntoActiveContest);
+            return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemsIntoActiveContest);
         }
 
         await this.CopyProblemToContest(problem, contestId, problemGroupId);
 
-        return ServiceResult.Success;
+        return ServiceResult.EmptySuccess;
     }
 
     public override async Task<ProblemAdministrationModel> Get(int id)

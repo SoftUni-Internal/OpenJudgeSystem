@@ -1,16 +1,16 @@
 namespace OJS.Services.Administration.Business.ProblemGroups
 {
     using OJS.Data.Models.Problems;
-    using OJS.Services.Common.Models;
     using System.Threading.Tasks;
     using OJS.Services.Administration.Models.ProblemGroups;
+    using OJS.Services.Infrastructure.Models;
     using System.Collections.Generic;
 
     public interface IProblemGroupsBusinessService : IAdministrationOperationService<ProblemGroup, int, ProblemGroupsAdministrationModel>
     {
-        Task<ServiceResult> DeleteById(int id);
+        Task<ServiceResult<VoidResult>> DeleteById(int id);
 
-        Task<ServiceResult> CopyAllToContestBySourceAndDestinationContest(
+        Task<ServiceResult<VoidResult>> CopyAllToContestBySourceAndDestinationContest(
             int sourceContestId,
             int destinationContestId);
 

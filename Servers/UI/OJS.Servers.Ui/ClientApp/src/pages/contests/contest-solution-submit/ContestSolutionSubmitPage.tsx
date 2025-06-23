@@ -129,21 +129,6 @@ const ContestSolutionSubmitPage = () => {
     const isCompete = useMemo(() => getParticipationType() === ContestParticipationType.Compete, [ getParticipationType ]);
 
     const {
-        data: submissionsData,
-        error: submissionsErrorData,
-        isFetching: submissionsDataFetching,
-        isLoading: submissionsDataLoading,
-        refetch: getSubmissionsData,
-    } = useGetSubmissionResultsByProblemQuery({
-        problemId: Number(selectedContestDetailsProblem?.id),
-        isOfficial: isCompete,
-        ...queryParams,
-    }, { skip: !selectedContestDetailsProblem });
-
-    const textColorClassName = getColorClassName(themeColors.textColor);
-    const lightBackgroundClassName = getColorClassName(themeColors.baseColor100);
-
-    const {
         data,
         isLoading,
         isError,
@@ -163,6 +148,21 @@ const ContestSolutionSubmitPage = () => {
         endDateTimeForParticipantOrContest,
         allowMentor,
     } = data || {};
+
+    const {
+        data: submissionsData,
+        error: submissionsErrorData,
+        isFetching: submissionsDataFetching,
+        isLoading: submissionsDataLoading,
+        refetch: getSubmissionsData,
+    } = useGetSubmissionResultsByProblemQuery({
+        problemId: Number(selectedContestDetailsProblem?.id),
+        isOfficial: isCompete,
+        ...queryParams,
+    }, { skip: !selectedContestDetailsProblem || !isRegisteredParticipant });
+
+    const textColorClassName = getColorClassName(themeColors.textColor);
+    const lightBackgroundClassName = getColorClassName(themeColors.baseColor100);
 
     const { problems = [] } = contest || {};
 
