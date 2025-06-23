@@ -147,6 +147,7 @@ const ContestSolutionSubmitPage = () => {
         data,
         isLoading,
         isError,
+        isFetching,
         error,
         refetch,
     } = useGetContestUserParticipationQuery({ id: Number(contestId!), isOfficial: isCompete });
@@ -286,7 +287,9 @@ const ContestSolutionSubmitPage = () => {
             const shouldSubmitBeDisabled = isCodeStrategyAndCodeIsEmptyOrTooShort ||
                 isFileUploadAndFileIsEmpty ||
                 !selectedSubmissionType ||
-                secondsUntilTimerEnds > 0;
+                secondsUntilTimerEnds > 0 ||
+                isLoading ||
+                isFetching;
 
             setRemainingTime(secondsUntilTimerEnds);
             setIsSubmitButtonDisabled(shouldSubmitBeDisabled);
@@ -302,7 +305,7 @@ const ContestSolutionSubmitPage = () => {
         return () => {
             clearInterval(intervalId);
         };
-    }, [ lastSubmissionTime, selectedSubmissionType, submissionCode, uploadedFile, userSubmissionsTimeLimit ]);
+    }, [ isFetching, isLoading, lastSubmissionTime, selectedSubmissionType, submissionCode, uploadedFile, userSubmissionsTimeLimit ]);
 
     // Manage remaining time for compete contest
     useEffect(() => {
@@ -354,7 +357,9 @@ const ContestSolutionSubmitPage = () => {
     }, [ isLoading, isError, isRegisteredParticipant, isActiveParticipant, contestId, isCompete, navigate, slug, isInvalidated ]);
 
     useEffect(() => {
-        setSubmissionCode('');
+        // Only clear code if it's a new problem
+        // Don’t reset if there’s already code (protect against unintended clears)
+        setSubmissionCode((prev) => prev ?? '');
     }, [ selectedContestDetailsProblem ]);
 
     // Ensure contest details are set in state
