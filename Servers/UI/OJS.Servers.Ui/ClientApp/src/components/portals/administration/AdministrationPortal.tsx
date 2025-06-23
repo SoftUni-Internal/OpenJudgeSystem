@@ -102,8 +102,6 @@ import AdministrationReplaceDeleteSubmissionTypesPage
 import AdministrationSubmissionTypesPage
     from '../../../pages/administration-new/submission-types/AdministrationSubmissionTypesPage';
 import AdministrationSubmissionsPage from '../../../pages/administration-new/submissions/AdministrationSubmissionsPage';
-import AdminSubmissionForProcessingDetails
-    from '../../../pages/administration-new/submissions-for-processing/AdministrationSubmissionForProcessing';
 import AdministrationSubmissionsForProcessingPage
     from '../../../pages/administration-new/submissions-for-processing/AdministrationSubmissionsForProcessingPage';
 import SubmissionsSimillarity from '../../../pages/administration-new/submissions-simillarity/SubmissionsSimillarity';
@@ -409,11 +407,6 @@ const AdministrationPortal = () => {
         {
             path: `${SUBMISSIONS_FOR_PROCESSING_PATH}`,
             Element: AdministrationSubmissionsForProcessingPage,
-            visibleOnlyForAdmin: true,
-        },
-        {
-            path: `${SUBMISSIONS_FOR_PROCESSING_PATH}/:id`,
-            Element: AdminSubmissionForProcessingDetails,
             visibleOnlyForAdmin: true,
         },
         {
