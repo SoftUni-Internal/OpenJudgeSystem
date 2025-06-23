@@ -223,7 +223,7 @@ else
             <div>@Resource.Zero_tests_not_included_in_result</div>
         }
 
-        var displayShowInputButton = Model.UserHasAdminPermission ||
+        var displayShowInputButton = (Model.UserHasAdminPermission && testResult.ResultType != TestRunResultType.CorrectAnswer) ||
             (!testResult.HideInput && testResult.ResultType != TestRunResultType.CorrectAnswer &&
                 (testResult.IsTrialTest || testResult.IsOpenTest || Model.ShowDetailedFeedback));
 
@@ -330,7 +330,7 @@ else
 
                     <div id="test-@(testResult.TestId)-input-data"></div>
 
-                    @if (testResult.ExpectedOutputFragment != null || testResult.UserOutputFragment != null)
+                    @if (testResult.ResultType == TestRunResultType.WrongAnswer)
                     {
                         <div class="row top-buffer">
                             <div class="col-md-6">@Resource.Expected_output</div>
