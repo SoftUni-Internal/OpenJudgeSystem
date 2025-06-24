@@ -300,7 +300,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         if (problem == null)
         {
-            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>("Problem", context: new { problemId });
+            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>(nameof(Problem), context: new { problemId });
         }
 
         var user = this.userProviderService.GetCurrentUser();
@@ -313,7 +313,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         if (participant == null)
         {
-            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>("Participant", context: new { problemId, isOfficial });
+            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>(nameof(Participant), context: new { problemId, isOfficial });
         }
 
         var query = this.submissionsData

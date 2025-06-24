@@ -3,6 +3,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
     using FluentExtensions.Extensions;
     using Microsoft.EntityFrameworkCore;
     using OJS.Data.Models;
+    using OJS.Data.Models.Contests;
     using OJS.Data.Models.Problems;
     using OJS.Data.Models.Tests;
     using OJS.Services.Administration.Data;
@@ -10,6 +11,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using OJS.Data.Models.Resources;
     using Resource = OJS.Common.Resources.ProblemGroupsBusiness;
     using SharedResource = OJS.Common.Resources.ContestsGeneral;
     using OJS.Services.Infrastructure.Extensions;
@@ -133,7 +135,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
 
             if (!await this.contestsData.ExistsById(destinationContestId))
             {
-                return ServiceResult.NotFound<VoidResult>("Contest", SharedResource.ContestNotFound, destinationContestId);
+                return ServiceResult.NotFound<VoidResult>(nameof(Contest), SharedResource.ContestNotFound, destinationContestId);
             }
 
             if (await this.contestsData.IsActiveById(destinationContestId))

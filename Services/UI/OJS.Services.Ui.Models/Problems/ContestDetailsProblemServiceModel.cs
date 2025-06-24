@@ -8,5 +8,5 @@ public class ContestDetailsProblemServiceModel : IMapFrom<Problem>
 {
     public string Name { get; set; } = string.Empty;
 
-    public ICollection<ProblemResourceServiceModel> Resources { get; set; } = new HashSet<ProblemResourceServiceModel>();
+    public ICollection<ResourceServiceModel> Resources { get; set; } = new HashSet<ResourceServiceModel>();
 }

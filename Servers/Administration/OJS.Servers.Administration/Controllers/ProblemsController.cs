@@ -23,6 +23,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using OJS.Data.Models;
+using OJS.Data.Models.Resources;
 using OJS.Services.Common.Data;
 
 public class ProblemsController : BaseAdminApiController<Problem, int, ProblemInListModel, ProblemAdministrationModel>
@@ -183,7 +184,7 @@ public class ProblemsController : BaseAdminApiController<Problem, int, ProblemIn
     [ProtectedEntityAction("problemId", typeof(ProblemIdPermissionsService))]
     public async Task<IActionResult> GetResources([FromQuery] PaginationRequestModel model, [FromRoute] int problemId)
         => this.Ok(
-            await this.problemResourceGridDataService.GetAll<ProblemResourceInListModel>(
+            await this.problemResourceGridDataService.GetAll<ResourceInListModel>(
                 model,
                 pr => pr.ProblemId == problemId));
 

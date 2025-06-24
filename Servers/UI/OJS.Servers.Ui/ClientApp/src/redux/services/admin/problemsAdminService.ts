@@ -6,11 +6,11 @@ import {
     IIndexProblemsType,
     IPagedResultType,
     IProblemAdministration,
-    IProblemResouceInLinstModel,
     IProblemRetestValidationType,
+    IResourceInListModel,
     ITestsDropdownData,
 } from '../../../common/types';
-import { IGetByContestId, IGetByProblemId, IProblemUrlById } from '../../../common/url-types';
+import { IGetByContestId, IGetByParentId, IProblemUrlById } from '../../../common/url-types';
 import {
     CREATE_ENDPOINT,
     EXCEL_RESULTS_ENDPOINT,
@@ -109,9 +109,9 @@ const problemsAdminService = createApi({
             }),
         }),
 
-        getResources: builder.query<IPagedResultType<IProblemResouceInLinstModel>, IGetByProblemId>({
-            query: ({ problemId, filter, page, itemsPerPage, sorting }) => ({
-                url: `GetResources/${problemId}`,
+        getProblemResources: builder.query<IPagedResultType<IResourceInListModel>, IGetByParentId>({
+            query: ({ parentId, filter, page, itemsPerPage, sorting }) => ({
+                url: `GetResources/${parentId}`,
                 params: {
                     filter,
                     page,
@@ -157,7 +157,7 @@ export const {
     useCopyAllMutation,
     useCreateProblemMutation,
     useCopyMutation,
-    useGetResourcesQuery,
+    useGetProblemResourcesQuery,
     useLazyExportProblemsToExcelQuery,
     useDownloadAdditionalFilesQuery,
 

@@ -20,7 +20,7 @@ import contestsAdminService from './services/admin/contestsAdminService';
 import examGroupsService from './services/admin/examGroupsAdminService';
 import participantsAdminService from './services/admin/participantsAdminService';
 import problemGroupsAdminService from './services/admin/problemGroupsAdminService';
-import { problemResourcesAdminService } from './services/admin/problemResourcesAdminService';
+import { resourcesAdminService } from './services/admin/resourcesAdminService';
 import usersMentorsAdminService from './services/admin/usersMentorsAdminService';
 import mentorPromptTemplatesAdminService from './services/admin/mentorPromptTemplatesAdminService';
 import accessLogsAdminService from './services/admin/accessLogsAdminService';
@@ -87,7 +87,7 @@ const rootReducer = combineReducers({
     [usersMentorsAdminService.reducerPath]: usersMentorsAdminService.reducer,
     [mentorPromptTemplatesAdminService.reducerPath]: mentorPromptTemplatesAdminService.reducer,
     [testsAdminService.reducerPath]: testsAdminService.reducer,
-    [problemResourcesAdminService.reducerPath]: problemResourcesAdminService.reducer,
+    [resourcesAdminService.reducerPath]: resourcesAdminService.reducer,
     [usersAdminService.reducerPath]: usersAdminService.reducer,
     [rolesAdminService.reducerPath]: rolesAdminService.reducer,
     [examGroupsService.reducerPath]: examGroupsService.reducer,
@@ -130,7 +130,7 @@ const store = configureStore({
         usersMentorsAdminService.middleware,
         mentorPromptTemplatesAdminService.middleware,
         testsAdminService.middleware,
-        problemResourcesAdminService.middleware,
+        resourcesAdminService.middleware,
         usersAdminService.middleware,
         rolesAdminService.middleware,
         examGroupsService.middleware,

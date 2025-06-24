@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { defaultPathIdentifier } from 'src/common/constants';
 import { testsServiceName } from 'src/common/reduxNames';
 import { IGetTestDetailsParams } from 'src/common/url-types';

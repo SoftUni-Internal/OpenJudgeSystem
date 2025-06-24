@@ -1,6 +1,6 @@
-import { HelmetProvider } from 'react-helmet-async';
 import { Provider } from 'react-redux';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { HelmetProvider } from '@dr.pogodin/react-helmet';
 import { PersistGate } from 'redux-persist/integration/react';
 
 import ClientPortal from './components/portals/client/ClientPortal';

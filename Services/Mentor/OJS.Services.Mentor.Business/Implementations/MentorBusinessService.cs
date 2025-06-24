@@ -39,7 +39,7 @@ public class MentorBusinessService(
     ICacheService cache,
     ILogger<MentorBusinessService> logger,
     OpenAIClient openAiClient,
-    IProblemResourcesBusinessService problemResourcesBusinessService)
+    IResourcesBusinessService resourcesBusinessService)
     : IMentorBusinessService
 {
     private const string DocumentNotFoundOrEmpty = "Judge was unable to find the problem's description. Please contact an administrator and report the problem.";
@@ -605,7 +605,7 @@ public class MentorBusinessService(
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
     {
-        link = problemResourcesBusinessService.SafeConvertToSvnLink(link);
+        link = resourcesBusinessService.SafeConvertToSvnLink(link);
         using var client = this.CreateClientForLink(link);
         var fileBytes = await this.FetchResource(link, client, problemId, contestId);
 
