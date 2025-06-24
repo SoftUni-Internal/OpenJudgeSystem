@@ -37,20 +37,21 @@ public class ValidationResult
             Message = message,
         };
 
-    public static ValidationResult Invalid(string message, string propertyName)
-        => new()
-        {
-            IsValid = false,
-            Message = message,
-            PropertyName = propertyName,
-        };
-
     public static ValidationResult Invalid(string message, string errorCode, object errorContext)
         => new()
         {
             IsValid = false,
             Message = message,
             ErrorCode = errorCode,
+            ErrorContext = errorContext,
+        };
+
+    public static ValidationResult Invalid(string message, object errorContext)
+        => new()
+        {
+            IsValid = false,
+            Message = message,
+            ErrorCode = ServiceConstants.ErrorCodes.BusinessRuleViolation,
             ErrorContext = errorContext,
         };
 

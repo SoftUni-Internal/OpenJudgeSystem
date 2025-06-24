@@ -111,7 +111,7 @@ public class CompeteController(
 
                 return await submissionsBusinessService
                     .Submit(serviceModel)
-                    .ToOkResult();
+                    .ToActionResult(logger);
             },
             new Dictionary<string, object?>
             {
@@ -126,9 +126,24 @@ public class CompeteController(
     /// <returns>Success status code.</returns>
     [HttpPost("submitfilesubmission")]
     public async Task<IActionResult> SubmitFileSubmission([FromForm] SubmitFileSubmissionRequestModel model)
-        => await submissionsBusinessService
-            .Submit(model.Map<SubmitSubmissionServiceModel>())
-            .ToOkResult();
+        => await tracing.TraceAsync(
+            OjsActivitySources.submissions,
+            OjsActivitySources.SubmissionActivities.Received,
+            async activity =>
+            {
+                var serviceModel = model.Map<SubmitSubmissionServiceModel>();
+
+                tracing.AddTechnicalContext(activity!, "submit_file", "ui_controller");
+
+                return await submissionsBusinessService
+                    .Submit(serviceModel)
+                    .ToActionResult(logger);
+            },
+            new Dictionary<string, object?>
+            {
+                ["submission.content_length"] = model.Content?.Length,
+            },
+            BusinessContext.ForSubmission(0, model.ProblemId, model.ContestId));
 
     /// <summary>
     /// Triggers a retest of a user's submission by putting a message on a queue for background processing.

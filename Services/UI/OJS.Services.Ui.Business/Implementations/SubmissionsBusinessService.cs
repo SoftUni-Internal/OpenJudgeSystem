@@ -336,10 +336,13 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         return ServiceResult.Success(submissions);
     }
 
-    public async Task Submit(SubmitSubmissionServiceModel model)
+    public async Task<ServiceResult<VoidResult>> Submit(SubmitSubmissionServiceModel model)
     {
-        var problem = await this.problemsCache.GetForSubmitById(model.ProblemId)
-            ?? throw new BusinessServiceException(ValidationMessages.Problem.NotFound);
+        var problem = await this.problemsCache.GetForSubmitById(model.ProblemId);
+        if (problem == null)
+        {
+            return ServiceResult.NotFound<VoidResult>(nameof(Problem));
+        }
 
         var currentUser = this.userProviderService.GetCurrentUser();
 
@@ -386,9 +389,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         if (!submitSubmissionValidationServiceResult.IsValid)
         {
-            throw new BusinessServiceException(
-                submitSubmissionValidationServiceResult.Message,
-                JsonConvert.SerializeObject(new { ProblemId = submitSubmissionValidationServiceResult.PropertyName }));
+            return submitSubmissionValidationServiceResult.ToServiceResult<VoidResult>();
         }
 
         var newSubmission = model.Map<Submission>();
@@ -420,7 +421,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         {
             // Submission is just uploaded and should not be processed
             await this.AddNewDefaultProcessedSubmission(participant.Id, newSubmission);
-            return;
+            return ServiceResult.EmptySuccess;
         }
 
         if (problem.HasAdditionalFiles)
@@ -447,6 +448,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         await this.submissionsCommonBusinessService.PublishSubmissionForProcessing(submissionServiceModel,
             submissionForProcessing!);
+
+        return ServiceResult.EmptySuccess;
     }
 
     public async Task ProcessExecutionResult(SubmissionExecutionResult submissionExecutionResult)

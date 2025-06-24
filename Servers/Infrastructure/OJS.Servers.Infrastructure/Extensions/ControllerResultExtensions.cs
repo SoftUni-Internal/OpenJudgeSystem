@@ -23,7 +23,9 @@ public static class ControllerResultExtensions
     {
         if (result.IsSuccess)
         {
-            return new OkObjectResult(result.Data);
+            return result.Data is VoidResult
+                ? new OkResult()
+                : new OkObjectResult(result.Data);
         }
 
         var activity = Activity.Current;
