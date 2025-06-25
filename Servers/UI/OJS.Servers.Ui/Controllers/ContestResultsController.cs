@@ -2,6 +2,7 @@ namespace OJS.Servers.Ui.Controllers;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OJS.Servers.Infrastructure.Controllers;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Services.Common.Models.Contests.Results;
@@ -11,13 +12,11 @@ using System.Threading.Tasks;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static OJS.Servers.Infrastructure.ServerConstants.Authorization;
 
-public class ContestResultsController : BaseApiController
+public class ContestResultsController(
+    IContestResultsBusinessService contestResultsBusiness,
+    ILogger<ContestResultsController> logger)
+    : BaseApiController
 {
-    private readonly IContestResultsBusinessService contestResultsBusiness;
-
-    public ContestResultsController(IContestResultsBusinessService contestResultsBusiness)
-        => this.contestResultsBusiness = contestResultsBusiness;
-
     /// <summary>
     /// Gets the results of all the participants in a given contest.
     /// </summary>
@@ -29,9 +28,9 @@ public class ContestResultsController : BaseApiController
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(ContestResultsViewModel), Status200OK)]
     public async Task<IActionResult> GetResults(int id, bool official, bool full, int page)
-        => await this.contestResultsBusiness
+        => await contestResultsBusiness
             .GetContestResults(id, official, full, page)
-            .ToOkResult();
+            .ToActionResult(logger);
 
     /// <summary>
     /// Retrieves the contest results for a specific user. The result is calculated as a percentage based on the
@@ -44,7 +43,7 @@ public class ContestResultsController : BaseApiController
     [ProducesResponseType(typeof(IEnumerable<UserPercentageResultsServiceModel>), Status200OK)]
     [Authorize(ApiKeyPolicyName)]
     public async Task<IActionResult> GetAllUserResultsPercentageByForContest(string apiKey, int? contestId)
-        => await this.contestResultsBusiness
+        => await contestResultsBusiness
             .GetAllUserResultsPercentageByForContest(contestId)
             .ToOkResult();
 }

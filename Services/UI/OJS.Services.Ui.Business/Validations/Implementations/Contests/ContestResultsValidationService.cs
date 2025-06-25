@@ -25,7 +25,7 @@ public class ContestResultsValidationService(INotDefaultValueValidationHelper no
 
         if (fullResults && !isUserAdminOrLecturerInContest)
         {
-            return ValidationResult.Invalid(ValidationMessages.Participant.NoPrivilegesForContestResults);
+            return ValidationResult.AccessDenied(ValidationMessages.Participant.NoPrivilegesForContestResults);
         }
 
         if (!contest!.IsVisible)

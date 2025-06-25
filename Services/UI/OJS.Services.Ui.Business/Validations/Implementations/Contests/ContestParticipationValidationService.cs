@@ -43,7 +43,7 @@ public class ContestParticipationValidationService : IContestParticipationValida
             ((!contestIsVisible || contestCategory is not { IsVisible: true }) &&
             !userIsAdminOrLecturerInContest))
         {
-            return ValidationResult.Invalid(ValidationMessages.Contest.NotFound);
+            return ValidationResult.NotFound(nameof(contest));
         }
 
         if (userIsAdminOrLecturerInContest)
@@ -55,12 +55,12 @@ public class ContestParticipationValidationService : IContestParticipationValida
 
         if (official && !contestActivityEntity.CanBeCompeted)
         {
-            return ValidationResult.Invalid(ValidationMessages.Contest.CanBeCompeted);
+            return ValidationResult.AccessDenied(ValidationMessages.Contest.CanBeCompeted);
         }
 
         if (!official && !contestActivityEntity.CanBePracticed)
         {
-            return ValidationResult.Invalid(ValidationMessages.Contest.CanBePracticed);
+            return ValidationResult.AccessDenied(ValidationMessages.Contest.CanBePracticed);
         }
 
         if (contest.IsOnlineExam &&
@@ -68,7 +68,7 @@ public class ContestParticipationValidationService : IContestParticipationValida
             !userIsAdminOrLecturerInContest &&
             !await this.contestsData.IsUserInExamGroupByContestAndUser(contest.Id, user.Id))
         {
-            return ValidationResult.Invalid(ValidationMessages.Participant.NotRegisteredForExam);
+            return ValidationResult.AccessDenied(ValidationMessages.Participant.NotRegisteredForExam);
         }
 
         return ValidationResult.Valid();

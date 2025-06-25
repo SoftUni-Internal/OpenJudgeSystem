@@ -50,7 +50,7 @@ public class SubmitSubmissionValidationService : ISubmitSubmissionValidationServ
 
         if (problem == null)
         {
-            return ValidationResult.Invalid(ValidationMessages.Problem.NotFound);
+            return ValidationResult.NotFound(nameof(problem));
         }
 
         var participantActivity = this.contestsActivity.GetParticipantActivity(participant);
@@ -78,7 +78,7 @@ public class SubmitSubmissionValidationService : ISubmitSubmissionValidationServ
             return ValidationResult.Invalid(ValidationMessages.Participant.ParticipationNotActive);
         }
 
-        var problemIdToString = problem.Id.ToString();
+        var errorContext = new { ProblemId = problem.Id, ParticipantId = participant.Id };
 
         var participantHasUnprocessedSubmissionForProblem =
             await this.submissionsData.HasParticipantNotProcessedSubmissionForProblem(problem.Id, participant.Id);
@@ -87,21 +87,19 @@ public class SubmitSubmissionValidationService : ISubmitSubmissionValidationServ
         {
             return ValidationResult.Invalid(
                 ValidationMessages.Submission.UserHasNotProcessedSubmissionForProblem,
-                problemIdToString);
+                errorContext);
         }
 
         if (!participant.ContestAllowParallelSubmissionsInTasks &&
             await this.submissionsData.HasParticipantNotProcessedSubmissionForContest(participant.ContestId, participant.Id))
         {
-            return ValidationResult.Invalid(
-                ValidationMessages.Submission.UserHasNotProcessedSubmissionForContest,
-                problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.UserHasNotProcessedSubmissionForContest, errorContext);
         }
 
         if (string.IsNullOrWhiteSpace(submitSubmissionServiceModel.StringContent) &&
             (submitSubmissionServiceModel.ByteContent == null || submitSubmissionServiceModel.ByteContent.Length == 0))
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionEmpty, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionEmpty, errorContext);
         }
 
         if (submitSubmissionServiceModel.Official &&
@@ -114,54 +112,54 @@ public class SubmitSubmissionValidationService : ISubmitSubmissionValidationServ
 
             if (!problemIsAssignedToParticipant)
             {
-                return ValidationResult.Invalid(ValidationMessages.Problem.ProblemNotAssignedToUser, problemIdToString);
+                return ValidationResult.Invalid(ValidationMessages.Problem.ProblemNotAssignedToUser, errorContext);
             }
         }
 
         if (submissionType == null)
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionTypeNotFound, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionTypeNotFound, errorContext);
         }
 
         var isFileUpload = submitSubmissionServiceModel.StringContent == null || submitSubmissionServiceModel.ByteContent != null;
 
         if (isFileUpload && !submissionType.AllowedFileExtensions!.Contains(submitSubmissionServiceModel.FileExtension!))
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.InvalidExtension, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.InvalidExtension, errorContext);
         }
 
         if (isFileUpload && !submissionType.AllowBinaryFilesUpload)
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.BinaryFilesNotAllowed, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.BinaryFilesNotAllowed, errorContext);
         }
 
         if (!isFileUpload && submissionType.AllowBinaryFilesUpload)
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.TextUploadNotAllowed, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.TextUploadNotAllowed, errorContext);
         }
 
         if (submitSubmissionServiceModel.ByteContent != null &&
             problem.SourceCodeSizeLimit < submitSubmissionServiceModel.ByteContent.Length)
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionFileTooBig, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionFileTooBig, errorContext);
         }
 
         if (submitSubmissionServiceModel.StringContent != null &&
             problem.SourceCodeSizeLimit < Encoding.UTF8.GetBytes(submitSubmissionServiceModel.StringContent).Length)
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionTooLong, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionTooLong, errorContext);
         }
 
         if (!isFileUpload && submitSubmissionServiceModel.StringContent!.Length < 5)
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionTooShort, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionTooShort, errorContext);
         }
 
         var userSubmissionTimeLimit = this.GetUserSubmissionTimeLimit(participant);
 
         if (userSubmissionTimeLimit != 0)
         {
-            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionWasSentTooSoon, problemIdToString);
+            return ValidationResult.Invalid(ValidationMessages.Submission.SubmissionWasSentTooSoon, errorContext);
         }
 
         return ValidationResult.Valid();

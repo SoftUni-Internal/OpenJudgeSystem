@@ -14,7 +14,7 @@ namespace OJS.Services.Infrastructure.Models
             => new(false, default, message ?? $"{resourceType} not found", ServiceConstants.ErrorCodes.NotFound, resourceType, null, context);
 
         public static ServiceResult<T> AccessDenied<T>(string? message = null, object? context = null)
-            => new(false, default, message ?? "Access denied", ServiceConstants.ErrorCodes.AccessDenied, null, null, context);
+            => new(false, default, message ?? "Access denied", ServiceConstants.ErrorCodes.Forbidden, null, null, context);
 
         public static ServiceResult<T> BusinessRuleViolation<T>(string message, object? context = null)
             => new(false, default, message, ServiceConstants.ErrorCodes.BusinessRuleViolation, null, null, context);

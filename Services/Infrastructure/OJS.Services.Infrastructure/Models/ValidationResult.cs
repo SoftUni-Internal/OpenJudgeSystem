@@ -37,14 +37,6 @@ public class ValidationResult
             Message = message,
         };
 
-    public static ValidationResult Invalid(string message, string propertyName)
-        => new()
-        {
-            IsValid = false,
-            Message = message,
-            PropertyName = propertyName,
-        };
-
     public static ValidationResult Invalid(string message, string errorCode, object errorContext)
         => new()
         {
@@ -54,7 +46,16 @@ public class ValidationResult
             ErrorContext = errorContext,
         };
 
-    public static ValidationResult NotFound(string? message = null, string? resourceType = null, object? context = null)
+    public static ValidationResult Invalid(string message, object errorContext)
+        => new()
+        {
+            IsValid = false,
+            Message = message,
+            ErrorCode = ServiceConstants.ErrorCodes.BusinessRuleViolation,
+            ErrorContext = errorContext,
+        };
+
+    public static ValidationResult NotFound(string? resourceType = null, string? message = null, object? context = null)
         => new()
         {
             IsValid = false,
@@ -68,7 +69,7 @@ public class ValidationResult
         {
             IsValid = false,
             Message = message ?? "Access denied",
-            ErrorCode = ServiceConstants.ErrorCodes.AccessDenied,
+            ErrorCode = ServiceConstants.ErrorCodes.Forbidden,
             ErrorContext = context,
         };
 }

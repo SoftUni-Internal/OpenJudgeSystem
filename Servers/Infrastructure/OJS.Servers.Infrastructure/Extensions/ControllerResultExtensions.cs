@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
-using static OJS.Common.Constants.ServiceConstants;
+using static OJS.Common.Constants.ServiceConstants.ErrorCodes;
 
 public static class ControllerResultExtensions
 {
@@ -23,11 +23,19 @@ public static class ControllerResultExtensions
     {
         if (result.IsSuccess)
         {
-            return new OkObjectResult(result.Data);
+            return result.Data is VoidResult
+                ? new OkResult()
+                : new OkObjectResult(result.Data);
         }
 
         var activity = Activity.Current;
-        activity?.SetStatus(ActivityStatusCode.Error, result.ErrorMessage);
+        if (result.ErrorCode is not NotFound and not Forbidden and not Unauthorized)
+        {
+            // Mark activity as failed for all errors except NotFound and AccessDenied, as these are expected.
+            activity?.SetStatus(ActivityStatusCode.Error, result.ErrorMessage);
+        }
+
+        activity?.SetTag("service_result.error_message", result.ErrorMessage);
         activity?.SetTag("service_result.instance_id", result.InstanceId);
         activity?.SetTag("service_result.error_code", result.ErrorCode);
         activity?.SetTag("service_result.error_context", result.ErrorContext);
@@ -43,13 +51,16 @@ public static class ControllerResultExtensions
         {
             return result.ErrorCode switch
             {
-                ErrorCodes.AccessDenied => CreateResponse("Access denied", StatusCodes.Status403Forbidden, () =>
+                Unauthorized => CreateResponse("Unauthorized", StatusCodes.Status401Unauthorized, () =>
                     logger.LogServiceResultAccessDenied(result.InstanceId, result.ErrorMessage)),
 
-                ErrorCodes.NotFound => CreateResponse("Not found", StatusCodes.Status404NotFound, () =>
+                Forbidden => CreateResponse("Action forbidden", StatusCodes.Status403Forbidden, () =>
+                    logger.LogServiceResultAccessDenied(result.InstanceId, result.ErrorMessage)),
+
+                NotFound => CreateResponse($"{result.ResourceType ?? "Resource"} not found", StatusCodes.Status404NotFound, () =>
                     logger.LogServiceResultNotFound(result.InstanceId, result.ErrorMessage)),
 
-                ErrorCodes.BusinessRuleViolation => CreateResponse("Business rule violation", StatusCodes.Status422UnprocessableEntity, () =>
+                BusinessRuleViolation => CreateResponse("Business rule violation", StatusCodes.Status422UnprocessableEntity, () =>
                     logger.LogServiceResultBusinessRuleViolation(result.InstanceId, result.ErrorMessage)),
 
                 _ => CreateResponse("Bad request", StatusCodes.Status400BadRequest, () =>
@@ -80,8 +91,10 @@ public static class ControllerResultExtensions
 
             return statusCode switch
             {
-                StatusCodes.Status404NotFound => new NotFoundObjectResult(details),
                 StatusCodes.Status400BadRequest => new BadRequestObjectResult(details),
+                StatusCodes.Status401Unauthorized => new UnauthorizedObjectResult(details),
+                StatusCodes.Status404NotFound => new NotFoundObjectResult(details),
+                StatusCodes.Status422UnprocessableEntity => new UnprocessableEntityObjectResult(details),
                 _ => new ObjectResult(details) { StatusCode = statusCode },
             };
         }
