@@ -7,7 +7,7 @@ import { SerializedError } from '@reduxjs/toolkit';
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query';
 
 import { ACTION_NOT_ALLOWED_MESSAGE, NOT_LOGGED_IN_MESSAGE } from '../../common/messages';
-import { AdjacencyList, ExceptionData, IGetAllAdminParams, IPagedResultType } from '../../common/types';
+import { AdjacencyList, ExceptionData, IExcelFilter, IGetAllAdminParams, IPagedResultType } from '../../common/types';
 import ExportExcel from '../../components/administration/common/export-excel/ExportExcel';
 import LegendBox from '../../components/administration/common/legend-box/LegendBox';
 import { AdministrationGridColDef } from '../../components/administration/utils/mui-utils';
@@ -24,6 +24,7 @@ import AdministrationFilters, {
     mapUrlToSorters,
 } from './administration-filters/AdministrationFilters';
 
+// eslint-disable-next-line css-modules/no-unused-class
 import styles from './AdministrationStyles.module.scss';
 
 interface IAdministrationGridViewProps<T> {
@@ -42,6 +43,7 @@ interface IAdministrationGridViewProps<T> {
     excelMutation?: any;
     defaultFilter?: string;
     defaultSorter?: string;
+    excelFilters?: IExcelFilter[];
 }
 
 interface IVisibleColumns {
@@ -88,6 +90,7 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
         specificRowIdName: specifyColumnIdName,
         defaultFilter = defaultFilterToAdd,
         defaultSorter = defaultSorterToAdd,
+        excelFilters,
     } = props;
 
     const [ searchParams, setSearchParams ] = useSearchParams();
@@ -114,22 +117,28 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
         return '';
     };
 
-    const renderActions = () =>
+    const renderActions = () => (
         <div style={{ ...flexCenterObjectStyles, justifyContent: 'space-between' }}>
             {renderActionButtons
                 ? renderActionButtons()
-                : <Tooltip title={ACTION_NOT_ALLOWED_MESSAGE}>
-                    <Box>
-                        <IconButton disabled>
-                            {' '}
-                            <AddBoxIcon sx={{ width: '40px', height: '40px' }} color="disabled" />
-                        </IconButton>
-                    </Box>
-                </Tooltip>
-                }
-            <ExportExcel mutation={excelMutation} disabled={!excelMutation} queryParams={queryParams} />
+                : (
+                    <Tooltip title={ACTION_NOT_ALLOWED_MESSAGE}>
+                        <Box>
+                            <IconButton disabled>
+                                {' '}
+                                <AddBoxIcon sx={{ width: '40px', height: '40px' }} color="disabled" />
+                            </IconButton>
+                        </Box>
+                    </Tooltip>
+                )}
+            <ExportExcel
+              mutation={excelMutation}
+              disabled={!excelMutation}
+              queryParams={queryParams}
+              excelFilters={excelFilters}
+            />
         </div>
-    ;
+    );
 
     const renderGridSettings = () => {
         const sortingColumns = mapGridColumnsToAdministrationSortingProps(filterableGridColumnDef);
@@ -138,7 +147,7 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
         return (
             <div style={{ ...flexCenterObjectStyles, justifyContent: 'space-between' }}>
                 {renderActions()}
-                {showFiltersAndSorters &&
+                {showFiltersAndSorters && (
                     <div style={{ ...flexCenterObjectStyles, width: '100%', gap: '20px' }}>
                         <AdministrationFilters
                           searchParams={searchParams}
@@ -153,7 +162,7 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
                           setSelectedSorters={setSelectedSorters}
                         />
                     </div>
-                }
+                )}
                 <LegendBox renders={legendProps ?? []} />
             </div>
         );
@@ -196,21 +205,24 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
         <Slide direction="left" in mountOnEnter unmountOnExit timeout={400}>
             <div>
                 {modals.map((m, i) => m.showModal
-                    ? <div key={i}>
-                        {m.modal(i)}
-                    </div>
-
+                    ? (
+                        <div key={i}>
+                            {m.modal(i)}
+                        </div>
+                    )
                     : null)}
                 {renderGridSettings()}
                 {error
-                    ? <div className={styles.errorText}>
-                        Error loading data.
-                        {Array.isArray(error) && error[0]?.name === NOT_LOGGED_IN_MESSAGE
-                            ? `${error[0]?.message}`
-                            : ''}
-                    </div>
-
-                    : <DataGrid
+                    ? (
+                        <div className={styles.errorText}>
+                            Error loading data.
+                            {Array.isArray(error) && error[0]?.name === NOT_LOGGED_IN_MESSAGE
+                                ? `${error[0]?.message}`
+                                : ''}
+                        </div>
+                    )
+                    : (
+                        <DataGrid
                           columns={[ ...filterableGridColumnDef, ...notFilterableGridColumnDef ]}
                           rows={data?.items ?? []}
                           rowCount={data?.totalItemsCount ?? 0}
@@ -225,7 +237,7 @@ const AdministrationGridView = <T extends object>(props: IAdministrationGridView
                           getRowClassName={(params) => getRowClassName(params.row.isDeleted, params.row.isVisible)}
                           initialState={initialState}
                         />
-                    }
+                    )}
             </div>
         </Slide>
     );

@@ -1,4 +1,4 @@
-
+/* eslint-disable @typescript-eslint/ban-types */
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -41,7 +41,7 @@ import {
     TYPE,
     VISIBLE_FROM,
 } from '../../../../common/labels';
-import { CONTEST_DESCRIPTION_PLACEHOLDER_MESSAGE, CONTEST_DURATION_VALIDATION, CONTEST_LIMIT_BETWEEN_SUBMISSIONS_VALIDATION, CONTEST_NAME_VALIDATION, CONTEST_NEW_IP_PASSWORD_VALIDATION, CONTEST_NUMBER_OF_PROBLEM_GROUPS, CONTEST_ORDER_BY_VALIDATION, CONTEST_TYPE_VALIDATION, DELETE_CONFIRMATION_MESSAGE } from '../../../../common/messages';
+import { CONTEST_DESCRIPTION_PLACEHOLDER_MESSAGE, CONTEST_DURATION_VALIDATION, CONTEST_LIMIT_BETWEEN_SUBMISSIONS_VALIDATION, CONTEST_NAME_VALIDATION, CONTEST_NEW_IP_PASSWORD_VALIDATION, CONTEST_ORDER_BY_VALIDATION, CONTEST_TYPE_VALIDATION, DELETE_CONFIRMATION_MESSAGE } from '../../../../common/messages';
 import { IContestAdministration } from '../../../../common/types';
 import { CONTESTS_PATH, NEW_ADMINISTRATION_PATH } from '../../../../common/urls/administration-urls';
 import { getContestsDetailsPageUrl } from '../../../../common/urls/compose-client-urls';
@@ -73,6 +73,7 @@ import {
     handleDateTimePickerChange,
 } from '../../utils/mui-utils';
 
+// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 import styles from './ContestEdit.module.scss';
 
@@ -84,6 +85,7 @@ interface IContestEditProps {
     setParentSuccessMessage: Function;
     onDeleteSuccess? : Function;
     skipGettingContest?: boolean;
+    initialCategoryId?: number;
 }
 
 const NAME_PROP = 'name';
@@ -96,6 +98,7 @@ const ContestEdit = (props:IContestEditProps) => {
         setParentSuccessMessage,
         onDeleteSuccess,
         skipGettingContest = false,
+        initialCategoryId,
     } = props;
 
     const navigate = useNavigate();
@@ -108,7 +111,7 @@ const ContestEdit = (props:IContestEditProps) => {
     const [ contest, setContest ] = useState<IContestAdministration>({
         allowedIps: '',
         allowParallelSubmissionsInTasks: false,
-        categoryId: 0,
+        categoryId: initialCategoryId || 0,
         categoryName: '',
         contestPassword: null,
         description: null,
@@ -145,8 +148,6 @@ const ContestEdit = (props:IContestEditProps) => {
         isNewIpPasswordValid: true,
         isDurationTouched: false,
         isDurationValid: true,
-        isNumberOfProblemGroupsTouched: false,
-        isNUmberOfProblemGroupsValid: true,
     });
 
     const { data, isLoading } = useGetContestByIdQuery(
@@ -223,7 +224,7 @@ const ContestEdit = (props:IContestEditProps) => {
     useEffect(
         () => {
             if (isEditMode && currentContest) {
-                setContest(currentContest);
+                setContest(currentContest!);
             }
         },
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -247,8 +248,7 @@ const ContestEdit = (props:IContestEditProps) => {
         contestValidations.isLimitBetweenSubmissionsValid &&
         contestValidations.isOrderByValid &&
         contestValidations.isNewIpPasswordValid &&
-        contestValidations.isDurationValid &&
-        contestValidations.isNUmberOfProblemGroupsValid;
+        contestValidations.isDurationValid;
         setIsValidForm(isValid);
     };
 
@@ -274,11 +274,10 @@ const ContestEdit = (props:IContestEditProps) => {
             allowParallelSubmissionsInTasks,
             categoryId,
             categoryName,
-            numberOfProblemGroups,
             duration,
         } = contest;
         const currentContestValidations = contestValidations;
-
+        // eslint-disable-next-line default-case
         switch (name) {
         case NAME_PROP: {
             contestName = value;
@@ -295,11 +294,6 @@ const ContestEdit = (props:IContestEditProps) => {
             const isValid = !!Object.keys(ContestVariation).filter((key) => isNaN(Number(key))).some((x) => x === value);
             currentContestValidations.isTypeValid = isValid;
 
-            const isOnlineExamValue = isVariation(value, ContestVariation.OnlinePracticalExam);
-            const isWithRandomTasksValue = isVariation(value, ContestVariation.OnsitePracticalExamWithRandomTasks);
-            if (isOnlineExamValue || isWithRandomTasksValue) {
-                numberOfProblemGroups = 2;
-            }
             break;
         }
         case 'limitBetweenSubmissions': {
@@ -412,13 +406,6 @@ const ContestEdit = (props:IContestEditProps) => {
             }
             break;
         }
-        case 'numberOfProblemGroups':
-            currentContestValidations.isNumberOfProblemGroupsTouched = true;
-            if (value) {
-                currentContestValidations.isNUmberOfProblemGroupsValid = value > 0;
-                numberOfProblemGroups = Number(value);
-            }
-            break;
         case 'duration': {
             let currentValue = value;
 
@@ -456,7 +443,6 @@ const ContestEdit = (props:IContestEditProps) => {
             allowParallelSubmissionsInTasks,
             categoryId,
             categoryName,
-            numberOfProblemGroups,
             duration,
         }));
         validateForm();
@@ -482,22 +468,22 @@ const ContestEdit = (props:IContestEditProps) => {
     };
 
     if (isGettingCategories || isUpdating || isCreating || isLoading) {
-        return <SpinningLoader />;
+        return (<SpinningLoader />);
     }
 
     return (
         <Box className={`${styles.flex}`}>
             {renderErrorMessagesAlert(errorMessages)}
             <Typography className={formStyles.centralize} variant="h5">
-                {contest.name &&
+                {(contest.name && (
                 <ExternalLink
                   to={getContestsDetailsPageUrl({
                       contestId: contest.id,
                       contestName: contest.name,
                   })}
                   text={contest.name}
-                /> ||
-                 'Contest form'}
+                />
+                )) || 'Contest form'}
             </Typography>
             <form className={formStyles.form}>
                 <Box className={formStyles.fieldBox}>
@@ -519,8 +505,8 @@ const ContestEdit = (props:IContestEditProps) => {
                                   ? 'success'
                                   : 'primary'}
                               error={(contestValidations.isNameTouched && !contestValidations.isNameValid)}
-                              helperText={contestValidations.isNameTouched &&
-                                    !contestValidations.isNameValid && CONTEST_NAME_VALIDATION}
+                              helperText={(contestValidations.isNameTouched &&
+                                    !contestValidations.isNameValid) && CONTEST_NAME_VALIDATION}
                             />
                         </Box>
                         <Box className={formStyles.row}>
@@ -547,18 +533,19 @@ const ContestEdit = (props:IContestEditProps) => {
                                       : 'primary'}
                                   error={(contestValidations.isTypeTouched && !contestValidations.isTypeValid)}
                                 >
-                                    {Object.keys(ContestVariation).filter((key) => isNaN(Number(key))).map((key) =>
+                                    {Object.keys(ContestVariation).filter((key) => isNaN(Number(key))).map((key) => (
                                         <MenuItem key={key} value={key}>
                                             {key}
-                                        </MenuItem>)}
+                                        </MenuItem>
+                                    ))}
                                     helperText=
-                                    {contestValidations.isTypeTouched && !contestValidations.isTypeValid &&
+                                    {(contestValidations.isTypeTouched && !contestValidations.isTypeValid) &&
                                         CONTEST_TYPE_VALIDATION}
                                 </Select>
                             </FormControl>
                         </Box>
                         <Box className={formStyles.row}>
-                            { isWithRandomTasks &&
+                            { isWithRandomTasks && isEditMode && (
                                 <TextField
                                   className={formStyles.inputRow}
                                   type="number"
@@ -568,14 +555,9 @@ const ContestEdit = (props:IContestEditProps) => {
                                   onChange={(e) => onChange(e)}
                                   InputLabelProps={{ shrink: true }}
                                   name="numberOfProblemGroups"
-                                  disabled={isEditMode}
-                                  error={(contestValidations.isNumberOfProblemGroupsTouched &&
-                                      !contestValidations.isNUmberOfProblemGroupsValid)}
-                                  helperText={
-                                      contestValidations.isNumberOfProblemGroupsTouched && !contestValidations.isNUmberOfProblemGroupsValid &&
-                                        CONTEST_NUMBER_OF_PROBLEM_GROUPS}
+                                  disabled
                                 />
-                            }
+                            )}
                         </Box>
                         <FormControl className={styles.textArea}>
                             <FormLabel>{DESCRIPTION}</FormLabel>
@@ -600,14 +582,15 @@ const ContestEdit = (props:IContestEditProps) => {
                               options={contestCategories!}
                               renderInput={(params) => <TextField {...params} label={SELECT_CATEGORY} key={params.id} />}
                               getOptionLabel={(option) => option?.name}
-                              renderOption={(properties, option) =>
+                              renderOption={(properties, option) => (
                                   <MenuItem {...properties} key={option.id} value={option.id}>
                                       #
                                       {option.id}
                                       {' '}
                                       {option.name}
                                   </MenuItem>
-                              }
+                              )}
+                              disabled={!isEditMode && initialCategoryId !== undefined}
                             />
                         </FormControl>
                     </Box>
@@ -651,7 +634,7 @@ const ContestEdit = (props:IContestEditProps) => {
                             />
                         </Box>
                         <Box className={formStyles.row}>
-                            {isOnlineExam &&
+                            {isOnlineExam && (
                                 <TextField
                                   className={formStyles.inputRow}
                                   type="string"
@@ -666,10 +649,10 @@ const ContestEdit = (props:IContestEditProps) => {
                                   disabled={!isOnlineExam}
                                   InputLabelProps={{ shrink: true }}
                                   error={(contestValidations.isDurationTouched && !contestValidations.isDurationValid)}
-                                  helperText={contestValidations.isDurationTouched && !contestValidations.isDurationValid &&
+                                  helperText={(contestValidations.isDurationTouched && !contestValidations.isDurationValid) &&
                                         CONTEST_DURATION_VALIDATION}
                                 />
-                            }
+                            )}
                         </Box>
                     </Box>
                 </Box>
@@ -715,8 +698,8 @@ const ContestEdit = (props:IContestEditProps) => {
                                   : 'primary'}
                               InputLabelProps={{ shrink: true }}
                               error={(contestValidations.isNewIpPasswordTouched && !contestValidations.isNewIpPasswordValid)}
-                              helperText={contestValidations.isNewIpPasswordTouched &&
-                                    !contestValidations.isNewIpPasswordValid && CONTEST_NEW_IP_PASSWORD_VALIDATION}
+                              helperText={(contestValidations.isNewIpPasswordTouched &&
+                                    !contestValidations.isNewIpPasswordValid) && CONTEST_NEW_IP_PASSWORD_VALIDATION}
                             />
                             <TextField
                               className={formStyles.inputRow}
@@ -756,8 +739,8 @@ const ContestEdit = (props:IContestEditProps) => {
                                       : 'primary'}
                                   error={(contestValidations.isLimitBetweenSubmissionsTouched &&
                                         !contestValidations.isLimitBetweenSubmissionsValid)}
-                                  helperText={contestValidations.isLimitBetweenSubmissionsTouched &&
-                                            !contestValidations.isLimitBetweenSubmissionsValid &&
+                                  helperText={(contestValidations.isLimitBetweenSubmissionsTouched &&
+                                            !contestValidations.isLimitBetweenSubmissionsValid) &&
                                         CONTEST_LIMIT_BETWEEN_SUBMISSIONS_VALIDATION}
                                 />
                                 <Tooltip
@@ -785,7 +768,7 @@ const ContestEdit = (props:IContestEditProps) => {
                                   ? 'success'
                                   : 'primary'}
                               error={(contestValidations.isOrderByTouched && !contestValidations.isOrderByValid)}
-                              helperText={contestValidations.isOrderByTouched && !contestValidations.isOrderByValid &&
+                              helperText={(contestValidations.isOrderByTouched && !contestValidations.isOrderByValid) &&
                                 CONTEST_ORDER_BY_VALIDATION}
                             />
                         </Box>

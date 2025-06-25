@@ -10,6 +10,10 @@ export const GET_ALL_ENDPOINT = 'GetAll';
 
 export const EXCEL_RESULTS_ENDPOINT = 'GetExcelFile';
 
+// Query Parameters
+export const OPEN_CREATE_PARAM = 'openCreate';
+export const CATEGORY_ID_PARAM = 'categoryId';
+
 // Paths
 export const NEW_ADMINISTRATION_PATH = 'administration';
 export const CONTESTS_PATH = 'contests';
@@ -21,6 +25,7 @@ export const TESTS_PATH = 'tests';
 export const PROBLEMS_PATH = 'problems';
 export const PROBLEM_GROUPS_PATH = 'problem-groups';
 export const PROBLEM_RESOURCES_PATH = 'problem-resources';
+export const CONTEST_RESOURCES_PATH = 'contest-resources';
 export const SUBMISSION_TYPES_PATH = 'submission-types';
 export const SUBMISSION_TYPE_DOCUMENTS_PATH = 'submission-type-documents';
 export const SUBMISSION_TYPE_DOCUMENTS_VIEW_PATH = 'submission-type-documents-view';

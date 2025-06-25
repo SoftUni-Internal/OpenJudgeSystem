@@ -4,33 +4,29 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OJS.Servers.Infrastructure.Controllers;
 using OJS.Servers.Infrastructure.Extensions;
+using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Servers.Ui.Models;
 using OJS.Servers.Ui.Models.Submissions.Compete;
+using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Ui.Business;
 using OJS.Services.Ui.Models.Contests;
 using OJS.Services.Ui.Models.Submissions;
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 [Authorize]
 [Route("api/[controller]")]
-public class CompeteController : BaseApiController
+public class CompeteController(
+    IContestsBusinessService contestsBusiness,
+    ISubmissionsBusinessService submissionsBusinessService,
+    ITracingService tracing)
+    : BaseApiController
 {
-    private readonly IContestsBusinessService contestsBusiness;
-    private readonly ISubmissionsBusinessService submissionsBusinessService;
-
-    public CompeteController(
-        IContestsBusinessService contestsBusiness,
-        ISubmissionsBusinessService submissionsBusinessService)
-    {
-        this.contestsBusiness = contestsBusiness;
-        this.submissionsBusinessService = submissionsBusinessService;
-    }
-
     /// <summary>
     /// Starts a contest for the user. Creates participant and starts time counter.
     /// </summary>
@@ -40,7 +36,7 @@ public class CompeteController : BaseApiController
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(ContestParticipationServiceModel), Status200OK)]
     public async Task<IActionResult> Index(int id, [FromQuery] bool isOfficial)
-        => await this.contestsBusiness
+        => await contestsBusiness
             .GetParticipationDetails(new StartContestParticipationServiceModel
             {
                 ContestId = id,
@@ -62,7 +58,7 @@ public class CompeteController : BaseApiController
     {
         try
         {
-            return await this.contestsBusiness
+            return await contestsBusiness
                 .GetContestRegistrationDetails(id, isOfficial)
                 .ToOkResult();
         }
@@ -89,7 +85,7 @@ public class CompeteController : BaseApiController
     {
         try
         {
-            var isValidRegistration = await this.contestsBusiness
+            var isValidRegistration = await contestsBusiness
                 .RegisterUserForContest(id, model.Password, model.HasConfirmedParticipation, isOfficial);
 
             return this.Ok(new { IsRegisteredSuccessFully = isValidRegistration });
@@ -111,9 +107,24 @@ public class CompeteController : BaseApiController
     /// <returns>Success status code.</returns>
     [HttpPost("submit")]
     public async Task<IActionResult> Submit([FromBody] SubmissionRequestModel model)
-        => await this.submissionsBusinessService
-            .Submit(model.Map<SubmitSubmissionServiceModel>())
-            .ToOkResult();
+        => await tracing.TraceAsync(
+            OjsActivitySources.submissions,
+            OjsActivitySources.SubmissionActivities.Received,
+            async activity =>
+            {
+                var serviceModel = model.Map<SubmitSubmissionServiceModel>();
+
+                tracing.AddTechnicalContext(activity!, "submit_code", "ui_controller");
+
+                return await submissionsBusinessService
+                    .Submit(serviceModel)
+                    .ToOkResult();
+            },
+            new Dictionary<string, object?>
+            {
+                ["submission.content_length"] = model.Content?.Length,
+            },
+            BusinessContext.ForSubmission(0, model.ProblemId, model.ContestId));
 
     /// <summary>
     /// Submits user's code in fle format (zip) for evaluation.
@@ -122,7 +133,7 @@ public class CompeteController : BaseApiController
     /// <returns>Success status code.</returns>
     [HttpPost("submitfilesubmission")]
     public async Task<IActionResult> SubmitFileSubmission([FromForm] SubmitFileSubmissionRequestModel model)
-        => await this.submissionsBusinessService
+        => await submissionsBusinessService
             .Submit(model.Map<SubmitSubmissionServiceModel>())
             .ToOkResult();
 
@@ -137,7 +148,7 @@ public class CompeteController : BaseApiController
     /// <returns>Success status code.</returns>
     [HttpPost("retest/{id:int}")]
     public async Task<IActionResult> Retest(int id, bool verbosely = false)
-        => await this.submissionsBusinessService
+        => await submissionsBusinessService
             .Retest(id, verbosely)
             .ToOkResult();
 }

@@ -11,6 +11,7 @@ using OJS.Services.Infrastructure.Models.Mapping;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using OJS.Data.Models.Resources;
 
 public class ContestLegacyExportServiceModel : IMapExplicitly
 {
@@ -66,7 +67,8 @@ public class ContestLegacyExportServiceModel : IMapExplicitly
             .ForMember(dest => dest.UsersCantSubmitConcurrently,
                 opt => opt.MapFrom(src => !src.AllowParallelSubmissionsInTasks))
             .ForMember(dest => dest.DefaultWorkerType, opt => opt.MapFrom(src => 0))
-            .ForMember(dest => dest.EnsureValidAuthorSubmisions, opt => opt.MapFrom(src => false));
+            .ForMember(dest => dest.EnsureValidAuthorSubmisions, opt => opt.MapFrom(src => false))
+            .ForMember(dest => dest.NumberOfProblemGroups, opt => opt.MapFrom(src => src.ProblemGroups.Count()));
 
         configuration.CreateMap<Problem, LegacyProblem>()
             .ForMember(dest => dest.SubmissionTypes, opt => opt.MapFrom(src => src.SubmissionTypesInProblems.Select(stp => stp.SubmissionType)))
@@ -79,7 +81,8 @@ public class ContestLegacyExportServiceModel : IMapExplicitly
                 opt => opt.MapFrom(src =>
                     src.SubmissionTypesInProblems.Count > 0 && src.SubmissionTypesInProblems.FirstOrDefault() != null
                     ? src.SubmissionTypesInProblems.FirstOrDefault()!.SubmissionType
-                    : null));
+                    : null))
+            .ForMember(dest => dest.ShowResults, opt => opt.MapFrom(_ => true));
 
         configuration.CreateMap<SubmissionType, LegacySubmissionType>()
             .ForMember(dest => dest.AllowedFileExtensions,
@@ -138,6 +141,9 @@ public class LegacyProblem
     public LegacySubmissionType? DefaultSubmissionType { get; set; }
 
     public IEnumerable<LegacyResource> Resources { get; set; } = [];
+
+    // Not supported here, but for legacy is still needed
+    public bool ShowResults { get; set; } = true;
 }
 
 public class LegacyChecker : IMapFrom<Checker>
@@ -212,5 +218,12 @@ public class LegacyProblemSubmissionTypeExecutionDetail
     public int ProblemId { get; set; }
 
     public int SubmissionTypeId { get; set; }
+
+    public int? TimeLimit { get; set; }
+
+    public int? MemoryLimit { get; set; }
+
+    public byte[]? SolutionSkeleton { get; set; }
+
     public int WorkerType { get; set; }
 }

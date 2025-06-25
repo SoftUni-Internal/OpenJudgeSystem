@@ -1,5 +1,6 @@
 ﻿namespace OJS.Services.Infrastructure.Configurations;
 
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 public class SvnConfig : BaseConfig
@@ -14,4 +15,6 @@ public class SvnConfig : BaseConfig
 
     [Required]
     public string Password { get; set; } = default!;
+
+    public IEnumerable<string>? AlternativeBaseUrls { get; set; }
 }

@@ -15,6 +15,10 @@ public class ApplicationUrlsConfig : BaseConfig
     [Required]
     public string SulsPlatformApiKey { get; set; } = string.Empty;
 
+    public string LegacyJudgeUrl { get; set; } = string.Empty;
+
+    public string LegacyJudgeApiKey { get; set; } = string.Empty;
+
     [Required]
     public string FrontEndUrl { get; set; } = string.Empty;
 

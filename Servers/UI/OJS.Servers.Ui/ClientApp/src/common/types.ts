@@ -140,10 +140,11 @@ interface IProblemResourceAdministrationModel {
     orderBy: number;
     file: File | null;
     hasFile: boolean;
-    problemId: number;
+    parentId: number;
+    resourceType: string;
 }
 
-interface IProblemResouceInLinstModel {
+interface IResourceInListModel {
     id: number;
     name: string;
     link: string;
@@ -151,10 +152,21 @@ interface IProblemResouceInLinstModel {
     fileExtension: string;
     orderBy: number;
     isDeleted: boolean;
-    problemId: number;
+    parentId: number;
     problemName: string;
+    contestName: string;
     createdOn: Date;
     modifiedOn: Date;
+}
+
+interface IContestResourceInListModel extends IResourceInListModel {
+    contestName: string;
+    contestId: number;
+}
+
+interface IProblemResourceInListModel extends IResourceInListModel {
+    problemName: string;
+    problemId: number;
 }
 
 interface IProblemType {
@@ -192,6 +204,7 @@ interface IContestDetailsResponseType {
     description: string;
     type: ContestVariation;
     problems: IProblemType[];
+    resources: IProblemResourceType[];
     canViewResults: boolean;
     isOnlineExam: boolean;
     isWithRandomTasks: boolean;
@@ -331,6 +344,7 @@ interface ICompeteContestResponseType {
     contest: IContestDetailsResponseType | null;
     shouldEnterPassword: boolean;
     allowMentor: boolean;
+    resources: IProblemResourceType[];
 }
 
 interface IPagedResultType<TItem> {
@@ -455,6 +469,7 @@ interface ISubmissionsAdminGridViewType {
     participantName: string;
     problemId: number;
     problemName: string;
+    workerName: string;
     submissionTypeId: number;
     submissionTypeName: string;
     isDeleted: boolean;
@@ -477,7 +492,6 @@ interface IHasNameAndIdType {
     name: string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface IContestAutocomplete extends IHasNameAndIdType {}
 
 interface ITestsUploadModel {
@@ -505,10 +519,16 @@ interface IEnumType {
     enumValues?: Array<string>;
 }
 
+interface ICustomFilter {
+    customFilter?: (value: string) => string;
+}
+
 interface IAdministrationFilterColumn {
+    field: string;
     columnName: string;
     columnType: FilterColumnTypeEnum;
     enumValues?: Array<string> | null;
+    customFilter?: (value: string) => string;
 }
 
 interface IFilterColumn {
@@ -780,7 +800,6 @@ interface IMentorConversationMessage {
     content: string;
     role: ChatMessageRole;
     sequenceNumber: number;
-    problemId: number;
 }
 
 interface IMentorConversationRequestModel {
@@ -798,6 +817,7 @@ interface IMentorConversationResponseModel {
     userId: string;
     messages: IMentorConversationMessage[];
     maxUserInputLength: number;
+    problemId: number;
 }
 
 interface IUserMentorInListModel {
@@ -875,6 +895,13 @@ interface IProfilePageContests {
     requirePasswordForPractice: boolean;
 }
 
+interface IExcelFilter {
+    propertyName: string;
+    value: string | number;
+    operator: string;
+}
+
+// eslint-disable-next-line import/prefer-default-export
 export type {
     IIndexContestsType,
     IProblemType,
@@ -909,7 +936,7 @@ export type {
     IIndexContestCategoriesType,
     IContestCategoryAdministration,
     ITestsDropdownData,
-    IProblemResouceInLinstModel,
+    IResourceInListModel,
     IProblemResourceAdministrationModel,
     ITestsUploadModel,
     IFileModel,
@@ -966,4 +993,8 @@ export type {
     IFilterColumn,
     IFilterEnum,
     IProfilePageContests,
+    IProblemResourceInListModel,
+    IContestResourceInListModel,
+    IExcelFilter,
+    ICustomFilter,
 };

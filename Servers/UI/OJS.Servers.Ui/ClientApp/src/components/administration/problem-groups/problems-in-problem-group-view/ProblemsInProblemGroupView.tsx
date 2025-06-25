@@ -1,8 +1,10 @@
+import { ExcelFilterOperators } from 'src/common/enums';
+
 import { IGetAllAdminParams } from '../../../../common/types';
 import { getColors, useAdministrationTheme } from '../../../../hooks/use-administration-theme-provider';
 import AdministrationGridView from '../../../../pages/administration-new/AdministrationGridView';
 import problemFilterableColumns from '../../../../pages/administration-new/problems/problemGridColumns';
-import { useGetAllAdminProblemsQuery } from '../../../../redux/services/admin/problemsAdminService';
+import { useGetAllAdminProblemsQuery, useLazyExportProblemsToExcelQuery } from '../../../../redux/services/admin/problemsAdminService';
 import { DEFAULT_ITEMS_PER_PAGE } from '../../../../utils/constants';
 
 interface IProblemsInProblemGroupViewProps {
@@ -30,8 +32,11 @@ const ProblemsInProblemGroupView = (props: IProblemsInProblemGroupViewProps) => 
           notFilterableGridColumnDef={[]}
           data={problemData}
           error={problemDataError}
+          queryParams={queryParams}
           showFiltersAndSorters={false}
           legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Problem is deleted.' } ]}
+          excelMutation={useLazyExportProblemsToExcelQuery}
+          excelFilters={[ { propertyName: 'problemGroupId', operator: ExcelFilterOperators.Equals, value: problemGroupId } ]}
         />
     );
 };

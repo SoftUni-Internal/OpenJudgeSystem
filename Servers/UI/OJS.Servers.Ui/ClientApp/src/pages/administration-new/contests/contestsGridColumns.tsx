@@ -117,7 +117,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'endTime',
@@ -128,7 +128,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'practiceStartTime',
@@ -139,7 +139,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'practiceEndTime',
@@ -151,7 +151,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         hidden: true,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'limitBetweenSubmissions',
@@ -205,7 +205,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         hidden: true,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'createdOn',
@@ -214,7 +214,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
         hideable: true,
     },
     {
@@ -224,7 +224,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 

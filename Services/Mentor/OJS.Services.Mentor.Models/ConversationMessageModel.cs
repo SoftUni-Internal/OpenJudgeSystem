@@ -10,5 +10,8 @@ public class ConversationMessageModel
 
     public int SequenceNumber { get; set; }
 
-    public int ProblemId { get; set; }
+    /// <summary>
+    /// True if the problem description was extracted successfully from the resource document or the link.
+    /// </summary>
+    public bool ProblemIsExtractedSuccessfully { get; set; }
 }

@@ -2,10 +2,6 @@ namespace OJS.Servers.Infrastructure
 {
     public static class ServerConstants
     {
-        public const string LokiHttpClientName = "Loki";
-        public const string SvnHttpClientName = "Svn";
-        public const string DefaultHttpClientName = "Default";
-
         public static class Authentication
         {
             public const string CanAccessAdministrationCookieName = "can_access_administration";

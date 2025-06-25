@@ -52,7 +52,7 @@ const ContestRegister = () => {
         }
     }, [ isLoading, isRegisteredSuccessfully, navigate, contestId, participationType, shouldConfirmParticipation, requirePassword, slug ]);
 
-    // register user automatically if no password or modal confirmation is required
+    // Register user automatically if no password or modal confirmation is required
     useEffect(() => {
         if (isLoading || !data) {
             return;
@@ -70,7 +70,7 @@ const ContestRegister = () => {
                     isCompete: participationType === ContestParticipationType.Compete,
                     contestId,
                     contestName: slug,
-                }));
+                }), { replace: true });
             });
         }
     }, [
@@ -112,10 +112,10 @@ const ContestRegister = () => {
                               isCompete: participationType === ContestParticipationType.Compete,
                               contestId,
                               contestName: slug,
-                          }));
+                          }), { replace: true });
                       }
                   }}
-                  onDecline={() => navigate(getAllContestsPageUrl({}))}
+                  onDecline={() => navigate(getAllContestsPageUrl({}), { replace: true })}
                 />
             );
         }
@@ -128,7 +128,7 @@ const ContestRegister = () => {
                       isCompete: participationType === ContestParticipationType.Compete,
                       contestId,
                       contestName: slug,
-                  }))}
+                  }), { replace: true })}
                 />
             );
         }

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { IoMdSend } from 'react-icons/io';
+import { IoMdClose, IoMdSend } from 'react-icons/io';
 import ReactMarkdown from 'react-markdown';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -7,13 +7,16 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import TextField from '@mui/material/TextField';
+import isNil from 'lodash/isNil';
 import { ChatMessageRole } from 'src/common/enums';
 import { IMentorConversationMessage } from 'src/common/types';
 import useTheme from 'src/hooks/use-theme';
-import { useStartConversationMutation } from 'src/redux/services/mentorService';
-import { useAppSelector } from 'src/redux/store';
+import { addMessages } from 'src/redux/features/mentorSlice';
+import { useLazyGetSystemMessageQuery, useStartConversationMutation } from 'src/redux/services/mentorService';
+import { useAppDispatch, useAppSelector } from 'src/redux/store';
 import concatClassNames from 'src/utils/class-names';
 import { getMentorConversationDate } from 'src/utils/dates';
+import { getCompositeKey } from 'src/utils/id-generator';
 
 import mentorAvatar from '../../assets/mentor.png';
 
@@ -33,29 +36,41 @@ const Mentor = (props: IMentorProps) => {
     const { problemId, problemName, contestId, contestName, categoryName, submissionTypeName, isMentorAllowed } = props;
     const { internalUser: user } = useAppSelector((state) => state.authorization);
     const { isDarkMode } = useTheme();
+    const dispatch = useAppDispatch();
 
     const [ isOpen, setIsOpen ] = useState(false);
     const [ showBubble, setShowBubble ] = useState(true);
     const [ inputMessage, setInputMessage ] = useState('');
-    const [ conversationDate, setConversationDate ] = useState<Date | null>(null);
-    const [ conversationMessages, setConversationMessages ] = useState<IMentorConversationMessage[]>([
-        {
-            content: 'Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна?',
-            role: ChatMessageRole.Assistant,
-            sequenceNumber: 1,
-            // Using an invalid problemId on purpose, this is just a placeholder message.
-            problemId: -1,
-        },
-    ]);
+
+    const conversationData = useAppSelector((state) => problemId && user?.id
+        ? state.mentor?.conversationsByProblemId?.[getCompositeKey(user.id, problemId)]
+        : undefined);
+
+    // Local state for UI purposes
+    const [ localConversationMessages, setLocalConversationMessages ] = useState<IMentorConversationMessage[]>([]);
+    const [ localConversationDate, setLocalConversationDate ] = useState<Date | null>(null);
+
     const inputRef = useRef<HTMLInputElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
-    const [ startConversation, { data: conversationData, error, isLoading } ] = useStartConversationMutation();
+    const [ startConversation, {
+        data: conversationResponseData,
+        error,
+        isLoading,
+    } ] = useStartConversationMutation({ fixedCacheKey: `problem-${problemId}` });
+
+    const [ getSystemMessage, { isLoading: isLoadingSystemMessage } ] = useLazyGetSystemMessageQuery();
 
     const isInputLengthExceeded = useMemo(
-        () => inputMessage.length > (conversationData?.maxUserInputLength ?? 4096),
-        [ conversationData, inputMessage ],
+        () => inputMessage.length > (conversationResponseData?.maxUserInputLength ?? 4096),
+        [ conversationResponseData, inputMessage ],
     );
+
+    const welcomeMessage: IMentorConversationMessage = useMemo(() => ({
+        content: `Здравейте, аз съм Вашият ментор за писане на код, как мога да Ви помогна със задача ${problemName}?`,
+        role: ChatMessageRole.Assistant,
+        sequenceNumber: 1,
+    }), [ problemName ]);
 
     const isChatDisabled = useMemo(
         () => inputMessage.trim() === '' ||
@@ -81,16 +96,20 @@ const Mentor = (props: IMentorProps) => {
     );
 
     useEffect(() => {
+        if (conversationData && problemId !== undefined) {
+            setLocalConversationMessages(conversationData.messages);
+            setLocalConversationDate(conversationData.conversationDate);
+        } else if (problemId !== undefined) {
+            setLocalConversationMessages([ welcomeMessage ]);
+            setLocalConversationDate(null);
+        }
+    }, [ conversationData, problemId, welcomeMessage ]);
+
+    useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [ conversationMessages ]);
-
-    useEffect(() => {
-        if (conversationData) {
-            setConversationMessages(conversationData.messages.filter((m) => m.role !== ChatMessageRole.System));
-        }
-    }, [ conversationData ]);
+    }, [ localConversationMessages ]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -116,19 +135,32 @@ const Mentor = (props: IMentorProps) => {
             return;
         }
 
-        if (conversationDate === null) {
-            setConversationDate(new Date());
-        }
-
         const message: IMentorConversationMessage = {
             content: inputMessage,
             role: ChatMessageRole.User,
-            sequenceNumber: Math.max(...conversationMessages.map((cm) => cm.sequenceNumber)) + 1,
-            problemId,
+            sequenceNumber: Math.max(...localConversationMessages.map((cm) => cm.sequenceNumber)) + 1,
         };
 
-        const updatedConversationMessages = [ ...conversationMessages, message ];
-        setConversationMessages(updatedConversationMessages);
+        const messages = [ message ];
+
+        // Add the welcome message to the store if it's the first message
+        if (isNil(conversationData) || conversationData.messages.length === 0) {
+            messages.unshift(welcomeMessage);
+        }
+
+        dispatch(addMessages({
+            userId: user.id,
+            problemId,
+            messages,
+            setConversationDate: localConversationDate === null,
+        }));
+
+        // Update local state for immediate UI feedback
+        const updatedConversationMessages = [ ...localConversationMessages, message ];
+        setLocalConversationMessages(updatedConversationMessages);
+        if (localConversationDate === null) {
+            setLocalConversationDate(new Date());
+        }
 
         startConversation({
             userId: user.id,
@@ -159,19 +191,38 @@ const Mentor = (props: IMentorProps) => {
         setShowBubble(false);
     };
 
+    const handleCheckSystemMessage = async () => {
+        if (problemId && problemName && contestId && contestName && categoryName && submissionTypeName &&
+            !localConversationMessages.some((m) => m.role === ChatMessageRole.System)) {
+            const { data } = await getSystemMessage({
+                userId: user?.id || '',
+                problemId,
+                problemName,
+                contestId,
+                contestName,
+                categoryName,
+                submissionTypeName,
+            });
+
+            if (data) {
+                setLocalConversationMessages([ ...localConversationMessages, data ]);
+            }
+        }
+    };
+
     if (!isMentorAllowed) {
-         
+        // eslint-disable-next-line react/jsx-no-useless-fragment
         return <></>;
     }
 
     return (
         <div className={styles.mentor} aria-hidden={false}>
-            {showBubble && !isOpen && 
+            {showBubble && !isOpen && (
                 <div className={styles.bubbleMessage}>
                     <div className={styles.primaryText}>The Code Wizard</div>
                     <div className={styles.secondaryText}>is here to help!</div>
                 </div>
-            }
+            )}
             <Button
               variant="contained"
               className={styles.mentorButton}
@@ -202,16 +253,33 @@ const Mentor = (props: IMentorProps) => {
               disableAutoFocus
             >
                 <DialogTitle className={styles.dialogTitle}>
+                    <Button
+                      onClick={handleToggleChat}
+                      className={styles.closeButton}
+                    >
+                        <IoMdClose />
+                    </Button>
                     <div className={styles.mentorTitleContainer}>
                         <div className={styles.mentorTitleAvatar}>
                             <img src={mentorAvatar} alt="Mentor Avatar" />
                         </div>
                         <div className={styles.titleTextContainer}>
                             <span className={styles.mentorTitleText}>The Code Wizard</span>
-                            {problemName && 
+                            {problemName && (
                                 <span className={styles.problemNameText}>{problemName}</span>
-                            }
+                            )}
                         </div>
+                        {user?.isAdmin && (
+                            <Button
+                              onClick={handleCheckSystemMessage}
+                              className={styles.systemMessageButton}
+                              disabled={isLoadingSystemMessage}
+                            >
+                                {isLoadingSystemMessage
+                                    ? 'Loading...'
+                                    : 'Check System Message'}
+                            </Button>
+                        )}
                     </div>
                 </DialogTitle>
 
@@ -225,28 +293,39 @@ const Mentor = (props: IMentorProps) => {
                 >
                     <div className={styles.messagesContainer}>
                         <div className={styles.conversationStartDate}>
-                            {conversationDate !== null && getMentorConversationDate(conversationDate)}
+                            {localConversationDate !== null && getMentorConversationDate(localConversationDate)}
                         </div>
-                        {conversationMessages.map((message) => 
-                            <div className={styles.messageContainer} key={message.sequenceNumber}>
-                                {(message.role === ChatMessageRole.Assistant || message.role === ChatMessageRole.Information) && 
-                                    <div className={styles.mentorMessageAvatar}>
-                                        <img src={mentorAvatar} alt="Mentor Avatar" />
-                                    </div>
-                                }
+                        {localConversationMessages.map((message) => (
+                            <div
+                              className={`${styles.messageContainer} ${
+                                  message.role === ChatMessageRole.System
+                                      ? styles.systemMessageContainer
+                                      : ''
+                              }`}
+                              key={message.sequenceNumber}
+                            >
+                                {(message.role === ChatMessageRole.Assistant ||
+                                  message.role === ChatMessageRole.Information) && (
+                                  <div className={styles.mentorMessageAvatar}>
+                                      <img src={mentorAvatar} alt="Mentor Avatar" />
+                                  </div>
+                                )}
                                 <div
                                   className={`${styles.message} ${
                                       message.role === ChatMessageRole.User
                                           ? styles.userMessage
-                                          : styles.mentorMessage
+                                          : message.role === ChatMessageRole.System
+                                              ? styles.systemMessage
+                                              : styles.mentorMessage
                                   }`}
                                 >
-                                    <ReactMarkdown className={styles.markdownContent}>
-                                        {message.content}
-                                    </ReactMarkdown>
+                                    <div className={styles.markdownContent}>
+                                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                                    </div>
                                 </div>
-                            </div>)}
-                        {isLoading && 
+                            </div>
+                        ))}
+                        {isLoading && (
                             <div className={styles.message}>
                                 <div className={styles.typingIndicator}>
                                     <span className={concatClassNames(styles.dot, isDarkMode
@@ -263,15 +342,15 @@ const Mentor = (props: IMentorProps) => {
                                     />
                                 </div>
                             </div>
-                        }
+                        )}
                         <div ref={messagesEndRef} />
                         {' '}
                     </div>
-                    {error && 
+                    {error && (
                         <div className={styles.errorMessage}>
                             {((error as any)?.data?.detail ?? 'Failed to send the message. Please try again.')}
                         </div>
-                    }
+                    )}
                 </DialogContent>
                 <DialogActions className={styles.dialogActions}>
                     <TextField
@@ -300,15 +379,15 @@ const Mentor = (props: IMentorProps) => {
                                 }
                             />
                         </Button>
-                        {isInputLengthExceeded && 
+                        {isInputLengthExceeded && (
                             <div className={concatClassNames(styles.errorBubble, styles.bubbleMessage)}>
                                 <div className={styles.secondaryText}>
-                                    {`Your message exceeds the ${conversationData?.maxUserInputLength
-                                        ? `${conversationData.maxUserInputLength}-`
+                                    {`Your message exceeds the ${conversationResponseData?.maxUserInputLength
+                                        ? `${conversationResponseData.maxUserInputLength}-`
                                         : ''}character limit. Please shorten it.`}
                                 </div>
                             </div>
-                        }
+                        )}
                     </div>
                 </DialogActions>
             </Dialog>

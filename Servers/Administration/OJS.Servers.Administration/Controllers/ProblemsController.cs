@@ -23,6 +23,7 @@ using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
 using OJS.Data.Models;
+using OJS.Data.Models.Resources;
 using OJS.Services.Common.Data;
 
 public class ProblemsController : BaseAdminApiController<Problem, int, ProblemInListModel, ProblemAdministrationModel>
@@ -133,9 +134,9 @@ public class ProblemsController : BaseAdminApiController<Problem, int, ProblemIn
         var result = await this.problemGroupsBusinessService
             .CopyAllToContestBySourceAndDestinationContest(model.SourceContestId, model.DestinationContestId);
 
-        if (result.IsError)
+        if (!result.IsSuccess)
         {
-            return this.BadRequest($"Copy failed due to an unexpected error: {result.Error}");
+            return this.BadRequest($"Copy failed due to an unexpected error: {result.ErrorMessage}");
         }
 
         return this.Ok("Problems successfully copied.");
@@ -171,9 +172,9 @@ public class ProblemsController : BaseAdminApiController<Problem, int, ProblemIn
             model.DestinationContestId,
             model.ProblemGroupId);
 
-        if (result.IsError)
+        if (!result.IsSuccess)
         {
-            return this.BadRequest(result.Error);
+            return this.BadRequest(result.ErrorMessage);
         }
 
         return this.Ok("Successfully copied problem");
@@ -183,7 +184,7 @@ public class ProblemsController : BaseAdminApiController<Problem, int, ProblemIn
     [ProtectedEntityAction("problemId", typeof(ProblemIdPermissionsService))]
     public async Task<IActionResult> GetResources([FromQuery] PaginationRequestModel model, [FromRoute] int problemId)
         => this.Ok(
-            await this.problemResourceGridDataService.GetAll<ProblemResourceInListModel>(
+            await this.problemResourceGridDataService.GetAll<ResourceInListModel>(
                 model,
                 pr => pr.ProblemId == problemId));
 

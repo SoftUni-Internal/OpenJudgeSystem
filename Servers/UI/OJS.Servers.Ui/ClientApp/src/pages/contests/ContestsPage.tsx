@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { CONTEST_CATEGORIES_HIERARCHY_PATH } from 'src/common/urls/administration-urls';
+import { CATEGORY_ID_PARAM, CONTEST_CATEGORIES_HIERARCHY_PATH, CONTESTS_PATH, OPEN_CREATE_PARAM } from 'src/common/urls/administration-urls';
 import AdministrationLink from 'src/components/guidelines/buttons/AdministrationLink';
 import { CONTESTS_BULK_EDIT } from 'src/utils/constants';
 
@@ -93,15 +93,21 @@ const ContestsPage = () => {
         }
     }, [ allContests, dispatch ]);
 
-    const renderContest = useCallback(
-        (contest: IIndexContestsType) => 
-            <ContestCard contest={contest} />
-        , [],
-    );
+    const renderContest = useCallback((contest: IIndexContestsType) => (
+        <ContestCard contest={contest} />
+    ), []);
 
     const renderContests = useCallback(() => {
         if (areContestsFetching) {
             return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;
+        }
+
+        if (!Array.isArray(contests?.items)) {
+            return (
+                <Heading type={HeadingType.secondary} className={`${textColorClassName} ${styles.contestHeading}`}>
+                    The contests could not be loaded. If this problem persists, please contact an administrator.
+                </Heading>
+            );
         }
 
         if (!contests?.items?.length) {
@@ -121,6 +127,7 @@ const ContestsPage = () => {
                   orientation={Orientation.vertical}
                 />
                 <PaginationControls
+                  isDataFetching={areContestsFetching}
                   count={contests?.pagesCount}
                   page={selectedPage}
                   onChange={(page:number) => {
@@ -134,7 +141,9 @@ const ContestsPage = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [ contests, areContestsFetching, searchParams ]);
 
-    if (allContestsError) { return <div className={`${textColorClassName}`}>Error loading contests</div>; }
+    if (allContestsError) {
+        return <div className={`${textColorClassName}`}>Error loading contests</div>;
+    }
 
     return (
         <div className={styles.contestsContainer}>
@@ -157,20 +166,27 @@ const ContestsPage = () => {
                             : 'All Categories'}
                     </div>
                     <div className={styles.headingActions}>
-                        {selectedCategory?.id && selectedCategory?.children.length === 0 && 
-                            <AdministrationLink
-                              text="Edit Contests"
-                              to={`/${CONTEST_CATEGORIES_HIERARCHY_PATH}?${CONTESTS_BULK_EDIT}=${selectedCategory?.id}`}
-                            />
-                        }
+                        {selectedCategory?.id && selectedCategory?.children.length === 0 && (
+                            <>
+                                <AdministrationLink
+                                  text="Edit Contests"
+                                  to={`/${CONTEST_CATEGORIES_HIERARCHY_PATH}?${CONTESTS_BULK_EDIT}=${selectedCategory.id}`}
+                                />
+                                <AdministrationLink
+                                  text="Create Contest"
+                                  to={`/${CONTESTS_PATH}?${OPEN_CREATE_PARAM}=true&${CATEGORY_ID_PARAM}=${selectedCategory.id}`}
+                                />
+                            </>
+                        )}
                         <ContestStrategies
-                          searchParams={searchParams}
                           setSearchParams={setSearchParams}
+                          searchParams={searchParams}
                         />
                     </div>
                 </div>
                 <div className={styles.contestsListContainer}>
                     <PaginationControls
+                      isDataFetching={areContestsFetching}
                       count={contests?.pagesCount || 0}
                       page={selectedPage}
                       onChange={(page:number) => {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { MdCopyAll, MdDeleteForever } from 'react-icons/md';
 import { IconButton, Tooltip } from '@mui/material';
+import { ExcelFilterOperators } from 'src/common/enums';
 
 import { ContestVariation } from '../../../../common/contest-types';
 import { IGetAllAdminParams } from '../../../../common/types';
@@ -11,7 +12,7 @@ import AdministrationGridView, { defaultFilterToAdd } from '../../../../pages/ad
 import problemFilterableColumns, { returnProblemsNonFilterableColumns } from '../../../../pages/administration-new/problems/problemGridColumns';
 import {
     useDeleteByContestMutation,
-    useGetContestProblemsQuery,
+    useGetContestProblemsQuery, useLazyExportProblemsToExcelQuery,
     useValidateRetestMutation,
 } from '../../../../redux/services/admin/problemsAdminService';
 import isNilOrEmpty from '../../../../utils/check-utils';
@@ -261,6 +262,7 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
                       notFilterableGridColumnDef={
                         returnProblemsNonFilterableColumns(
                             onEditClick,
+                            setSuccessMessage,
                             openCopyModal,
                             openRetestModal,
                             retakeData,
@@ -289,6 +291,8 @@ const ProblemsInContestView = (props:IProblemsInContestViewProps) => {
                       renderActionButtons={renderGridSettings}
                       withSearchParams={false}
                       legendProps={[ { color: getColors(themeMode).palette.deleted, message: 'Problem is deleted.' } ]}
+                      excelMutation={useLazyExportProblemsToExcelQuery}
+                      excelFilters={[ { propertyName: 'contestId', operator: ExcelFilterOperators.Equals, value: contestId } ]}
                     />
                 }
         </div>

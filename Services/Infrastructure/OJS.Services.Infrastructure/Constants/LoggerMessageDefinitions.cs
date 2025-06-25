@@ -38,6 +38,9 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(52, LogLevel.Information, "Background job for {JobDescription} is added or updated")]
     public static partial void LogBackgroundJobAddedOrUpdated(this ILogger logger, string jobDescription);
 
+    [LoggerMessage(53, LogLevel.Information, "Measured busy workers ratio: {BusyRatio}. Total workers: {WorkersTotalCount}. Submissions awaiting execution: {SubmissionsAwaitingExecution}.")]
+    public static partial void LogMeasuredWorkersBusyRatio(this ILogger logger, double busyRatio, int workersTotalCount, int submissionsAwaitingExecution);
+
     // Resilience pipelines
     [LoggerMessage(100, LogLevel.Error, "Circuit breaker {CircuitBreakerState}. Total number of times {CircuitBreakerState}: {TimesChanged}. Event: {ResilienceEvent}. Outcome: [{ResilienceOutcome}]. Pipeline: {ResiliencePipeline}. Strategy: {ResilienceStrategy}.")]
     public static partial void LogCircuitBreakerStateChanged(this ILogger logger, string circuitBreakerState, int timesChanged, string resilienceEvent, string resilienceOutcome, string? resiliencePipeline, string? resilienceStrategy);
@@ -86,20 +89,45 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(302, LogLevel.Information, "Truncated {PercentageOfMessageContentTruncated:F2}% of a message's content to comply with token limits for problem #{ProblemId}.")]
     public static partial void LogPercentageOfMessageContentTruncated(this ILogger logger, double percentageOfMessageContentTruncated, int problemId);
 
-    [LoggerMessage(303, LogLevel.Warning, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is not in the expected format.")]
+    [LoggerMessage(303, LogLevel.Information, "Link: {OriginalLink} successfully converted to SVN link: {newLink}")]
+    public static partial void LogLinkSuccessfullyConvertedToSvnLink(this ILogger logger, string originalLink, string newLink);
+
+    [LoggerMessage(340, LogLevel.Error, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is not in the expected format.", SkipEnabledCheck = true)]
     public static partial void LogInvalidDocumentFormat(this ILogger logger, int problemId, int contestId, string link);
 
-    [LoggerMessage(304, LogLevel.Warning, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is either empty or does not exist.")]
+    [LoggerMessage(341, LogLevel.Error, "The downloaded file from {Link} for problem #{ProblemId} in contest #{ContestId} is either empty or does not exist.", SkipEnabledCheck = true)]
     public static partial void LogFileNotFoundOrEmpty(this ILogger logger, int problemId, int contestId, string link);
 
-    [LoggerMessage(305, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId} with status code {StatusCode}")]
-    public static partial void LogHttpRequestFailure(this ILogger logger, int problemId, int contestId, HttpStatusCode statusCode, string link);
+    [LoggerMessage(342, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId} with status code {StatusCode} and response message: {ResponseMessage}.", SkipEnabledCheck = true)]
+    public static partial void LogHttpRequestFailure(this ILogger logger, int problemId, int contestId, HttpStatusCode statusCode, string link, string? responseMessage);
 
-    [LoggerMessage(306, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId}.")]
-    public static partial void LogResourceDownloadFailure(this ILogger logger, int problemId, int contestId, string link);
+    [LoggerMessage(343, LogLevel.Error, "Failed to download the file from {Link} for problem #{ProblemId} in contest #{ContestId}.", SkipEnabledCheck = true)]
+    public static partial void LogResourceDownloadFailure(this ILogger logger, int problemId, int contestId, string link, Exception ex);
 
-    [LoggerMessage(307, LogLevel.Error, "Failed to parse the content of the downloaded file for problem #{ProblemId} in contest #{ContestId}.")]
+    [LoggerMessage(344, LogLevel.Error, "Failed to parse the content of the downloaded file for problem #{ProblemId} in contest #{ContestId}.", SkipEnabledCheck = true)]
     public static partial void LogFileParsingFailure(this ILogger logger, int problemId, int contestId);
+
+    [LoggerMessage(345, LogLevel.Error, "Problem description resource not found for problem #{ProblemId} in contest #{ContestId}. Verify that the problem or the first problem in the contest has a valid description resource.", SkipEnabledCheck = true)]
+    public static partial void LogProblemDescriptionResourceNotFound(this ILogger logger, int problemId, int contestId);
+
+    [LoggerMessage(356, LogLevel.Error, "The SVN BaseUrl provided in settings is not valid. Expected valid absolute URL, but got: {SvnBaseUrl}", SkipEnabledCheck = true)]
+    public static partial void LogSvnBaseUrlNotValid(this ILogger logger, string svnBaseUrl);
+
+    [LoggerMessage(380, LogLevel.Warning, "Couldn't find a valid alternative SVN base url in settings for link: {Link}.")]
+    public static partial void LogAlternativeBaseUrlNotFoundForLink(this ILogger logger, string link);
+
+    // ServiceResult error handling
+    [LoggerMessage(600, LogLevel.Warning, "Resource not found (instance: {InstanceId}). {Message}")]
+    public static partial void LogServiceResultNotFound(this ILogger logger, string? instanceId, string? message);
+
+    [LoggerMessage(601, LogLevel.Warning, "Access denied. (instance: {InstanceId}). {Message}")]
+    public static partial void LogServiceResultAccessDenied(this ILogger logger, string? instanceId, string? message);
+
+    [LoggerMessage(602, LogLevel.Warning, "Business rule violation (instance: {InstanceId}). {Message}")]
+    public static partial void LogServiceResultBusinessRuleViolation(this ILogger logger, string? instanceId, string? message);
+
+    [LoggerMessage(620, LogLevel.Error, "Service error (instance: {InstanceId}). {Message}.", SkipEnabledCheck = true)]
+    public static partial void LogServiceResultError(this ILogger logger, string? instanceId, string? message);
 
     // Submissions
     [LoggerMessage(1010, LogLevel.Error, "Exception in publishing submission #{SubmissionId}", SkipEnabledCheck = true)]
@@ -161,4 +189,8 @@ public static partial class LoggerMessageDefinitions
 
     [LoggerMessage(1206, LogLevel.Information, "Published processed submission #{SubmissionId} from worker: {WorkerName}")]
     public static partial void LogPublishedProcessedSubmission(this ILogger logger, int submissionId, string? workerName);
+
+    // Contests
+    [LoggerMessage(1300, LogLevel.Information, "{Direction} limit between submissions by adjusting factor of {AdjustingFactor} for {WorkersTotalCount} workers. {SubmissionsAwaitingExecution} submissions are awaiting execution. Data for measured period: combined busy ratio: {CombinedBusyRatio}; ratio factor: {RatioFactor}; queue factor: {QueueFactor}.")]
+    public static partial void LogContestsLimitBetweenSubmissionsAdjustment(this ILogger logger, string direction, double adjustingFactor, int workersTotalCount, int submissionsAwaitingExecution, double combinedBusyRatio, double ratioFactor, double queueFactor);
 }

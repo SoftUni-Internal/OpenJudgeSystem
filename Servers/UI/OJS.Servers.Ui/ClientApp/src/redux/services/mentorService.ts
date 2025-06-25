@@ -1,7 +1,9 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { ChatMessageRole } from 'src/common/enums';
+import { updateMessages } from 'src/redux/features/mentorSlice';
 
 import { defaultPathIdentifier } from '../../common/constants';
-import { IMentorConversationRequestModel, IMentorConversationResponseModel } from '../../common/types';
+import { IMentorConversationMessage, IMentorConversationRequestModel, IMentorConversationResponseModel } from '../../common/types';
 
 const mentorService = createApi({
     reducerPath: 'mentorService',
@@ -20,10 +22,32 @@ const mentorService = createApi({
                 method: 'POST',
                 body: mentorConversationRequestModel,
             }),
+            async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+                try {
+                    const { data } = await queryFulfilled;
+                    dispatch(updateMessages({
+                        userId: data.userId,
+                        problemId: data.problemId,
+                        messages: data.messages.filter((m) => m.role !== ChatMessageRole.System),
+                    }));
+                } catch {
+                    /* ignore, slice already has optimistic copy */
+                }
+            },
+        }),
+        getSystemMessage: builder.query<IMentorConversationMessage, Omit<IMentorConversationRequestModel, 'messages'>>({
+            query: (params) => ({
+                url: '/GetSystemMessage',
+                method: 'GET',
+                params,
+            }),
         }),
     }),
 });
 
-export const { useStartConversationMutation } = mentorService;
+export const {
+    useStartConversationMutation,
+    useLazyGetSystemMessageQuery,
+} = mentorService;
 
 export default mentorService;

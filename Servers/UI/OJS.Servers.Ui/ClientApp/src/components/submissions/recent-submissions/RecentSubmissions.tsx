@@ -7,6 +7,7 @@ import {
     applyDefaultQueryValues,
 } from 'src/components/filters/Filter';
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
+import { useSyncQueryParamsFromUrl } from 'src/utils/url-utils';
 
 import { IDictionary } from '../../../common/common-types';
 import { IPagedResultType, IPublicSubmission } from '../../../common/types';
@@ -75,6 +76,45 @@ const RecentSubmissions = () => {
         },
     ] = useLazyGetLatestSubmissionsInRoleQuery();
 
+    useSyncQueryParamsFromUrl(searchParams, setQueryParams);
+
+    useEffect(() => {
+        const stateFromUrl = searchParams.get('state');
+        const pageFromUrl = searchParams.get('page');
+
+        if (stateFromUrl) {
+            const stateNumber = parseInt(stateFromUrl, 10);
+            if (stateNumber >= 1 && stateNumber <= 4) {
+                setSelectedActive(stateNumber);
+                setStatus(stateNumber);
+            }
+        } else {
+            setSelectedActive(1);
+            setStatus(SubmissionStatus.All);
+        }
+
+        if (pageFromUrl) {
+            setQueryParams((prev) => ({
+                ...prev,
+                page: parseInt(pageFromUrl, 10),
+            }));
+        }
+    }, [ searchParams, setQueryParams ]);
+
+    const handleSelectSubmissionState = useCallback(
+        (typeKey: number) => {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.set('state', typeKey.toString());
+            if (typeKey !== selectedActive) {
+                newParams.set('page', '1');
+            }
+            setSearchParams(newParams);
+            setStatus(typeKey);
+            setSelectedActive(typeKey);
+        },
+        [ selectedActive, searchParams, setSearchParams ],
+    );
+
     const areSubmissionsLoading =
         loggedInUserInRole
             ? inRoleLoading
@@ -115,25 +155,6 @@ const RecentSubmissions = () => {
         }
     }, [ inRoleData, inRoleSubmissionsReady, regularUserData, regularUserSubmissionsReady ]);
 
-    const handleSelectSubmissionState = useCallback(
-        (typeKey: number) => {
-            if (selectedActive) {
-                setQueryParams({
-                    page: 1,
-                    itemsPerPage: queryParams.itemsPerPage,
-                    filter: queryParams.filter,
-                    sorting: queryParams.sorting,
-                });
-
-                setStatus(typeKey);
-                setSelectedActive(typeKey);
-            }
-        },
-        // If exhaustive dependencies are set, unnecessary re-renders will be made.
-        // eslint-disable-next-line
-        [ selectedActive ],
-    );
-
     const getSubmissionsAwaitingExecution = useCallback((state: string = '') => {
         if (isEmpty(unprocessedSubmissionsCount)) {
             return 0;
@@ -150,7 +171,7 @@ const RecentSubmissions = () => {
         const { isAdmin } = user;
 
         return (
-            isAdmin && 
+            isAdmin && (
             <Heading
               type={HeadingType.secondary}
             >
@@ -198,14 +219,14 @@ const RecentSubmissions = () => {
                     <RefreshIcon size={IconSize.Large} />
                 </IconButton>
             </Heading>
-            
+            )
         );
     }, [ user, getSubmissionsAwaitingExecution, selectedActive, handleSelectSubmissionState ]);
 
     return (
         <div className={styles.recentSubmissionsWrapper}>
             {
-                !user.canAccessAdministration && 
+                !user.canAccessAdministration && (
                     <Heading
                       type={HeadingType.primary}
                     >
@@ -221,16 +242,19 @@ const RecentSubmissions = () => {
                         {' '}
                         total
                     </Heading>
-                
+                )
             }
             {renderSubmissionsStateAdminToggle()}
             {
                 areSubmissionsFetching && queryParams.page === 1
-                    ? <div style={{ ...flexCenterObjectStyles, marginTop: '10px' }}>
-                        <SpinningLoader />
-                    </div>
-                    
-                    : <SubmissionsGrid
+                    ? (
+                        <div style={{ ...flexCenterObjectStyles, marginTop: '10px' }}>
+                            <SpinningLoader />
+                        </div>
+                    )
+                    : (
+                        <SubmissionsGrid
+                          isDataFetching={areSubmissionsFetching}
                           className={styles.recentSubmissionsGrid}
                           isDataLoaded={!areSubmissionsLoading}
                           submissions={latestSubmissions}
@@ -245,7 +269,7 @@ const RecentSubmissions = () => {
                           setSearchParams={setSearchParams}
                           setQueryParams={setQueryParams}
                         />
-                    
+                    )
             }
         </div>
     );

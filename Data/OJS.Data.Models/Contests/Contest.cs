@@ -8,6 +8,7 @@ namespace OJS.Data.Models.Contests
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
     using OJS.Data.Models.Common;
+    using OJS.Data.Models.Resources;
     using static OJS.Data.Validation.ConstraintConstants.Contest;
 
     public class Contest : DeletableAuditInfoEntity<int>, IOrderableEntity
@@ -84,8 +85,6 @@ namespace OJS.Data.Models.Contests
 
         public double OrderBy { get; set; }
 
-        public short NumberOfProblemGroups { get; set; }
-
         public string? Description { get; set; }
 
         public bool AllowParallelSubmissionsInTasks { get; set; }
@@ -99,6 +98,8 @@ namespace OJS.Data.Models.Contests
         public virtual ICollection<IpInContest> IpsInContests { get; set; } = new HashSet<IpInContest>();
 
         public virtual ICollection<ExamGroup> ExamGroups { get; set; } = new HashSet<ExamGroup>();
+
+        public virtual ICollection<ContestResource> Resources { get; set; } = [];
 
         [NotMapped]
         public bool ResultsArePubliclyVisible

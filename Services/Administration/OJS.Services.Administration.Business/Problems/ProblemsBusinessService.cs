@@ -6,16 +6,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using OJS.Common;
 using OJS.Common.Enumerations;
-using OJS.Common.Helpers;
 using OJS.Data.Models;
+using OJS.Data.Models.Contests;
 using OJS.Data.Models.Problems;
 using OJS.Services.Administration.Business.ProblemGroups;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Models.Problems;
 using OJS.Services.Common;
 using OJS.Services.Common.Data;
-using OJS.Services.Common.Models;
 using OJS.Services.Infrastructure.Extensions;
+using OJS.Services.Infrastructure.Models;
 using Settings;
 using System;
 using System.Collections.Generic;
@@ -23,11 +23,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Transactions;
 using OJS.Workers.Common;
-using IsolationLevel = System.Transactions.IsolationLevel;
 using Resource = OJS.Common.Resources.ProblemsBusiness;
-using SharedResource = OJS.Common.Resources.ContestsGeneral;
 
 public class ProblemsBusinessService : AdministrationOperationService<Problem, int, ProblemAdministrationModel>, IProblemsBusinessService
 {
@@ -113,7 +110,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         await this.problemsData.SaveChanges();
 
-        await this.ReevaluateProblemsOrder(contestId);
+        await this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(contestId);
         await this.problemsCache.ClearProblemCacheById(problem.Id);
 
         return model;
@@ -131,26 +128,24 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
             return;
         }
 
-        using var scope = TransactionsHelper.CreateTransactionScope(
-            IsolationLevel.RepeatableRead,
-            TransactionScopeAsyncFlowOption.Enabled);
-
-        if (!await this.contestsData.IsWithRandomTasksById(problem.ContestId))
+        await this.transactionsProvider.ExecuteInTransaction(async () =>
         {
-            await this.problemGroupsBusiness.DeleteById(problem.ProblemGroupId);
-        }
+            if (!await this.contestsData.IsWithRandomTasksById(problem.ContestId))
+            {
+                await this.problemGroupsBusiness.DeleteById(problem.ProblemGroupId);
+            }
 
+            await this.testRunsData.DeleteByProblem(id);
+            await this.problemsData.DeleteById(id);
+            await this.problemsData.SaveChanges();
+
+            this.problemResourcesData.DeleteByProblem(id);
+
+            this.submissionsData.DeleteByProblem(id);
+        });
+
+        await this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(problem.ContestId);
         await this.problemsCache.ClearProblemCacheById(id);
-
-        await this.problemsData.DeleteById(id);
-        await this.problemsData.SaveChanges();
-        await this.testRunsData.DeleteByProblem(id);
-
-        this.problemResourcesData.DeleteByProblem(id);
-
-        this.submissionsData.DeleteByProblem(id);
-
-        scope.Complete();
     }
 
     public async Task DeleteByContest(int contestId) =>
@@ -160,7 +155,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
             .ToList()
             .ForEachSequential(this.Delete);
 
-    public async Task<ServiceResult> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId)
+    public async Task<ServiceResult<VoidResult>> CopyToContestByIdByContestAndProblemGroup(int id, int contestId, int? problemGroupId)
     {
         var problem = await this.problemsData
             .GetByIdQuery(id)
@@ -173,26 +168,23 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         if (problem?.ProblemGroup.ContestId == contestId)
         {
-            return new ServiceResult(Resource.CannotCopyProblemsIntoSameContest);
+            return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemsIntoSameContest);
         }
 
         if (!await this.contestsData.ExistsById(contestId))
         {
-            return new ServiceResult(SharedResource.ContestNotFound);
+            return ServiceResult.NotFound<VoidResult>(nameof(Contest), context: new { contestId });
         }
 
         if (await this.contestsData.IsActiveById(contestId))
         {
-            return new ServiceResult(Resource.CannotCopyProblemsIntoActiveContest);
+            return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemsIntoActiveContest);
         }
 
         await this.CopyProblemToContest(problem, contestId, problemGroupId);
 
-        return ServiceResult.Success;
+        return ServiceResult.EmptySuccess;
     }
-
-    public Task ReevaluateProblemsOrder(int contestId)
-        => this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(contestId);
 
     public override async Task<ProblemAdministrationModel> Get(int id)
     {
@@ -253,7 +245,7 @@ public class ProblemsBusinessService : AdministrationOperationService<Problem, i
 
         await this.problemsData.SaveChanges();
 
-        await this.ReevaluateProblemsOrder(problem.ProblemGroup.ContestId);
+        await this.problemGroupsBusiness.ReevaluateProblemsAndProblemGroupsOrder(problem.ProblemGroup.ContestId);
 
         return model;
     }

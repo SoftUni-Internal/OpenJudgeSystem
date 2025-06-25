@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 
 public class ContestAdministrationModelValidator : BaseAdministrationModelValidator<ContestAdministrationModel, int, Contest>
 {
-    private const int ProblemGroupsCountLimit = 40;
     private readonly IContestsActivityService activityService;
     private readonly IContestsDataService contestService;
 
@@ -58,13 +57,6 @@ public class ContestAdministrationModelValidator : BaseAdministrationModelValida
             .NotNull()
             .When(model => model.OperationType is CrudOperationType.Update);
 
-        this.RuleFor(model => model)
-            .Must(ValidateContestProblemGroups)
-            .WithMessage($"The number of problem groups cannot be less than 0 and more than {ProblemGroupsCountLimit}")
-            .WithName("Number of problem groups")
-            .NotNull()
-            .When(model => model.OperationType == CrudOperationType.Create);
-
         this.RuleFor(model => model.Id)
             .MustAsync(async (x, _) => !await this.activityService.IsContestActive(x))
             .WithMessage("Cannot delete active contest")
@@ -83,24 +75,6 @@ public class ContestAdministrationModelValidator : BaseAdministrationModelValida
     {
         var isValid = Enum.TryParse<ContestType>(type, true, out _);
         return isValid;
-    }
-
-    private static bool ValidateContestProblemGroups(ContestAdministrationModel model)
-    {
-        if (model.IsWithRandomTasks)
-        {
-            if (model.NumberOfProblemGroups <= 0)
-            {
-                return false;
-            }
-
-            if (model.NumberOfProblemGroups > ProblemGroupsCountLimit)
-            {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private async Task<bool> ValidateActiveContestCannotEditDurationTypeOnEdit(ContestAdministrationModel model)

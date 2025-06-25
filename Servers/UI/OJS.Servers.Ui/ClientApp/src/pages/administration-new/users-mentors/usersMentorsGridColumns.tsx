@@ -7,6 +7,7 @@ import {
     QUOTA_LIMIT,
     QUOTA_RESET_TIME,
     REQUESTS_MADE,
+    TOTAL_REQUESTS_MADE,
     USER_ID, USERNAME,
 } from '../../../common/labels';
 import { AdministrationGridColDef } from '../../../components/administration/utils/mui-utils';
@@ -41,7 +42,7 @@ const usersMentorsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'requestsMade',
@@ -52,7 +53,18 @@ const usersMentorsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
+    },
+    {
+        field: 'totalRequestsMade',
+        headerName: TOTAL_REQUESTS_MADE,
+        flex: 1,
+        type: 'number',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'quotaLimit',
@@ -63,7 +75,7 @@ const usersMentorsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value?.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
 ];
 

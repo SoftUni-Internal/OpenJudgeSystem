@@ -7,16 +7,12 @@ using OJS.Servers.Infrastructure.Controllers;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Services.Mentor.Business;
 using OJS.Services.Mentor.Models;
+using static OJS.Common.GlobalConstants.Roles;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 [Authorize]
-public class MentorController : BaseApiController
+public class MentorController(IMentorBusinessService mentorBusiness) : BaseApiController
 {
-    private readonly IMentorBusinessService mentorBusiness;
-
-    public MentorController(IMentorBusinessService mentorBusiness)
-        => this.mentorBusiness = mentorBusiness;
-
     /// <summary>
     /// Starts a new conversation with the mentor.
     /// </summary>
@@ -25,6 +21,18 @@ public class MentorController : BaseApiController
     [ProducesResponseType(typeof(ConversationResponseModel), Status200OK)]
     [HttpPost]
     public async Task<IActionResult> StartConversation(ConversationRequestModel model)
-        => await this.mentorBusiness.StartConversation(model)
+        => await mentorBusiness.StartConversation(model)
+            .ToOkResult();
+
+    /// <summary>
+    /// Gets the system message that will be sent when a user asks a question for the specific Problem.
+    /// </summary>
+    /// <param name="model">The request model with problem details.</param>
+    /// <returns>A response model containing the message content.</returns>
+    [Authorize(Roles = AdministratorOrLecturer)]
+    [HttpGet]
+    [ProducesResponseType(typeof(ConversationMessageModel), Status200OK)]
+    public async Task<IActionResult> GetSystemMessage([FromQuery] ConversationRequestModel model)
+        => await mentorBusiness.GetSystemMessage(model)
             .ToOkResult();
 }

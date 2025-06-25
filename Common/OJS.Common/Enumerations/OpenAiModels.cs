@@ -1,4 +1,5 @@
-﻿namespace OJS.Common.Enumerations;
+﻿// ReSharper disable InconsistentNaming
+namespace OJS.Common.Enumerations;
 
 public enum OpenAIModels
 {

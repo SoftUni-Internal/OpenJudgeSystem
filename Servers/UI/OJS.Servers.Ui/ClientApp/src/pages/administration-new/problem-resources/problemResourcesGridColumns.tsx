@@ -12,7 +12,7 @@ import DownloadIconButton from '../../../components/administration/common/downlo
 import QuickEditButton from '../../../components/administration/common/edit/QuickEditButton';
 import RedirectButton from '../../../components/administration/common/edit/RedirectButton';
 import { AdministrationGridColDef } from '../../../components/administration/utils/mui-utils';
-import { useDeleteProblemResourceMutation, useDownloadResourceQuery } from '../../../redux/services/admin/problemResourcesAdminService';
+import { useDeleteResourceMutation, useDownloadResourceQuery } from '../../../redux/services/admin/resourcesAdminService';
 import { adminFormatDate } from '../../../utils/administration/administration-dates';
 import { getStringObjectKeys } from '../../../utils/object-utils';
 
@@ -26,11 +26,31 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
         headerName: 'Name',
+        flex: 0.5,
+        type: 'string',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'problemId',
+        headerName: 'Problem Id',
+        flex: 0.5,
+        type: 'string',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+    },
+    {
+        field: 'problemName',
+        headerName: 'Problem Name',
         flex: 0.5,
         type: 'string',
         filterable: false,
@@ -45,10 +65,10 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         align: 'center',
-        type: 'enum',
+        type: 'singleSelect',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemResourceType),
-        valueFormatter: (params) => ProblemResourceType[params.value],
+        valueFormatter: (_, row) => ProblemResourceType[row.value],
     } as GridColDef & IEnumType,
     {
         field: 'fileExtension',
@@ -89,7 +109,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'problemName',
@@ -123,7 +143,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -132,7 +152,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 
@@ -161,7 +181,7 @@ export const returnProblemResourceNonFilterableColumns = (
                   id={Number(params.row.id)}
                   name={`${PROBLEM_RESOURCE}`}
                   text={DELETE_CONFIRMATION_MESSAGE}
-                  mutation={useDeleteProblemResourceMutation}
+                  mutation={useDeleteResourceMutation}
                   onSuccess={onSuccessfulDelete}
                   setParentSuccessMessage={setParentSuccessMessage}
                 />

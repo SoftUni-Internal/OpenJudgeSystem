@@ -174,8 +174,8 @@ try:
         start_at_date = datetime.strptime(processed_time_str, ""%Y-%m-%dT%H:%M:%S.%f"").replace(tzinfo=timezone.utc)
         time_diff = datetime_now - start_at_date
 
-        # Remove container if older than 1 hour
-        if time_diff.total_seconds() > 3600:
+        # Remove container if older than 15 minutes
+        if time_diff.total_seconds() > 900:
             apps_container.stop()
             apps_container.wait()
             apps_container.remove()
@@ -221,9 +221,9 @@ finally:
         container.remove()
 ";
 
-        private string NginxContainerName { get; set; } = string.Empty;
+    private string NginxContainerName { get; set; } = string.Empty;
 
-        private string NginxIpAddress { get; set; } = string.Empty;
+    private string NginxIpAddress { get; set; } = string.Empty;
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
@@ -245,32 +245,38 @@ finally:
 
         var preExecuteCodeSavePath = this.SavePythonCodeTemplateToTempFile(this.PythonPreExecuteCodeTemplate);
         var executor = this.CreateStandardExecutor();
-        var checker = executionContext.Input.GetChecker();
-        var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
+
+        try
+        {
+            var checker = executionContext.Input.GetChecker();
+            var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
             var output = preExecutionResult.ReceivedOutput.Trim().Split(',');
 
             if (output.Length == 2)
-        {
+            {
                 this.NginxContainerName = output[0];
                 this.NginxIpAddress = output[1];
+            }
+            else
+            {
+                this.Logger.LogUnexpectedProcessOutput(preExecutionResult);
+                throw new ArgumentException("Failed to run the strategy pre execute step. Please contact a developer.");
+            }
+
+            return await this.RunTests(string.Empty, executor, checker, executionContext, result);
         }
-        else
+        catch (Exception)
         {
-            throw new ArgumentException("Failed to run the strategy pre execute step. Please contact a developer.");
-        }
+            var cleanupResult = await this.DeleteNginxContainer(executor, executionContext);
 
-            try
+            if (cleanupResult is not null && !string.IsNullOrWhiteSpace(cleanupResult.ErrorOutput))
             {
-                return await this.RunTests(string.Empty, executor, checker, executionContext, result);
+                this.Logger.LogUnexpectedProcessOutput(cleanupResult);
             }
-            catch (Exception e)
-            {
-                result.IsCompiledSuccessfully = false;
-                result.CompilerComment = e.Message;
 
-                return result;
-            }
+            throw;
         }
+    }
 
     protected override async Task<IExecutionResult<TestResult>> RunTests(
         string codeSavePath,
@@ -502,6 +508,48 @@ finally:
     }
 
     private string BuildTestPath(int testId) => FileHelpers.BuildPath(this.TestsPath, $"{testId}{JavaScriptFileExtension}");
+
+    private async Task<ProcessExecutionResult> DeleteNginxContainer(
+        IExecutor executor,
+        IExecutionContext<TestsInputModel> executionContext)
+    {
+        if (string.IsNullOrEmpty(this.NginxContainerName))
+        {
+            return null;
+        }
+
+        var cleanupScript = $@"
+import docker
+
+try:
+    client = docker.from_env()
+    container = client.containers.get('{this.NginxContainerName}')
+
+    container.reload()  # Refresh container state info
+    status = container.attrs['State']['Status']
+
+    if status in ['created', 'running', 'paused', 'restarting', 'exited']:
+        if status == 'running':
+            container.stop()
+            container.wait()
+        elif status == 'created':
+            print('The nginx container was created but not started.')
+
+        container.remove()
+        print(f'Cleanup succeeded!')
+    else:
+        print(f'The nginx container is in an unexpected state: {{status}}')
+
+except docker.errors.NotFound:
+    print(f'The cleanup was skipped, the nginx container {this.NginxContainerName} was not found.')
+except Exception as e:
+    print(f'The nginx container cleanup failed: {{e}}')
+";
+
+        var cleanupFilePath = this.SavePythonCodeTemplateToTempFile(cleanupScript);
+
+        return await this.Execute(executionContext, executor, cleanupFilePath);
+    }
 }
 
 public record RunSpaAndExecuteMochaTestsExecutionStrategySettings(
@@ -511,5 +559,7 @@ public record RunSpaAndExecuteMochaTestsExecutionStrategySettings(
     string JsProjNodeModulesPath,
     string MochaModulePath,
     string ChaiModulePath,
-    string PlaywrightChromiumModulePath)
+    string PlaywrightChromiumModulePath,
+    string EslintExecutablePath,
+    string EslintPluginModulePath)
     : PythonExecuteAndCheckExecutionStrategySettings(BaseTimeUsed, BaseMemoryUsed, PythonExecutablePath);

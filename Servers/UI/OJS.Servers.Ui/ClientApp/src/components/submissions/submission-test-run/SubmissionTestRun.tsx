@@ -1,4 +1,4 @@
-
+/* eslint-disable import/exports-last */
 import React, { useState } from 'react';
 import { BiMemoryCard } from 'react-icons/bi';
 import { FaRegClock } from 'react-icons/fa';
@@ -13,7 +13,7 @@ import { ITestRunType } from '../../../hooks/submissions/types';
 import useTheme from '../../../hooks/use-theme';
 import CodeEditor from '../../code-editor/CodeEditor';
 import MultiLineTextDisplay from '../../common/MultiLineTextDisplay';
-import Diff from '../../diff/Diff';
+import DiffViewer from '../../diffViewer/DiffViewer';
 import AdministrationLink from '../../guidelines/buttons/AdministrationLink';
 import Button, { ButtonSize, ButtonType, LinkButtonType } from '../../guidelines/buttons/Button';
 
@@ -80,7 +80,6 @@ const SubmissionTestRun = (props: ISubmissionTestRunProps) => {
         setTestShowInput(!testShowInput);
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
     const isCorrectAnswer = resultType === TestRunResultType.CorrectAnswer;
 
     return (
@@ -99,7 +98,7 @@ const SubmissionTestRun = (props: ISubmissionTestRunProps) => {
                     </div>
                 </div>
                 <div className={styles.testDetailsAndMemoryWrapper}>
-                    {showInput &&
+                    {showInput && (
                         <Button
                           onClick={() => onShowHideInputButtonClick()}
                           text={testShowInput
@@ -108,22 +107,22 @@ const SubmissionTestRun = (props: ISubmissionTestRunProps) => {
                           type={ButtonType.neutral}
                           size={ButtonSize.small}
                         />
-                    }
+                    )}
                     <div className={styles.timeAndMemoryWrapper}>
-                        {shouldRenderAdminData &&
+                        {shouldRenderAdminData && (
                             <AdministrationLink
                               text={`Test #${testId}`}
                               to={`/tests/${testId}`}
                               type={LinkButtonType.plain}
                               className={styles.testLink}
                             />
-                        }
-                        {shouldRenderAdminData &&
+                        )}
+                        {shouldRenderAdminData && (
                             <span>
                                 Run #
                                 {testRun.id}
                             </span>
-                        }
+                        )}
                         <span
                           onMouseEnter={(e) => onPopoverOpen('memory', e)}
                           onMouseLeave={() => onPopoverClose('memory')}
@@ -190,7 +189,7 @@ const SubmissionTestRun = (props: ISubmissionTestRunProps) => {
                 </div>
 
             </div>
-            { isTrialTest &&
+            {isTrialTest && (
                 <div
                   style={{ color: themeColors.baseColor100 }}
                   className={concatClassNames(styles.zeroTestsInfoMessage, !isDarkMode
@@ -199,27 +198,26 @@ const SubmissionTestRun = (props: ISubmissionTestRunProps) => {
                 >
                     The zero tests are not included in the final result
                 </div>
-            }
-            {testShowInput &&
+            )}
+            {testShowInput && (
                 <>
                     <div>Test input:</div>
                     <CodeEditor code={input} readOnly customEditorStyles={{ height: '150px', marginTop: '12px' }} />
                 </>
-            }
-            {(expectedOutputFragment || userOutputFragment) &&
+            )}
+            {(expectedOutputFragment || userOutputFragment) && (
                 <div className={styles.outputWrapper}>
-                    <Diff expectedStr={expectedOutputFragment} actualStr={userOutputFragment} />
+                    <DiffViewer expectedStr={expectedOutputFragment} actualStr={userOutputFragment} />
                 </div>
-            }
+            )}
             {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
-                testRun.resultType === TestRunResultType.RunTimeError && testRun.executionComment &&
+                testRun.resultType === TestRunResultType.RunTimeError && testRun.executionComment && (
                     <MultiLineTextDisplay
                       text={testRun.executionComment}
                       maxVisibleLines={5}
                       className={styles.runtimeExecutionComment}
                     />
-
+                )
             }
         </div>
     );

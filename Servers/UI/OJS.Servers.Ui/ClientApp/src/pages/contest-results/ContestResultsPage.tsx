@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo } from 'react';
 import { useParams } from 'react-router';
 import isNil from 'lodash/isNil';
+import { CONTESTS_PATH } from 'src/common/urls/administration-urls';
 import BackToTop from 'src/components/common/back-to-top/BackToTop';
+import AdministrationLink from 'src/components/guidelines/buttons/AdministrationLink';
 
 import { ContestParticipationType, ContestResultType } from '../../common/constants';
 import { contestParticipationType } from '../../common/contest-helpers';
@@ -49,6 +51,7 @@ const ContestResultsPage = () => {
     const {
         data: contestResults,
         isLoading,
+        isFetching,
         error: contestResultsError,
         refetch,
     } = useGetContestResultsQuery({
@@ -76,10 +79,10 @@ const ContestResultsPage = () => {
         if (!contestDetails || contestDetails?.id !== contestResults?.id) {
             dispatch(setContestDetails({
                 contest: {
-                    id: contestResults.id,
-                    name: contestResults.name,
-                    categoryId: contestResults.categoryId,
-                    isAdminOrLecturerInContest: contestResults.userIsInRoleForContest,
+                    id: contestResults!.id,
+                    name: contestResults!.name,
+                    categoryId: contestResults!.categoryId,
+                    isAdminOrLecturerInContest: contestResults!.userIsInRoleForContest,
                 } as IContestDetailsResponseType,
             }));
         }
@@ -94,57 +97,74 @@ const ContestResultsPage = () => {
     return (
         isNil(contestResultsError)
             ? !isLoading
-                ? <>
-                    <BackToTop />
-                    <div>
-                        <ContestBreadcrumbs />
-                    </div>
-                    <Heading
+                ? (
+                    <>
+                        <BackToTop />
+                        <div>
+                            <ContestBreadcrumbs />
+                        </div>
+                        <Heading
                           type={HeadingType.primary}
                           className={styles.contestResultsHeading}
                         >
-                        {capitalizeFirstLetter(participationType)}
-                        {' '}
-                        Results For
-                        {' '}
-                        <LinkButton
-                              to={getContestsDetailsPageUrl({ contestId: Number(contestId!), contestName: contestResults?.name })}
+                            {capitalizeFirstLetter(participationType)}
+                            {' '}
+                            Results For
+                            {' '}
+                            <LinkButton
+                              to={getContestsDetailsPageUrl({
+                                  contestId: Number(contestId!),
+                                  contestName: contestResults?.name,
+                              })}
                               text={contestResults?.name}
                               type={LinkButtonType.plain}
                               className={styles.contestName}
                             />
-                    </Heading>
-                    <PaginationControls
-                          count={contestResults?.pagedResults.pagesCount ?? 0}
-                          page={selectedPage}
-                          onChange={(page:number) => {
-                              searchParams.set('page', page.toString());
-                              setSearchParams(searchParams);
-                          }}
-                          className={`${styles.paginationControlsUpper}`}
-                        />
-                    <ContestResultsGrid
+                        </Heading>
+                        <div className={styles.actionsWrapper}>
+                            <PaginationControls
+                              isDataFetching={isFetching}
+                              count={contestResults?.pagedResults.pagesCount ?? 0}
+                              page={selectedPage}
+                              onChange={(page: number) => {
+                                  searchParams.set('page', page.toString());
+                                  setSearchParams(searchParams);
+                              }}
+                              className={`${styles.paginationControlsUpper}`}
+                            />
+                            <div className={styles.exportResultsButton}>
+                                <AdministrationLink
+                                  text="Export Results"
+                                  type={LinkButtonType.primary}
+                                  to={`/${CONTESTS_PATH}?exportType=${participationType.toLowerCase()}&contestId=${contestId}`}
+                                />
+                            </div>
+                        </div>
+                        <ContestResultsGrid
                           items={contestResults ?? null}
                         />
-                    <PaginationControls
+                        <PaginationControls
+                          isDataFetching={isFetching}
                           count={contestResults?.pagedResults.pagesCount ?? 0}
                           page={selectedPage}
-                          onChange={(page:number) => {
+                          onChange={(page: number) => {
                               searchParams.set('page', page.toString());
                               setSearchParams(searchParams);
                           }}
                           className={`${styles.paginationControlsLower}`}
                         />
-                </>
-                
-                : <div style={{ ...flexCenterObjectStyles }}>
-                    <SpinningLoader />
-                </div>
-                
-            : <ErrorWithActionButtons
+                    </>
+                )
+                : (
+                    <div style={{ ...flexCenterObjectStyles }}>
+                        <SpinningLoader />
+                    </div>
+                )
+            : (
+                <ErrorWithActionButtons
                   message={getErrorMessage(contestResultsError)}
                 />
-            
+            )
 
     );
 };
