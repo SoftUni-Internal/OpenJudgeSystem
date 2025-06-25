@@ -11,7 +11,7 @@ namespace OJS.Services.Ui.Business
     {
         Task<ServiceResult<ContestRegistrationDetailsServiceModel>> GetContestRegistrationDetails(int id, bool isOfficial);
 
-        Task<bool> RegisterUserForContest(
+        Task<ServiceResult<RegisterUserForContestResultModel>> RegisterUserForContest(
             int id,
             string? password,
             bool? hasConfirmedParticipation,

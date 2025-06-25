@@ -1,6 +1,5 @@
 namespace OJS.Services.Ui.Business.Implementations;
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +11,6 @@ using OJS.Services.Common;
 using OJS.Services.Common.Data;
 using OJS.Services.Common.Models.Contests;
 using OJS.Services.Infrastructure.Constants;
-using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Infrastructure.Models;
 using OJS.Services.Ui.Business.Cache;
@@ -21,6 +19,7 @@ using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.Contests;
 using OJS.Services.Ui.Models.Participants;
 using OJS.Services.Ui.Models.Search;
+using static OJS.Common.Constants.ServiceConstants.ErrorCodes;
 using static OJS.Services.Common.Constants.PaginationConstants.Contests;
 
 public class ContestsBusinessService(
@@ -164,7 +163,7 @@ public class ContestsBusinessService(
         return ServiceResult.Success(contest);
     }
 
-    public async Task<bool> RegisterUserForContest(
+    public async Task<ServiceResult<RegisterUserForContestResultModel>> RegisterUserForContest(
         int id,
         string? password,
         bool? hasConfirmedParticipation,
@@ -172,20 +171,25 @@ public class ContestsBusinessService(
     {
         var user = userProviderService.GetCurrentUser();
         var contest = await contestsData.OneByIdTo<ContestRegistrationDetailsServiceModel>(id);
-        var category = await contestCategoriesCache.GetById(contest?.CategoryId);
+        if (contest == null)
+        {
+            return ServiceResult.NotFound<RegisterUserForContestResultModel>(nameof(contest));
+        }
+
+        var category = await contestCategoriesCache.GetById(contest.CategoryId);
         var participant = await participantsData.GetByContestByUserAndByIsOfficial(id, user.Id, isOfficial);
 
         var participantForActivity = participant?.Map<ParticipantForActivityServiceModel>();
         if (participantForActivity != null)
         {
-            participantForActivity.ContestStartTime = contest?.StartTime;
-            participantForActivity.ContestEndTime = contest?.EndTime;
-            participantForActivity.ContestPracticeStartTime = contest?.PracticeStartTime;
-            participantForActivity.ContestPracticeEndTime = contest?.PracticeEndTime;
+            participantForActivity.ContestStartTime = contest.StartTime;
+            participantForActivity.ContestEndTime = contest.EndTime;
+            participantForActivity.ContestPracticeStartTime = contest.PracticeStartTime;
+            participantForActivity.ContestPracticeEndTime = contest.PracticeEndTime;
         }
 
         var validationResult = await contestParticipationValidationService.GetValidationResult((
-            contest?.Map<ContestParticipationValidationServiceModel>(),
+            contest.Map<ContestParticipationValidationServiceModel>(),
             category,
             participantForActivity,
             user,
@@ -193,11 +197,11 @@ public class ContestsBusinessService(
 
         if (!validationResult.IsValid)
         {
-            throw new BusinessServiceException(validationResult.Message);
+            return validationResult.ToServiceResult<RegisterUserForContestResultModel>();
         }
 
-        var userIsAdminOrLecturerInContest = await lecturersInContestsCache.IsUserAdminOrLecturerInContest(contest?.Id, contest?.CategoryId, user);
-        var shouldRequirePassword = ShouldRequirePassword(contest!.HasContestPassword, contest.HasPracticePassword, participantForActivity, isOfficial);
+        var userIsAdminOrLecturerInContest = await lecturersInContestsCache.IsUserAdminOrLecturerInContest(contest.Id, contest.CategoryId, user);
+        var shouldRequirePassword = ShouldRequirePassword(contest.HasContestPassword, contest.HasPracticePassword, participantForActivity, isOfficial);
         var shouldConfirmParticipation =
             ShouldConfirmParticipation(participantForActivity, isOfficial, contest.IsOnlineExam, userIsAdminOrLecturerInContest);
 
@@ -212,7 +216,7 @@ public class ContestsBusinessService(
 
             if (!isPasswordValid)
             {
-                throw new UnauthorizedAccessException("Invalid contest password");
+                return ServiceResult.Failure<RegisterUserForContestResultModel>(Unauthorized, "Invalid contest password.");
             }
 
             requiredPasswordIsValid = true;
@@ -225,7 +229,7 @@ public class ContestsBusinessService(
             participant = await this.AddNewParticipantToContestIfNotExistsOrResetExistingToValid(contest, isOfficial, user.Id, userIsAdminOrLecturerInContest);
         }
 
-        return participant != null;
+        return ServiceResult.Success(new RegisterUserForContestResultModel(participant != null));
     }
 
     public async Task<ServiceResult<ContestParticipationServiceModel>> GetParticipationDetails(

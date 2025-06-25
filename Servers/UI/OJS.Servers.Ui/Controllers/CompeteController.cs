@@ -9,14 +9,11 @@ using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Servers.Ui.Models;
 using OJS.Servers.Ui.Models.Submissions.Compete;
 using OJS.Services.Common.Telemetry;
-using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Ui.Business;
 using OJS.Services.Ui.Models.Contests;
 using OJS.Services.Ui.Models.Submissions;
-using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Threading.Tasks;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
@@ -71,27 +68,14 @@ public class CompeteController(
     /// <returns>401 for invalid password.</returns>
     /// <returns>403 if user cannot compete contest.</returns>
     [HttpPost("{id:int}/register")]
+    [ProducesResponseType(typeof(RegisterUserForContestResultModel), Status200OK)]
     public async Task<IActionResult> Register(
         int id,
         [FromQuery] bool isOfficial,
         [FromBody] ContestRegisterRequestModel model)
-    {
-        try
-        {
-            var isValidRegistration = await contestsBusiness
-                .RegisterUserForContest(id, model.Password, model.HasConfirmedParticipation, isOfficial);
-
-            return this.Ok(new { IsRegisteredSuccessFully = isValidRegistration });
-        }
-        catch (UnauthorizedAccessException uae)
-        {
-            return this.Unauthorized(uae.Message);
-        }
-        catch (BusinessServiceException be)
-        {
-            return this.StatusCode((int)HttpStatusCode.Forbidden, be.Message);
-        }
-    }
+        => await contestsBusiness
+            .RegisterUserForContest(id, model.Password, model.HasConfirmedParticipation, isOfficial)
+            .ToActionResult(logger);
 
     /// <summary>
     /// Submits user's code for evaluation.
