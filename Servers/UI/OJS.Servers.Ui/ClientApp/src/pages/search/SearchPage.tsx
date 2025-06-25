@@ -164,14 +164,14 @@ const SearchPage = () => {
         isError: boolean,
         error: any,
     ) => {
-        const renderErrorFragment = () => (
+        const renderErrorFragment = () => 
             <div>
                 <div className={styles.errorTextWrapper}>
                     {getErrorMessage(error)}
                 </div>
-                { searchName !== SearchTypeEnums.USERS && (<hr className={styles.line} />)}
+                { searchName !== SearchTypeEnums.USERS && <hr className={styles.line} />}
             </div>
-        );
+        ;
 
         const selectedPageValue = () => {
             if (searchName === SearchTypeEnums.CONTESTS) {
@@ -204,13 +204,12 @@ const SearchPage = () => {
                         ? <div>No items found</div>
                         : searchName === SearchTypeEnums.USERS
                             ? <ProfileSearchList data={(data.items as IIndexContestsType[])} />
-                            : (
-                                <List
+                            : <List
                                   values={data.items}
                                   itemFunc={renderFunction}
                                   orientation={Orientation.vertical}
                                 />
-                            )}
+                            }
                 </div>
             );
         };
@@ -229,13 +228,12 @@ const SearchPage = () => {
                 { isError
                     ? renderErrorFragment()
                     : isLoading
-                        ? (
-                            <div className={styles.spinningLoader} style={{ minHeight: `${contentHeight}px` }}>
-                                <SpinningLoader />
-                            </div>
-                        )
+                        ? <div className={styles.spinningLoader} style={{ minHeight: `${contentHeight}px` }}>
+                            <SpinningLoader />
+                        </div>
+                        
                         : renderData()}
-                { data && data.totalItemsCount > 0 && (
+                { data && data.totalItemsCount > 0 && 
                     <PaginationControls
                       isDataFetching={isFetching}
                       count={data?.pagesCount || 0}
@@ -244,8 +242,8 @@ const SearchPage = () => {
                           onPaginationChange(page, searchName);
                       }}
                     />
-                )}
-                { searchName !== SearchTypeEnums.USERS && (<hr className={styles.line} />)}
+                }
+                { searchName !== SearchTypeEnums.USERS && <hr className={styles.line} />}
             </div>
         );
     }, [
@@ -270,21 +268,20 @@ const SearchPage = () => {
             />
             {searchValue.length < 3
                 ? <div>The search term must be at least 3 characters!</div>
-                : (
-                    <>
-                        <div className={styles.searchTextHeader}>
-                            Search results for &quot;
-                            {searchValue}
-                            &quot;
-                        </div>
-                        {shouldIncludeContests &&
+                : <>
+                    <div className={styles.searchTextHeader}>
+                        Search results for &quot;
+                        {searchValue}
+                        &quot;
+                    </div>
+                    {shouldIncludeContests &&
                             renderSearchFragmentResults(SearchTypeEnums.CONTESTS, contestsSearchData, isContestSearchLoading, isContestsSearchFetching, areContestsSearchError, contestsSearchError)}
-                        {shouldIncludeProblems &&
+                    {shouldIncludeProblems &&
                             renderSearchFragmentResults(SearchTypeEnums.PROBLEMS, problemsSearchData, isProblemsSearchLoading, isProblemsSearchFetching, areProblemsSearchError, problemsSearchError)}
-                        {shouldIncludeUsers &&
+                    {shouldIncludeUsers &&
                             renderSearchFragmentResults(SearchTypeEnums.USERS, usersSearchData, isUsersSearchLoading, isUsersSearchFetching, areUsersSearchError, usersSearchError)}
-                    </>
-                )}
+                </>
+                }
         </div>
     );
 };

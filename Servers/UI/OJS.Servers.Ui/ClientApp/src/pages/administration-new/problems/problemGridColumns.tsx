@@ -92,11 +92,11 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) => 
             <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEM_GROUPS_PATH}/${params.value}`}>
                 {params.value}
             </Link>
-        ),
+        ,
     },
     {
         field: 'problemGroupOrderBy',
@@ -107,11 +107,11 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) => 
             <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEM_GROUPS_PATH}/${params.row.problemGroupId}`}>
                 {params.value}
             </Link>
-        ),
+        ,
     },
     {
         field: 'problemGroupType',

@@ -40,7 +40,7 @@ const ResourcesInView = (props : IResourceInProblemViewProps) => {
         data: problemResourcesData,
         isLoading: isGettingProblemResources,
         error: problemResourcesError,
-        // eslint-disable-next-line no-undef
+         
     } = useGetProblemResourcesQuery({ parentId: Number(parentId), ...queryParams });
 
     const {

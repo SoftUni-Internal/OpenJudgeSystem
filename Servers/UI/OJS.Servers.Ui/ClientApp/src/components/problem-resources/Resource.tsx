@@ -37,7 +37,7 @@ const Resource = ({ resource }: IProblemResourceProps) => {
     // eslint-disable-next-line consistent-return
     useEffect(() => {
         if (problemResourceDownloadErrorState &&
-            'status' in problemResourceDownloadError! &&
+            'status' in problemResourceDownloadError &&
         problemResourceDownloadError.status === 401) {
             setIsUnauthorized(true);
             const timeout = setTimeout(() => {
