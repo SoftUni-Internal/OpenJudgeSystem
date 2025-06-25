@@ -31,22 +31,6 @@ public class ContestsController(
     public async Task<IActionResult> Details(int id)
         => await contestsBusinessService
             .GetContestDetails(id)
-            .ToOkResult();
-
-    /// <summary>
-    /// Submits a password value from the user and validates it against contest configurations.
-    /// </summary>
-    /// <param name="id">ID of the contest.</param>
-    /// <param name="official">Practice or compete mode of the contest.</param>
-    /// <param name="model">The password the user has submitted.</param>
-    /// <returns>Ok result if password is correct and an exception if otherwise.</returns>
-    [HttpPost("{id:int}")]
-    public async Task<IActionResult> SubmitContestPassword(
-        int id,
-        [FromQuery] bool official,
-        [FromBody] SubmitContestPasswordRequestModel model)
-        => await contestsBusinessService
-            .ValidateContestPassword(id, official, model.Password)
             .ToActionResult(logger);
 
     /// <summary>

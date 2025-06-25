@@ -21,7 +21,6 @@ using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.Contests;
 using OJS.Services.Ui.Models.Participants;
 using OJS.Services.Ui.Models.Search;
-using static OJS.Common.Constants.ServiceConstants.ErrorCodes;
 using static OJS.Services.Common.Constants.PaginationConstants.Contests;
 
 public class ContestsBusinessService(
@@ -227,29 +226,6 @@ public class ContestsBusinessService(
         }
 
         return participant != null;
-    }
-
-    public async Task<ServiceResult<VoidResult>> ValidateContestPassword(int id, bool official, string password)
-    {
-        if (string.IsNullOrEmpty(password))
-        {
-            return ServiceResult.Failure<VoidResult>(Unauthorized, "Password is empty");
-        }
-
-        var contest = await contestsData.OneById(id);
-
-        var isOfficialAndIsCompetePasswordCorrect =
-            official && contest!.HasContestPassword && contest.ContestPassword == password;
-
-        var isPracticeAndIsPracticePasswordCorrect =
-            !official && contest!.HasPracticePassword && contest.PracticePassword == password;
-
-        if (!isOfficialAndIsCompetePasswordCorrect && !isPracticeAndIsPracticePasswordCorrect)
-        {
-            return ServiceResult.Failure<VoidResult>(Unauthorized, "Incorrect password!");
-        }
-
-        return ServiceResult.EmptySuccess;
     }
 
     public async Task<ServiceResult<ContestParticipationServiceModel>> GetParticipationDetails(

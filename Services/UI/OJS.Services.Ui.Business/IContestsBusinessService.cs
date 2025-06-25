@@ -17,8 +17,6 @@ namespace OJS.Services.Ui.Business
             bool? hasConfirmedParticipation,
             bool isOfficial);
 
-        Task<ServiceResult<VoidResult>> ValidateContestPassword(int id, bool official, string password);
-
         Task<ServiceResult<ContestDetailsServiceModel>> GetContestDetails(int id);
 
         Task<ServiceResult<ContestParticipationServiceModel>> GetParticipationDetails(StartContestParticipationServiceModel model);
