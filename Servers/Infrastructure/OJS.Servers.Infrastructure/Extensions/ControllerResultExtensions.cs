@@ -29,7 +29,7 @@ public static class ControllerResultExtensions
         }
 
         var activity = Activity.Current;
-        if (result.ErrorCode is not NotFound and not AccessDenied)
+        if (result.ErrorCode is not NotFound and not Forbidden and not Unauthorized)
         {
             // Mark activity as failed for all errors except NotFound and AccessDenied, as these are expected.
             activity?.SetStatus(ActivityStatusCode.Error, result.ErrorMessage);
@@ -51,10 +51,13 @@ public static class ControllerResultExtensions
         {
             return result.ErrorCode switch
             {
-                AccessDenied => CreateResponse("Access denied", StatusCodes.Status403Forbidden, () =>
+                Unauthorized => CreateResponse("Unauthorized", StatusCodes.Status401Unauthorized, () =>
                     logger.LogServiceResultAccessDenied(result.InstanceId, result.ErrorMessage)),
 
-                NotFound => CreateResponse("Not found", StatusCodes.Status404NotFound, () =>
+                Forbidden => CreateResponse("Action forbidden", StatusCodes.Status403Forbidden, () =>
+                    logger.LogServiceResultAccessDenied(result.InstanceId, result.ErrorMessage)),
+
+                NotFound => CreateResponse($"{result.ResourceType ?? "Resource"} not found", StatusCodes.Status404NotFound, () =>
                     logger.LogServiceResultNotFound(result.InstanceId, result.ErrorMessage)),
 
                 BusinessRuleViolation => CreateResponse("Business rule violation", StatusCodes.Status422UnprocessableEntity, () =>
@@ -88,8 +91,10 @@ public static class ControllerResultExtensions
 
             return statusCode switch
             {
-                StatusCodes.Status404NotFound => new NotFoundObjectResult(details),
                 StatusCodes.Status400BadRequest => new BadRequestObjectResult(details),
+                StatusCodes.Status401Unauthorized => new UnauthorizedObjectResult(details),
+                StatusCodes.Status404NotFound => new NotFoundObjectResult(details),
+                StatusCodes.Status422UnprocessableEntity => new UnprocessableEntityObjectResult(details),
                 _ => new ObjectResult(details) { StatusCode = statusCode },
             };
         }

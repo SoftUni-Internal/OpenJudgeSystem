@@ -158,5 +158,5 @@ public class CompeteController(
     public async Task<IActionResult> Retest(int id, bool verbosely = false)
         => await submissionsBusinessService
             .Retest(id, verbosely)
-            .ToOkResult();
+            .ToActionResult(logger);
 }

@@ -2,7 +2,6 @@ namespace OJS.Services.Ui.Business.Implementations;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Data.Models.Participants;
@@ -30,7 +29,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using OJS.Data.Models.Problems;
 using OJS.Services.Common.Data.Pagination;
-using OJS.Services.Common.Models;
 using OJS.Services.Common.Models.Pagination;
 using OJS.Services.Ui.Business.Cache;
 using OJS.Workers.Common.Extensions;
@@ -127,10 +125,13 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.fileSystem = fileSystem;
     }
 
-    public async Task Retest(int submissionId, bool verbosely = false)
+    public async Task<ServiceResult<VoidResult>> Retest(int submissionId, bool verbosely = false)
     {
-        var submission = await this.submissionsData.GetSubmissionById<SubmissionForRetestServiceModel>(submissionId)
-            ?? throw new BusinessServiceException(ValidationMessages.Submission.NotFound);
+        var submission = await this.submissionsData.GetSubmissionById<SubmissionForRetestServiceModel>(submissionId);
+        if (submission == null)
+        {
+            return ServiceResult.NotFound<VoidResult>(nameof(Submission));
+        }
 
         var user = this.userProviderService.GetCurrentUser();
 
@@ -144,11 +145,12 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         if (!validationResult.IsValid)
         {
-            throw new BusinessServiceException(validationResult.Message);
+            return validationResult.ToServiceResult<VoidResult>();
         }
 
         verbosely = verbosely && userIsAdminOrLecturerInContest;
         await this.publisher.Publish(new RetestSubmissionPubSubModel { Id = submissionId, Verbosely = verbosely });
+        return ServiceResult.EmptySuccess;
     }
 
     public async Task<SubmissionDetailsServiceModel> GetDetailsById(int submissionId)

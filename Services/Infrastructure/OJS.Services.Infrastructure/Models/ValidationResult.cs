@@ -69,7 +69,7 @@ public class ValidationResult
         {
             IsValid = false,
             Message = message ?? "Access denied",
-            ErrorCode = ServiceConstants.ErrorCodes.AccessDenied,
+            ErrorCode = ServiceConstants.ErrorCodes.Forbidden,
             ErrorContext = context,
         };
 }

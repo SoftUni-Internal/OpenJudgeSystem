@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OJS.Servers.Infrastructure.Controllers;
 using OJS.Servers.Infrastructure.Extensions;
 using OJS.Servers.Ui.Models;
@@ -15,13 +16,11 @@ using System.Threading.Tasks;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 using static OJS.Servers.Infrastructure.ServerConstants.Authorization;
 
-public class ContestsController : BaseApiController
+public class ContestsController(
+    IContestsBusinessService contestsBusinessService,
+    ILogger<ContestsController> logger)
+    : BaseApiController
 {
-    private readonly IContestsBusinessService contestsBusinessService;
-
-    public ContestsController(IContestsBusinessService contestsBusinessService)
-        => this.contestsBusinessService = contestsBusinessService;
-
     /// <summary>
     /// Gets details of the current contest.
     /// </summary>
@@ -30,7 +29,7 @@ public class ContestsController : BaseApiController
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(ContestDetailsServiceModel), Status200OK)]
     public async Task<IActionResult> Details(int id)
-        => await this.contestsBusinessService
+        => await contestsBusinessService
             .GetContestDetails(id)
             .ToOkResult();
 
@@ -46,9 +45,9 @@ public class ContestsController : BaseApiController
         int id,
         [FromQuery] bool official,
         [FromBody] SubmitContestPasswordRequestModel model)
-        => await this.contestsBusinessService
+        => await contestsBusinessService
             .ValidateContestPassword(id, official, model.Password)
-            .ToOkResult();
+            .ToActionResult(logger);
 
     /// <summary>
     /// Gets contests summary with latest active and past contests for the home page.
@@ -57,7 +56,7 @@ public class ContestsController : BaseApiController
     [HttpGet]
     [ProducesResponseType(typeof(ContestsForHomeIndexResponseModel), Status200OK)]
     public async Task<IActionResult> GetForHomeIndex()
-        => await this.contestsBusinessService
+        => await contestsBusinessService
             .GetAllForHomeIndex()
             .Map<ContestsForHomeIndexResponseModel>()
             .ToOkResult();
@@ -71,7 +70,7 @@ public class ContestsController : BaseApiController
     [HttpGet]
     [ProducesResponseType(typeof(PagedResultResponse<ContestForListingResponseModel>), Status200OK)]
     public async Task<IActionResult> GetAll([FromQuery] ContestFiltersRequestModel? model)
-        => await this.contestsBusinessService
+        => await contestsBusinessService
             .GetAllByFiltersAndSorting(model?.Map<ContestFiltersServiceModel>())
             .Map<PagedResultResponse<ContestForListingResponseModel>>()
             .ToOkResult();
@@ -92,7 +91,7 @@ public class ContestsController : BaseApiController
         [FromQuery] ContestFiltersRequestModel? model,
         [FromQuery] int? contestId,
         [FromQuery] int? categoryId)
-        => await this.contestsBusinessService
+        => await contestsBusinessService
             .GetParticipatedByUserByFiltersAndSorting(username, model?.Map<ContestFiltersServiceModel>(), contestId, categoryId)
             .Map<PagedResultResponse<ContestForListingResponseModel>>()
             .ToOkResult();
@@ -106,7 +105,7 @@ public class ContestsController : BaseApiController
     [ProducesResponseType(typeof(IEnumerable<string?>), Status200OK)]
     [Authorize(ApiKeyPolicyName)]
     public async Task<IActionResult> GetEmailsOfParticipantsInContest([Required] int contestId)
-        => await this.contestsBusinessService
+        => await contestsBusinessService
             .GetEmailsOfParticipantsInContest(contestId)
             .ToOkResult();
 
@@ -114,7 +113,7 @@ public class ContestsController : BaseApiController
     [ProducesResponseType(typeof(IEnumerable<ContestForListingResponseModel>), Status200OK)]
     public async Task<IActionResult> GetAllParticipatedContests(
         [FromQuery] string username)
-        => await this.contestsBusinessService
+        => await contestsBusinessService
             .GetAllParticipatedContests(username)
             .Map<IEnumerable<ContestForListingResponseModel>>()
             .ToOkResult();

@@ -13,7 +13,7 @@
     {
         Task<ServiceResult<VoidResult>> Submit(SubmitSubmissionServiceModel model);
 
-        Task Retest(int submissionId, bool verbosely = false);
+        Task<ServiceResult<VoidResult>> Retest(int submissionId, bool verbosely = false);
 
         Task<SubmissionDetailsServiceModel> GetDetailsById(int submissionId);
 
