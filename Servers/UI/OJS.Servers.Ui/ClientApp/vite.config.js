@@ -7,22 +7,31 @@ import { resolve } from 'path';
 
 const isUnminified = process.env.UNMINIFIED === 'true';
 
-// For development server, we want to forward all requests to /administration to /admin.html
-const forwardToAdmin = () => {
+// For development server, we want to fall back all requests to /index.html, so links can be opened in new tabs
+const fallbackHtmlRoutes  = () => {
     return {
-        name: 'forward-to-admin-html',
+        name: 'fallback-html-routes',
         apply: 'serve',
         enforce: 'post',
         configureServer(server) {
-            server.middlewares.use('/', (req, _, next) => {
-                if (req.url.startsWith('/administration')) {
-                    req.url = '/admin.html';
+            server.middlewares.use((req, res, next) => {
+                const isHtmlRequest =
+                    req.headers.accept?.includes('text/html') &&
+                    !req.url.includes('.'); // ignore requests with file extensions
+
+                if (isHtmlRequest) {
+                    if (req.url.startsWith('/administration')) {
+                        req.url = '/admin.html';
+                    } else if (!req.url.startsWith('/api')) {
+                        req.url = '/index.html';
+                    }
                 }
-                next()
-            })
+
+                next();
+            });
         },
-    }
-}
+    };
+};
 
 export default defineConfig(({ mode }) =>
     ({
@@ -46,7 +55,7 @@ export default defineConfig(({ mode }) =>
         plugins: [
             react(),
             svgr(),
-            forwardToAdmin(),
+            fallbackHtmlRoutes(),
             visualizer({open: true, filename: 'bundle-analysis.html'}),
         ],
         server: {port: 5002},
