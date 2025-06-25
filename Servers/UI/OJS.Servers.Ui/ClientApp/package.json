@@ -83,7 +83,7 @@
   },
   "scripts": {
     "start": "vite",
-    "start:backend": "docker compose up -d ui administration redis mq",
+    "start:backend": "docker compose up -d --build ui administration redis mq",
     "build": "vite build",
     "build:staging": "vite build --mode staging",
     "build:local": "vite build --mode development.local",
