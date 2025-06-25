@@ -83,7 +83,7 @@ public class SubmitSubmissionValidationService : ISubmitSubmissionValidationServ
         var participantHasUnprocessedSubmissionForProblem =
             await this.submissionsData.HasParticipantNotProcessedSubmissionForProblem(problem.Id, participant.Id);
 
-        if (!participantHasUnprocessedSubmissionForProblem)
+        if (participantHasUnprocessedSubmissionForProblem)
         {
             return ValidationResult.Invalid(
                 ValidationMessages.Submission.UserHasNotProcessedSubmissionForProblem,
