@@ -22,7 +22,7 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
         type: 'number',
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
@@ -83,7 +83,7 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         flex: 0.5,
-        valueFormatter: (params) => params.value?.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
 ];
 

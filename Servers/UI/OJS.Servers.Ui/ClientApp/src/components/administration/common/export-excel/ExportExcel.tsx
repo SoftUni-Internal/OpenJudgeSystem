@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { RiFileExcel2Fill } from 'react-icons/ri';
 import { IconButton, Tooltip } from '@mui/material';
 
-import { IGetAllAdminParams } from '../../../../common/types';
+import { IExcelFilter, IGetAllAdminParams } from '../../../../common/types';
 import { SimillarityType } from '../../../../pages/administration-new/submissions-simillarity/SubmissionsSimillarity';
 import concatClassNames from '../../../../utils/class-names';
 import downloadFile from '../../../../utils/file-download-utils';
@@ -16,10 +16,12 @@ interface IExportExcelProps{
    disabled?: boolean;
    queryParams?: IGetAllAdminParams;
    contestIds?: Array<number>;
-    similarityCheckType?: SimillarityType;
+   similarityCheckType?: SimillarityType;
+   excelFilters?: IExcelFilter[];
 }
+
 const ExportExcel = (props:IExportExcelProps) => {
-    const { mutation: lazyQuery, disabled = false, queryParams, contestIds, similarityCheckType } = props;
+    const { mutation: lazyQuery, disabled = false, queryParams, contestIds, similarityCheckType, excelFilters } = props;
 
     const [ exceptionMessages, setExceptionMessages ] = useState<Array<string>>([]);
 
@@ -45,6 +47,22 @@ const ExportExcel = (props:IExportExcelProps) => {
         }
     }, [ error ]);
 
+    const handleExport = () => {
+        if (excelFilters && queryParams) {
+            // Create a new object to avoid mutating the original queryParams
+            const mergedParams = {
+                ...queryParams,
+                filter: queryParams.filter
+                    // eslint-disable-next-line max-len
+                    ? `${queryParams.filter}&&;${excelFilters.map(({ propertyName, operator, value }) => `${propertyName}~${operator}~${value}`).join('&&;')}`
+                    : excelFilters.map(({ propertyName, operator, value }) => `${propertyName}~${operator}~${value}`).join('&&;'),
+            };
+            trigger(mergedParams);
+        } else {
+            trigger(queryParams || { contestIds, similarityCheckType });
+        }
+    };
+
     return (
         <>
             {(isLoading || isFetching) && renderInfoMessage('The request is currently in process.')}
@@ -56,9 +74,7 @@ const ExportExcel = (props:IExportExcelProps) => {
                 <span>
                     <IconButton
                       disabled={disabled || isLoading || isFetching}
-                      onClick={() => {
-                          trigger(queryParams || { contestIds, similarityCheckType });
-                      }}
+                      onClick={handleExport}
                     >
                         <RiFileExcel2Fill
                           className={disabled || isLoading || isFetching

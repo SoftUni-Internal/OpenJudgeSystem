@@ -1,4 +1,3 @@
-
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -41,7 +40,7 @@ import {
     TYPE,
     VISIBLE_FROM,
 } from '../../../../common/labels';
-import { CONTEST_DESCRIPTION_PLACEHOLDER_MESSAGE, CONTEST_DURATION_VALIDATION, CONTEST_LIMIT_BETWEEN_SUBMISSIONS_VALIDATION, CONTEST_NAME_VALIDATION, CONTEST_NEW_IP_PASSWORD_VALIDATION, CONTEST_NUMBER_OF_PROBLEM_GROUPS, CONTEST_ORDER_BY_VALIDATION, CONTEST_TYPE_VALIDATION, DELETE_CONFIRMATION_MESSAGE } from '../../../../common/messages';
+import { CONTEST_DESCRIPTION_PLACEHOLDER_MESSAGE, CONTEST_DURATION_VALIDATION, CONTEST_LIMIT_BETWEEN_SUBMISSIONS_VALIDATION, CONTEST_NAME_VALIDATION, CONTEST_NEW_IP_PASSWORD_VALIDATION, CONTEST_ORDER_BY_VALIDATION, CONTEST_TYPE_VALIDATION, DELETE_CONFIRMATION_MESSAGE } from '../../../../common/messages';
 import { IContestAdministration } from '../../../../common/types';
 import { CONTESTS_PATH, NEW_ADMINISTRATION_PATH } from '../../../../common/urls/administration-urls';
 import { getContestsDetailsPageUrl } from '../../../../common/urls/compose-client-urls';
@@ -84,6 +83,7 @@ interface IContestEditProps {
     setParentSuccessMessage: Function;
     onDeleteSuccess? : Function;
     skipGettingContest?: boolean;
+    initialCategoryId?: number;
 }
 
 const NAME_PROP = 'name';
@@ -96,6 +96,7 @@ const ContestEdit = (props:IContestEditProps) => {
         setParentSuccessMessage,
         onDeleteSuccess,
         skipGettingContest = false,
+        initialCategoryId,
     } = props;
 
     const navigate = useNavigate();
@@ -108,7 +109,7 @@ const ContestEdit = (props:IContestEditProps) => {
     const [ contest, setContest ] = useState<IContestAdministration>({
         allowedIps: '',
         allowParallelSubmissionsInTasks: false,
-        categoryId: 0,
+        categoryId: initialCategoryId || 0,
         categoryName: '',
         contestPassword: null,
         description: null,
@@ -145,8 +146,6 @@ const ContestEdit = (props:IContestEditProps) => {
         isNewIpPasswordValid: true,
         isDurationTouched: false,
         isDurationValid: true,
-        isNumberOfProblemGroupsTouched: false,
-        isNUmberOfProblemGroupsValid: true,
     });
 
     const { data, isLoading } = useGetContestByIdQuery(
@@ -247,8 +246,7 @@ const ContestEdit = (props:IContestEditProps) => {
         contestValidations.isLimitBetweenSubmissionsValid &&
         contestValidations.isOrderByValid &&
         contestValidations.isNewIpPasswordValid &&
-        contestValidations.isDurationValid &&
-        contestValidations.isNUmberOfProblemGroupsValid;
+        contestValidations.isDurationValid;
         setIsValidForm(isValid);
     };
 
@@ -274,7 +272,6 @@ const ContestEdit = (props:IContestEditProps) => {
             allowParallelSubmissionsInTasks,
             categoryId,
             categoryName,
-            numberOfProblemGroups,
             duration,
         } = contest;
         const currentContestValidations = contestValidations;
@@ -295,11 +292,6 @@ const ContestEdit = (props:IContestEditProps) => {
             const isValid = !!Object.keys(ContestVariation).filter((key) => isNaN(Number(key))).some((x) => x === value);
             currentContestValidations.isTypeValid = isValid;
 
-            const isOnlineExamValue = isVariation(value, ContestVariation.OnlinePracticalExam);
-            const isWithRandomTasksValue = isVariation(value, ContestVariation.OnsitePracticalExamWithRandomTasks);
-            if (isOnlineExamValue || isWithRandomTasksValue) {
-                numberOfProblemGroups = 2;
-            }
             break;
         }
         case 'limitBetweenSubmissions': {
@@ -412,13 +404,6 @@ const ContestEdit = (props:IContestEditProps) => {
             }
             break;
         }
-        case 'numberOfProblemGroups':
-            currentContestValidations.isNumberOfProblemGroupsTouched = true;
-            if (value) {
-                currentContestValidations.isNUmberOfProblemGroupsValid = value > 0;
-                numberOfProblemGroups = Number(value);
-            }
-            break;
         case 'duration': {
             let currentValue = value;
 
@@ -456,7 +441,6 @@ const ContestEdit = (props:IContestEditProps) => {
             allowParallelSubmissionsInTasks,
             categoryId,
             categoryName,
-            numberOfProblemGroups,
             duration,
         }));
         validateForm();
@@ -558,7 +542,7 @@ const ContestEdit = (props:IContestEditProps) => {
                             </FormControl>
                         </Box>
                         <Box className={formStyles.row}>
-                            { isWithRandomTasks &&
+                            { isWithRandomTasks && isEditMode &&
                                 <TextField
                                   className={formStyles.inputRow}
                                   type="number"
@@ -568,12 +552,7 @@ const ContestEdit = (props:IContestEditProps) => {
                                   onChange={(e) => onChange(e)}
                                   InputLabelProps={{ shrink: true }}
                                   name="numberOfProblemGroups"
-                                  disabled={isEditMode}
-                                  error={(contestValidations.isNumberOfProblemGroupsTouched &&
-                                      !contestValidations.isNUmberOfProblemGroupsValid)}
-                                  helperText={
-                                      contestValidations.isNumberOfProblemGroupsTouched && !contestValidations.isNUmberOfProblemGroupsValid &&
-                                        CONTEST_NUMBER_OF_PROBLEM_GROUPS}
+                                  disabled
                                 />
                             }
                         </Box>
@@ -608,6 +587,7 @@ const ContestEdit = (props:IContestEditProps) => {
                                       {option.name}
                                   </MenuItem>
                               }
+                              disabled={!isEditMode && initialCategoryId !== undefined}
                             />
                         </FormControl>
                     </Box>

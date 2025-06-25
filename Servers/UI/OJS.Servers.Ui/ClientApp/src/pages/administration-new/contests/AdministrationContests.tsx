@@ -6,6 +6,7 @@ import { Typography } from '@mui/material';
 import { DOWNLOAD, TRANSFER } from '../../../common/labels';
 import { CONTEST_IS_DELETED, CONTEST_IS_NOT_VISIBLE } from '../../../common/messages';
 import { IGetAllAdminParams } from '../../../common/types';
+import { CATEGORY_ID_PARAM, OPEN_CREATE_PARAM } from '../../../common/urls/administration-urls';
 import CreateButton from '../../../components/administration/common/create/CreateButton';
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
 import ContestCompetePracticeButtons from '../../../components/administration/contests/contest-compete-practce-buttons/ContestCompetePracticeButtons';
@@ -33,7 +34,7 @@ import contestFilterableColumns, { returnContestsNonFilterableColumns } from './
 import formStyles from '../../../components/administration/common/styles/FormStyles.module.scss';
 
 const AdministrationContestsPage = () => {
-    const [ searchParams ] = useSearchParams();
+    const [ searchParams, setSearchParams ] = useSearchParams();
     const { themeMode } = useAdministrationTheme();
     const [ openEditContestModal, setOpenEditContestModal ] = useState(false);
     const [ openShowCreateContestModal, setOpenShowCreateContestModal ] = useState<boolean>(false);
@@ -44,6 +45,8 @@ const AdministrationContestsPage = () => {
     const [ showDownloadSubsModal, setShowDownloadSubsModal ] = useState<boolean>(false);
     const [ showExportExcelModal, setShowExportExcelModal ] = useState<boolean>(false);
     const [ showTransferParticipantsModal, setShowTransferParticipantsModal ] = useState<boolean>(false);
+    const [ initialCategoryId, setInitialCategoryId ] = useState<number | undefined>();
+    const [ hasProcessedParams, setHasProcessedParams ] = useState(false);
 
     const [ excelExportType, setExcelExportType ] = useState<number>(0);
     // eslint-disable-next-line max-len
@@ -77,6 +80,50 @@ const AdministrationContestsPage = () => {
             error: transferParticipantsError,
         },
     ] = useTransferParticipantsMutation();
+
+    // Handle query parameters for opening create modal and setting initial category
+    useEffect(() => {
+        const openCreate = searchParams.get(OPEN_CREATE_PARAM);
+        const categoryId = searchParams.get(CATEGORY_ID_PARAM);
+
+        if (openCreate === 'true' && !hasProcessedParams) {
+            setOpenShowCreateContestModal(true);
+            if (categoryId) {
+                setInitialCategoryId(Number(categoryId));
+            }
+
+            // Create new search params without the modal-related parameters
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.delete(OPEN_CREATE_PARAM);
+            newSearchParams.delete(CATEGORY_ID_PARAM);
+
+            setSearchParams(newSearchParams);
+            setHasProcessedParams(true);
+        }
+    }, [ searchParams, hasProcessedParams, setSearchParams ]);
+
+    // Handle query parameters for exporting contest results to excel
+    useEffect(() => {
+        const exportType = searchParams.get('exportType');
+        const contestIdParam = searchParams.get('contestId');
+
+        if (exportType && contestIdParam && !hasProcessedParams) {
+            const parsedId = Number(contestIdParam);
+            const parsedType = exportType === 'compete'
+                ? 0
+                : 1;
+
+            setContestId(parsedId);
+            setExcelExportType(parsedType);
+            exportResults({ id: parsedId, type: parsedType });
+
+            const newSearchParams = new URLSearchParams(searchParams);
+            newSearchParams.delete('exportType');
+            newSearchParams.delete('contestId');
+            setSearchParams(newSearchParams);
+            setHasProcessedParams(true);
+        }
+    }, [ searchParams, hasProcessedParams, setSearchParams, exportResults ]);
 
     const onEditClick = (id: number) => {
         setOpenEditContestModal(true);
@@ -115,6 +162,8 @@ const AdministrationContestsPage = () => {
             setOpenEditContestModal(false);
         } else {
             setOpenShowCreateContestModal(false);
+            setInitialCategoryId(undefined);
+            setHasProcessedParams(false);
         }
         retakeContests();
     };
@@ -221,6 +270,9 @@ const AdministrationContestsPage = () => {
               onSuccess={() => onClose(isEditMode)}
               setParentSuccessMessage={setSuccessMessage}
               onDeleteSuccess={() => onClose(isEditMode)}
+              initialCategoryId={!isEditMode
+                  ? initialCategoryId
+                  : undefined}
             />
         </AdministrationModal>
     ;

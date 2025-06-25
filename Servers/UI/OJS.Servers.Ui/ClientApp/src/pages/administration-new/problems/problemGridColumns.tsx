@@ -1,6 +1,7 @@
 
 
 import { FaCopy } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import ReplayIcon from '@mui/icons-material/Replay';
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -11,7 +12,7 @@ import { ProblemGroupTypes } from '../../../common/enums';
 import { CREATED_ON, EDIT, MODIFIED_ON } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
 import { IEnumType } from '../../../common/types';
-import { NEW_ADMINISTRATION_PATH, PROBLEMS_PATH } from '../../../common/urls/administration-urls';
+import { NEW_ADMINISTRATION_PATH, PROBLEM_GROUPS_PATH, PROBLEMS_PATH } from '../../../common/urls/administration-urls';
 import DeleteButton from '../../../components/administration/common/delete/DeleteButton';
 import QuickEditButton from '../../../components/administration/common/edit/QuickEditButton';
 import RedirectButton from '../../../components/administration/common/edit/RedirectButton';
@@ -30,7 +31,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
@@ -51,7 +52,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'contestId',
@@ -91,7 +92,11 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        renderCell: (params) => 
+            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEM_GROUPS_PATH}/${params.value}`}>
+                {params.value}
+            </Link>
+        ,
     },
     {
         field: 'problemGroupOrderBy',
@@ -102,19 +107,23 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        renderCell: (params) => 
+            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEM_GROUPS_PATH}/${params.row.problemGroupId}`}>
+                {params.value}
+            </Link>
+        ,
     },
     {
         field: 'problemGroupType',
         headerName: 'Problem Group Type',
         flex: 1,
-        type: 'enum',
+        type: 'singleSelect',
         filterable: false,
         align: 'center',
         sortable: false,
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemGroupTypes),
-        valueFormatter: (params) => ProblemGroupTypes[params.value],
+        valueFormatter: (_, row) => ProblemGroupTypes[row.value],
     } as GridColDef & IEnumType,
     {
         field: 'practiceTestsCount',
@@ -153,7 +162,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -162,7 +171,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 

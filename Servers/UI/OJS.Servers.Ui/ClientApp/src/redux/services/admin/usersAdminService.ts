@@ -150,6 +150,5 @@ export const {
     useRemoveLecturerFromCategoryMutation,
     useLazyExportUsersToExcelQuery,
     useGetByExamGroupIdQuery,
-
 } = usersAdminService;
 export default usersAdminService;

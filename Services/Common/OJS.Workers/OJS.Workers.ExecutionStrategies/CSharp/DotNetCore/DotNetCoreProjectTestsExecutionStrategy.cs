@@ -22,7 +22,7 @@
         private const string ProjectReferencesPlaceholder = "##ProjectReferences##";
         private const string NUnitLiteConsoleAppFolderName = "NUnitLiteConsoleApp";
         private const string UserSubmissionFolderName = "UserProject";
-        private const string NUnitLiteConsoleAppProgramName = "Program";
+        private const string NUnitLiteConsoleAppProgramName = "TestsLauncher"; // Avoiding conflicts with user's Program.cs
 
         private const string NUnitLiteConsoleAppProgramTemplate = @"
             using System;
@@ -30,12 +30,12 @@
             using NUnit.Common;
             using NUnitLite;
 
-            public class Program
+            public class TestsLauncher
             {
                 public static void Main(string[] args)
                 {
                     var writter = new ExtendedTextWrapper(Console.Out);
-                    new AutoRun(typeof(Program).GetTypeInfo().Assembly).Execute(args, writter, Console.In);
+                    new AutoRun(typeof(TestsLauncher).GetTypeInfo().Assembly).Execute(args, writter, Console.In);
                 }
             }";
 

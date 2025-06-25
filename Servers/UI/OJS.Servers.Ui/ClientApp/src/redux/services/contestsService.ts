@@ -49,7 +49,7 @@ export const contestsService = createApi({
                 return { blob, fileName: filename };
             }
 
-            if (response.headers.get('Content-Length')) {
+            if (response.headers.get('Content-Length') === '0') {
                 return '';
             }
 
@@ -180,7 +180,7 @@ export const contestsService = createApi({
         }),
         downloadContestProblemResource: builder.query<{ blob: Blob; fileName: string }, { id: number }>({
             query: ({ id }) => ({
-                url: `/ProblemResources/GetResource/${id}`,
+                url: `/Resources/GetResource/${id}`,
             }),
             keepUnusedDataFor: 0,
         }),

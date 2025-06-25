@@ -127,7 +127,26 @@ public class FilteringService : IFilteringService
         else if (propertyType == typeof(DateTime) ||
                  Nullable.GetUnderlyingType(propertyType) == typeof(DateTime))
         {
-            expression = BuildDateTimeExpression(filter.OperatorType, filter.Value, memberExpression);
+            expression = BuildDateTimeExpression<DateTime>(
+                filter.OperatorType,
+                filter.Value,
+                memberExpression,
+                DateTime.TryParse,
+                nameof(DateTime));
+        }
+        else if (propertyType == typeof(DateTimeOffset) ||
+                 Nullable.GetUnderlyingType(propertyType) == typeof(DateTimeOffset))
+        {
+            expression = BuildDateTimeExpression<DateTimeOffset>(
+                filter.OperatorType,
+                filter.Value,
+                memberExpression,
+                DateTimeOffset.TryParse,
+                nameof(DateTimeOffset));
+        }
+        else if (IsEnumerableButNotString(propertyType))
+        {
+            expression = BuildCollectionContainsExpression(filter.Value, memberExpression, propertyType, filter.OperatorType);
         }
 
         if (expression == null)
@@ -137,6 +156,40 @@ public class FilteringService : IFilteringService
 
         return Expression.Lambda<Func<T, bool>>(expression, parameter);
     }
+
+    private static Expression BuildCollectionContainsExpression(
+        string filterValue,
+        MemberExpression property,
+        Type propertyType,
+        OperatorType operatorType)
+    {
+        if (operatorType != OperatorType.Contains)
+        {
+            throw new ArgumentOutOfRangeException($"Collection filtering supports only the 'Contains' operator, not {operatorType}.");
+        }
+
+        // Extract generic type from IEnumerable<T>
+        var elementType = propertyType.IsGenericType
+            ? propertyType.GetGenericArguments()[0]
+            : propertyType.GetElementType() ?? throw new InvalidOperationException("Cannot determine generic type of collection.");
+
+        // Try to convert filterValue to the correct type
+        var parsedValue = Convert.ChangeType(filterValue, elementType);
+
+        var containsMethod = propertyType.GetMethod("Contains", [elementType]);
+        if (containsMethod == null)
+        {
+            // Fallback to Enumerable.Contains<T>(IEnumerable<T>, T)
+            var enumerableContains = typeof(Enumerable).GetMethods()
+                .First(m => m.Name == "Contains" && m.GetParameters().Length == 2)
+                .MakeGenericMethod(elementType);
+
+            return Expression.Call(enumerableContains, property, Expression.Constant(parsedValue, elementType));
+        }
+
+        return Expression.Call(property, containsMethod, Expression.Constant(parsedValue, elementType));
+    }
+
 
     private static Expression BuildEnumExpression(string filterValue, Type propertyType, MemberExpression property)
     {
@@ -180,50 +233,42 @@ public class FilteringService : IFilteringService
         return expression;
     }
 
-    private static Expression? BuildDateTimeExpression(OperatorType operatorType, string? value, MemberExpression property)
+    private delegate bool TryParseDelegate<T>(string input, out T result);
+
+    private static Expression BuildDateTimeExpression<T>(
+        OperatorType operatorType,
+        string? value,
+        MemberExpression property,
+        TryParseDelegate<T> tryParse,
+        string typeName)
+        where T : struct
     {
-        Expression? expression;
-
-        if (value == null || value.Equals(NullValue, StringComparison.OrdinalIgnoreCase))
+        if (string.IsNullOrWhiteSpace(value) || value.Equals(NullValue, StringComparison.OrdinalIgnoreCase))
         {
-            if (!IsNullableType(property.Type))
-            {
-                throw new ArgumentException($"Cannot assign null to a non-nullable integer property: {property.Member.Name}");
-            }
-
-            expression = GetNullableTypesOperation(property, operatorType);
-        }
-        else if (DateTime.TryParse(value, out var dateTimeValue))
-        {
-            var constant = Expression.Constant(dateTimeValue, IsNullableType(property.Type) ? typeof(DateTime?) : typeof(DateTime));
-            switch (operatorType)
-            {
-                case OperatorType.Equals:
-                    expression = Expression.Equal(property, constant);
-                    break;
-                case OperatorType.GreaterThan:
-                    expression = Expression.GreaterThan(property, constant);
-                    break;
-                case OperatorType.LessThan:
-                    expression = Expression.LessThan(property, constant);
-                    break;
-                case OperatorType.LessThanOrEqual:
-                    expression = Expression.LessThanOrEqual(property, constant);
-                    break;
-                case OperatorType.GreaterThanOrEqual:
-                    expression = Expression.GreaterThanOrEqual(property, constant);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        $"Property of type int cannot have {operatorType} operator");
-            }
-        }
-        else
-        {
-            throw new ArgumentException($"Invalid value for integer property: {value}");
+            return !IsNullableType(property.Type)
+                ? throw new ArgumentException($"Cannot assign null to a non-nullable {typeName} property: {property.Member.Name}")
+                : GetNullableTypesOperation(property, operatorType);
         }
 
-        return expression;
+        if (!tryParse(value, out var parsedValue))
+        {
+            throw new ArgumentException($"Invalid value for {typeName} property: {value}");
+        }
+
+        var targetType = IsNullableType(property.Type) ? typeof(T?) : typeof(T);
+        var constant = Expression.Constant(parsedValue, targetType);
+
+        return operatorType switch
+        {
+            OperatorType.Equals => Expression.Equal(property, constant),
+            OperatorType.GreaterThan => Expression.GreaterThan(property, constant),
+            OperatorType.LessThan => Expression.LessThan(property, constant),
+            OperatorType.LessThanOrEqual => Expression.LessThanOrEqual(property, constant),
+            OperatorType.GreaterThanOrEqual => Expression.GreaterThanOrEqual(property, constant),
+            _ => throw new ArgumentOutOfRangeException(
+                nameof(operatorType),
+                $"Property of type {typeName} cannot have {operatorType} operator"),
+        };
     }
 
     private static Expression? BuildBooleanExpression(OperatorType operatorType, string value, MemberExpression property)
@@ -308,17 +353,22 @@ public class FilteringService : IFilteringService
     private static Expression GetNullableTypesOperation(MemberExpression property,  OperatorType operatorType)
     {
         switch (operatorType)
-            {
-                case OperatorType.Equals:
-                    return Expression.Equal(property, Expression.Constant(null, property.Type));
-                case OperatorType.NotEquals:
-                    return Expression.NotEqual(property, Expression.Constant(null, property.Type));
-                default:
-                    throw new ArgumentOutOfRangeException(
-                        $"Property of type int? cannot have {operatorType} operator");
-            }
+        {
+            case OperatorType.Equals:
+                return Expression.Equal(property, Expression.Constant(null, property.Type));
+            case OperatorType.NotEquals:
+                return Expression.NotEqual(property, Expression.Constant(null, property.Type));
+            default:
+                throw new ArgumentOutOfRangeException(
+                    $"Property of type int? cannot have {operatorType} operator");
+        }
     }
 
     private static bool IsNullableType(Type type)
         => Nullable.GetUnderlyingType(type) != null || !type.IsValueType;
+
+    private static bool IsEnumerableButNotString(Type type)
+        => typeof(System.Collections.IEnumerable).IsAssignableFrom(type)
+           && type != typeof(string);
+
 }

@@ -164,7 +164,7 @@ const SubmissionGridRow = ({
     const { testRuns: parsedTestRuns, maxTimeUsedCache, maxMemoryUsedCache } = parsedTestRunsCache;
 
     const renderUsername = useCallback(
-        () => 
+        () =>
             <LinkButton
               type={LinkButtonType.plain}
               size={ButtonSize.none}
@@ -215,7 +215,6 @@ const SubmissionGridRow = ({
                 return (
                     <LinkButton
                       to={getSubmissionDetailsRedirectionUrl({ submissionId })}
-                      target="_blank"
                       text="Details"
                       type={LinkButtonType.secondary}
                       size={ButtonSize.small}
@@ -243,15 +242,15 @@ const SubmissionGridRow = ({
                         {renderProblemInformation()}
                         {/* TODO: Fix this to use Link */}
                         <Button
-                              type={ButtonType.secondary}
-                              size={ButtonSize.small}
-                              className={styles.link}
-                              internalClassName={styles.redirectButton}
-                              onClick={handleContestDetailsButtonSubmit}
-                              text={contestName}
-                            />
+                          type={ButtonType.secondary}
+                          size={ButtonSize.small}
+                          className={styles.link}
+                          internalClassName={styles.redirectButton}
+                          onClick={handleContestDetailsButtonSubmit}
+                          text={contestName}
+                        />
                     </td>
-                    
+
                     : null
             }
             <td>
@@ -266,7 +265,7 @@ const SubmissionGridRow = ({
                             {preciseFormatDate(createdOn, submissionsGridTimeFormat)}
                         </span>
                     </div>
-                    
+
                     : <div>
                         {formatDate(createdOn, defaultDateTimeFormatReverse)}
                     </div>
@@ -276,7 +275,7 @@ const SubmissionGridRow = ({
                         ? <span onClick={() => dispatch(setProfile(null))}>
                             {renderUsername()}
                         </span>
-                        
+
                         : null
                 }
             </td>
@@ -305,8 +304,8 @@ const SubmissionGridRow = ({
                                 </div>
                             </Popover>
                         </td>
-                        
-                        : <td />
+
+                        : <td aria-hidden="true" />
                     : null
             }
             {
@@ -337,10 +336,10 @@ const SubmissionGridRow = ({
                                     </span>
                                 </div>
                             </div>
-                                
+
                             : null}
                     </td>
-                    
+
                     : null
             }
             <td>
@@ -367,7 +366,7 @@ const SubmissionGridRow = ({
                             <span>{strategyName}</span>
                         </div>
                     </td>
-                    
+
                     : null
             }
             <td>

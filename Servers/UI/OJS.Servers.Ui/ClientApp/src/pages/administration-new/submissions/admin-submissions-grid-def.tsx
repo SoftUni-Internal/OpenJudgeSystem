@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -60,10 +59,10 @@ const dataColumns: AdministrationGridColDef[] = [
     {
         field: 'problemName',
         headerName: 'Problem Name',
-        align: 'center',
+        align: 'left',
         headerAlign: 'center',
         type: 'string',
-        flex: 2,
+        flex: 2.5,
         filterable: false,
         sortable: false,
         renderCell: (params: GridRenderCellParams) =>
@@ -78,9 +77,9 @@ const dataColumns: AdministrationGridColDef[] = [
         field: 'contestName',
         headerName: 'Contest Name',
         headerAlign: 'center',
-        align: 'center',
+        align: 'left',
         type: 'string',
-        flex: 2,
+        flex: 3,
         filterable: false,
         sortable: false,
         renderCell: (params: GridRenderCellParams) =>
@@ -103,11 +102,11 @@ const dataColumns: AdministrationGridColDef[] = [
     },
     {
         field: 'isCompiledSuccessfully',
-        headerName: 'Is Compiled Successfully',
+        headerName: 'Compiled',
         align: 'center',
         headerAlign: 'center',
         type: 'boolean',
-        flex: 1,
+        flex: 0.6,
         filterable: false,
         sortable: false,
     },
@@ -117,16 +116,9 @@ const dataColumns: AdministrationGridColDef[] = [
         align: 'center',
         headerAlign: 'center',
         type: 'boolean',
-        flex: 1,
+        flex: 0.6,
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) =>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                {params.value === true
-                    ? 'Processed'
-                    : 'Pending'}
-            </div>
-        ,
     },
     {
         field: 'points',
@@ -159,13 +151,24 @@ const dataColumns: AdministrationGridColDef[] = [
         sortable: false,
     },
     {
+        field: 'workerName',
+        headerName: 'Worker Name',
+        align: 'center',
+        headerAlign: 'center',
+        type: 'string',
+        flex: 1,
+        hidden: true,
+        filterable: false,
+        sortable: false,
+    },
+    {
         field: 'createdOn',
         headerName: `${CREATED_ON}`,
         type: 'date',
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -174,7 +177,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'startedExecutionOn',
@@ -183,7 +186,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1.5,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'completedExecutionOn',
@@ -192,7 +195,7 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1.5,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'fileExtension',

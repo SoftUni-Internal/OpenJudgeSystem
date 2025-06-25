@@ -77,7 +77,7 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
         string additionalExecutionArguments)
     {
         var additionalExecutionArgumentsArray = additionalExecutionArguments
-            .Split([' '], StringSplitOptions.RemoveEmptyEntries);
+            .Split([" "], StringSplitOptions.RemoveEmptyEntries);
 
         var compilerPath = this.CompilerFactory.GetCompilerPath(executionContext.CompilerType, this.Type);
         var testedCodePath = FileHelpers.BuildPath(

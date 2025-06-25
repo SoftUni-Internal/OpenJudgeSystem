@@ -2,6 +2,7 @@ namespace OJS.Services.Administration.Business.Contests;
 
 using FluentExtensions.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using OJS.Common;
 using OJS.Common.Enumerations;
 using OJS.Common.Extensions.Strings;
@@ -9,7 +10,6 @@ using OJS.Common.Utils;
 using OJS.Data.Models;
 using OJS.Data.Models.Contests;
 using OJS.Data.Models.Participants;
-using OJS.Data.Models.Problems;
 using OJS.Data.Models.Submissions;
 using OJS.Services.Administration.Data;
 using OJS.Services.Administration.Data.Excel;
@@ -24,6 +24,7 @@ using OJS.Services.Common.Models;
 using OJS.Services.Common.Models.Contests;
 using OJS.Services.Common.Models.Contests.Results;
 using OJS.Services.Common.Models.Files;
+using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Infrastructure.Extensions;
 using System;
@@ -53,6 +54,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
     private readonly IZipArchivesService zipArchivesService;
     private readonly IDataService<LecturerInContest> lecturerInContestDataService;
     private readonly ISettingsCacheService settingsCache;
+    private readonly ILogger<ContestsBusinessService> logger;
 
     public ContestsBusinessService(
         IContestsDataService contestsData,
@@ -69,7 +71,8 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         ISubmissionsDataService submissionsDataService,
         IZipArchivesService zipArchivesService,
         IDataService<LecturerInContest> lecturerInContestDataService,
-        ISettingsCacheService settingsCache)
+        ISettingsCacheService settingsCache,
+        ILogger<ContestsBusinessService> logger)
     {
         this.contestsData = contestsData;
         this.ipsData = ipsData;
@@ -86,6 +89,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         this.zipArchivesService = zipArchivesService;
         this.lecturerInContestDataService = lecturerInContestDataService;
         this.settingsCache = settingsCache;
+        this.logger = logger;
     }
 
     public async Task<IEnumerable<LecturerInContestActionsModel>> GetForLecturerInContest(string userId)
@@ -250,11 +254,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
 
         contest.MapFrom(model);
 
-        if (model.IsWithRandomTasks && contest.ProblemGroups.Count == 0)
-        {
-            AddProblemGroupsToContest(contest, model.NumberOfProblemGroups);
-        }
-
         contest.IpsInContests.Clear();
         await this.AddIpsToContest(contest, model.AllowedIps);
 
@@ -289,8 +288,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
     public override async Task<ContestAdministrationModel> Create(ContestAdministrationModel model)
     {
         var contest = model.Map<Contest>();
-
-        AddProblemGroupsToContest(contest, model.NumberOfProblemGroups);
 
         await this.AddIpsToContest(contest, model.AllowedIps);
 
@@ -409,24 +406,24 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         this.contestsData.UpdateMany(contests);
         await this.contestsData.SaveChanges();
     }
-       
+
     public async Task AdjustLimitBetweenSubmissions(WorkersBusyRatioServiceModel model)
     {
         var settings = await this.settingsCache.GetRequiredValue<ContestLimitBetweenSubmissionsAdjustSettings>(ContestLimitBetweenSubmissionsAdjustmentSettings);
 
-        var combinedRatio = (model.ExponentialMovingAverageRatio + model.RollingAverageRatio) / 2.0;
+        var combinedBusyRatio = (model.ExponentialMovingAverageRatio + model.RollingAverageRatio) / 2.0;
 
         double ratioFactor;
-        if (combinedRatio < settings.BusyRatioModerateThreshold)
+        if (combinedBusyRatio < settings.BusyRatioModerateThreshold)
         {
             // Decrease the factor -> decrease limit between submissions
             ratioFactor = 1.0 / settings.BusyRatioMaxFactor;
         }
         else
         {
-            // Smoothly scale factor from 1.0 up to max factor -> increase limit between submissions linearly
+            // Smoothly scale the factor from 1.0 up to max factor -> increase limit between submissions linearly
             ratioFactor = Calculator.LinearInterpolate(
-                combinedRatio,
+                combinedBusyRatio,
                 settings.BusyRatioModerateThreshold,
                 settings.BusyRatioCriticalThreshold,
                 targetMin: 1.0,
@@ -434,7 +431,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
                 clamp: true);
         }
 
-        // Smoothly scale from 1.0 up to max factor as queue length grows between moderate and critical thresholds
+        // Smoothly scale from 1.0 up to a max factor as queue length grows between moderate and critical thresholds
         var queueFactor = Calculator.LinearInterpolate(
             model.SubmissionsAwaitingExecution,
             model.WorkersTotalCount * settings.QueueLenghtModerateThresholdMultiplier,
@@ -444,6 +441,15 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
             clamp: true);
 
         var adjustingFactor = ratioFactor * queueFactor;
+
+        this.logger.LogContestsLimitBetweenSubmissionsAdjustment(
+            adjustingFactor > 1.0 ? "Increasing" : "Decreasing",
+            adjustingFactor,
+            model.WorkersTotalCount,
+            model.SubmissionsAwaitingExecution,
+            combinedBusyRatio,
+            ratioFactor,
+            queueFactor);
 
         await this.contestsData
             .GetAllVisible()
@@ -521,17 +527,6 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
 
     private static string GetParticipantName(ParticipantModel participant)
         => $"{participant.UserName} ({participant.FirstName} {participant.LastName})";
-
-    private static void AddProblemGroupsToContest(Contest contest, int problemGroupsCount)
-    {
-        for (var i = 1; i <= problemGroupsCount; i++)
-        {
-            contest.ProblemGroups.Add(new ProblemGroup
-            {
-                OrderBy = i,
-            });
-        }
-    }
 
     private static InMemoryFile ZipSubmission(
         ProblemModel problem,

@@ -204,7 +204,17 @@ public abstract class Compiler : ICompiler
                         process.Kill();
                     }
 
-                    return new CompilerOutput(1, "Compiler process timed out.");
+                    var outputSoFar = outputBuilder.ToString().Trim();
+                    var errorOutputSoFar = errorOutputBuilder.ToString().Trim();
+                    var message = "Compiler process timed out and was killed."
+                        + (string.IsNullOrEmpty(outputSoFar)
+                            ? string.Empty
+                            : $"{Environment.NewLine} Output so far: {outputSoFar}")
+                        + (string.IsNullOrEmpty(errorOutputSoFar)
+                            ? string.Empty
+                            : $"{Environment.NewLine} Error output so far: {errorOutputSoFar}");
+
+                    return new CompilerOutput(1, message);
                 }
 
                 outputWaitHandle.WaitOne(300);

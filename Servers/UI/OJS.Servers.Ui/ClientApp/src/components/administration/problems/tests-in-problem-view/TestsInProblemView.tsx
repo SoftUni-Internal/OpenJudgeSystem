@@ -3,13 +3,14 @@ import { FaFileImport } from 'react-icons/fa';
 import { MdDeleteForever } from 'react-icons/md';
 import { RiFolderZipFill } from 'react-icons/ri';
 import { Checkbox, FormControl, FormControlLabel, IconButton, Tooltip, Typography } from '@mui/material';
+import { ExcelFilterOperators } from 'src/common/enums';
 
 import { IGetAllAdminParams, ITestsUploadModel } from '../../../../common/types';
 import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
 import { applyDefaultFilterToQueryString } from '../../../../pages/administration-new/administration-filters/AdministrationFilters';
 import AdministrationGridView from '../../../../pages/administration-new/AdministrationGridView';
 import testsFilterableColums, { returnTestsNonFilterableColumns } from '../../../../pages/administration-new/tests/testsGridColumns';
-import { useDeleteByProblemMutation, useExportZipQuery, useGetTestsByProblemIdQuery, useImportTestsMutation } from '../../../../redux/services/admin/testsAdminService';
+import { useDeleteByProblemMutation, useExportZipQuery, useGetTestsByProblemIdQuery, useImportTestsMutation, useLazyExportTestsToExcelQuery } from '../../../../redux/services/admin/testsAdminService';
 import downloadFile from '../../../../utils/file-download-utils';
 import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
@@ -59,7 +60,7 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
         data: testsData,
         error,
         isLoading: isGettingData,
-    } = useGetTestsByProblemIdQuery({ problemId, ...queryParams });
+    } = useGetTestsByProblemIdQuery({ parentId: problemId, ...queryParams });
 
     const [ deleteByProblem,
         {
@@ -306,6 +307,8 @@ const TestsInProblemView = (props: ITestsInProblemsViewProps) => {
                   { showModal: showDeleteAllConfirm, modal: (i) => renderDeleteAllModal(i) },
                   { showModal: showImportModal, modal: (i) => renderImportModal(i) },
               ]}
+              excelMutation={useLazyExportTestsToExcelQuery}
+              excelFilters={[ { propertyName: 'problemId', operator: ExcelFilterOperators.Equals, value: problemId } ]}
             />
         </>
     );

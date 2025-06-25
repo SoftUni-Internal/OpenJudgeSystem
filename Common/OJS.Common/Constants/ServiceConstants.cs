@@ -4,6 +4,10 @@
     {
         public const string WorkersQueueName = "OJS.Servers.Worker.Consumers.SubmissionsForProcessingConsumer";
 
+        // HttpClients
+        public const string SvnHttpClientName = "Svn";
+        public const string DefaultHttpClientName = "Default";
+
         public static class CheckerTypes
         {
             public const string ExactMatch = "exact";
@@ -106,6 +110,13 @@
                 // Plain text
                 public const string PlainText = "plaintext";
             }
+        }
+
+        public static class ErrorCodes
+        {
+            public const string NotFound = "NotFound";
+            public const string AccessDenied = "AccessDenied";
+            public const string BusinessRuleViolation = "BusinessRuleViolation";
         }
     }
 }

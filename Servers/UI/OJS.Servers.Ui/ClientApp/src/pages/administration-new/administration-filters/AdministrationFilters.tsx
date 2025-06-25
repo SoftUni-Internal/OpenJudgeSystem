@@ -12,7 +12,7 @@ import { DateTimePicker } from '@mui/x-date-pickers';
 import debounce from 'lodash/debounce';
 
 import { FilterColumnTypeEnum, SortingEnum } from '../../../common/enums';
-import { IAdministrationFilterColumn, IEnumType, IGetAllAdminParams } from '../../../common/types';
+import { IAdministrationFilterColumn, ICustomFilter, IEnumType, IGetAllAdminParams } from '../../../common/types';
 import { getColors, useAdministrationTheme } from '../../../hooks/use-administration-theme-provider';
 import { getDateAsLocal } from '../../../utils/administration/administration-dates';
 import concatClassNames from '../../../utils/class-names';
@@ -40,6 +40,7 @@ interface IAdministrationFilterProps {
 }
 
 interface IAdministrationFilter {
+    field: string;
     column: string;
     operator: string;
     value: string;
@@ -83,6 +84,8 @@ const BOOL_DROPDOWN_VALUES = [
     { name: 'False', value: 'false' },
 ];
 
+const columnFieldMapping = new Map<string, string>();
+
 const mapStringToFilterColumnTypeEnum = (type: string) => {
     if (type === 'number') {
         return FilterColumnTypeEnum.NUMBER;
@@ -91,13 +94,15 @@ const mapStringToFilterColumnTypeEnum = (type: string) => {
     } if (type === 'date') {
         return FilterColumnTypeEnum.DATE;
     }
-    if (type === 'enum') {
+    // Treat 'singleSelect' as ENUM for filtering
+    if (type === 'singleSelect' || type === 'enum') {
         return FilterColumnTypeEnum.ENUM;
     }
     return FilterColumnTypeEnum.STRING;
 };
 
 interface IAdministrationSorter {
+    field: string;
     columnName: string;
     orderBy: SortingEnum;
     availableColumns: string[];
@@ -129,6 +134,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
     } = props;
 
     const defaultFilter = useMemo<IAdministrationFilter>(() => ({
+        field: '',
         column: '',
         operator: '',
         value: '',
@@ -138,6 +144,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
     }), [ filterColumns ]);
 
     const defaultSorter = useMemo<IAdministrationSorter>(() => ({
+        field: '',
         columnName: '',
         orderBy: SortingEnum.ASC,
         availableColumns: sortingColumns,
@@ -174,9 +181,17 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
             if (!filter.column || !filter.operator || !filter.value) {
                 return;
             }
-
+            // Find the column definition to check for customFilter
+            const columnDef = filterColumns.find((c) => c.columnName === filter.column);
+            if (columnDef && typeof columnDef.customFilter === 'function') {
+                // Use the customFilter function to generate the filter string
+                // eslint-disable-next-line consistent-return
+                return columnDef.customFilter(filter.value);
+            }
+            // Default behavior
+            const filterField = filter.field || filter.column;
             // eslint-disable-next-line consistent-return
-            return `${filter.column}${filterParamsSeparator}${filter.operator}${filterParamsSeparator}${filter.value}`.toLowerCase();
+            return `${filterField}${filterParamsSeparator}${filter.operator}${filterParamsSeparator}${filter.value}`.toLowerCase();
         };
 
         const filtersFormattedArray = selectedFilters.map(formatFilterToString).filter((filter) => filter);
@@ -226,8 +241,11 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
                 return;
             }
 
+            // Use field for backend filtering if available, otherwise fall back to columnName
+            const sorterField = (sorter.field || sorter.columnName.replace(/\s/g, '')).toLowerCase();
+
             // eslint-disable-next-line consistent-return
-            return `${sorter.columnName.replace(/\s/g, '').toLowerCase()}=${sorter.orderBy}`;
+            return `${sorterField}=${sorter.orderBy}`;
         };
 
         const sorterFormattedArray = selectedSorters.map(formatSorterToString).filter((sorter) => sorter);
@@ -275,7 +293,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
         const availableColumns = filterColumns.filter((column) => !selectedFilters.some((f) => f.column === column.columnName));
         const newFiltersArray = [ { ...defaultFilter, availableColumns }, ...selectedFilters.map((filter) => ({
             ...filter,
-            availableColumns: [ ...availableColumns, { columnName: filter.column, columnType: filter.inputType } ],
+            availableColumns: [ ...availableColumns, { field: filter.field, columnName: filter.column, columnType: filter.inputType } ],
         })) ];
 
         if (setSelectedFilters) {
@@ -296,7 +314,7 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
         const deletedFilter = selectedFilters[idx];
         const newFiltersArray = [ ...selectedFilters.map((filter) => ({
             ...filter,
-            availableColumns: [ ...filter.availableColumns, { columnName: deletedFilter.column, columnType: deletedFilter.inputType } ],
+            availableColumns: [ ...filter.availableColumns, { field: deletedFilter.field, columnName: deletedFilter.column, columnType: deletedFilter.inputType } ],
         })) ];
         newFiltersArray.splice(idx, 1);
 
@@ -315,24 +333,25 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
     const handleDateTimePickerChange = (indexToUpdate: number, value: any, updateProperty: string) => {
         updateFilterColumnData(indexToUpdate, { target: { value } }, updateProperty);
     };
-    const getColumnTypeByName = (columnName: string) => filterColumns.find((column) => column.columnName === columnName)?.columnType;
 
     /**
- * Updates selected filters when there is a change.
- * @param {number} dataColumns The index of the filter that must be updated.
- * @param {any} target The target of the event which value will be taken.
- * @param {string} updateProperty Property to be updated (property name, operator type or value)
- */
+    * Updates selected filters when there is a change.
+    * @param {number} dataColumns The index of the filter that must be updated.
+    * @param {any} target The target of the event which value will be taken.
+    * @param {string} updateProperty Property to be updated (property name, operator type or value)
+    */
     const updateFilterColumnData = (indexToUpdate: number, { target }: any, updateProperty: string) => {
         const { value } = target;
         const newFiltersArray = [ ...selectedFilters ].map((element, idx) => {
             if (idx === indexToUpdate) {
                 if (updateProperty === 'column') {
-                    const columnType = getColumnTypeByName(value);
+                    const selectedColumn = element.availableColumns.find((c) => c.columnName === value);
+                    const columnType = selectedColumn?.columnType || FilterColumnTypeEnum.STRING;
                     const columnOperators = columnType
                         ? DROPDOWN_OPERATORS[columnType]
                         : [];
                     return {
+                        field: selectedColumn?.field || value,
                         column: value,
                         operator: '',
                         value: '',
@@ -489,6 +508,14 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
 
         const newSortersArray = [ ...selectedSorters ].map((element, idx) => {
             if (idx === indexToUpdate) {
+                if (updateProperty === 'columnName') {
+                    // When columnName is updated, also update the field
+                    return {
+                        ...element,
+                        columnName: value,
+                        field: columnFieldMapping.get(value) || value,
+                    };
+                }
                 return { ...element, [updateProperty]: value };
             }
             return element;
@@ -651,14 +678,16 @@ const AdministrationFilters = (props: IAdministrationFilterProps) => {
  */
 
 const mapGridColumnsToAdministrationFilterProps =
-(dataColumns: Array<GridColDef& IEnumType>): IAdministrationFilterColumn[] => dataColumns.map((column) => {
+(dataColumns: Array<GridColDef & IEnumType & ICustomFilter>): IAdministrationFilterColumn[] => dataColumns.map((column) => {
     const mappedEnumType = mapStringToFilterColumnTypeEnum(column.type || '');
     return {
-        columnName: column.headerName?.replace(/\s/g, '') ?? '',
+        field: column.field,
+        columnName: column.headerName ?? '',
         columnType: mappedEnumType,
         enumValues: mappedEnumType === FilterColumnTypeEnum.ENUM
             ? column.enumValues
             : null,
+        customFilter: column.customFilter,
     };
 });
 
@@ -681,18 +710,30 @@ const mapUrlToFilters = (urlSearchParams: URLSearchParams | undefined, columns: 
     urlParams.forEach((param) => {
         const paramChunks = param.split(filterParamsSeparator).filter((chunk) => chunk);
 
-        const columnValue = paramChunks[0];
+        const fieldValue = paramChunks[0];
         const operator = paramChunks[1];
         const value = paramChunks[2];
 
-        const column = columns.find((c) => c.columnName.toLowerCase() === columnValue) ||
-        { columnName: '', columnType: FilterColumnTypeEnum.STRING };
+        // First try to find column by field
+        let column = columns.find((c) => c.field?.toLowerCase() === fieldValue);
+
+        // If not found by field, try by columnName (for backward compatibility)
+        if (!column) {
+            column = columns.find((c) => c.columnName.toLowerCase() === fieldValue);
+        }
+
+        // If still not found, use default
+        if (!column) {
+            column = { columnName: '', field: '', columnType: FilterColumnTypeEnum.STRING };
+        }
+
         const availableColumns = columns.filter((c) => !urlSelectedFilters.some((f: { column: string }) => f.column === c.columnName));
         const availableOperators = column?.columnType
             ? DROPDOWN_OPERATORS[column.columnType]
             : [];
 
         const filter = {
+            field: column?.field || '',
             column: column?.columnName || '',
             operator,
             value,
@@ -742,13 +783,24 @@ const mapUrlToSorters = (
         const sorterColumn = paramChunks[0];
         const sorterOrderBy = paramChunks[1];
 
-        const columnName = columns.find((c) => c.toLowerCase() === sorterColumn) || '';
+        // Try to find the column name that matches the field
+        const matchingEntry = Array.from(columnFieldMapping.entries()).find(([ , field ]) => field.toLowerCase() === sorterColumn.toLowerCase());
+        let columnName = matchingEntry
+            ? matchingEntry[0]
+            : '';
+
+        // If not found by field, use the sorterColumn as is (for backward compatibility)
+        if (!columnName) {
+            columnName = columns.find((c) => c.toLowerCase() === sorterColumn) || '';
+        }
+
         const orderBy = sorterOrderBy === 'ASC'
             ? SortingEnum.ASC
             : SortingEnum.DESC;
         const availableColumns = columns.filter((column) => !urlSelectedSorters.some((s) => s.columnName === column));
 
         const sorter: IAdministrationSorter = {
+            field: sorterColumn, // Use the original sorterColumn as field
             columnName,
             orderBy,
             availableColumns: [ ...availableColumns, columnName ],
@@ -777,22 +829,29 @@ const addDefaultFilter = (
 
     const filters = mapUrlToFilters(searchParams, columns);
     const paramChunks = filterToAdd.split(filterParamsSeparator);
-    const columnValue = paramChunks[0];
+    const fieldValue = paramChunks[0];
     const operator = paramChunks[1];
     const value = paramChunks[2];
 
-    if (!columns.find((x) => x.columnName.toLowerCase() === columnValue)) {
+    // First try to find column by field
+    let column = columns.find((c) => c.field?.toLowerCase() === fieldValue.toLowerCase());
+
+    // If not found by field, try by columnName (for backward compatibility)
+    if (!column) {
+        column = columns.find((c) => c.columnName.toLowerCase() === fieldValue.toLowerCase());
+    }
+
+    if (!column) {
         return filters;
     }
 
-    const column = columns.find((c) => c.columnName.toLowerCase() === columnValue) ||
-    { columnName: '', columnType: FilterColumnTypeEnum.STRING };
     const availableColumns = columns.filter((c) => !filters.some((f: { column: string }) => f.column === c.columnName));
     const availableOperators = column?.columnType
         ? DROPDOWN_OPERATORS[column.columnType]
         : [];
 
     const filter = {
+        field: column?.field || '',
         column: column?.columnName || '',
         operator,
         value,
@@ -802,6 +861,7 @@ const addDefaultFilter = (
     };
 
     const defFilter = {
+        field: '',
         column: '',
         operator: '',
         value: '',
@@ -810,13 +870,14 @@ const addDefaultFilter = (
         inputType: FilterColumnTypeEnum.STRING,
     };
 
-    if (!filters.find((x) => x.column.toLowerCase() === columnValue.toLowerCase())) {
+    if (!filters.find((x) => x.field && x.field.toLowerCase() === fieldValue.toLowerCase() ||
+        x.column.toLowerCase() === fieldValue.toLowerCase())) {
         filters.push(filter);
     }
 
     const newFiltersArray = [ { ...defFilter, availableColumns }, ...filters.map((f) => ({
         ...f,
-        availableColumns: [ ...availableColumns, { columnName: f.column, columnType: f.inputType } ],
+        availableColumns: [ ...availableColumns, { columnName: f.column, field: f.field, columnType: f.inputType } ],
     })) ];
 
     return newFiltersArray;
@@ -902,8 +963,16 @@ const applyQueryParam = (
     return valueToReturn;
 };
 
-const mapGridColumnsToAdministrationSortingProps =
-    (dataColumns: GridColDef[]): string[] => dataColumns.map((column) => column.headerName?.replace(/\s/g, '') ?? '').filter((el) => el);
+const mapGridColumnsToAdministrationSortingProps = (dataColumns: GridColDef[]): string[] => {
+    columnFieldMapping.clear();
+
+    // Create the mapping and return column names as before
+    return dataColumns.map((column) => {
+        const columnName = column.headerName ?? '';
+        columnFieldMapping.set(columnName, column.field);
+        return columnName;
+    }).filter((el) => el);
+};
 
 export {
     type IAdministrationFilter,

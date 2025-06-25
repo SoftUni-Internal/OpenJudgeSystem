@@ -33,9 +33,6 @@ jobs:
       dockerfile_name: Dockerfile.fe
       push_to_registry: ${{ needs.check-branch.outputs.push_to_registry  == 'true' }}
       build_args: YARN_BUILD_COMMAND=build
-      additional_run_commands: |
-        echo "NODE_OPTIONS=--max_old_space_size=8192" >> $GITHUB_ENV
-        export NODE_OPTIONS=--max-old-space-size=8192
     secrets: inherit
   build-ui:
     name: UI api build

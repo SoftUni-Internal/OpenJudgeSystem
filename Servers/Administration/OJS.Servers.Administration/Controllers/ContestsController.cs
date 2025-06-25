@@ -24,11 +24,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using OJS.Data.Models;
+using OJS.Data.Models.Resources;
+using OJS.Services.Administration.Models.ProblemResources;
 using OJS.Services.Common.Data;
+using OJS.Services.Common.Models.Pagination;
 using static Common.GlobalConstants.FileExtensions;
 
 public class ContestsController : BaseAdminApiController<Contest, int, ContestInListModel, ContestAdministrationModel>
 {
+    private readonly IGridDataService<ContestResource> contestResourceGridDataService;
     private readonly IContestsBusinessService contestsBusinessService;
     private readonly ContestAdministrationModelValidator validator;
     private readonly ContestSimilarityModelValidator similarityModelValidator;
@@ -39,6 +43,7 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
     private readonly IExcelService excelService;
 
     public ContestsController(
+        IGridDataService<ContestResource> contestResourceGridDataService,
         IContestsBusinessService contestsBusinessService,
         ContestAdministrationModelValidator validator,
         ContestSimilarityModelValidator similarityModelValidator,
@@ -55,6 +60,7 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
         validator,
         accessLogsData)
     {
+        this.contestResourceGridDataService = contestResourceGridDataService;
         this.contestsBusinessService = contestsBusinessService;
         this.validator = validator;
         this.similarityModelValidator = similarityModelValidator;
@@ -188,4 +194,12 @@ public class ContestsController : BaseAdminApiController<Contest, int, ContestIn
         await this.contestsBusinessService.BulkEdit(model);
         return this.Ok("The contests were edited successfully.");
     }
+
+    [HttpGet("{contestId:int}")]
+    [ProtectedEntityAction("contestId", typeof(ContestIdPermissionsService))]
+    public async Task<IActionResult> GetResources([FromQuery] PaginationRequestModel model, [FromRoute] int contestId)
+        => this.Ok(
+            await this.contestResourceGridDataService.GetAll<ResourceInListModel>(
+                model,
+                pr => pr.ContestId == contestId));
 }

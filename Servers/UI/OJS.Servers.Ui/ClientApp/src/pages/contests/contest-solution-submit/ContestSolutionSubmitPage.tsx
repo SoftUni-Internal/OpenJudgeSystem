@@ -13,7 +13,6 @@ import { SUBMISSION_SENT } from 'src/common/messages';
 import { IGetSubmissionsUrlParams } from 'src/common/url-types';
 import {
     applyDefaultQueryValues,
-    handlePageChange,
 } from 'src/components/filters/Filter';
 import CheckBox from 'src/components/guidelines/checkbox/CheckBox';
 import Dropdown from 'src/components/guidelines/dropdown/Dropdown';
@@ -22,6 +21,7 @@ import useSuccessMessageEffect from 'src/hooks/common/use-success-message-effect
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
 import isNilOrEmpty from 'src/utils/check-utils';
 import { renderSuccessfullAlert } from 'src/utils/render-utils';
+import { useSyncQueryParamsFromUrl } from 'src/utils/url-utils';
 
 import { ContestParticipationType } from '../../../common/constants';
 import {
@@ -45,7 +45,7 @@ import FileUploader from '../../../components/file-uploader/FileUploader';
 import AdministrationLink from '../../../components/guidelines/buttons/AdministrationLink';
 import Button, { ButtonState } from '../../../components/guidelines/buttons/Button';
 import SpinningLoader from '../../../components/guidelines/spinning-loader/SpinningLoader';
-import ProblemResource from '../../../components/problem-resources/ProblemResource';
+import Resource from '../../../components/problem-resources/Resource';
 import SubmissionsGrid from '../../../components/submissions/submissions-grid/SubmissionsGrid';
 import useTheme from '../../../hooks/use-theme';
 import {
@@ -130,24 +130,10 @@ const ContestSolutionSubmitPage = () => {
     const isCompete = useMemo(() => getParticipationType() === ContestParticipationType.Compete, [ getParticipationType ]);
 
     const {
-        data: submissionsData,
-        error: submissionsErrorData,
-        isFetching: submissionsDataFetching,
-        isLoading: submissionsDataLoading,
-        refetch: getSubmissionsData,
-    } = useGetSubmissionResultsByProblemQuery({
-        problemId: Number(selectedContestDetailsProblem?.id),
-        isOfficial: isCompete,
-        ...queryParams,
-    }, { skip: !selectedContestDetailsProblem });
-
-    const textColorClassName = getColorClassName(themeColors.textColor);
-    const lightBackgroundClassName = getColorClassName(themeColors.baseColor100);
-
-    const {
         data,
         isLoading,
         isError,
+        isFetching,
         error,
         refetch,
     } = useGetContestUserParticipationQuery({ id: Number(contestId!), isOfficial: isCompete });
@@ -163,6 +149,21 @@ const ContestSolutionSubmitPage = () => {
         endDateTimeForParticipantOrContest,
         allowMentor,
     } = data || {};
+
+    const {
+        data: submissionsData,
+        error: submissionsErrorData,
+        isFetching: submissionsDataFetching,
+        isLoading: submissionsDataLoading,
+        refetch: getSubmissionsData,
+    } = useGetSubmissionResultsByProblemQuery({
+        problemId: Number(selectedContestDetailsProblem?.id),
+        isOfficial: isCompete,
+        ...queryParams,
+    }, { skip: !selectedContestDetailsProblem || !isRegisteredParticipant });
+
+    const textColorClassName = getColorClassName(themeColors.textColor);
+    const lightBackgroundClassName = getColorClassName(themeColors.baseColor100);
 
     const { problems = [] } = contest || {};
 
@@ -210,6 +211,8 @@ const ContestSolutionSubmitPage = () => {
         setIsRotating(true);
         getSubmissionsData();
     };
+
+    useSyncQueryParamsFromUrl(searchParams, setQueryParams);
 
     useSuccessMessageEffect({
         data: [
@@ -285,7 +288,9 @@ const ContestSolutionSubmitPage = () => {
             const shouldSubmitBeDisabled = isCodeStrategyAndCodeIsEmptyOrTooShort ||
                 isFileUploadAndFileIsEmpty ||
                 !selectedSubmissionType ||
-                secondsUntilTimerEnds > 0;
+                secondsUntilTimerEnds > 0 ||
+                isLoading ||
+                isFetching;
 
             setRemainingTime(secondsUntilTimerEnds);
             setIsSubmitButtonDisabled(shouldSubmitBeDisabled);
@@ -301,7 +306,7 @@ const ContestSolutionSubmitPage = () => {
         return () => {
             clearInterval(intervalId);
         };
-    }, [ lastSubmissionTime, selectedSubmissionType, submissionCode, uploadedFile, userSubmissionsTimeLimit ]);
+    }, [ isFetching, isLoading, lastSubmissionTime, selectedSubmissionType, submissionCode, uploadedFile, userSubmissionsTimeLimit ]);
 
     // Manage remaining time for compete contest
     useEffect(() => {
@@ -326,7 +331,6 @@ const ContestSolutionSubmitPage = () => {
                 setRemainingTimeForCompete(formattedTime);
             } else {
                 setRemainingTimeForCompete(calculatedTimeFormatted(moment.duration(0, 'milliseconds')));
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 clearInterval(intervalId);
             }
         };
@@ -335,7 +339,6 @@ const ContestSolutionSubmitPage = () => {
         intervalId = setInterval(updateRemainingTime, 1000);
 
         return () => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             clearInterval(intervalId);
         };
     }, [ endDateTimeForParticipantOrContest ]);
@@ -355,7 +358,9 @@ const ContestSolutionSubmitPage = () => {
     }, [ isLoading, isError, isRegisteredParticipant, isActiveParticipant, contestId, isCompete, navigate, slug, isInvalidated ]);
 
     useEffect(() => {
-        setSubmissionCode('');
+        // Only clear code if it's a new problem
+        // Don’t reset if there’s already code (protect against unintended clears)
+        setSubmissionCode((prev) => prev ?? '');
     }, [ selectedContestDetailsProblem ]);
 
     // Ensure contest details are set in state
@@ -431,8 +436,8 @@ const ContestSolutionSubmitPage = () => {
             isWithRandomTasks: contestDetails?.isWithRandomTasks,
             verbosely: executeVerbosely,
         });
-        await refetch();
-        await getSubmissionsData();
+        refetch();
+        getSubmissionsData();
     }, [
         selectedSubmissionType,
         getSubmissionsData,
@@ -492,14 +497,29 @@ const ContestSolutionSubmitPage = () => {
         return (
             <div className={styles.problemResources}>
                 {resources.map((resource: IProblemResourceType) =>
-                    <ProblemResource
+                    <Resource
                       key={`resource-${resource.id}`}
                       resource={resource}
-                      problem={selectedContestDetailsProblem.name}
                     />)}
             </div>
         );
     }, [ selectedContestDetailsProblem ]);
+
+    const renderContestResources = useCallback(() => {
+        if (!contest?.resources || contest.resources.length === 0) {
+            return null;
+        }
+
+        return (
+            <div className={styles.contestResourcesWrapper}>
+                {contest.resources.map((resource: IProblemResourceType, index: number) =>
+                    <span key={`contest-resource-${resource.id}`}>
+                        <Resource resource={resource} />
+                        {contest.resources.length > 1 && index < contest.resources.length - 1 && ' | '}
+                    </span>)}
+            </div>
+        );
+    }, [ contest ]);
 
     const renderProblemResourcesAndParameters = useCallback(() => {
         if (!selectedContestDetailsProblem) {
@@ -560,7 +580,7 @@ const ContestSolutionSubmitPage = () => {
                         <div>
                             <span className={styles.title}>Size limit:</span>
                             {' '}
-                            <span>{fileSizeLimit}</span>
+                            <span>{fileSizeLimit?.toFixed(2)}</span>
                             {' '}
                             KB
                         </div>
@@ -774,7 +794,7 @@ const ContestSolutionSubmitPage = () => {
             {renderSuccessfullAlert(successMessage)}
             <ContestBreadcrumbs />
             <BackToTop rightPosition={allowMentor
-                ? 110
+                ? 130
                 : 20}
             />
             <div className={styles.nameWrapper}>
@@ -820,10 +840,10 @@ const ContestSolutionSubmitPage = () => {
                     Show all results
                 </div>
             </div>
+            {renderContestResources()}
             <div className={styles.problemsAndEditorWrapper}>
                 <ContestProblems
                   problems={updatedProblems || problems || []}
-                  onContestProblemChange={() => handlePageChange(setQueryParams, setSearchParams, 1)}
                   totalParticipantsCount={participantsCount}
                   sumMyPoints={sumMyPoints}
                   sumTotalPoints={sumAllContestPoints}
@@ -870,6 +890,7 @@ const ContestSolutionSubmitPage = () => {
                 {submissionsErrorData
                     ? getErrorMessage(submissionsErrorData, 'Error loading submissions')
                     : <SubmissionsGrid
+                          isDataFetching={submissionsDataFetching}
                           isDataLoaded={!submissionsDataLoading}
                           submissions={submissionsData ?? undefined}
                           options={{

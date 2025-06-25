@@ -94,6 +94,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OJS.Services.Mentor.Busines
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OJS.Services.Mentor.Models", "Services\Mentor\OJS.Services.Mentor.Models\OJS.Services.Mentor.Models.csproj", "{D04B099B-AA9D-4668-B4E8-85C0692CB3A8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests/IntergrationTests", "Tests/IntergrationTests", "{3FB6A17B-1C6B-4839-AF1D-13F0F2F33F07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationTests.Worker", "Tests\IntegrationTests\IntegrationTests.Worker\IntegrationTests.Worker.csproj", "{F74414B6-AB1A-43F2-9F64-9FC467FDEAA4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -292,5 +296,9 @@ Global
 		{D04B099B-AA9D-4668-B4E8-85C0692CB3A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D04B099B-AA9D-4668-B4E8-85C0692CB3A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D04B099B-AA9D-4668-B4E8-85C0692CB3A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F74414B6-AB1A-43F2-9F64-9FC467FDEAA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F74414B6-AB1A-43F2-9F64-9FC467FDEAA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F74414B6-AB1A-43F2-9F64-9FC467FDEAA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F74414B6-AB1A-43F2-9F64-9FC467FDEAA4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

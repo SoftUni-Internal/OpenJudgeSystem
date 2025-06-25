@@ -41,7 +41,7 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
                 return { blob, filename };
             }
 
-            if (response.headers.get('Content-Length')) {
+            if (response.headers.get('Content-Length') === '0') {
                 return '';
             }
 

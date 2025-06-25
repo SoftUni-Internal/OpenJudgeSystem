@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Autocomplete, FormControl, MenuItem, TextField, Typography } from '@mui/material';
+import { ExcelFilterOperators } from 'src/common/enums';
 
 import { IGetAllAdminParams, IUserAutocompleteData } from '../../../../common/types';
 import useSuccessMessageEffect from '../../../../hooks/common/use-success-message-effect';
@@ -8,7 +9,7 @@ import { applyDefaultFilterToQueryString } from '../../../../pages/administratio
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../../../../pages/administration-new/AdministrationGridView';
 import usersFilterableColumns, { returnUsersNonFilterableColumns } from '../../../../pages/administration-new/users/usersGridColumns';
 import { useAddUserToRoleMutation, useRemoveUserFromRoleMutation } from '../../../../redux/services/admin/rolesAdminService';
-import { useGetUsersAutocompleteQuery, useGetUsersByRoleQuery } from '../../../../redux/services/admin/usersAdminService';
+import { useGetUsersAutocompleteQuery, useGetUsersByRoleQuery, useLazyExportUsersToExcelQuery } from '../../../../redux/services/admin/usersAdminService';
 import { getAndSetExceptionMessage } from '../../../../utils/messages-utils';
 import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../utils/render-utils';
 import clearSuccessMessages from '../../../../utils/success-messages-utils';
@@ -245,6 +246,8 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
                       { showModal: showUserEditModal, modal: (i) => renderUserEditModal(i) },
                       { showModal: showConfirmDialog, modal: (i) => renderConfirmDialog(i) },
                   ]}
+                  excelMutation={useLazyExportUsersToExcelQuery}
+                  excelFilters={[ { propertyName: 'roleIds', operator: ExcelFilterOperators.Contains, value: roleId } ]}
                 />
             </div>
         </>

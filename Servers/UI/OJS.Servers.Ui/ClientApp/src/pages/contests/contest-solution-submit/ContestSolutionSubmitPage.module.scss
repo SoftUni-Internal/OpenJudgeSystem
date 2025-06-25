@@ -219,3 +219,9 @@
   opacity: 0.5;
   pointer-events: none;
 }
+
+.contestResourcesWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { BiMemoryCard } from 'react-icons/bi';
 import { FaRegClock } from 'react-icons/fa';
@@ -13,7 +12,7 @@ import { ITestRunType } from '../../../hooks/submissions/types';
 import useTheme from '../../../hooks/use-theme';
 import CodeEditor from '../../code-editor/CodeEditor';
 import MultiLineTextDisplay from '../../common/MultiLineTextDisplay';
-import Diff from '../../diff/Diff';
+import DiffViewer from '../../diffViewer/DiffViewer';
 import AdministrationLink from '../../guidelines/buttons/AdministrationLink';
 import Button, { ButtonSize, ButtonType, LinkButtonType } from '../../guidelines/buttons/Button';
 
@@ -190,7 +189,7 @@ const SubmissionTestRun = (props: ISubmissionTestRunProps) => {
                 </div>
 
             </div>
-            { isTrialTest &&
+            {isTrialTest &&
                 <div
                   style={{ color: themeColors.baseColor100 }}
                   className={concatClassNames(styles.zeroTestsInfoMessage, !isDarkMode
@@ -208,7 +207,7 @@ const SubmissionTestRun = (props: ISubmissionTestRunProps) => {
             }
             {(expectedOutputFragment || userOutputFragment) &&
                 <div className={styles.outputWrapper}>
-                    <Diff expectedStr={expectedOutputFragment} actualStr={userOutputFragment} />
+                    <DiffViewer expectedStr={expectedOutputFragment} actualStr={userOutputFragment} />
                 </div>
             }
             {

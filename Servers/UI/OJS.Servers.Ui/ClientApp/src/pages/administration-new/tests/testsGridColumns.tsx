@@ -1,6 +1,9 @@
 
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
+import { TestType } from 'src/common/enums';
+import { ICustomFilter, IEnumType } from 'src/common/types';
+import { getStringObjectKeys } from 'src/utils/object-utils';
 
 import { EDIT, TEST } from '../../../common/labels';
 import { DELETE_CONFIRMATION_MESSAGE } from '../../../common/messages';
@@ -22,7 +25,7 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'orderBy',
@@ -47,6 +50,7 @@ const testsFilterableColums: AdministrationGridColDef[] = [
     },
     {
         field: 'isOpenTest',
+        headerName: 'Is Open Test',
         flex: 1,
         type: 'boolean',
         filterable: false,
@@ -59,13 +63,29 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         field: 'type',
         headerName: 'Test Type',
         flex: 1,
-        type: 'string',
+        type: 'singleSelect',
         filterable: false,
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => testTypesToFEStringsMapping[params.value],
-    },
+        enumValues: getStringObjectKeys(TestType),
+        valueFormatter: (_, row) => testTypesToFEStringsMapping[row.value],
+        customFilter: (value: string) => {
+            if (value === 'Compete') {
+                return 'isOpenTest~equals~false&&;isTrialTest~equals~false';
+            }
+
+            if (value === 'Practice') {
+                return 'isTrialTest~equals~true';
+            }
+
+            if (value === 'Open') {
+                return 'isOpenTest~equals~true';
+            }
+
+            return '';
+        },
+    } as GridColDef & IEnumType & ICustomFilter,
     {
         field: 'problemName',
         headerName: 'Problem Name',
@@ -90,7 +110,7 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
 ];
 

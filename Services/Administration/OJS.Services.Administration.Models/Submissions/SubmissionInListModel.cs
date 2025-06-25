@@ -23,6 +23,8 @@ public class SubmissionInListModel : IMapExplicitly
 
     public string? ContestId { get; set; }
 
+    public string? WorkerName { get; set; }
+
     public bool IsCompiledSuccessfully { get; set; }
 
     public bool Processed { get; set; }
