@@ -21,6 +21,9 @@ public class BackgroundJobsHostedService : IHostedService
     private readonly string updatingParticipantTotalScoreSnapshotCronExpression = Cron.Daily(4);
     private readonly string removingMultipleParticipantScoresForProblemCronExpression = Cron.Daily(3);
     private readonly string normalizingAllPointsThatExceedAllowedLimitCronExpression = Cron.Daily(1);
+    private readonly string archiveOldSubmissionsDailyBatchCronExpression = Cron.Daily(1, 30);
+    private readonly string archiveOldSubmissionsWithLimitCronExpression = Cron.Yearly(1, 1, 2, 30);
+    private readonly string hardDeleteArchivedSubmissionsCronExpression = Cron.Yearly(1, 1, 2, 30);
 
     private readonly IHangfireBackgroundJobsService hangfireBackgroundJobs;
     private readonly ILogger<BackgroundJobsHostedService> logger;
@@ -100,5 +103,32 @@ public class BackgroundJobsHostedService : IHostedService
                 AdministrationQueueName);
 
         this.logger.LogBackgroundJobAddedOrUpdated("normalizing all points that exceed allowed limit");
+
+        this.hangfireBackgroundJobs
+            .AddOrUpdateRecurringJob<IRecurringBackgroundJobsBusinessService>(
+                nameof(IRecurringBackgroundJobsBusinessService.ArchiveOldSubmissionsDailyBatch),
+                m => m.ArchiveOldSubmissionsDailyBatch(),
+                this.archiveOldSubmissionsDailyBatchCronExpression,
+                AdministrationQueueName);
+
+        this.logger.LogBackgroundJobAddedOrUpdated("archiving submissions - daily");
+
+        this.hangfireBackgroundJobs
+            .AddOrUpdateRecurringJob<IRecurringBackgroundJobsBusinessService>(
+                nameof(IRecurringBackgroundJobsBusinessService.ArchiveOldSubmissionsWithLimit),
+                m => m.ArchiveOldSubmissionsWithLimit(),
+                this.archiveOldSubmissionsWithLimitCronExpression,
+                AdministrationQueueName);
+
+        this.logger.LogBackgroundJobAddedOrUpdated("archiving submissions - yearly");
+
+        this.hangfireBackgroundJobs
+            .AddOrUpdateRecurringJob<IRecurringBackgroundJobsBusinessService>(
+                nameof(IRecurringBackgroundJobsBusinessService.HardDeleteArchivedSubmissions),
+                m => m.HardDeleteArchivedSubmissions(),
+                this.hardDeleteArchivedSubmissionsCronExpression,
+                AdministrationQueueName);
+
+        this.logger.LogBackgroundJobAddedOrUpdated("hard deleting archived submissions");
     }
 }

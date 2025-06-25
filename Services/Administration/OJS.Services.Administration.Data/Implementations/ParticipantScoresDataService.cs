@@ -8,6 +8,7 @@ namespace OJS.Services.Administration.Data.Implementations
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using OJS.Common;
 
     public class ParticipantScoresDataService : AdministrationDataService<ParticipantScore>, IParticipantScoresDataService
     {
@@ -139,6 +140,16 @@ namespace OJS.Services.Administration.Data.Implementations
                 await this.SaveChanges();
             }
         }
+
+        public async Task RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds) =>
+            await this
+                .Update(
+                    ps => submissionIds.Cast<int?>().Contains(ps.SubmissionId),
+                    ps => new ParticipantScore
+                    {
+                        SubmissionId = null
+                    },
+                    batchSize: GlobalConstants.BatchOperationsChunkSize);
 
         private static void UpdateTotalScoreSnapshot(
             Participant participant,

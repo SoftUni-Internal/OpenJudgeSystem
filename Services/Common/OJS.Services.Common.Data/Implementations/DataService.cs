@@ -43,6 +43,13 @@ public class DataService<TEntity> : IDataService<TEntity>
     public void Update(Expression<Func<TEntity, bool>>? filter = null)
         => this.dbSet.UpdateRange(this.GetQuery(filter));
 
+    public async Task<int> Update(
+        Expression<Func<TEntity, bool>> filterExpression,
+        Expression<Func<TEntity, TEntity>> updateExpression,
+        int batchSize) =>
+        await this.dbSet.Where(filterExpression).UpdateFromQueryAsync(updateExpression,
+            x => x.BatchSize = batchSize);
+
     public virtual void UpdateMany(IEnumerable<TEntity> entities)
         => this.dbSet.UpdateRange(entities);
 
@@ -51,6 +58,9 @@ public class DataService<TEntity> : IDataService<TEntity>
 
     public void Delete(Expression<Func<TEntity, bool>>? filter = null)
         => this.dbSet.RemoveRange(this.GetQuery(filter));
+
+    public async Task<int> Delete(Expression<Func<TEntity, bool>> filterExpression, int batchSize)
+        => await this.dbSet.Where(filterExpression).DeleteFromQueryAsync(x => x.BatchSize = batchSize);
 
     public virtual void DeleteMany(IEnumerable<TEntity> entities)
         => this.dbSet.RemoveRange(entities);

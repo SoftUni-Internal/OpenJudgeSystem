@@ -34,6 +34,7 @@ namespace OJS.Servers.Ui
                 .AddTransient(typeof(IDataService<>), typeof(DataService<>))
                 .AddTransient<ITransactionsProvider, TransactionsProvider<OjsDbContext>>()
                 .AddIdentityDatabase<OjsDbContext, UserProfile, Role, UserInRole>(configuration)
+                .AddArchivesDatabase(configuration)
                 .AddResiliencePipelines()
                 .AddOpenAiClient(configuration)
                 .AddMemoryCache()
