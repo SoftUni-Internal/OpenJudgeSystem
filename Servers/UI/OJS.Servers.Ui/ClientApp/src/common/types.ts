@@ -492,7 +492,7 @@ interface IHasNameAndIdType {
     name: string;
 }
 
-interface IContestAutocomplete extends IHasNameAndIdType {}
+type IContestAutocomplete = IHasNameAndIdType
 
 interface ITestsUploadModel {
     problemId: number;
@@ -901,7 +901,7 @@ interface IExcelFilter {
     operator: string;
 }
 
-// eslint-disable-next-line import/prefer-default-export
+
 export type {
     IIndexContestsType,
     IProblemType,

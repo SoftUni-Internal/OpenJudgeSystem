@@ -68,7 +68,7 @@ const ContestDetailsPage = () => {
             return null;
         }
 
-        return allowedSubmissionTypes.map((allowedSubmissionType, index) => (
+        return allowedSubmissionTypes.map((allowedSubmissionType, index) => 
             <span key={`contest-sub-strategy-btn-${allowedSubmissionType.id}`}>
                 <Link
                   className={styles.allowedLanguageLink}
@@ -77,8 +77,7 @@ const ContestDetailsPage = () => {
                     {allowedSubmissionType.name}
                 </Link>
                 {allowedSubmissionTypes.length > 1 && index < allowedSubmissionTypes.length - 1 && ' | '}
-            </span>
-        ));
+            </span>);
     };
 
     const renderContestResources = useCallback(() => {
@@ -86,12 +85,11 @@ const ContestDetailsPage = () => {
             return null;
         }
 
-        return resources.map((resource: IProblemResourceType, index: number) => (
+        return resources.map((resource: IProblemResourceType, index: number) => 
             <span key={`contest-resource-${resource.id}`}>
                 <Resource resource={resource} />
                 {resources.length > 1 && index < resources.length - 1 && ' | '}
-            </span>
-        ));
+            </span>);
     }, [ resources, name ]);
 
     const renderProblemsNames = () => {
@@ -99,23 +97,21 @@ const ContestDetailsPage = () => {
             return 'The problems for this contest are not public.';
         }
 
-        return problems.map((problem) => (
+        return problems.map((problem) => 
             <div key={`contest-problem-${problem.id}`} className={styles.problemNameItem}>
                 <span>{problem.name}</span>
                 <div className={styles.problemResources}>
-                    { problem.resources.map((resource: IProblemResourceType) => (
+                    { problem.resources.map((resource: IProblemResourceType) => 
                         <div key={`p-r-${resource.id}`} className={styles.problemResourceWrapper}>
                             <Resource
                               resource={resource}
                             />
-                        </div>
-                    ))}
+                        </div>)}
                 </div>
-            </div>
-        ));
+            </div>);
     };
 
-    const renderAdministrationButtons = () => (
+    const renderAdministrationButtons = () => 
         <div className={styles.administrationButtonsWrapper}>
             <AdministrationLink
               text="Edit"
@@ -137,22 +133,22 @@ const ContestDetailsPage = () => {
               to={`/${CONTESTS_PATH}/${contestId}#tab-problems`}
               text="Problems"
             />
-            {type === ContestVariation.OnlinePracticalExam && (
+            {type === ContestVariation.OnlinePracticalExam && 
             <AdministrationLink
               to={`/${PROBLEM_GROUPS_PATH}?filter=contestid~equals~${contestId}%26%26%3Bisdeleted~equals~false&sorting=id%3DDESC`}
               text="Problem Groups"
             />
-            )}
+            }
             {!canBeCompeted && (competeParticipantsCount ?? 0) > 0 &&
-                (<AdministrationLink text="Transfer" to={`/${CONTESTS_PATH}/${id}?openTransfer=true`} />)}
-            {user.isAdmin && isActive && isOnlineExam && (
+                <AdministrationLink text="Transfer" to={`/${CONTESTS_PATH}/${id}?openTransfer=true`} />}
+            {user.isAdmin && isActive && isOnlineExam && 
             <AdministrationLink
               to={`/${CONTESTS_PATH}/${contestId}?openChangeParticipantsTime=true#tab-participants`}
               text="Change Time"
             />
-            )}
+            }
         </div>
-    );
+    ;
 
     const renderResultsText = useCallback((isCompete: boolean) => {
         const participationModeTextColorClassName = isCompete
@@ -177,8 +173,9 @@ const ContestDetailsPage = () => {
         );
     }, [ competeParticipantsCount, practiceParticipantsCount ]);
 
-    const renderResultsAsLink = useCallback((isCompete: boolean) => (
-        <Link
+    const renderResultsAsLink = useCallback(
+        (isCompete: boolean) => 
+            <Link
           className={`${isCompete
               ? styles.greenColor
               : styles.blueColor}`}
@@ -191,9 +188,10 @@ const ContestDetailsPage = () => {
               isSimple: true,
           })}
         >
-            {renderResultsText(isCompete)}
-        </Link>
-    ), [ id, name, renderResultsText ]);
+                {renderResultsText(isCompete)}
+            </Link>
+        , [ id, name, renderResultsText ],
+    );
 
     const renderContestActionButton = (isCompete: boolean) => {
         const isDisabled = isCompete
@@ -208,10 +206,10 @@ const ContestDetailsPage = () => {
             <div className={styles.actionBtnWrapper}>
                 <ContestButton isCompete={isCompete} isDisabled={isDisabled} id={id!} name={name ?? ''} />
                 {
-                    (canViewResults && !isDisabled && data &&
+                    canViewResults && !isDisabled && data &&
                         (isCompete
                             ? data.competeParticipantsCount > 0
-                            : data.practiceParticipantsCount > 0)) ||
+                            : data.practiceParticipantsCount > 0) ||
                         user.isAdmin
                         ? renderResultsAsLink(isCompete)
                         : renderResultsText(isCompete)
@@ -268,14 +266,14 @@ const ContestDetailsPage = () => {
                         {' '}
                         {renderAllowedLanguages()}
                     </div>
-                    {resources && resources.length > 0 && (
+                    {resources && resources.length > 0 && 
                     <div className={styles.contestResourcesWrapper}>
                         <span className={styles.allowedLanguages}>Contest resources:</span>
                         {' '}
                         {' '}
                         {renderContestResources()}
                     </div>
-                    )}
+                    }
                     <div>
                         {user.canAccessAdministration && renderAdministrationButtons()}
                     </div>

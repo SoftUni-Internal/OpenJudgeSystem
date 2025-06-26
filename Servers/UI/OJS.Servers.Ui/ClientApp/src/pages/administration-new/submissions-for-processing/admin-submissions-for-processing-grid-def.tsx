@@ -29,14 +29,14 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 0.8,
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) => 
             <Link
               to={`/submissions/${Number(params.row?.submissionId)}/details`}
               target="_blank"
             >
                 {params.row?.submissionId}
             </Link>
-        ),
+        ,
     },
     {
         field: 'state',

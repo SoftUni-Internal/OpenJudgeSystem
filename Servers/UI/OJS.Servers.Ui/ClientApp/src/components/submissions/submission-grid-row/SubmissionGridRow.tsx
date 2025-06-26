@@ -164,7 +164,7 @@ const SubmissionGridRow = ({
     const { testRuns: parsedTestRuns, maxTimeUsedCache, maxMemoryUsedCache } = parsedTestRunsCache;
 
     const renderUsername = useCallback(
-        () => (
+        () =>
             <LinkButton
               type={LinkButtonType.plain}
               size={ButtonSize.none}
@@ -172,7 +172,7 @@ const SubmissionGridRow = ({
               text={user}
               internalClassName={styles.redirectButton}
             />
-        ),
+        ,
         [ user ],
     );
 
@@ -238,58 +238,53 @@ const SubmissionGridRow = ({
             </td>
             {
                 options.showTaskDetails
-                    ? (
-                        <td>
-                            {renderProblemInformation()}
-                            {/* TODO: Fix this to use Link */}
-                            <Button
-                              type={ButtonType.secondary}
-                              size={ButtonSize.small}
-                              className={styles.link}
-                              internalClassName={styles.redirectButton}
-                              onClick={handleContestDetailsButtonSubmit}
-                              text={contestName}
-                            />
-                        </td>
-                    )
+                    ? <td>
+                        {renderProblemInformation()}
+                        {/* TODO: Fix this to use Link */}
+                        <Button
+                          type={ButtonType.secondary}
+                          size={ButtonSize.small}
+                          className={styles.link}
+                          internalClassName={styles.redirectButton}
+                          onClick={handleContestDetailsButtonSubmit}
+                          text={contestName}
+                        />
+                    </td>
+
                     : null
             }
             <td>
                 {internalUser.isAdmin
-                    ? (
-                        <div className={styles.fromDate}>
-                            <span className={styles.fromDateRow}>
-                                <CalendarMonthIcon className={styles.icon} />
-                                {preciseFormatDate(createdOn, submissionsGridDateFormat)}
-                            </span>
-                            <span className={styles.fromDateRow}>
-                                <AccessAlarmIcon className={styles.icon} />
-                                {preciseFormatDate(createdOn, submissionsGridTimeFormat)}
-                            </span>
-                        </div>
-                    )
-                    : (
-                        <div>
-                            {formatDate(createdOn, defaultDateTimeFormatReverse)}
-                        </div>
-                    )}
+                    ? <div className={styles.fromDate}>
+                        <span className={styles.fromDateRow}>
+                            <CalendarMonthIcon className={styles.icon} />
+                            {preciseFormatDate(createdOn, submissionsGridDateFormat)}
+                        </span>
+                        <span className={styles.fromDateRow}>
+                            <AccessAlarmIcon className={styles.icon} />
+                            {preciseFormatDate(createdOn, submissionsGridTimeFormat)}
+                        </span>
+                    </div>
+
+                    : <div>
+                        {formatDate(createdOn, defaultDateTimeFormatReverse)}
+                    </div>
+                    }
                 {
                     options.showParticipantUsername
-                        ? (
-                            <span onClick={() => dispatch(setProfile(null))}>
-                                {renderUsername()}
-                            </span>
-                        )
+                        ? <span onClick={() => dispatch(setProfile(null))}>
+                            {renderUsername()}
+                        </span>
+
                         : null
                 }
             </td>
             {
                 options.showCompeteMarker
                     ? isOfficial
-                        ? (
-                            <td onMouseEnter={(e) => onPopoverOpen(e)} onMouseLeave={() => setCompeteIconAnchorElement(null)}>
-                                <FaFlagCheckered className={styles.competeIcon} />
-                                <Popover
+                        ? <td onMouseEnter={(e) => onPopoverOpen(e)} onMouseLeave={() => setCompeteIconAnchorElement(null)}>
+                            <FaFlagCheckered className={styles.competeIcon} />
+                            <Popover
                                   open={isCompeteIconModalOpen}
                                   anchorEl={competeIconAnchorElement}
                                   anchorOrigin={{
@@ -304,49 +299,47 @@ const SubmissionGridRow = ({
                                   onClose={() => setCompeteIconAnchorElement(null)}
                                   disableRestoreFocus
                                 >
-                                    <div className={`${styles.competeIconModal} ${backgroundColorClassName}`}>
-                                        This submission was done in compete mode.
-                                    </div>
-                                </Popover>
-                            </td>
-                        )
+                                <div className={`${styles.competeIconModal} ${backgroundColorClassName}`}>
+                                    This submission was done in compete mode.
+                                </div>
+                            </Popover>
+                        </td>
+
                         : <td aria-hidden="true" />
                     : null
             }
             {
                 options.showDetailedResults
-                    ? (
-                        <td>
-                            {hasTimeAndMemoryUsed(submission)
-                                ? (
-                                    <div className={styles.timeAndMemoryContainer}>
-                                        <div className={styles.maxMemoryUsed}>
-                                            <MemoryIcon
+                    ? <td>
+                        {hasTimeAndMemoryUsed(submission)
+                            ? <div className={styles.timeAndMemoryContainer}>
+                                <div className={styles.maxMemoryUsed}>
+                                    <MemoryIcon
                                               size={IconSize.Large}
                                               className={styles.memoryIcon}
                                             />
-                                            <span className={styles.timeAndMemoryText}>
-                                                {((maxMemoryUsedCache ?? maxMemoryUsed) / 1000000).toFixed(2)}
-                                                {' '}
-                                                MB
-                                            </span>
-                                        </div>
-                                        <div className={styles.maxTimeUsed}>
-                                            <TimeLimitIcon
+                                    <span className={styles.timeAndMemoryText}>
+                                        {((maxMemoryUsedCache ?? maxMemoryUsed) / 1000000).toFixed(2)}
+                                        {' '}
+                                        MB
+                                    </span>
+                                </div>
+                                <div className={styles.maxTimeUsed}>
+                                    <TimeLimitIcon
                                               size={IconSize.Large}
                                               className={styles.timeIcon}
                                             />
-                                            <span className={styles.timeAndMemoryText}>
-                                                {((maxTimeUsedCache ?? maxTimeUsed) / 1000).toFixed(2)}
-                                                {' '}
-                                                s.
-                                            </span>
-                                        </div>
-                                    </div>
-                                )
-                                : null}
-                        </td>
-                    )
+                                    <span className={styles.timeAndMemoryText}>
+                                        {((maxTimeUsedCache ?? maxTimeUsed) / 1000).toFixed(2)}
+                                        {' '}
+                                        s.
+                                    </span>
+                                </div>
+                            </div>
+
+                            : null}
+                    </td>
+
                     : null
             }
             <td>
@@ -363,18 +356,17 @@ const SubmissionGridRow = ({
             </td>
             {
                 options.showSubmissionTypeInfo
-                    ? (
-                        <td className={styles.strategy}>
-                            <div className={styles.strategyWrapper}>
-                                {
+                    ? <td className={styles.strategy}>
+                        <div className={styles.strategyWrapper}>
+                            {
                                     internalUser.isAdmin
                                         ? renderStrategyIcon()
                                         : null
                                 }
-                                <span>{strategyName}</span>
-                            </div>
-                        </td>
-                    )
+                            <span>{strategyName}</span>
+                        </div>
+                    </td>
+
                     : null
             }
             <td>

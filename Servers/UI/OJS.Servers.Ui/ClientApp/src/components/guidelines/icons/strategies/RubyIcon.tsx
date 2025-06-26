@@ -13,13 +13,13 @@ const RubyIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IRubyIconProps) => (
+}: IRubyIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={DiRuby}
     />
-);
+;
 
 export default memo(RubyIcon);

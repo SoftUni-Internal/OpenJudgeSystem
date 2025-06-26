@@ -57,6 +57,7 @@ const ContestProblems = (props: IContestProblemsProps) => {
                 Scroll to the currently selected problem only when
                 the browser's back button is clicked.
              */
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             if (navigationType === 'POP') {
                 const target = problemRefs.current.get(selectedProblem.id);
                 const wrapper = wrapperRef.current;
@@ -120,7 +121,7 @@ const ContestProblems = (props: IContestProblemsProps) => {
                                 >
                                     <div className={styles.problemName}>
                                         {problem.name}
-                                        {problem.isExcludedFromHomework && (
+                                        {problem.isExcludedFromHomework &&
                                             <div
                                               style={{ display: 'inline' }}
                                               onMouseEnter={(e) => setExcludedFromHomeworkAnchorElement(e.currentTarget)}
@@ -149,7 +150,7 @@ const ContestProblems = (props: IContestProblemsProps) => {
                                                     </div>
                                                 </Popover>
                                             </div>
-                                        )}
+                                        }
                                     </div>
                                     <div>
                                         {problem.points || 0}

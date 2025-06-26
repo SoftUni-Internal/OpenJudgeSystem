@@ -29,7 +29,6 @@ import clearSuccessMessages from '../../../utils/success-messages-utils';
 import Node from './Node/Node';
 import ResizableContainer from './ResizeableContainer/ResizableContainer';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from './AdministrationContestCategoriesHierarchy.module.scss';
 
 const AdministrationContestCategoriesHierarchy = () => {
@@ -118,7 +117,7 @@ const AdministrationContestCategoriesHierarchy = () => {
         setContestCategoryName(name);
     };
 
-    const renderContestsBulkEditModal = () => (
+    const renderContestsBulkEditModal = () =>
         <AdministrationModal
           index={1}
           open={showContestsBulkEditModal}
@@ -132,7 +131,7 @@ const AdministrationContestCategoriesHierarchy = () => {
               onSuccess={() => setShowContestsBulkEditModal(false)}
             />
         </AdministrationModal>
-    );
+    ;
 
     // A recursive function to find a given node
     const findNode = useCallback(
@@ -268,6 +267,7 @@ const AdministrationContestCategoriesHierarchy = () => {
                         movedNodes[idx] = newMovedNode;
 
                         // If the node's parent has not changed, do not mark it as updated
+                        // eslint-disable-next-line no-constant-binary-expression
                         if (mn.parentId === (Number(parentId) ?? undefined)) {
                             return;
                         }
@@ -303,7 +303,7 @@ const AdministrationContestCategoriesHierarchy = () => {
                 If the node's updated state is the same as its initial state
                 ( its parentId remained the same ), remove it from the collection
              */
-            if (initialNode.parentId === updatedNode.parentId || (!initialNode.parentId && !updatedNode.parentId)) {
+            if (initialNode.parentId === updatedNode.parentId || !initialNode.parentId && !updatedNode.parentId) {
                 delete updatedCategoriesAdjacencyList.current[id];
             }
         });
@@ -370,7 +370,7 @@ const AdministrationContestCategoriesHierarchy = () => {
           onClearButtonClick={onClearClick}
           isButtonDisabled={Object.entries(updatedCategoriesAdjacencyList.current).length === 0}
         >
-            {({ width, height }) => (
+            {({ width, height }) =>
                 <div
                   className={`${styles.treeContainer} ${themeMode === ThemeMode.Dark
                       ? styles.darkTheme
@@ -413,7 +413,7 @@ const AdministrationContestCategoriesHierarchy = () => {
                             onContestsBulkEditClick,
                         })}
                     </Tree>
-                    {showConfirmSave && (
+                    {showConfirmSave &&
                         <ConfirmDialog
                           title="Save Contest Categories Hierarchy Changes"
                           text="Are you sure you want to save the changes made to the Contest Categories Hierarchy?"
@@ -422,8 +422,8 @@ const AdministrationContestCategoriesHierarchy = () => {
                           onClose={() => setShowConfirmSave(!showConfirmSave)}
                           confirmFunction={() => onSave()}
                         />
-                    )}
-                    {showConfirmClear && (
+                    }
+                    {showConfirmClear &&
                         <ConfirmDialog
                           title="Clear Contest Categories Hierarchy Changes"
                           text="Are you sure you want to clear the changes made to the Contest Categories Hierarchy?"
@@ -432,10 +432,10 @@ const AdministrationContestCategoriesHierarchy = () => {
                           onClose={() => setShowConfirmClear(!showConfirmClear)}
                           confirmFunction={() => onClear()}
                         />
-                    )}
+                    }
                     {showContestsBulkEditModal && renderContestsBulkEditModal()}
                 </div>
-            )}
+            }
         </ResizableContainer>
     );
 };

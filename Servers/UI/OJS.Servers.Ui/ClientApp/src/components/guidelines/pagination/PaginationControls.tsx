@@ -49,8 +49,7 @@ const PaginationControls = ({
     };
 
     return count > 1
-        ? (
-            <Pagination
+        ? <Pagination
               count={count}
               siblingCount={PAGE_SIBLING_COUNT}
               boundaryCount={PAGE_BOUNDARY_COUNT}
@@ -85,7 +84,7 @@ const PaginationControls = ({
                   return <PaginationItem {...item} />;
               }}
             />
-        )
+        
         : null;
 };
 

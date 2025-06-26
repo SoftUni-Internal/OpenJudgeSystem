@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { TextField, Typography } from '@mui/material';
@@ -18,7 +18,6 @@ import { renderErrorMessagesAlert, renderSuccessfullAlert } from '../../../../ut
 import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import FormActionButton from '../../form-action-button/FormActionButton';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IAddUsersInExamGroupProps {

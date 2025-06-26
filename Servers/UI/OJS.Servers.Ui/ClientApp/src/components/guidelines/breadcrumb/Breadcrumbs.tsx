@@ -48,7 +48,7 @@ const Breadcrumbs = ({
                 item: IPageBreadcrumbsItem,
                 isLast: boolean,
                 key: string,
-            ) => (
+            ) => 
                 <div
                   key={key}
                   className={concatClassNames(
@@ -63,7 +63,7 @@ const Breadcrumbs = ({
                     </p>
                     <p className={textColorClassName}>{!isLast && '/'}</p>
                 </div>
-            );
+            ;
 
             return itemsList
                 .map((item: IPageBreadcrumbsItem, idx: number) => {
@@ -72,14 +72,13 @@ const Breadcrumbs = ({
 
                     return isNilOrEmpty(item.to) || isLast
                         ? renderItemContent(item, isLast, key)
-                        : (
-                            <Link
+                        : <Link
                               key={key}
                               to={item.to!}
                             >
-                                {renderItemContent(item, isLast, '')}
-                            </Link>
-                        );
+                            {renderItemContent(item, isLast, '')}
+                        </Link>
+                    ;
                 });
         },
         [ items, itemsList, keyPrefix, textColorClassName ],

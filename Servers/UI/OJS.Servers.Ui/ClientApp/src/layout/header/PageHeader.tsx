@@ -1,5 +1,5 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
+ 
+ 
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { FaBars, FaSearch } from 'react-icons/fa';
@@ -93,7 +93,7 @@ const PageHeader = () => {
                 >
                     <Link to={getAllContestsPageUrl({})} className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Contests</Link>
                     <Link to="/submissions" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Submissions</Link>
-                    {user.canAccessAdministration && (
+                    {user.canAccessAdministration && 
                         <Link
                           to={`/${NEW_ADMINISTRATION_PATH}`}
                           target="_blank"
@@ -102,20 +102,18 @@ const PageHeader = () => {
                         >
                             Administration
                         </Link>
-                    )}
+                    }
                     { isLoggedIn
-                        ? (
-                            <>
-                                <Link to="/profile" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>My Profile</Link>
-                                <Link to="/logout" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Logout</Link>
-                            </>
-                        )
-                        : (
-                            <>
-                                <Link to="/register" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Register</Link>
-                                <Link to="/login" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Login</Link>
-                            </>
-                        )}
+                        ? <>
+                            <Link to="/profile" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>My Profile</Link>
+                            <Link to="/logout" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Logout</Link>
+                        </>
+                        
+                        : <>
+                            <Link to="/register" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Register</Link>
+                            <Link to="/login" className={styles.burgerItemWrapper} onClick={onMenuItemClick}>Login</Link>
+                        </>
+                        }
                 </div>
             );
         },
@@ -139,7 +137,7 @@ const PageHeader = () => {
                     <Link to={getAllContestsPageUrl({})} className={styles.navButton}>CONTESTS</Link>
                     <Link to="/submissions" className={styles.navButton}>SUBMISSIONS</Link>
                     { user.canAccessAdministration &&
-                        (<AdministrationMenu buttonType={AdministrationMenuButtonType.text} isUsedInPageHeader />)}
+                        <AdministrationMenu buttonType={AdministrationMenuButtonType.text} isUsedInPageHeader />}
                 </div>
             </div>
             <div className={styles.authButtons}>
@@ -149,22 +147,20 @@ const PageHeader = () => {
                     <span>Search</span>
                 </div>
                 {isLoggedIn
-                    ? (
-                        <div className={`${styles.navButtons} ${styles.profileNavButton}`}>
-                            {' '}
-                            <Link to="/profile" className={`${styles.navButton}`}>
-                                <img height={40} width={40} src={MyProfileSvg} alt="my-profile" />
-                            </Link>
-                        </div>
-                    )
-                    : (
-                        <div className={styles.navButtons}>
-                            <Link to="/login" className={styles.navButton}>LOGIN</Link>
-                            <Link to="/register" className={styles.navButton}>
-                                REGISTER
-                            </Link>
-                        </div>
-                    )}
+                    ? <div className={`${styles.navButtons} ${styles.profileNavButton}`}>
+                        {' '}
+                        <Link to="/profile" className={`${styles.navButton}`}>
+                            <img height={40} width={40} src={MyProfileSvg} alt="my-profile" />
+                        </Link>
+                    </div>
+                    
+                    : <div className={styles.navButtons}>
+                        <Link to="/login" className={styles.navButton}>LOGIN</Link>
+                        <Link to="/register" className={styles.navButton}>
+                            REGISTER
+                        </Link>
+                    </div>
+                    }
                 <div
                   className={`${styles.burgerMenu}`}
                   onClick={onBurgerClick}

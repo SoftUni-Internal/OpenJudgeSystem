@@ -41,7 +41,7 @@ const ProfileAboutInfo = ({ userProfile, isUserAdmin, isUserLecturer, isUserProf
                     <span className={styles.profileAboutInfoValue}>{userProfile.userName}</span>
                 </div>
                 {
-                    (isUserAdmin || isUserProfileOwner) && firstNameOrLastNameHaveValue && (
+                    (isUserAdmin || isUserProfileOwner) && firstNameOrLastNameHaveValue && 
                         <div className={styles.profileAboutInfoGroupControl}>
                             <span className={styles.profileAboutInfoLabel}>Name:</span>
                             <span className={styles.profileAboutInfoValue}>
@@ -50,54 +50,54 @@ const ProfileAboutInfo = ({ userProfile, isUserAdmin, isUserLecturer, isUserProf
                                 {userProfile.lastName}
                             </span>
                         </div>
-                    )
+                    
                 }
                 {
-                    (isUserAdmin || isUserProfileOwner) && (
+                    (isUserAdmin || isUserProfileOwner) && 
                         <div className={styles.profileAboutInfoGroupControl}>
                             <span className={styles.profileAboutInfoLabel}>Email:</span>
                             <span className={styles.profileAboutInfoValue}>{userProfile.email}</span>
                         </div>
-                    )
+                    
                 }
                 {
-                    isUserAdmin && (
+                    isUserAdmin && 
                         <div className={styles.profileAboutInfoGroupControl}>
                             <span className={styles.profileAboutInfoLabel}>Id:</span>
                             <span className={styles.profileAboutInfoValue}>{userProfile.id}</span>
                         </div>
-                    )
+                    
                 }
                 {
-                    (isUserAdmin || isUserProfileOwner) && !isNilOrEmpty(userProfile.age) && (
+                    (isUserAdmin || isUserProfileOwner) && !isNilOrEmpty(userProfile.age) && 
                         <div className={styles.profileAboutInfoGroupControl}>
                             <span className={styles.profileAboutInfoLabel}>Age:</span>
                             <span className={styles.profileAboutInfoValue}>{userProfile.age}</span>
                         </div>
-                    )
+                    
                 }
                 {
                     (isUserAdmin || isUserProfileOwner) && !isNilOrEmpty(userProfile.city) &&
-                        (
-                            <div className={styles.profileAboutInfoGroupControl}>
-                                <span className={styles.profileAboutInfoLabel}>City:</span>
-                                <span className={styles.profileAboutInfoValue}>{userProfile.city}</span>
-                            </div>
-                        )
+                        
+                    <div className={styles.profileAboutInfoGroupControl}>
+                        <span className={styles.profileAboutInfoLabel}>City:</span>
+                        <span className={styles.profileAboutInfoValue}>{userProfile.city}</span>
+                    </div>
+                        
                 }
             </div>
 
             <div className={styles.imageAndLogoutButtonContainer}>
                 <img height={150} width={150} src={MyProfileSvg} alt="my-profile" />
                 {
-                        isUserProfileOwner && (
+                        isUserProfileOwner && 
                             <LinkButton
                               to="/logout"
                               text="LOG OUT"
                               type={LinkButtonType.secondary}
                               size={ButtonSize.small}
                             />
-                        )
+                        
                     }
             </div>
         </div>

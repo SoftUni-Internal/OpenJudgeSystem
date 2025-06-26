@@ -29,7 +29,7 @@ const ErrorWithActionButtons = ({ message, backToUrl, backToText }: IErrorProps)
             // JSON.stringify adds quotes to regular strings.
             // Only JSON objects should be in quotes.
             return JSON.stringify(message);
-        } catch (e) {
+        } catch {
             // Message is string so no quotes should be added
             return message;
         }
@@ -49,7 +49,7 @@ const ErrorWithActionButtons = ({ message, backToUrl, backToText }: IErrorProps)
                       ? 'Back to home'
                       : backToText}`}
                 />
-                {/* eslint-disable-next-line no-restricted-globals */}
+                { }
                 <Button onClick={() => location.reload()} text="reload page" />
             </div>
             <div className={styles.needHelpWrapper}>

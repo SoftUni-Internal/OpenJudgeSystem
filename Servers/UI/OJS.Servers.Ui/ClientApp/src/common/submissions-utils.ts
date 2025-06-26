@@ -4,7 +4,7 @@ import { ITestRunType } from '../hooks/submissions/types';
 
 import { TestRunResultType } from './constants';
 
-const getTestResultColorId = (resultType: number) => {
+const getTestResultColorId = (resultType: TestRunResultType) => {
     switch (resultType) {
     case TestRunResultType.CorrectAnswer:
         // primary-green
@@ -19,7 +19,7 @@ const getTestResultColorId = (resultType: number) => {
     }
 };
 
-const getResultTypeText = (resultType: number) => {
+const getResultTypeText = (resultType: TestRunResultType) => {
     switch (resultType) {
     case TestRunResultType.CorrectAnswer:
         return 'Correct Answer';
@@ -63,7 +63,7 @@ const sortTestRunsByTrialTest = (a: ITestRunType, b: ITestRunType) => {
     return 0;
 };
 
-// eslint-disable-next-line import/prefer-default-export
+
 export {
     getTestResultColorId,
     getResultTypeText,

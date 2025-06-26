@@ -110,7 +110,7 @@ const ProfileContestParticipations = ({
 
     useEffect(() => {
         if (
-            ((userIsProfileOwner || internalUser.canAccessAdministration) && !isChosenInToggle) ||
+            (userIsProfileOwner || internalUser.canAccessAdministration) && !isChosenInToggle ||
             areContestParticipationsLoading ||
             isNil(userContestParticipations)
         ) {
@@ -235,13 +235,15 @@ const ProfileContestParticipations = ({
         setUserContestParticipationsPage(1);
     }, [ batchUpdateCategoryUrl ]);
 
-    const renderContestCard = useCallback((contest: IIndexContestsType) => (
-        <ContestCard
+    const renderContestCard = useCallback(
+        (contest: IIndexContestsType) => 
+            <ContestCard
           key={contest.id}
           contest={contest}
           showPoints={userIsProfileOwner || internalUser.isAdmin}
         />
-    ), [ internalUser, userIsProfileOwner ]);
+        , [ internalUser, userIsProfileOwner ],
+    );
 
     if (isDataLoading) {
         return <div style={{ ...flexCenterObjectStyles, minHeight: '200px' }}><SpinningLoader /></div>;
@@ -255,12 +257,12 @@ const ProfileContestParticipations = ({
 
     return (
         <div>
-            {(!isLoggedIn || (!userIsProfileOwner && !internalUser.canAccessAdministration)) &&
+            {(!isLoggedIn || !userIsProfileOwner && !internalUser.canAccessAdministration) &&
                 userContestParticipations &&
-                !isNilOrEmpty(userContestParticipations.items) && (
+                !isNilOrEmpty(userContestParticipations.items) && 
                     <h2 className={styles.participationsHeading}>Participated In:</h2>
-            )}
-            {isChosenInToggle && (
+            }
+            {isChosenInToggle && 
                 <div className={styles.filterContainer}>
                     <Dropdown
                       dropdownItems={filteredContestDropdownItems}
@@ -278,12 +280,12 @@ const ProfileContestParticipations = ({
                       placeholder="Filter by category"
                       isSearchable
                       isDisabled={
-                            (selectedContest && selectedContest.id !== 0) &&
+                            selectedContest && selectedContest.id !== 0 &&
                             (!selectedCategory || selectedCategory.id === 0)
                         }
                     />
                 </div>
-            )}
+            }
             <List
               values={userContestParticipations?.items || []}
               itemFunc={renderContestCard}
@@ -291,15 +293,15 @@ const ProfileContestParticipations = ({
               fullWidth
             />
             {!isEmpty(userContestParticipations?.items) &&
-                userContestParticipations && userContestParticipations.pagesCount > 1 && (
+                userContestParticipations && userContestParticipations.pagesCount > 1 && 
                     <PaginationControls
                       isDataFetching={isDataFetching}
                       count={userContestParticipations.pagesCount}
                       page={userContestParticipations.pageNumber}
                       onChange={onPageChange}
                     />
-            )}
-            {isChosenInToggle && isNilOrEmpty(userContestParticipations?.items) && (
+            }
+            {isChosenInToggle && isNilOrEmpty(userContestParticipations?.items) && 
                 <div className={concatClassNames(
                     styles.noParticipationsText,
                     getColorClassName(themeColors.textColor),
@@ -307,7 +309,7 @@ const ProfileContestParticipations = ({
                 >
                     You have not participated in any contests yet.
                 </div>
-            )}
+            }
         </div>
     );
 };

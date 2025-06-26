@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable @typescript-eslint/ban-types */
+
+
 import React, { useCallback, useEffect, useState } from 'react';
 import {
     DialogContentText,
@@ -87,8 +87,9 @@ const ProblemRetest = (props: IProblemRetestProps) => {
                         ${validationModel?.submissionsCount}
                         submissions for this problem. Contact a developer for this action.`;
 
-    const renderLoadingDialog = useCallback(() => (
-        <SimpleDialog
+    const renderLoadingDialog = useCallback(
+        () =>
+            <SimpleDialog
           title={dialogTitle}
           content={(
               <>
@@ -100,17 +101,20 @@ const ProblemRetest = (props: IProblemRetestProps) => {
             )}
           declineFunction={declineFunction}
         />
-    ), [ declineFunction, dialogTitle ]);
+        , [ declineFunction, dialogTitle ],
+    );
 
-    const renderRetestNotAllowedDialog = useCallback(() => (
-        <SimpleDialog
+    const renderRetestNotAllowedDialog = useCallback(
+        () =>
+            <SimpleDialog
           title={dialogTitle}
           content={isNilOrEmpty(validationModel?.message)
               ? retestNotAllowedDefaultMessage
               : validationModel?.message}
           declineFunction={declineFunction}
         />
-    ), [ dialogTitle, validationModel, retestNotAllowedDefaultMessage, declineFunction ]);
+        , [ dialogTitle, validationModel, retestNotAllowedDefaultMessage, declineFunction ],
+    );
 
     if (isRetesting) {
         <SpinningLoader />;
@@ -123,8 +127,7 @@ const ProblemRetest = (props: IProblemRetestProps) => {
                 isValidationLoading
                     ? renderLoadingDialog()
                     : validationModel?.retestAllowed
-                        ? (
-                            <ConfirmDialogWithAdditionalProtection
+                        ? <ConfirmDialogWithAdditionalProtection
                               key={index}
                               text={retestAllowedMessage}
                               title={dialogTitle}
@@ -133,7 +136,7 @@ const ProblemRetest = (props: IProblemRetestProps) => {
                               declineFunction={() => declineFunction()}
                               confirmFunction={() => retestProblem(problemToRetest)}
                             />
-                        )
+
                         : renderRetestNotAllowedDialog()
             }
         </>

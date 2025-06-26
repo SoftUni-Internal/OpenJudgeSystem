@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { ReactElement, useEffect } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import useResizeObserver from 'use-resize-observer';

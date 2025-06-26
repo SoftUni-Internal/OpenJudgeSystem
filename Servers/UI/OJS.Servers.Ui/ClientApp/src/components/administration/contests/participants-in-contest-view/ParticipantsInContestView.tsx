@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect, useMemo, useState } from 'react';
 import { MdOutlineManageHistory } from 'react-icons/md';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -18,7 +18,6 @@ import CreateButton from '../../common/create/CreateButton';
 import AdministrationModal from '../../common/modals/administration-modal/AdministrationModal';
 import ParticipantForm from '../../participants/form/ParticipantForm';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../../../../pages/administration-new/AdministrationStyles.module.scss';
 
 interface IParticipantsInContestView {
@@ -47,7 +46,7 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
         refetch();
     };
 
-    const renderActions = () => (
+    const renderActions = () =>
         <>
             <CreateButton
               showModal={openCreateModal}
@@ -62,9 +61,9 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
               styles={{ width: '40px', height: '40px' }}
             />
         </>
-    );
+    ;
 
-    const renderParticipantModal = (index: number) => (
+    const renderParticipantModal = (index: number) =>
         <AdministrationModal
           key={index}
           index={index}
@@ -78,9 +77,9 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderChangeParticipantsTimeModal = (index: number) => (
+    const renderChangeParticipantsTimeModal = (index: number) =>
         <AdministrationModal
           index={index}
           open={openChangeTimeModal}
@@ -92,7 +91,7 @@ const ParticipantsInContestView = (props: IParticipantsInContestView) => {
               onSuccess={() => setOpenChangeTimeModal(false)}
             />
         </AdministrationModal>
-    );
+    ;
 
     useEffect(() => {
         if (params.get('openChangeParticipantsTime') === 'true') {

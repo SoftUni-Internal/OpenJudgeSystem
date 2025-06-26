@@ -13,13 +13,13 @@ const PlainTextIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IPlainTextIconProps) => (
+}: IPlainTextIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={AiOutlineFileText}
     />
-);
+;
 
 export default memo(PlainTextIcon);

@@ -562,26 +562,24 @@ const AdministrationPortal = () => {
                   open={open}
                 >
                     {!open
-                        ? (
-                            <IconButton
+                        ? <IconButton
                               sx={{ backgroundColor: getColors(themeMode).palette.secondary.main }}
                               className={`${styles.arrowRight} ${styles.arrowCommon}`}
                               color="primary"
                               onClick={handleDrawerOpen}
                             >
-                                <ChevronRightIcon />
-                            </IconButton>
-                        )
-                        : (
-                            <IconButton
+                            <ChevronRightIcon />
+                        </IconButton>
+                        
+                        : <IconButton
                               className={`${styles.arrow} ${styles.arrowCommon}`}
                               sx={{ backgroundColor: getColors(themeMode).palette.secondary.main }}
                               color="primary"
                               onClick={handleDrawerClose}
                             >
-                                <ChevronLeftIcon />
-                            </IconButton>
-                        )}
+                            <ChevronLeftIcon />
+                        </IconButton>
+                        }
                     <DrawerHeader className={styles.drawerHeader}>
                         <UserActions
                           isDropdown={!open}
@@ -601,20 +599,20 @@ const AdministrationPortal = () => {
                               iconButtonRef={iconButtonRef}
                             />
                             <DrawerHeader className={styles.username}>
-                                {open && (
+                                {open && 
                                     <>
                                         <Typography variant="subtitle1">
                                             {user.userName}
                                         </Typography>
                                         <Divider sx={{ color: 'red', width: '90%' }} />
                                     </>
-                                )}
+                                }
                             </DrawerHeader>
                         </DrawerHeader>
                     </DrawerHeader>
                     <List className={styles.list}>
                         <Divider />
-                        {administrationItems.map((item) => (user.isAdmin || !item.visibleOnlyForAdmin) && (
+                        {administrationItems.map((item) => (user.isAdmin || !item.visibleOnlyForAdmin) && 
                             <StyledTooltip
                               key={item.path}
                               title={item.name}
@@ -649,8 +647,7 @@ const AdministrationPortal = () => {
                                     </ListItem>
                                     <Divider />
                                 </div>
-                            </StyledTooltip>
-                        ))}
+                            </StyledTooltip>)}
                     </List>
                 </Drawer>
                 <Box

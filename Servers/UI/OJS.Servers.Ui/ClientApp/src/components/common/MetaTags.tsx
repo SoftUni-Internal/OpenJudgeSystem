@@ -6,11 +6,11 @@ interface IMetaTagsProps {
     description: string;
 }
 
-const MetaTags = ({ title, description }: IMetaTagsProps) => (
+const MetaTags = ({ title, description }: IMetaTagsProps) => 
     <Helmet>
         <title>{title}</title>
         <meta name="description" content={description} />
     </Helmet>
-);
+;
 
 export default MetaTags;

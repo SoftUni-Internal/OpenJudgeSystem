@@ -26,15 +26,15 @@ const AdministrationExamGroupPage = () => {
 
     useScrollToTab({ hash, tabName, setTabName, tabNames: Object.values(EXAM_GROUPS_LISTED_DATA) });
 
-    const returnExamGroupForm = () => (
+    const returnExamGroupForm = () => 
         <ExamGroupEdit examGroupId={Number(examGroupId)} getContestId={getExamGroupContestId} />
-    );
+    ;
 
     const onTabChange = (event: React.SyntheticEvent, newValue: EXAM_GROUPS_LISTED_DATA) => {
         setTabName(newValue);
     };
 
-    const returnUsers = (key: string) => (
+    const returnUsers = (key: string) => 
         <div id={EXAM_GROUPS_LISTED_DATA.USERS_TAB}>
             <UsersInExamGroupView
               key={key}
@@ -43,7 +43,7 @@ const AdministrationExamGroupPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </div>
-    );
+    ;
 
     return (
         <>

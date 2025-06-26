@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React from 'react';
 import { BiTransfer } from 'react-icons/bi';
 import { FaCloudDownloadAlt } from 'react-icons/fa';
@@ -47,7 +47,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsDetailsPageUrl({
                   contestId: params.row.id,
@@ -55,7 +55,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'name',
@@ -67,7 +67,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsDetailsPageUrl({
                   contestId: params.row.id,
@@ -75,7 +75,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'category',
@@ -245,7 +245,7 @@ export const returnContestsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${CONTESTS_PATH}/${Number(params.row.id)}`} location={`${EDIT} page`} />
@@ -285,7 +285,7 @@ export const returnContestsNonFilterableColumns = (
                   id={Number(params.row.id)}
                 />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

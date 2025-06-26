@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
@@ -101,11 +101,11 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <Link to={`/submissions/${params.row.submissionId}/details`} target="_blank">
                 {params.row.submissionId}
             </Link>
-        ),
+        ,
     },
 ];
 

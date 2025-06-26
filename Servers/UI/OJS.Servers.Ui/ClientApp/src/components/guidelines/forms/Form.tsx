@@ -28,7 +28,7 @@ const Form = ({
     hideFormButton = false,
 }: IFormProps) => {
     const handleSubmit = useCallback(
-        async (ev: FormEvent) => {
+        (ev: FormEvent) => {
             ev.preventDefault();
             onSubmit();
 
@@ -46,21 +46,19 @@ const Form = ({
     const internalSubmitButtonClassName = concatClassNames('btnSubmitInForm', submitButtonClassName);
 
     const renderButton = useCallback(
-        () => (
+        () =>
             isLoading
                 ? <SpinningLoader />
                 : !disableButton
-                    ? (
-                        <Button
+                    ? <Button
                           id={btnId}
                           onClick={(ev) => handleSubmit(ev)}
                           text={submitText}
                           type={ButtonType.submit}
                           className={internalSubmitButtonClassName}
                         />
-                    )
-                    : (
-                        <Button
+
+                    : <Button
                           id={btnId}
                           onClick={(ev) => handleSubmit(ev)}
                           text={submitText}
@@ -68,8 +66,8 @@ const Form = ({
                           className={internalSubmitButtonClassName}
                           state={ButtonState.disabled}
                         />
-                    )
-        ),
+
+        ,
         [ btnId, handleSubmit, disableButton, internalSubmitButtonClassName, submitText, isLoading ],
     );
 

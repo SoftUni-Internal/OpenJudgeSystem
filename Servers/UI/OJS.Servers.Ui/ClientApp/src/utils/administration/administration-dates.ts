@@ -6,7 +6,7 @@ dayjs.extend(utc);
 const ADMIN_DEFAULT_DATE_AND_TIME_FORMAT = 'DD.MM.YYYY, HH:mm';
 const ADMIN_PRECISE_DATE_AND_TIME_FORMAT = 'DD.MM.YYYY, HH:mm:ss:SSS';
 
-const convertToUtc = (date?: Date | null | undefined) => {
+const convertToUtc = (date?: Date | null) => {
     if (!date) {
         return null;
     }
@@ -14,7 +14,7 @@ const convertToUtc = (date?: Date | null | undefined) => {
     return new Date(dayjs.utc(date).toISOString());
 };
 
-const getDateAsLocal = (date?: string | number | Date | null | undefined | Dayjs) => {
+const getDateAsLocal = (date?: string | number | Date | null | Dayjs) => {
     if (!date) {
         return null;
     }
@@ -22,7 +22,7 @@ const getDateAsLocal = (date?: string | number | Date | null | undefined | Dayjs
     return dayjs.utc(date).local();
 };
 
-const adminFormatDate = (date?: Date | null | undefined | Dayjs, format?: string | null | undefined) => {
+const adminFormatDate = (date?: Date | null | Dayjs, format?: string | null) => {
     if (!date) {
         return null;
     }
@@ -30,7 +30,7 @@ const adminFormatDate = (date?: Date | null | undefined | Dayjs, format?: string
     return getDateAsLocal(date)!.format(format || ADMIN_DEFAULT_DATE_AND_TIME_FORMAT);
 };
 
-const adminPreciseFormatDate = (date?: Date | null | undefined | Dayjs) => adminFormatDate(date, ADMIN_PRECISE_DATE_AND_TIME_FORMAT);
+const adminPreciseFormatDate = (date?: Date | null | Dayjs) => adminFormatDate(date, ADMIN_PRECISE_DATE_AND_TIME_FORMAT);
 
 export {
     convertToUtc,

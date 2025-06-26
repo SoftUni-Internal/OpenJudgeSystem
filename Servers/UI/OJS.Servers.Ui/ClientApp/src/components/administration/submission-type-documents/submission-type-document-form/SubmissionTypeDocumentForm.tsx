@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies,css-modules/no-unused-class,@typescript-eslint/ban-types,max-len */
 import React, { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -251,7 +250,7 @@ const SubmissionTypeDocumentForm = (props: ISubmissionTypeDocumentFormProps) => 
                     />
                 </FormControl>
                 <FormControl className={formStyles.inputRow}>
-                    {isEditMode && (
+                    {isEditMode &&
                         <div className={styles.visibilityToggle}>
                             <Tooltip title={isDisabled
                                 ? 'Enable editing'
@@ -259,12 +258,10 @@ const SubmissionTypeDocumentForm = (props: ISubmissionTypeDocumentFormProps) => 
                             >
                                 <IconButton onClick={() => setIsDisabled(!isDisabled)}>
                                     {isDisabled
-                                        ? (
-                                            <VisibilityOffIcon sx={{ color: 'text.disabled' }} />
-                                        )
-                                        : (
-                                            <VisibilityIcon sx={{ color: 'primary.main' }} />
-                                        )}
+                                        ? <VisibilityOffIcon sx={{ color: 'text.disabled' }} />
+
+                                        : <VisibilityIcon sx={{ color: 'primary.main' }} />
+                                        }
                                 </IconButton>
                             </Tooltip>
                             <Typography
@@ -279,7 +276,7 @@ const SubmissionTypeDocumentForm = (props: ISubmissionTypeDocumentFormProps) => 
                                     : 'Editor is unlocked'}
                             </Typography>
                         </div>
-                    )}
+                    }
                     <div className={theme}>
                         <div
                           ref={setEditorRef}

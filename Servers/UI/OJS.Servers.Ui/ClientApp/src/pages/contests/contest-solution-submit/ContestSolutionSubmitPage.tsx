@@ -101,6 +101,7 @@ const ContestSolutionSubmitPage = () => {
 
     const getParticipationType = useCallback(() => {
         if (participationType) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             return participationType === ContestParticipationType.Compete
                 ? ContestParticipationType.Compete
                 : ContestParticipationType.Practice;
@@ -271,7 +272,7 @@ const ContestSolutionSubmitPage = () => {
 
     // Disable submit button based on submission time limits
     useEffect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,prefer-const
         let intervalId: any;
 
         const updateSubmitButtonState = () => {
@@ -319,7 +320,7 @@ const ContestSolutionSubmitPage = () => {
             return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any,prefer-const
         let intervalId: any;
 
         const updateRemainingTime = () => {
@@ -347,7 +348,7 @@ const ContestSolutionSubmitPage = () => {
         if (isLoading) {
             return;
         }
-        if (((!isRegisteredParticipant && !isActiveParticipant) && !isError) || isInvalidated) {
+        if (!isRegisteredParticipant && !isActiveParticipant && !isError || isInvalidated) {
             navigate(getContestsRegisterPageUrl({
                 isCompete,
                 contestId,
@@ -370,9 +371,9 @@ const ContestSolutionSubmitPage = () => {
             }
 
             dispatch(setContestDetailsIdAndCategoryId({
-                id: data!.contest!.id,
+                id: data.contest.id,
                 name: data.contest.name,
-                categoryId: data!.contest!.categoryId,
+                categoryId: data.contest.categoryId,
                 isWithRandomTasks: data?.contest?.isWithRandomTasks,
             }));
         }
@@ -396,7 +397,7 @@ const ContestSolutionSubmitPage = () => {
             content: submissionCode!,
             official: isCompete,
             problemId: selectedContestDetailsProblem?.id!,
-            submissionTypeId: selectedSubmissionType?.id!,
+            submissionTypeId: selectedSubmissionType?.id,
             contestId: Number(contestId!),
             isWithRandomTasks: contestDetails?.isWithRandomTasks,
             verbosely: executeVerbosely,
@@ -427,10 +428,10 @@ const ContestSolutionSubmitPage = () => {
         setUploadedFile(null);
 
         await submitSolutionFile({
-            content: uploadedFile!,
+            content: uploadedFile,
             official: isCompete,
             problemId: selectedContestDetailsProblem?.id!,
-            submissionTypeId: selectedSubmissionType?.id!,
+            submissionTypeId: selectedSubmissionType?.id,
             contestId: Number(contestId!),
             isWithRandomTasks: contestDetails?.isWithRandomTasks,
             verbosely: executeVerbosely,
@@ -459,30 +460,30 @@ const ContestSolutionSubmitPage = () => {
         : 0, [ contest, updatedProblems ]);
 
     const renderProblemAdminButtons = useCallback(
-        () => contest && contest.userIsAdminOrLecturerInContest && selectedContestDetailsProblem && (
+        () => contest && contest.userIsAdminOrLecturerInContest && selectedContestDetailsProblem &&
             <div className={styles.adminButtonsContainer}>
                 <AdministrationLink
                   text="Problem"
                   to={`/problems?filter=id~equals~${
-                        selectedContestDetailsProblem!.id
+                      selectedContestDetailsProblem.id
                   }%26%26%3Bisdeleted~equals~false&sorting=id%3DDESC`}
                 />
                 <AdministrationLink
                   text="Tests"
                   to={`/problems/${
-                        selectedContestDetailsProblem!.id
+                      selectedContestDetailsProblem.id
                   }#tab-tests`}
                 />
-                {user.isAdmin && (
+                {user.isAdmin &&
                     <AdministrationLink
                       text="View docs"
                       to={`/submission-type-documents-view?submissionTypeIds=${selectedContestDetailsProblem.allowedSubmissionTypes
                           .map((st) => st.id)
                           .join(',')}`}
                     />
-                )}
+                }
             </div>
-        ),
+        ,
         [ contest, selectedContestDetailsProblem, user.isAdmin ],
     );
 
@@ -495,12 +496,11 @@ const ContestSolutionSubmitPage = () => {
 
         return (
             <div className={styles.problemResources}>
-                {resources.map((resource: IProblemResourceType) => (
+                {resources.map((resource: IProblemResourceType) =>
                     <Resource
                       key={`resource-${resource.id}`}
                       resource={resource}
-                    />
-                ))}
+                    />)}
             </div>
         );
     }, [ selectedContestDetailsProblem ]);
@@ -512,12 +512,11 @@ const ContestSolutionSubmitPage = () => {
 
         return (
             <div className={styles.contestResourcesWrapper}>
-                {contest.resources.map((resource: IProblemResourceType, index: number) => (
+                {contest.resources.map((resource: IProblemResourceType, index: number) =>
                     <span key={`contest-resource-${resource.id}`}>
                         <Resource resource={resource} />
                         {contest.resources.length > 1 && index < contest.resources.length - 1 && ' | '}
-                    </span>
-                ))}
+                    </span>)}
             </div>
         );
     }, [ contest ]);
@@ -585,13 +584,13 @@ const ContestSolutionSubmitPage = () => {
                             {' '}
                             KB
                         </div>
-                        {checkerName && (
+                        {checkerName &&
                             <div>
                                 <span className={styles.title}>Checker:</span>
                                 {' '}
                                 {checkerName}
                             </div>
-                        )}
+                        }
                     </div>
                 </Popover>
             </div>
@@ -688,18 +687,18 @@ const ContestSolutionSubmitPage = () => {
                               ? ButtonState.disabled
                               : ButtonState.enabled}
                         />
-                        {remainingTime > 0 && (
+                        {remainingTime > 0 &&
                             <div className={styles.remainingTimeWrapper}>
                                 {transformSecondsToTimeSpan(remainingTime)}
                                 {' '}
                                 until next submit
                             </div>
-                        )}
-                        {submitSolutionFileHasError && (
+                        }
+                        {submitSolutionFileHasError &&
                             <div className={styles.solutionSubmitError}>
                                 {getErrorMessage(submitSolutionFileError)}
                             </div>
-                        )}
+                        }
                     </div>
                 </div>
             );
@@ -729,20 +728,20 @@ const ContestSolutionSubmitPage = () => {
                           onClick={onSolutionSubmitCode}
                           text="Submit"
                         />
-                        {remainingTime > 0 && (
+                        {remainingTime > 0 &&
                             <div className={styles.remainingTimeWrapper}>
                                 {transformSecondsToTimeSpan(remainingTime)}
                                 {' '}
                                 until next submit
                             </div>
-                        )}
+                        }
                     </div>
                 </div>
-                {submitSolutionHasError && (
+                {submitSolutionHasError &&
                     <div className={styles.solutionSubmitError}>
                         {(submitSolutionError as any).data.detail || 'Error submitting solution. Please try again!'}
                     </div>
-                )}
+                }
             </div>
         );
     }, [
@@ -806,13 +805,13 @@ const ContestSolutionSubmitPage = () => {
                     >
                         {contest?.name}
                     </Link>
-                    {user.canAccessAdministration && (
+                    {user.canAccessAdministration &&
                         <div className={styles.adminButtonsContainer}>
                             <AdministrationLink
                               text="Contest"
                               to={`/contests/${contestId}`}
                             />
-                            {user.isAdmin && (
+                            {user.isAdmin &&
                                 <AdministrationLink
                                   text="View docs"
                                   to={`/submission-type-documents-view?submissionTypeIds=${problems
@@ -825,9 +824,9 @@ const ContestSolutionSubmitPage = () => {
                                       }, [] as number[])
                                       ?.join(',') ?? ''}`}
                                 />
-                            )}
+                            }
                         </div>
-                    )}
+                    }
                 </div>
                 <div
                   className={styles.allResultsLink}
@@ -853,8 +852,8 @@ const ContestSolutionSubmitPage = () => {
                     <div className={styles.problemNameAndTimeWrapper}>
                         <div className={styles.problemName}>
                             {selectedContestDetailsProblem?.name}
-                            {selectedContestDetailsProblem?.isExcludedFromHomework && (
-                                <span className={textColorClassName}>(not included in final score)</span>)}
+                            {selectedContestDetailsProblem?.isExcludedFromHomework &&
+                                <span className={textColorClassName}>(not included in final score)</span>}
                             {renderProblemAdminButtons()}
                         </div>
                         {renderRemainingTimeForContest()}
@@ -890,8 +889,7 @@ const ContestSolutionSubmitPage = () => {
                 </div>
                 {submissionsErrorData
                     ? getErrorMessage(submissionsErrorData, 'Error loading submissions')
-                    : (
-                        <SubmissionsGrid
+                    : <SubmissionsGrid
                           isDataFetching={submissionsDataFetching}
                           isDataLoaded={!submissionsDataLoading}
                           submissions={submissionsData ?? undefined}
@@ -906,7 +904,7 @@ const ContestSolutionSubmitPage = () => {
                           setSearchParams={setSearchParams}
                           setQueryParams={setQueryParams}
                         />
-                    )}
+                    }
             </div>
             <Mentor
               problemId={selectedContestDetailsProblem?.id}

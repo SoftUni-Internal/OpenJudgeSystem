@@ -88,7 +88,7 @@ const FileUploader = ({ file, problemId, allowedFileExtensions, onInvalidFileExt
 
             const uploadedFile = eventTarget[0];
             handleFileUpload(uploadedFile);
-            // eslint-disable-next-line no-param-reassign
+             
             event.target.value = null;
         },
         [ problemId, handleFileUpload ],
@@ -116,12 +116,11 @@ const FileUploader = ({ file, problemId, allowedFileExtensions, onInvalidFileExt
             <div className={styles.fileName}>
                 {isNil(internalFile)
                     ? ''
-                    : (
-                        <div className={styles.uploadedFileWrapper}>
-                            <MdAttachFile />
-                            {internalFile.name}
-                        </div>
-                    )}
+                    : <div className={styles.uploadedFileWrapper}>
+                        <MdAttachFile />
+                        {internalFile.name}
+                    </div>
+                    }
             </div>
             <input
               type="file"

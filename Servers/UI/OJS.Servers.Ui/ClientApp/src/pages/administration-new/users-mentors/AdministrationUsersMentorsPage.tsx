@@ -48,7 +48,7 @@ const AdministrationUsersMentorsPage = () => {
         setUserMentorId(id);
     };
 
-    const renderContestModal = (index: number) => (
+    const renderContestModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -61,7 +61,7 @@ const AdministrationUsersMentorsPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
     return (
         <>

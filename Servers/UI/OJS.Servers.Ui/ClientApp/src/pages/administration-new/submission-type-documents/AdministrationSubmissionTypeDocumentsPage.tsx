@@ -38,14 +38,14 @@ const AdministrationSubmissionTypeDocumentsPage = () => {
         refetchSubmissionTypesInSubmissionDocuments();
     };
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () => 
         // The 'showModal' parameter is not needed, since we want to use the button for navigation
         <CreateButton
           showModal={false}
           showModalFunc={() => navigate(`/${NEW_ADMINISTRATION_PATH}/${SUBMISSION_TYPE_DOCUMENTS_PATH}/0?isEditMode=false`)}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
     return (
         <>

@@ -31,7 +31,6 @@ import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '
 
 import contestFilterableColumns, { returnContestsNonFilterableColumns } from './contestsGridColumns';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../../components/administration/common/styles/FormStyles.module.scss';
 
 const AdministrationContestsPage = () => {
@@ -192,7 +191,7 @@ const AdministrationContestsPage = () => {
         setContestOfficialParticipants(transferParticipantsContestOfficialParticipants);
     };
 
-    const renderDownloadSubsModal = (index: number) => (
+    const renderDownloadSubsModal = (index: number) =>
         <AdministrationModal
           key={index}
           index={index}
@@ -201,9 +200,9 @@ const AdministrationContestsPage = () => {
         >
             <ContestDownloadSubmissions contestid={contestId!} />
         </AdministrationModal>
-    );
+    ;
 
-    const renderExcelExportModal = (index: number) => (
+    const renderExcelExportModal = (index: number) =>
         <AdministrationModal
           key={index}
           index={index}
@@ -223,9 +222,9 @@ const AdministrationContestsPage = () => {
                 </form>
             </>
         </AdministrationModal>
-    );
+    ;
 
-    const renderTransferParticipantsModal = (index: number) => (
+    const renderTransferParticipantsModal = (index: number) =>
         <AdministrationModal
           key={index}
           index={index}
@@ -235,9 +234,9 @@ const AdministrationContestsPage = () => {
             <>
                 <Typography className={formStyles.centralize} variant="h4">Transfer participants</Typography>
                 <Typography className={concatClassnames(formStyles.centralize, formStyles.spacing)} variant="h6">
-                    {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                    { }
                     Are you sure you want to transfer <b>{contestOfficialParticipants}</b> participants from <b>Compete</b>{' '}
-                    {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                    { }
                     to <b>Practice</b> for the contest <b>{contestName}</b> from the category <b>{categoryName}</b>?
                 </Typography>
                 <form className={formStyles.form}>
@@ -251,9 +250,9 @@ const AdministrationContestsPage = () => {
                 </form>
             </>
         </AdministrationModal>
-    );
+    ;
 
-    const renderContestModal = (index: number, isEditMode: boolean) => (
+    const renderContestModal = (index: number, isEditMode: boolean) =>
         <AdministrationModal
           key={index}
           index={index}
@@ -276,15 +275,15 @@ const AdministrationContestsPage = () => {
                   : undefined}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderGridActions = () => (
+    const renderGridActions = () =>
         <CreateButton
           showModal={openShowCreateContestModal}
           showModalFunc={setOpenShowCreateContestModal}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
     if (isLoading) {
         return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;

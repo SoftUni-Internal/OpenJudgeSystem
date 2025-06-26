@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import {

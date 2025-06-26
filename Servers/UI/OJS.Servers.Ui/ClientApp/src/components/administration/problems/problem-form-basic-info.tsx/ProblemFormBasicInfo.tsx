@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import {
     Autocomplete,
     Box,
@@ -18,7 +17,6 @@ import { IProblemAdministration, IProblemGroupDropdownModel } from '../../../../
 import useDisableMouseWheelOnNumberInputs from '../../../../hooks/common/use-disable-mouse-wheel-on-number-inputs';
 import { useGetCheckersForProblemQuery } from '../../../../redux/services/admin/checkersAdminService';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IProblemFormBasicInfoProps {
@@ -58,9 +56,9 @@ const ProblemFormBasicInfo = (props: IProblemFormBasicInfoProps) => {
                                   }
                                   return option.orderBy.toString();
                               }}
-                              renderInput={(params) => (
+                              renderInput={(params) =>
                                   <TextField {...params} label="Problem Group Order By" />
-                              )}
+                              }
                               renderOption={(properties, option) => {
                                   if (option.id === NEW_PROBLEM_GROUP.id) {
                                       return (
@@ -79,7 +77,7 @@ const ProblemFormBasicInfo = (props: IProblemFormBasicInfoProps) => {
                         </FormControl>
                     </Box>
                     <Box className={formStyles.row}>
-                        {currentProblem.problemGroupId === NEW_PROBLEM_GROUP.id && (
+                        {currentProblem.problemGroupId === NEW_PROBLEM_GROUP.id &&
                             <FormControl className={formStyles.inputRow}>
                                 <Autocomplete
                                   sx={{ width: '100%' }}
@@ -87,18 +85,18 @@ const ProblemFormBasicInfo = (props: IProblemFormBasicInfoProps) => {
                                   onChange={(event, newValue) => onChange({ target: { name: 'problemGroupType', value: newValue } })}
                                   value={currentProblem.problemGroupType}
                                   options={Object.keys(ProblemGroupTypes).filter((key) => isNaN(Number(key)))}
-                                  renderInput={(params) => (
+                                  renderInput={(params) =>
                                       <TextField {...params} label={PROBLEM_GROUP_TYPE} />
-                                  )}
+                                  }
                                   getOptionLabel={(option) => option}
-                                  renderOption={(properties, option) => (
+                                  renderOption={(properties, option) =>
                                       <MenuItem {...properties} key={option} value={option}>
                                           {option}
                                       </MenuItem>
-                                  )}
+                                  }
                                 />
                             </FormControl>
-                        )}
+                        }
                     </Box>
                 </Box>
             );
@@ -113,15 +111,15 @@ const ProblemFormBasicInfo = (props: IProblemFormBasicInfoProps) => {
                       onChange={(event, newValue) => onChange({ target: { name: 'problemGroupType', value: newValue } })}
                       value={currentProblem.problemGroupType}
                       options={Object.keys(ProblemGroupTypes).filter((key) => isNaN(Number(key)))}
-                      renderInput={(params) => (
+                      renderInput={(params) =>
                           <TextField {...params} label={PROBLEM_GROUP_TYPE} />
-                      )}
+                      }
                       getOptionLabel={(option) => option}
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option} value={option}>
                               {option}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
             </Box>
@@ -220,14 +218,14 @@ const ProblemFormBasicInfo = (props: IProblemFormBasicInfoProps) => {
                               value={checkers?.find((c) => c.id === Number(currentProblem.checkerId)) ?? null}
                               options={checkers ?? []}
                               getOptionLabel={(option) => option.name}
-                              renderInput={(params) => (
+                              renderInput={(params) =>
                                   <TextField {...params} label={CHECKER} />
-                              )}
-                              renderOption={(properties, option) => (
+                              }
+                              renderOption={(properties, option) =>
                                   <MenuItem {...properties} key={option.id} value={option.id}>
                                       {option.name}
                                   </MenuItem>
-                              )}
+                              }
                             />
                         </FormControl>
                     </Box>

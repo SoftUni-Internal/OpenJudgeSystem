@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useCallback, useEffect, useState } from 'react';
 import { FaLongArrowAltRight } from 'react-icons/fa';
 import {
@@ -42,7 +42,7 @@ interface ICopyModalProps{
     problemToCopyName: string | null;
     setShowModal: Function;
     setParentSuccessMessage: Function;
-    onClose?: () => {};
+    onClose?: () => object;
 }
 
 const CopyModal = (props: ICopyModalProps) => {
@@ -114,9 +114,9 @@ const CopyModal = (props: ICopyModalProps) => {
         if (!isNil(contestToCopy) &&
             (
                 // Copy into existing problem group and problem group id is set
-                (!copyIntoNewProblemGroup && !isNil(problemGroupId)) ||
+                !copyIntoNewProblemGroup && !isNil(problemGroupId) ||
                 // Copy into new problem group and problem group id is reset to null
-                (copyIntoNewProblemGroup && isNil(problemGroupId))
+                copyIntoNewProblemGroup && isNil(problemGroupId)
             ) &&
             !isNilOrEmpty(sourceContestName)
         ) {
@@ -210,13 +210,12 @@ const CopyModal = (props: ICopyModalProps) => {
             <Box sx={modalStyles}>
                 {isLoading
                     ? <SpinningLoader />
-                    : (
-                        <>
-                            {renderErrorMessagesAlert(errorMessages)}
-                            <Typography variant="h5" padding="0.5rem">
-                                {getModalTitle()}
-                            </Typography>
-                            <Autocomplete<IContestAutocomplete>
+                    : <>
+                        {renderErrorMessagesAlert(errorMessages)}
+                        <Typography variant="h5" padding="0.5rem">
+                            {getModalTitle()}
+                        </Typography>
+                        <Autocomplete<IContestAutocomplete>
                               sx={{ marginTop: '1rem' }}
                               disabled={sourceContestName === ''}
                               options={contestAutocomplete}
@@ -229,17 +228,17 @@ const CopyModal = (props: ICopyModalProps) => {
                                   : null}
                               isOptionEqualToValue={(option, value) => option.id === value.id}
                               getOptionLabel={(option) => option?.name}
-                              renderOption={(properties, option) => (
+                              renderOption={(properties, option) =>
                                   <MenuItem {...properties} key={option.id} value={option.id}>
                                       #
                                       {option.id}
                                       {' '}
                                       {option.name}
                                   </MenuItem>
-                              )}
+                              }
                             />
-                            {
-                              operation === AllowedOperations.Copy && !copyIntoNewProblemGroup && (
+                        {
+                              operation === AllowedOperations.Copy && !copyIntoNewProblemGroup &&
                               <Autocomplete<IProblemGroupDropdownModel>
                                 sx={{ marginTop: '1rem' }}
                                 disabled={problemGroupsAreLoading || isNil(contestToCopy)}
@@ -256,16 +255,16 @@ const CopyModal = (props: ICopyModalProps) => {
                                     : null}
                                 isOptionEqualToValue={(option, value) => option.id === value.id}
                                 getOptionLabel={(option) => option?.orderBy.toString()}
-                                renderOption={(properties, option) => (
+                                renderOption={(properties, option) =>
                                     <MenuItem {...properties} key={option.id} value={option.id}>
                                         {option.orderBy}
                                     </MenuItem>
-                                )}
+                                }
                               />
-                              )
+
                             }
-                            {
-                                operation === AllowedOperations.Copy && (
+                        {
+                                operation === AllowedOperations.Copy &&
                                     <FormControlLabel
                                       control={(
                                           <Checkbox
@@ -276,29 +275,29 @@ const CopyModal = (props: ICopyModalProps) => {
                                       onChange={() => setCopyIntoNewProblemGroup(!copyIntoNewProblemGroup)}
                                       label={COPY_INTO_NEW_PROBLEM_GROUP}
                                     />
-                                )
+
                             }
-                            <Box sx={{ marginTop: '1rem' }}>
-                                <Typography sx={{ display: 'flex', justifyContent: 'space-around' }}>
-                                    {sourceContestName}
-                                    {' '}
-                                    <FaLongArrowAltRight />
-                                    {contestToCopy !== null
-                                        ? contestToCopy?.name
-                                        : 'Select contest'}
-                                </Typography>
-                            </Box>
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
-                                <Button
+                        <Box sx={{ marginTop: '1rem' }}>
+                            <Typography sx={{ display: 'flex', justifyContent: 'space-around' }}>
+                                {sourceContestName}
+                                {' '}
+                                <FaLongArrowAltRight />
+                                {contestToCopy !== null
+                                    ? contestToCopy?.name
+                                    : 'Select contest'}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                            <Button
                                   variant="contained"
                                   disabled={!isFormValid}
                                   onClick={() => onSubmit()}
                                 >
-                                    Copy
-                                </Button>
-                            </Box>
-                        </>
-                    )}
+                                Copy
+                            </Button>
+                        </Box>
+                    </>
+                    }
             </Box>
         </Modal>
     );

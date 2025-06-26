@@ -37,7 +37,7 @@ const AdministrationContestResourcesPage = () => {
         setProblemResourceId(id);
     };
 
-    const renderProblemResourceModal = (index: number) => (
+    const renderProblemResourceModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -50,7 +50,7 @@ const AdministrationContestResourcesPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
     return (
         <>
             {renderSuccessfullAlert(successMessage, 7000)}

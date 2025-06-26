@@ -66,9 +66,9 @@ const SubmissionsGrid = ({
     };
 
     const handleToggleFilter = (filterId: string | null) => {
-        setOpenFilter((prevId) => (prevId === filterId
+        setOpenFilter((prevId) => prevId === filterId
             ? null
-            : filterId));
+            : filterId);
     };
 
     const headerClassName = concatClassNames(
@@ -94,14 +94,15 @@ const SubmissionsGrid = ({
         options.showSubmissionTypeInfo,
         options.showTaskDetails ]);
 
-    const renderSubmissionsGrid = useCallback(() => (
-        <table className={concatClassNames(className, styles.submissionsGrid)}>
-            <thead>
-                <tr className={headerClassName}>
-                    <td>
-                        <div className={styles.header}>
-                            {isAdmin && (
-                            <Filter
+    const renderSubmissionsGrid = useCallback(
+        () =>
+            <table className={concatClassNames(className, styles.submissionsGrid)}>
+                <thead>
+                    <tr className={headerClassName}>
+                        <td>
+                            <div className={styles.header}>
+                                {isAdmin &&
+                                <Filter
                               filterColumn={{ id: 'Id', name: 'Id', columnType: FilterColumnTypeEnum.NUMBER }}
                               allFilters={selectedFilters}
                               setSearchParams={setSearchParams}
@@ -111,173 +112,172 @@ const SubmissionsGrid = ({
                               openFilter={openFilter}
                               onToggleFilter={handleToggleFilter}
                             />
-                            )}
-                            ID
-                        </div>
-                    </td>
-                    {options.showTaskDetails && (
-                    <td>
-                        <div className={styles.header}>
-                            {isAdmin && (
-                            <Filter
-                              filterColumn={{
-                                  id: 'Problem.Name',
-                                  name: 'ProblemName',
-                                  columnType: FilterColumnTypeEnum.STRING,
-                              }}
-                              allFilters={selectedFilters}
-                              setSearchParams={setSearchParams}
-                              searchParams={searchParams}
-                              setAllFilters={setSelectedFilters}
-                              setQueryParams={setQueryParams}
-                              openFilter={openFilter}
-                              onToggleFilter={handleToggleFilter}
-                            />
-                            )}
-                            Task
-                        </div>
-                    </td>
-                    )}
-                    <td>
-                        <div className={styles.header}>
-                            {isAdmin && (
-                            <Filter
-                              filterColumn={{
-                                  id: 'CreatedOn',
-                                  name: 'CreatedOn',
-                                  columnType: FilterColumnTypeEnum.DATE,
-                              }}
-                              allFilters={selectedFilters}
-                              setSearchParams={setSearchParams}
-                              searchParams={searchParams}
-                              setAllFilters={setSelectedFilters}
-                              setQueryParams={setQueryParams}
-                              openFilter={openFilter}
-                              onToggleFilter={handleToggleFilter}
-                            />
-                            )}
-                            From
-                        </div>
-                    </td>
-                    {options.showCompeteMarker && (
-                    <td>
-                        <div className={styles.header}>
-                            {isAdmin && (
-                            <Filter
-                              filterColumn={{
-                                  id: 'IsOfficial',
-                                  name: 'IsCompete',
-                                  columnType: FilterColumnTypeEnum.BOOL,
-                              }}
-                              allFilters={selectedFilters}
-                              setSearchParams={setSearchParams}
-                              searchParams={searchParams}
-                              setAllFilters={setSelectedFilters}
-                              setQueryParams={setQueryParams}
-                              openFilter={openFilter}
-                              onToggleFilter={handleToggleFilter}
-                            />
-                            )}
-                            Mode
-                        </div>
-                    </td>
-                    )}
-                    {options.showDetailedResults && <td>Time and Memory Used</td>}
-                    <td>
-                        <div className={styles.header}>
-                            {isAdmin && (
-                            <Filter
-                              filterColumn={{
-                                  id: 'Result.Points',
-                                  name: 'Points',
-                                  columnType: FilterColumnTypeEnum.NUMBER,
-                              }}
-                              allFilters={selectedFilters}
-                              setSearchParams={setSearchParams}
-                              searchParams={searchParams}
-                              setAllFilters={setSelectedFilters}
-                              setQueryParams={setQueryParams}
-                              openFilter={openFilter}
-                              onToggleFilter={handleToggleFilter}
-                            />
-                            )}
-                            Result
-                        </div>
-                    </td>
-                    {options.showSubmissionTypeInfo && (
-                    <td>
-                        <div className={styles.header}>
-                            {isAdmin && (
-                            <Filter
-                              filterColumn={{
-                                  id: 'StrategyName',
-                                  name: 'StrategyName',
-                                  columnType: FilterColumnTypeEnum.STRING,
-                              }}
-                              allFilters={selectedFilters}
-                              setSearchParams={setSearchParams}
-                              searchParams={searchParams}
-                              setAllFilters={setSelectedFilters}
-                              setQueryParams={setQueryParams}
-                              openFilter={openFilter}
-                              onToggleFilter={handleToggleFilter}
-                            />
-                            )}
-                            Strategy
-                        </div>
-                    </td>
-                    )}
-                    {areItemsAvailable && <td>Actions</td>}
-                </tr>
-            </thead>
-            <tbody>
-                {!isDataLoaded
-                    ? (
-                        <tr>
+                            }
+                                ID
+                            </div>
+                        </td>
+                        {options.showTaskDetails &&
+                        <td>
+                            <div className={styles.header}>
+                                {isAdmin &&
+                                <Filter
+                                  filterColumn={{
+                                      id: 'Problem.Name',
+                                      name: 'ProblemName',
+                                      columnType: FilterColumnTypeEnum.STRING,
+                                  }}
+                                  allFilters={selectedFilters}
+                                  setSearchParams={setSearchParams}
+                                  searchParams={searchParams}
+                                  setAllFilters={setSelectedFilters}
+                                  setQueryParams={setQueryParams}
+                                  openFilter={openFilter}
+                                  onToggleFilter={handleToggleFilter}
+                                />
+                            }
+                                Task
+                            </div>
+                        </td>
+                    }
+                        <td>
+                            <div className={styles.header}>
+                                {isAdmin &&
+                                <Filter
+                                  filterColumn={{
+                                      id: 'CreatedOn',
+                                      name: 'CreatedOn',
+                                      columnType: FilterColumnTypeEnum.DATE,
+                                  }}
+                                  allFilters={selectedFilters}
+                                  setSearchParams={setSearchParams}
+                                  searchParams={searchParams}
+                                  setAllFilters={setSelectedFilters}
+                                  setQueryParams={setQueryParams}
+                                  openFilter={openFilter}
+                                  onToggleFilter={handleToggleFilter}
+                                />
+                            }
+                                From
+                            </div>
+                        </td>
+                        {options.showCompeteMarker &&
+                        <td>
+                            <div className={styles.header}>
+                                {isAdmin &&
+                                <Filter
+                                  filterColumn={{
+                                      id: 'IsOfficial',
+                                      name: 'IsCompete',
+                                      columnType: FilterColumnTypeEnum.BOOL,
+                                  }}
+                                  allFilters={selectedFilters}
+                                  setSearchParams={setSearchParams}
+                                  searchParams={searchParams}
+                                  setAllFilters={setSelectedFilters}
+                                  setQueryParams={setQueryParams}
+                                  openFilter={openFilter}
+                                  onToggleFilter={handleToggleFilter}
+                                />
+                                }
+                                Mode
+                            </div>
+                        </td>
+                    }
+                        {options.showDetailedResults && <td>Time and Memory Used</td>}
+                        <td>
+                            <div className={styles.header}>
+                                {isAdmin &&
+                                <Filter
+                                  filterColumn={{
+                                      id: 'Result.Points',
+                                      name: 'Points',
+                                      columnType: FilterColumnTypeEnum.NUMBER,
+                                  }}
+                                  allFilters={selectedFilters}
+                                  setSearchParams={setSearchParams}
+                                  searchParams={searchParams}
+                                  setAllFilters={setSelectedFilters}
+                                  setQueryParams={setQueryParams}
+                                  openFilter={openFilter}
+                                  onToggleFilter={handleToggleFilter}
+                                />
+                                }
+                                Result
+                            </div>
+                        </td>
+                        {options.showSubmissionTypeInfo &&
+                        <td>
+                            <div className={styles.header}>
+                                {isAdmin &&
+                                <Filter
+                                  filterColumn={{
+                                      id: 'StrategyName',
+                                      name: 'StrategyName',
+                                      columnType: FilterColumnTypeEnum.STRING,
+                                  }}
+                                  allFilters={selectedFilters}
+                                  setSearchParams={setSearchParams}
+                                  searchParams={searchParams}
+                                  setAllFilters={setSelectedFilters}
+                                  setQueryParams={setQueryParams}
+                                  openFilter={openFilter}
+                                  onToggleFilter={handleToggleFilter}
+                                />
+                                }
+                                Strategy
+                            </div>
+                        </td>
+                    }
+                        {areItemsAvailable && <td>Actions</td>}
+                    </tr>
+                </thead>
+                <tbody>
+                    {!isDataLoaded
+                        ? <tr>
                             <td colSpan={getColspan()} style={{ textAlign: 'center', padding: '10px' }}>
                                 <SpinningLoader />
                             </td>
                         </tr>
-                    )
-                    : !areItemsAvailable
-                        ? (
-                            <tr className={styles.noSubmissionsRow}>
+
+                        : !areItemsAvailable
+                            ? <tr className={styles.noSubmissionsRow}>
                                 <td colSpan={getColspan()}>
                                     <div className={styles.noSubmissionsContainer}>
                                         No submissions yet.
                                     </div>
                                 </td>
                             </tr>
-                        )
-                        : submissions?.items?.map((s) => <SubmissionGridRow submission={s} options={options} key={s.id} />)}
-            </tbody>
-        </table>
-    ), [
-        className,
-        headerClassName,
-        selectedFilters,
-        setSearchParams,
-        searchParams,
-        setQueryParams,
-        openFilter,
-        options,
-        isDataLoaded,
-        getColspan,
-        submissions?.items,
-        areItemsAvailable,
-        isAdmin ]);
+
+                            : submissions?.items?.map((s) => <SubmissionGridRow submission={s} options={options} key={s.id} />)}
+                </tbody>
+            </table>
+        , [
+            className,
+            headerClassName,
+            selectedFilters,
+            setSearchParams,
+            searchParams,
+            setQueryParams,
+            openFilter,
+            options,
+            isDataLoaded,
+            getColspan,
+            submissions?.items,
+            areItemsAvailable,
+            isAdmin ],
+    );
 
     return (
         <>
             {renderSubmissionsGrid()}
-            {submissions && areItemsAvailable && submissions?.pagesCount !== 0 && (
+            {submissions && areItemsAvailable && submissions?.pagesCount !== 0 &&
                 <PaginationControls
                   isDataFetching={isDataFetching}
                   count={submissions.pagesCount}
                   page={submissions.pageNumber}
                   onChange={onPageChange}
                 />
-            )}
+            }
         </>
     );
 };

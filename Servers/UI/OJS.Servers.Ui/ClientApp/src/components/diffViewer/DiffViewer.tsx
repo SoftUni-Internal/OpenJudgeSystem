@@ -1,4 +1,4 @@
-/* eslint-disable no-plusplus */
+ 
 import React from 'react';
 import { diffChars } from 'diff';
 
@@ -11,9 +11,9 @@ interface ITestsRunDiffProps {
     actualStr: string;
 }
 
-const ensureNewline = (str: string) => (str.endsWith('\n')
+const ensureNewline = (str: string) => str.endsWith('\n')
     ? str
-    : `${str}\n`);
+    : `${str}\n`;
 
 const renderSplitCharDiff = (expectedLine = '', actualLine = '', isDarkMode = false) => {
     const charDiff = diffChars(expectedLine, actualLine);
@@ -159,13 +159,12 @@ const DiffViewer = ({ expectedStr = '', actualStr = '' }: ITestsRunDiffProps) =>
             <div className={styles.diffScrollableBody}>
                 <table className={styles.splitDiffTable}>
                     <tbody>
-                        {rows.map(({ expectedLine, actualLine, key, expectedClass, actualClass, expectedLineNum, actualLineNum }) => (
+                        {rows.map(({ expectedLine, actualLine, key, expectedClass, actualClass, expectedLineNum, actualLineNum }) => 
                             <tr className={styles.splitDiffLine} key={key}>
                                 <td className={styles.splitDiffLineNumberCell}>
                                     {expectedLineNum !== undefined
-                                        ? (
-                                            <span className={styles.splitDiffLineNumber}>{expectedLineNum}</span>
-                                        )
+                                        ? <span className={styles.splitDiffLineNumber}>{expectedLineNum}</span>
+                                        
                                         : ''}
                                 </td>
                                 <td className={styles.splitDiffCell + (expectedClass
@@ -176,9 +175,8 @@ const DiffViewer = ({ expectedStr = '', actualStr = '' }: ITestsRunDiffProps) =>
                                 </td>
                                 <td className={`${styles.splitDiffLineNumberCell} ${styles.splitDiffSeparator}`}>
                                     {actualLineNum !== undefined
-                                        ? (
-                                            <span className={styles.splitDiffLineNumber}>{actualLineNum}</span>
-                                        )
+                                        ? <span className={styles.splitDiffLineNumber}>{actualLineNum}</span>
+                                        
                                         : ''}
                                 </td>
                                 <td className={styles.splitDiffCell + (actualClass
@@ -187,8 +185,7 @@ const DiffViewer = ({ expectedStr = '', actualStr = '' }: ITestsRunDiffProps) =>
                                 >
                                     {actualLine}
                                 </td>
-                            </tr>
-                        ))}
+                            </tr>)}
                     </tbody>
                 </table>
             </div>

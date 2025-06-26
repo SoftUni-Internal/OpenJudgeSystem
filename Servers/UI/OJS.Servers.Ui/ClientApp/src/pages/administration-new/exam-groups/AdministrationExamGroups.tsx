@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+ 
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -49,7 +49,7 @@ const AdministrationExamGroupsPage = () => {
         setExamGroupId(id);
     };
 
-    const renderExamGroupModal = (index: number, isEditMode: boolean, id: number | null) => (
+    const renderExamGroupModal = (index: number, isEditMode: boolean, id: number | null) => 
         <AdministrationModal
           index={index}
           key={index}
@@ -65,15 +65,15 @@ const AdministrationExamGroupsPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderGridActions = () => (
+    const renderGridActions = () => 
         <CreateButton
           showModal={openShowCreateExamGroupModal}
           showModalFunc={setOpenShowCreateExamGroupModal}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
     if (isLoading) {
         return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;

@@ -1,4 +1,4 @@
-/* eslint-disable no-restricted-globals */
+ 
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -58,7 +58,7 @@ const AdministrationContestCategoriesPage = () => {
         retakeData();
     };
 
-    const renderCategoryModal = (index: number, isEditMode: boolean) => (
+    const renderCategoryModal = (index: number, isEditMode: boolean) => 
         <AdministrationModal
           index={index}
           open={isEditMode
@@ -75,9 +75,9 @@ const AdministrationContestCategoriesPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderContestsBulkEditModal = (index: number) => (
+    const renderContestsBulkEditModal = (index: number) => 
         <AdministrationModal
           index={index}
           open={showContestsBulkEditModal}
@@ -91,15 +91,15 @@ const AdministrationContestCategoriesPage = () => {
               onSuccess={() => setShowContestsBulkEditModal(false)}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderGridActions = () => (
+    const renderGridActions = () => 
         <CreateButton
           showModal={openShowCreateContestCategoryModal}
           showModalFunc={setOpenShowCreateContestCategoryModal}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
     if (isLoading) {
         return <SpinningLoader />;

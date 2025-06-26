@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { CREATED_ON, MODIFIED_ON } from '../../common/labels';
@@ -105,7 +105,7 @@ export const returnCheckersNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <DeleteButton
@@ -117,7 +117,7 @@ export const returnCheckersNonFilterableColumns = (
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 
