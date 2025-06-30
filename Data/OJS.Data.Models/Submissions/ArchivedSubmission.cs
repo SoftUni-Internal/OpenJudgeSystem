@@ -9,7 +9,7 @@ namespace OJS.Data.Models.Submissions
     using OJS.Workers.Common.Models;
 
     [Table("Submissions")]
-    public class ArchivedSubmission : IMapExplicitly
+    public class ArchivedSubmission : IMapExplicitly, IEquatable<ArchivedSubmission>
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
