@@ -54,6 +54,8 @@ namespace OJS.Servers.Infrastructure.Extensions
     using System.Security.Claims;
     using System.Text.Json;
     using System.Threading.Tasks;
+    using Microsoft.Data.SqlClient;
+    using OJS.Data;
     using OpenAI;
     using RabbitMQ.Client;
     using static OJS.Common.GlobalConstants;
@@ -195,6 +197,35 @@ namespace OJS.Servers.Infrastructure.Extensions
             });
 
             services.AddHostedService<BackgroundJobsHostedService>();
+
+            return services;
+        }
+
+        /// <summary>
+        /// Adds the archives database context to the service collection.
+        /// </summary>
+        /// <param name="services">The service collection.</param>
+        /// <param name="configuration">The configuration.</param>
+        public static IServiceCollection AddArchivesDatabase(
+            this IServiceCollection services,
+            IConfiguration configuration)
+        {
+            var defaultConnectionString = configuration.GetConnectionString(DefaultDbConnectionName);
+
+            // Modify the connection string to use a different database name for archives
+            var builder = new SqlConnectionStringBuilder(defaultConnectionString);
+            builder.InitialCatalog = $"{builder.InitialCatalog}Archives";
+            var connectionString = builder.ConnectionString;
+
+            services
+                .AddDbContext<ArchivesDbContext>(options =>
+                {
+                    options.UseSqlServer(connectionString);
+                });
+
+            services
+                .AddHealthChecks()
+                .AddSqlServer(connectionString, name: "archives-db");
 
             return services;
         }

@@ -29,5 +29,7 @@ namespace OJS.Services.Administration.Data
             int submissionPoints,
             Participant participant,
             bool shouldSaveChanges = true);
+
+        Task RemoveSubmissionIdsBySubmissionIds(IEnumerable<int> submissionIds);
     }
 }

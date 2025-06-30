@@ -19,4 +19,10 @@ public class RecurringBackgroundJobsBusinessService : IRecurringBackgroundJobsBu
 
     // Method is executed by administration implementation
     public Task<object> NormalizeAllPointsThatExceedAllowedLimit() => throw new System.NotImplementedException();
+
+    // Method is executed by administration implementation
+    public Task<object> ArchiveOldSubmissionsDailyBatch() => throw new System.NotImplementedException();
+
+    // Method is executed by administration implementation
+    public Task<object> HardDeleteArchivedSubmissions() => throw new System.NotImplementedException();
 }
