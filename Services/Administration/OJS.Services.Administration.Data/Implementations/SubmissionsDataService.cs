@@ -129,13 +129,13 @@
         {
             var hardDeletedCount = 0;
 
-            var submissionBatches = deleteCountLimit > 0
-                ? this.archivesDataService
+            var submissionBatches = deleteCountLimit > 0 ?
+                this.archivesDataService
                  .GetAllNotHardDeletedFromMainDatabase()
                  .Distinct()
                  .OrderBy(x => x.Id)
-                 .InSelfModifyingBatches(GlobalConstants.BatchOperationsChunkSize, deleteCountLimit)
-                : this.archivesDataService
+                 .InSelfModifyingBatches(GlobalConstants.BatchOperationsChunkSize, deleteCountLimit) :
+                this.archivesDataService
                 .GetAllNotHardDeletedFromMainDatabase()
                 .Distinct()
                 .OrderBy(x => x.Id)

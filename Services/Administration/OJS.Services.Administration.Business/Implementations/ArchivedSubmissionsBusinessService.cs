@@ -2,6 +2,7 @@ namespace OJS.Services.Administration.Business.Implementations;
 
 using System.Linq;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Vml;
 using OJS.Common;
 using OJS.Data.Models.Submissions;
 using OJS.Services.Administration.Data;
@@ -28,8 +29,6 @@ public class ArchivedSubmissionsBusinessService : IArchivedSubmissionsBusinessSe
 
     public async Task<int> ArchiveOldSubmissionsDailyBatch(int limit, int maxSubBatchSize)
     {
-        await this.archivesData.CreateDatabaseIfNotExists();
-
         var leftoverSubmissionsFromBatchSplitting = limit % maxSubBatchSize;
         var numberOfIterations = limit / maxSubBatchSize;
         if(leftoverSubmissionsFromBatchSplitting > 0)
@@ -56,7 +55,7 @@ public class ArchivedSubmissionsBusinessService : IArchivedSubmissionsBusinessSe
             foreach (var submissionsForArchiveBatch in allSubmissionsForArchive)
             {
                 var submissionsForArchives = submissionsForArchiveBatch
-                    .Select(ArchivedSubmission.FromSubmission)
+                    .MapCollection<ArchivedSubmission>()
                     .ToList();
 
                 if(submissionsForArchives.Count == 0)
@@ -77,8 +76,6 @@ public class ArchivedSubmissionsBusinessService : IArchivedSubmissionsBusinessSe
     public async Task<int> ArchiveOldSubmissionsWithLimit(int limit)
     {
         var archived = 0;
-        await this.archivesData.CreateDatabaseIfNotExists();
-
         var allSubmissionsForArchive = this
             .GetSubmissionsForArchiving()
             .OrderBy(x => x.Id)
@@ -87,7 +84,7 @@ public class ArchivedSubmissionsBusinessService : IArchivedSubmissionsBusinessSe
         foreach (var submissionsForArchiveBatch in allSubmissionsForArchive)
         {
             var submissionsForArchives = submissionsForArchiveBatch
-                .Select(ArchivedSubmission.FromSubmission)
+                .MapCollection<ArchivedSubmission>()
                 .ToList();
 
             if(submissionsForArchives.Count == 0)

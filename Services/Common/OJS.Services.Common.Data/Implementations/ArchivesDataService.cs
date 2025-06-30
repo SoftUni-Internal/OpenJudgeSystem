@@ -25,8 +25,8 @@ namespace OJS.Services.Common.Data.Implementations
         }
 
         public IQueryable<ArchivedSubmission> GetQuery(
-            System.Linq.Expressions.Expression<Func<ArchivedSubmission, bool>>? filter = null,
-            System.Linq.Expressions.Expression<Func<ArchivedSubmission, object>>? orderBy = null,
+            Expression<Func<ArchivedSubmission, bool>>? filter = null,
+            Expression<Func<ArchivedSubmission, object>>? orderBy = null,
             bool descending = false,
             int? skip = null,
             int? take = null)
@@ -57,21 +57,6 @@ namespace OJS.Services.Common.Data.Implementations
 
             return query;
         }
-
-        public async Task CreateDatabaseIfNotExists()
-        {
-            try
-            {
-                await this.archivesDbContext.Database.EnsureCreatedAsync();
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("Failed to create archive database", ex);
-            }
-        }
-
-        public IQueryable<ArchivedSubmission> GetAllCreatedBeforeDate(DateTime createdBeforeDate)
-            => this.GetQuery(s => s.CreatedOn < createdBeforeDate);
 
         public IQueryable<ArchivedSubmission> GetAllNotHardDeletedFromMainDatabase()
             => this.GetQuery(s => !s.IsHardDeletedFromMainDatabase);

@@ -1,26 +1,12 @@
 namespace OJS.Services.Common.Data
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using OJS.Data.Models.Submissions;
-    using OJS.Services.Infrastructure;
 
-    public interface IArchivesDataService : IService
+    public interface IArchivesDataService
     {
-        /// <summary>
-        /// Creates the archive database if it doesn't exist.
-        /// </summary>
-        Task CreateDatabaseIfNotExists();
-
-        /// <summary>
-        /// Gets archived submissions that were created before a specific date.
-        /// </summary>
-        /// <param name="createdBeforeDate">The date to filter by.</param>
-        /// <returns>Queryable of archived submissions.</returns>
-        IQueryable<ArchivedSubmission> GetAllCreatedBeforeDate(DateTime createdBeforeDate);
-
         /// <summary>
         /// Gets archived submissions that are not hard-deleted from the main database.
         /// </summary>

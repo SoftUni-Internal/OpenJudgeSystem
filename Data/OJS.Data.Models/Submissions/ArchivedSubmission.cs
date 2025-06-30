@@ -3,37 +3,14 @@ namespace OJS.Data.Models.Submissions
     using System;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq.Expressions;
+    using AutoMapper;
     using OJS.Data.Validation;
+    using OJS.Services.Infrastructure.Models.Mapping;
     using OJS.Workers.Common.Models;
 
     [Table("Submissions")]
-    public class ArchivedSubmission
+    public class ArchivedSubmission : IMapExplicitly
     {
-        public static Expression<Func<Submission, ArchivedSubmission>> FromSubmission =>
-            submission => new ArchivedSubmission
-            {
-                Id = submission.Id,
-                ParticipantId = submission.ParticipantId,
-                ProblemId = submission.ProblemId,
-                SubmissionTypeId = submission.SubmissionTypeId,
-                Content = submission.Content,
-                FileExtension = submission.FileExtension,
-                SolutionSkeleton = submission.SolutionSkeleton,
-                StartedExecutionOn = submission.StartedExecutionOn,
-                CompletedExecutionOn = submission.CompletedExecutionOn,
-                IpAddress = submission.IpAddress,
-                WorkerName = submission.WorkerName,
-                ExceptionType = submission.ExceptionType,
-                Processed = submission.Processed,
-                Points = submission.Points,
-                ProcessingComment = submission.ProcessingComment,
-                TestRunsCache = submission.TestRunsCache,
-                CreatedOn = submission.CreatedOn,
-                ModifiedOn = submission.ModifiedOn,
-                IsHardDeletedFromMainDatabase = false,
-            };
-
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int Id { get; set; }
@@ -44,7 +21,7 @@ namespace OJS.Data.Models.Submissions
 
         public int? SubmissionTypeId { get; set; }
 
-        public byte[] Content { get; set; } = Array.Empty<byte>();
+        public byte[] Content { get; set; } = [];
 
         public string? FileExtension { get; set; }
 
@@ -92,5 +69,9 @@ namespace OJS.Data.Models.Submissions
 
         public override int GetHashCode()
             => this.Id.GetHashCode();
+
+        public void RegisterMappings(IProfileExpression configuration)
+            => configuration.CreateMap<Submission, ArchivedSubmission>()
+                .ForMember(d => d.IsHardDeletedFromMainDatabase, opt => opt.MapFrom(s => false));
     }
 }

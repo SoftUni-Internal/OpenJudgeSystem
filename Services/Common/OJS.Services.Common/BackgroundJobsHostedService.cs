@@ -22,7 +22,6 @@ public class BackgroundJobsHostedService : IHostedService
     private readonly string removingMultipleParticipantScoresForProblemCronExpression = Cron.Daily(3);
     private readonly string normalizingAllPointsThatExceedAllowedLimitCronExpression = Cron.Daily(1);
     private readonly string archiveOldSubmissionsDailyBatchCronExpression = Cron.Daily(1, 30);
-    private readonly string archiveOldSubmissionsWithLimitCronExpression = Cron.Yearly(1, 1, 2, 30);
     private readonly string hardDeleteArchivedSubmissionsCronExpression = Cron.Yearly(1, 1, 2, 30);
 
     private readonly IHangfireBackgroundJobsService hangfireBackgroundJobs;
@@ -112,15 +111,6 @@ public class BackgroundJobsHostedService : IHostedService
                 AdministrationQueueName);
 
         this.logger.LogBackgroundJobAddedOrUpdated("archiving submissions - daily");
-
-        this.hangfireBackgroundJobs
-            .AddOrUpdateRecurringJob<IRecurringBackgroundJobsBusinessService>(
-                nameof(IRecurringBackgroundJobsBusinessService.ArchiveOldSubmissionsWithLimit),
-                m => m.ArchiveOldSubmissionsWithLimit(),
-                this.archiveOldSubmissionsWithLimitCronExpression,
-                AdministrationQueueName);
-
-        this.logger.LogBackgroundJobAddedOrUpdated("archiving submissions - yearly");
 
         this.hangfireBackgroundJobs
             .AddOrUpdateRecurringJob<IRecurringBackgroundJobsBusinessService>(

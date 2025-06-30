@@ -93,16 +93,6 @@
             return $"Successfully archived {archivedCount} submissions.";
         }
 
-        public async Task<object> ArchiveOldSubmissionsWithLimit()
-        {
-            const int archiveYearlyBatchLimit = 25_000;
-
-            var archivedCount = await this.archivedSubmissionsBusiness.ArchiveOldSubmissionsWithLimit(
-                archiveYearlyBatchLimit);
-
-            return $"Successfully archived {archivedCount} submissions in yearly batch.";
-        }
-
         public async Task<object> HardDeleteArchivedSubmissions()
         {
             const int archiveSingleBatchLimit = 25_000;

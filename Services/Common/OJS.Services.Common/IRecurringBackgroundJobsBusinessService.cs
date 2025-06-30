@@ -37,12 +37,6 @@
         Task<object> ArchiveOldSubmissionsDailyBatch();
 
         /// <summary>
-        /// Archives old submissions with a limit for yearly archiving.
-        /// </summary>
-        [Queue(AdministrationQueueName)]
-        Task<object> ArchiveOldSubmissionsWithLimit();
-
-        /// <summary>
         /// Hard deletes archived submissions that are no longer needed.
         /// </summary>
         [Queue(AdministrationQueueName)]
