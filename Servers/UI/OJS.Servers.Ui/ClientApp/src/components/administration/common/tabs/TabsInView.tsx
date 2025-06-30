@@ -25,15 +25,30 @@ const TabsInView = (props: ITabsInViewProps) => {
                 {form?.()}
                 <Box sx={{ padding: '2rem' }}>
                     <Tabs
-                      sx={{ minWidth: '100%', display: 'flex', justifyContent: 'space-around' }}
+                      sx={{ 
+                        minWidth: '100%', 
+                        display: 'flex', 
+                        justifyContent: 'space-around',
+                        '& .MuiTabs-flexContainer': {
+                            flexWrap: 'wrap'
+                        }
+                      }}
                       value={tabName}
                       onChange={onTabChange}
                       aria-label="wrapped label tabs example"
+                      variant="scrollable"
+                      scrollButtons="auto"
                     >
                         {tabs.map((x: IAdministrationTabModel) => (
                             <Tab
                               key={x.value}
-                              sx={{ minWidth: '45%', display: 'flex', justifyContent: 'space-evenly' }}
+                              sx={{ 
+                                minWidth: 'auto',
+                                flex: '1 1 auto',
+                                maxWidth: 'none',
+                                display: 'flex', 
+                                justifyContent: 'center'
+                              }}
                               value={x.value}
                               label={x.label}
                               disabled={!!x.disabled}

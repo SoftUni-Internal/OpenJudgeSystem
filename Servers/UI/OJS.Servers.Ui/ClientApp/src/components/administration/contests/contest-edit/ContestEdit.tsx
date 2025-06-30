@@ -601,7 +601,7 @@ const ContestEdit = (props:IContestEditProps) => {
                     </Typography>
                     <div className={formStyles.fieldBoxDivider} />
                     <Box className={formStyles.fieldBoxElement}>
-                        <Box className={formStyles.row}>
+                        <Box className={formStyles.row} sx={{ marginBottom: '20px' }}>
                             <DateTimePicker
                               className={styles.competeBorder}
                               name="startTime"
@@ -617,7 +617,7 @@ const ContestEdit = (props:IContestEditProps) => {
                               onChange={(newValue) => handleDateTimePickerChange('endTime', newValue, onChange)}
                             />
                         </Box>
-                        <Box className={formStyles.row}>
+                        <Box className={formStyles.row} sx={{ marginBottom: '20px' }}>
                             <DateTimePicker
                               className={styles.practiceBorder}
                               name="practiceStartTime"
