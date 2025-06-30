@@ -1,6 +1,7 @@
 ﻿namespace OJS.Services.Ui.Business
 {
     using OJS.Common.Enumerations;
+    using OJS.Services.Common.Models;
     using OJS.Services.Common.Models.Submissions;
     using OJS.Services.Ui.Models.Submissions;
     using OJS.Services.Infrastructure;
@@ -8,7 +9,6 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using OJS.Services.Common.Models.Pagination;
-    using static OJS.Services.Common.Constants.PaginationConstants.Submissions;
 
     public interface ISubmissionsBusinessService : IService
     {
@@ -24,7 +24,7 @@
 
         Task ProcessExecutionResult(SubmissionExecutionResult submissionExecutionResult);
 
-        Task<PagedResult<SubmissionForSubmitSummaryServiceModel>> GetUserSubmissionsByProblem(int problemId, bool isOfficial, PaginationRequestModel requestModel);
+        Task<ServiceResult<PagedResult<SubmissionForSubmitSummaryServiceModel>>> GetUserSubmissionsByProblem(int problemId, bool isOfficial, PaginationRequestModel requestModel);
 
         Task<int> GetTotalCount();
 

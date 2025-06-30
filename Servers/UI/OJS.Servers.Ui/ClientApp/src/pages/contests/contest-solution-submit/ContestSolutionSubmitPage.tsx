@@ -129,24 +129,10 @@ const ContestSolutionSubmitPage = () => {
     const isCompete = useMemo(() => getParticipationType() === ContestParticipationType.Compete, [ getParticipationType ]);
 
     const {
-        data: submissionsData,
-        error: submissionsErrorData,
-        isFetching: submissionsDataFetching,
-        isLoading: submissionsDataLoading,
-        refetch: getSubmissionsData,
-    } = useGetSubmissionResultsByProblemQuery({
-        problemId: Number(selectedContestDetailsProblem?.id),
-        isOfficial: isCompete,
-        ...queryParams,
-    }, { skip: !selectedContestDetailsProblem });
-
-    const textColorClassName = getColorClassName(themeColors.textColor);
-    const lightBackgroundClassName = getColorClassName(themeColors.baseColor100);
-
-    const {
         data,
         isLoading,
         isError,
+        isFetching,
         error,
         refetch,
     } = useGetContestUserParticipationQuery({ id: Number(contestId!), isOfficial: isCompete });
@@ -162,6 +148,21 @@ const ContestSolutionSubmitPage = () => {
         endDateTimeForParticipantOrContest,
         allowMentor,
     } = data || {};
+
+    const {
+        data: submissionsData,
+        error: submissionsErrorData,
+        isFetching: submissionsDataFetching,
+        isLoading: submissionsDataLoading,
+        refetch: getSubmissionsData,
+    } = useGetSubmissionResultsByProblemQuery({
+        problemId: Number(selectedContestDetailsProblem?.id),
+        isOfficial: isCompete,
+        ...queryParams,
+    }, { skip: !selectedContestDetailsProblem || !isRegisteredParticipant });
+
+    const textColorClassName = getColorClassName(themeColors.textColor);
+    const lightBackgroundClassName = getColorClassName(themeColors.baseColor100);
 
     const { problems = [] } = contest || {};
 
@@ -286,7 +287,9 @@ const ContestSolutionSubmitPage = () => {
             const shouldSubmitBeDisabled = isCodeStrategyAndCodeIsEmptyOrTooShort ||
                 isFileUploadAndFileIsEmpty ||
                 !selectedSubmissionType ||
-                secondsUntilTimerEnds > 0;
+                secondsUntilTimerEnds > 0 ||
+                isLoading ||
+                isFetching;
 
             setRemainingTime(secondsUntilTimerEnds);
             setIsSubmitButtonDisabled(shouldSubmitBeDisabled);
@@ -302,7 +305,7 @@ const ContestSolutionSubmitPage = () => {
         return () => {
             clearInterval(intervalId);
         };
-    }, [ lastSubmissionTime, selectedSubmissionType, submissionCode, uploadedFile, userSubmissionsTimeLimit ]);
+    }, [ isFetching, isLoading, lastSubmissionTime, selectedSubmissionType, submissionCode, uploadedFile, userSubmissionsTimeLimit ]);
 
     // Manage remaining time for compete contest
     useEffect(() => {
@@ -354,7 +357,9 @@ const ContestSolutionSubmitPage = () => {
     }, [ isLoading, isError, isRegisteredParticipant, isActiveParticipant, contestId, isCompete, navigate, slug, isInvalidated ]);
 
     useEffect(() => {
-        setSubmissionCode('');
+        // Only clear code if it's a new problem
+        // Don’t reset if there’s already code (protect against unintended clears)
+        setSubmissionCode((prev) => prev ?? '');
     }, [ selectedContestDetailsProblem ]);
 
     // Ensure contest details are set in state

@@ -95,7 +95,8 @@ const mapStringToFilterColumnTypeEnum = (type: string) => {
     } if (type === 'date') {
         return FilterColumnTypeEnum.DATE;
     }
-    if (type === 'enum') {
+    // Treat 'singleSelect' as ENUM for filtering
+    if (type === 'singleSelect' || type === 'enum') {
         return FilterColumnTypeEnum.ENUM;
     }
     return FilterColumnTypeEnum.STRING;

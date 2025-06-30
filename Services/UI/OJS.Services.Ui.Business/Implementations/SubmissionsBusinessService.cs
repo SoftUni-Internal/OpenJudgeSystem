@@ -26,7 +26,6 @@ using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Models;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using OJS.Data.Models.Problems;
@@ -54,7 +53,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     private readonly ILecturersInContestsCacheService lecturersInContestsCache;
     private readonly ISubmissionDetailsValidationService submissionDetailsValidationService;
     private readonly ISubmitSubmissionValidationService submitSubmissionValidationService;
-    private readonly ISubmissionResultsValidationService submissionResultsValidationService;
     private readonly ISubmissionFileDownloadValidationService submissionFileDownloadValidationService;
     private readonly IRetestSubmissionValidationService retestSubmissionValidationService;
     private readonly IPublisherService publisher;
@@ -83,7 +81,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         ILecturersInContestsCacheService lecturersInContestsCache,
         ISubmissionDetailsValidationService submissionDetailsValidationService,
         ISubmitSubmissionValidationService submitSubmissionValidationService,
-        ISubmissionResultsValidationService submissionResultsValidationService,
         ISubmissionFileDownloadValidationService submissionFileDownloadValidationService,
         IRetestSubmissionValidationService retestSubmissionValidationService,
         ISubmissionsForProcessingCommonDataService submissionsForProcessingData,
@@ -112,7 +109,6 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.participantScoresBusinessService = participantScoresBusinessService;
         this.submissionDetailsValidationService = submissionDetailsValidationService;
         this.submitSubmissionValidationService = submitSubmissionValidationService;
-        this.submissionResultsValidationService = submissionResultsValidationService;
         this.submissionFileDownloadValidationService = submissionFileDownloadValidationService;
         this.retestSubmissionValidationService = retestSubmissionValidationService;
         this.publisher = publisher;
@@ -293,13 +289,18 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
                 .ToPagedResultAsync(requestModel.ItemsPerPage, requestModel.Page);
     }
 
-    public async Task<PagedResult<SubmissionForSubmitSummaryServiceModel>> GetUserSubmissionsByProblem(
+    public async Task<ServiceResult<PagedResult<SubmissionForSubmitSummaryServiceModel>>> GetUserSubmissionsByProblem(
         int problemId,
         bool isOfficial,
         PaginationRequestModel requestModel)
     {
         var problem =
             await this.problemsDataService.OneByIdTo<ProblemForSubmissionDetailsServiceModel>(problemId);
+
+        if (problem == null)
+        {
+            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>(nameof(Problem), context: new { problemId });
+        }
 
         var user = this.userProviderService.GetCurrentUser();
 
@@ -309,16 +310,13 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             .MapCollection<ParticipantServiceModel>()
             .FirstOrDefaultAsync();
 
-        var validationResult =
-            this.submissionResultsValidationService.GetValidationResult((user, problem, participant, isOfficial));
-
-        if (!validationResult.IsValid)
+        if (participant == null)
         {
-            throw new BusinessServiceException(validationResult.Message);
+            return ServiceResult.NotFound<PagedResult<SubmissionForSubmitSummaryServiceModel>>(nameof(Participant), context: new { problemId, isOfficial });
         }
 
         var query = this.submissionsData
-            .GetAllByProblemAndParticipant(problemId, participant!.Id);
+            .GetAllByProblemAndParticipant(problemId, participant.Id);
 
         var submissions = await
             this.ApplyFiltersAndSorters<SubmissionForSubmitSummaryServiceModel>(requestModel, query)
@@ -334,7 +332,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             submission.Result.MaxPoints = problem!.MaximumPoints;
         }
 
-        return submissions;
+        return ServiceResult.Success(submissions);
     }
 
     public async Task Submit(SubmitSubmissionServiceModel model)

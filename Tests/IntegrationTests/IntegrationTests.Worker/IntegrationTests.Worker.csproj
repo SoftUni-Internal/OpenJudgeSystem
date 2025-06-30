@@ -15,8 +15,7 @@
         <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3"/>
-        <PackageReference Include="MassTransit" Version="8.4.0" />
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.0" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.1" />
         <PackageReference Include="Testcontainers.RabbitMq" Version="4.3.0" />
     </ItemGroup>
 
