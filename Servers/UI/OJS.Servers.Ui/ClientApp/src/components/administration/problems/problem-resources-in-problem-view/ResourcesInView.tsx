@@ -64,9 +64,9 @@ const ResourcesInView = (props : IResourceInProblemViewProps) => {
             onClose();
 
             if (isForContest) {
-                retakeContestResourcesData();
-            } else {
                 retakeProblemResourcesData();
+            } else {
+                retakeContestResourcesData();
             }
         };
 
