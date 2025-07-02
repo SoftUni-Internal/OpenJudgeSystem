@@ -50,7 +50,7 @@ const ResourceForm = (props :IProblemResourceFormProps) => {
         file: null,
         hasFile: false,
         parentId: 0,
-        resourceType: isEditMode || !type
+        resourceType: isEditMode || type === undefined
             ? ''
             : ResourceType[type],
     });
@@ -98,7 +98,9 @@ const ResourceForm = (props :IProblemResourceFormProps) => {
             if (onSuccess) {
                 onSuccess();
             }
-            refetchResource();
+            if (isEditMode) {
+                refetchResource();
+            }
         },
     });
 
