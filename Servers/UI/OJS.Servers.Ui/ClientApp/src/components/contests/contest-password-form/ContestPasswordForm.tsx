@@ -37,7 +37,7 @@ const ContestPasswordForm = (props: IContestPasswordFormProps) => {
         await registerUserForContest({ id: Number(id), isOfficial, password, hasConfirmedParticipation })
             .unwrap()
             .then(() => onSuccess())
-            .catch((err) => setErrorMessage((err as any)?.data?.detail ?? 'Unexpected error.'));
+            .catch((err) => setErrorMessage(err?.data?.detail ?? 'Unexpected error.'));
 
         setPassword('');
         setIsLoading(false);
