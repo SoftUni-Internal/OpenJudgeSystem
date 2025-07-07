@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using OJS.Servers.Infrastructure.Controllers;
 using OJS.Servers.Infrastructure.Extensions;
-using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Servers.Ui.Models;
 using OJS.Servers.Ui.Models.Submissions.Compete;
 using OJS.Services.Common.Telemetry;
@@ -15,6 +14,7 @@ using OJS.Services.Ui.Models.Contests;
 using OJS.Services.Ui.Models.Submissions;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 
 [Authorize]
@@ -85,13 +85,13 @@ public class CompeteController(
     [HttpPost("submit")]
     public async Task<IActionResult> Submit([FromBody] SubmissionRequestModel model)
         => await tracing.TraceAsync(
-            OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.Received,
+            submissions,
+            SubmissionActivities.Received,
             async activity =>
             {
                 var serviceModel = model.Map<SubmitSubmissionServiceModel>();
 
-                tracing.AddTechnicalContext(activity!, "submit_code", "ui_controller");
+                tracing.AddTechnicalContext(activity, "submit_code", nameof(CompeteController));
 
                 return await submissionsBusinessService
                     .Submit(serviceModel)
@@ -99,7 +99,7 @@ public class CompeteController(
             },
             new Dictionary<string, object?>
             {
-                ["submission.content_length"] = model.Content?.Length,
+                [SubmissionTags.ContentLength] = model.Content?.Length,
             },
             BusinessContext.ForSubmission(0, model.ProblemId, model.ContestId));
 
@@ -111,13 +111,13 @@ public class CompeteController(
     [HttpPost("submitfilesubmission")]
     public async Task<IActionResult> SubmitFileSubmission([FromForm] SubmitFileSubmissionRequestModel model)
         => await tracing.TraceAsync(
-            OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.Received,
+            submissions,
+            SubmissionActivities.Received,
             async activity =>
             {
                 var serviceModel = model.Map<SubmitSubmissionServiceModel>();
 
-                tracing.AddTechnicalContext(activity!, "submit_file", "ui_controller");
+                tracing.AddTechnicalContext(activity, "submit_file", nameof(CompeteController));
 
                 return await submissionsBusinessService
                     .Submit(serviceModel)
@@ -125,7 +125,7 @@ public class CompeteController(
             },
             new Dictionary<string, object?>
             {
-                ["submission.content_length"] = model.Content?.Length,
+                [SubmissionTags.ContentLength] = model.Content?.Length,
             },
             BusinessContext.ForSubmission(0, model.ProblemId, model.ContestId));
 

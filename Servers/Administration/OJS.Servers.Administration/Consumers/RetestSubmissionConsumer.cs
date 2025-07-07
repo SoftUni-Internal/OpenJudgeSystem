@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using MassTransit;
 using Microsoft.Extensions.Logging;
 using OJS.PubSub.Worker.Models.Submissions;
-using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Services.Administration.Business.Submissions;
 using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure.Constants;
+using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources;
 
 public class RetestSubmissionConsumer(
     ISubmissionsBusinessService submissionsBusinessService,
@@ -17,14 +17,14 @@ public class RetestSubmissionConsumer(
 {
     public async Task Consume(ConsumeContext<RetestSubmissionPubSubModel> context)
         => await tracingService.TraceAsync(
-            OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.Retest,
+            submissions,
+            SubmissionActivities.Retest,
             async activity =>
             {
                 logger.LogReceivedRetestSubmission(context.Message.Id);
                 await submissionsBusinessService.Retest(context.Message.Id, context.Message.Verbosely);
-                activity?.SetTag("submission.verbosely", context.Message.Verbosely);
-                activity?.SetTag("retest.success", true);
+                activity?.SetTag(SubmissionTags.Verbosely, context.Message.Verbosely);
+                activity?.SetTag(SubmissionTags.RetestSuccess, true);
                 logger.LogRetestedSubmission(context.Message.Id);
             },
             tags: null,

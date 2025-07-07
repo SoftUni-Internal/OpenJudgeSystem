@@ -4,11 +4,11 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using OJS.Common.Enumerations;
 using OJS.PubSub.Worker.Models.Submissions;
-using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Services.Common.Data;
 using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure.Constants;
 using System.Threading.Tasks;
+using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources;
 
 public class SubmissionStartedProcessingConsumer(
     ISubmissionsForProcessingCommonDataService submissionsForProcessingCommonData,
@@ -18,8 +18,8 @@ public class SubmissionStartedProcessingConsumer(
 {
     public async Task Consume(ConsumeContext<SubmissionStartedProcessingPubSubModel> context)
         => await tracingService.TraceAsync(
-            OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.ProcessingStarted,
+            submissions,
+            SubmissionActivities.ProcessingStarted,
             async activity =>
             {
                 var submissionId = context.Message.SubmissionId;
@@ -44,7 +44,7 @@ public class SubmissionStartedProcessingConsumer(
                     isUpdated = true;
                 }
 
-                activity?.SetTag("submission.submission_for_processing_state_updated", isUpdated);
+                activity?.SetTag(SubmissionTags.SubmissionForProcessingStateUpdated, isUpdated);
             },
             tags: null,
             BusinessContext.ForSubmission(context.Message.SubmissionId),
