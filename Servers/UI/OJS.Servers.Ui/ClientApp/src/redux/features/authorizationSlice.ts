@@ -1,7 +1,7 @@
-/* eslint-disable import/exports-last */
-/* eslint-disable no-param-reassign */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable import/group-exports */
+ 
+ 
+ 
+ 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 import { IUserType } from '../../common/types';

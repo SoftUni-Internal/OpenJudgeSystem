@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+ 
 import { SubmissionStatus } from './enums';
 import { IGetAllAdminParams } from './types';
 

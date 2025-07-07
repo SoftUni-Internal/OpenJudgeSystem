@@ -36,7 +36,7 @@ const TabsInView = (props: ITabsInViewProps) => {
                       variant="scrollable"
                       scrollButtons="auto"
                     >
-                        {tabs.map((x: IAdministrationTabModel) => (
+                        {tabs.map((x: IAdministrationTabModel) => 
                             <Tab
                               key={x.value}
                               sx={{
@@ -50,15 +50,13 @@ const TabsInView = (props: ITabsInViewProps) => {
                               label={x.label}
                               disabled={!!x.disabled}
                               wrapped
-                            />
-                        ))}
+                            />)}
                     </Tabs>
                 </Box>
-                {tabs.map((x: IAdministrationTabModel) => tabName === x.value && (
+                {tabs.map((x: IAdministrationTabModel) => tabName === x.value && 
                 <React.Fragment key={x.value}>
                     {x.node(x.value)}
-                </React.Fragment>
-                ))}
+                </React.Fragment>)}
             </Box>
         </Slide>
     );

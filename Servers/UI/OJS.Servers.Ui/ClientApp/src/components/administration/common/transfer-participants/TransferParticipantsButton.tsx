@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import React, { useEffect, useState } from 'react';
 import { BiTransfer } from 'react-icons/bi';
 import { IconButton, Tooltip } from '@mui/material';
@@ -62,28 +61,27 @@ const TransferParticipantsButton = (props: ITransferParticipantsButtonProps) => 
     return (
         isLoading || isFetching
             ? <SpinningLoader />
-            : (
-                <div style={style
-                    ? { ...style }
-                    : {}}
+            : <div style={style
+                ? { ...style }
+                : {}}
                 >
-                    {renderSuccessfullAlert(successMessage)}
-                    {renderErrorMessagesAlert(errorMessages) }
-                    <Tooltip title={TRANSFER}>
-                        <IconButton onClick={confirmTransfer}>
-                            <BiTransfer />
-                        </IconButton>
-                    </Tooltip>
-                    { showConfirmTransfer && (
-                        <ConfirmDialog
+                {renderSuccessfullAlert(successMessage)}
+                {renderErrorMessagesAlert(errorMessages) }
+                <Tooltip title={TRANSFER}>
+                    <IconButton onClick={confirmTransfer}>
+                        <BiTransfer />
+                    </IconButton>
+                </Tooltip>
+                { showConfirmTransfer &&
+                <ConfirmDialog
                           title="Transfer participants"
                           text={(
                               <span>
-                                  {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                                  { }
                                   Are you sure you want to transfer <b>{contestOfficialParticipants}</b>
-                                  {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                                  { }
                                   {' '}participants from <b>Compete</b>{' '}
-                                  {/* eslint-disable-next-line react/jsx-one-expression-per-line */}
+                                  { }
                                   to <b>Practice</b> for the contest <b>{contestName}</b> from the category <b>{categoryName}</b>?
                               </span>
                             )}
@@ -92,9 +90,9 @@ const TransferParticipantsButton = (props: ITransferParticipantsButtonProps) => 
                           onClose={() => setShowConfirmTransfer(!showConfirmTransfer)}
                           confirmFunction={() => transfer(contestId)}
                         />
-                    )}
-                </div>
-            )
+                    }
+            </div>
+
     );
 };
 

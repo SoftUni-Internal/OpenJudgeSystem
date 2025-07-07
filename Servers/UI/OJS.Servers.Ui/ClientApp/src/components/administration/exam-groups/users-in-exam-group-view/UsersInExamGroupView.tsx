@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps,@typescript-eslint/ban-types */
+
 import { useState } from 'react';
 import QueueIcon from '@mui/icons-material/Queue';
 import { IconButton, Tooltip } from '@mui/material';
@@ -103,7 +103,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
             align: 'center',
             filterable: false,
             sortable: false,
-            renderCell: (params: GridRenderCellParams) => (
+            renderCell: (params: GridRenderCellParams) =>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <DeleteUserFromGroupButton
                       id={String(params.row.id)}
@@ -114,7 +114,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
                       onSuccess={() => refetch()}
                     />
                 </div>
-            ),
+            ,
         },
     ];
 
@@ -128,7 +128,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
         refetch();
     };
 
-    const renderAddUserModal = (index: number) => (
+    const renderAddUserModal = (index: number) =>
         <AdministrationModal
           index={index}
           key={index}
@@ -144,9 +144,9 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
               onSuccess={onAddUserSuccess}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderAddBulkUsersModal = (index: number) => (
+    const renderAddBulkUsersModal = (index: number) =>
         <AdministrationModal
           index={index}
           key={index}
@@ -162,8 +162,8 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
               onSuccess={onAddBulkUsersSuccess}
             />
         </AdministrationModal>
-    );
-    const renderActions = () => (
+    ;
+    const renderActions = () =>
         <div style={{ ...flexCenterObjectStyles, justifyContent: 'space-between' }}>
             <CreateButton
               showModal={openShowAddUserModal}
@@ -197,7 +197,7 @@ const UsersInExamGroupView = (props: IUsersInExamGroupViewProps) => {
                 </span>
             </Tooltip>
         </div>
-    );
+    ;
 
     return (
         <AdministrationGridView

@@ -10,7 +10,6 @@ import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import FormActionButton from '../../form-action-button/FormActionButton';
 import ContestCompetePracticeButtons from '../contest-compete-practce-buttons/ContestCompetePracticeButtons';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 enum DownloadContestSubmissionType {

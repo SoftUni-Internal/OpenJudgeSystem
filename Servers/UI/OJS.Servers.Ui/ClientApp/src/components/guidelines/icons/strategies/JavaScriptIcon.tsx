@@ -13,13 +13,13 @@ const JavaScriptIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IJavaScriptIconProps) => (
+}: IJavaScriptIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={FaJs}
     />
-);
+;
 
 export default memo(JavaScriptIcon);

@@ -9,7 +9,7 @@ import styles from './LegacyInfoMessage.module.scss';
 const LegacyInfoMessage = () => {
     const { getColorClassName, themeColors, isDarkMode } = useTheme();
 
-    const getLegacySubmissionsInfoMessage = () => (
+    const getLegacySubmissionsInfoMessage = () => 
         <p className={getColorClassName(themeColors.textColor)}>
             Contest history, submissions, and scores were not transferred to the current platform.
             To view this information, access your
@@ -24,7 +24,7 @@ const LegacyInfoMessage = () => {
             {' '}
             on the legacy system.
         </p>
-    );
+    ;
 
     const className = concatClassNames(styles.legacyInfoMessage, isDarkMode
         ? ''

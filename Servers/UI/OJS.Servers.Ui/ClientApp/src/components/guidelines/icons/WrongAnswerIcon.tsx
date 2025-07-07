@@ -13,13 +13,13 @@ const WrongAnswerIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IErrorIconProps) => (
+}: IErrorIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={FaTimes}
     />
-);
+;
 
 export default WrongAnswerIcon;

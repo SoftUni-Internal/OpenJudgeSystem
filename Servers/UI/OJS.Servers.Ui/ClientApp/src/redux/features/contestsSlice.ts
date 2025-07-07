@@ -1,6 +1,6 @@
-/* eslint-disable no-param-reassign */
-/* eslint-disable prefer-destructuring */
-/* eslint-disable import/group-exports */
+ 
+ 
+ 
 
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
@@ -35,7 +35,7 @@ const initialState: IContestState = {
     selectedContestDetailsProblem: null,
 };
 
-// eslint-disable-next-line import/group-exports
+ 
 export const contestSlice = createSlice({
     name: 'contests',
     initialState,

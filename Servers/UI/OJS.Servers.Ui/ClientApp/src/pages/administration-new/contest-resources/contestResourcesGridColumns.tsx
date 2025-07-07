@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
@@ -144,7 +143,7 @@ export const returnContestResourcesNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) => 
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton
@@ -165,7 +164,7 @@ export const returnContestResourcesNonFilterableColumns = (
                   disabled={!!params.row.link}
                 />
             </div>
-        ),
+        ,
     } ] as GridColDef[];
 
 export default contestResourcesFilterableColumns;

@@ -9,7 +9,7 @@ interface IExternalLinkProps {
     text: string;
 }
 
-const ExternalLink = ({ text, to }: IExternalLinkProps) => (
+const ExternalLink = ({ text, to }: IExternalLinkProps) => 
     <LinkButton
       to={to}
       isToExternal
@@ -20,6 +20,6 @@ const ExternalLink = ({ text, to }: IExternalLinkProps) => (
         {text}
         <FaExternalLinkAlt className={styles.externalIcon} />
     </LinkButton>
-);
+;
 
 export default ExternalLink;

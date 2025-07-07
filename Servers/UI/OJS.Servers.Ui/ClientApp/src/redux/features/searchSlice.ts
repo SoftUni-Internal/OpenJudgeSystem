@@ -1,4 +1,4 @@
-/* eslint-disable simple-import-sort/imports,no-param-reassign */
+/* eslint-disable simple-import-sort/imports */
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { CheckboxSearchValues } from '../../common/enums';
 import { ISearchSliceState } from '../../common/types';

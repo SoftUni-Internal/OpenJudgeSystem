@@ -45,6 +45,17 @@ const ContestPasswordForm = (props: IContestPasswordFormProps) => {
         setIsLoading(false);
     };
 
+    const handlePasswordChange = (e: unknown) => {
+        if (typeof e === 'string') {
+            setPassword(e);
+        } else if (e && typeof e === 'object' && 'target' in e) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            setPassword((e as any).target?.value || '');
+        } else {
+            setPassword('');
+        }
+    };
+
     return (
         <Form
           isLoading={isLoading}
@@ -60,7 +71,7 @@ const ContestPasswordForm = (props: IContestPasswordFormProps) => {
             <FormControl
               name="contest-password"
               type={FormControlType.password}
-              onChange={(e) => setPassword(e?.toString() || '')}
+              onChange={handlePasswordChange}
               value={password}
             />
         </Form>

@@ -1,4 +1,4 @@
-/* eslint-disable no-undefined */
+ 
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
@@ -54,7 +54,7 @@ const AdministrationProblemGroupsPage = () => {
         retakeGroups();
     };
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () => 
         <div style={{ ...flexCenterObjectStyles, justifyContent: 'space-between' }}>
             <CreateButton
               showModal={openCreateModal}
@@ -62,13 +62,13 @@ const AdministrationProblemGroupsPage = () => {
               styles={{ width: '40px', height: '40px' }}
             />
         </div>
-    );
+    ;
 
     if (isLoading) {
         return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;
     }
 
-    const renderProblemModal = (index: number, isCreate: boolean) => (
+    const renderProblemModal = (index: number, isCreate: boolean) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -86,7 +86,7 @@ const AdministrationProblemGroupsPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
     return (
         <>

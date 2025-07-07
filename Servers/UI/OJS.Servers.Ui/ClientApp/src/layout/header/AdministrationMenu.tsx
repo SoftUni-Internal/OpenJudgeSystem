@@ -75,20 +75,21 @@ const AdministrationMenu = ({ buttonType, items, isUsedInPageHeader = false }: I
         [ navigateInNewWindow ],
     );
 
-    const renderDefaultMenuItems = useCallback(() => (
-        <>
-            <div className={menuSectionClassName}>
-                <span onClick={() => onClickNavigate(CONTESTS_PATH)}>Contests</span>
-                <span onClick={() => onClickNavigate(EXAM_GROUPS_PATH)}>Exam Groups</span>
-                <span onClick={() => onClickNavigate(SUBMISSIONS_PATH)}>Submissions</span>
-                {user.isAdmin && (
-                    <span onClick={() => onClickNavigate(CONTEST_CATEGORIES_PATH)}>Categories</span>)}
-                {user.isAdmin && (
-                    <span onClick={() => onClickNavigate(CONTEST_CATEGORIES_HIERARCHY_PATH)}>Categories Hierarchy</span>)}
-                {user.isAdmin && (
-                    <span onClick={() => onClickNavigate(PARTICIPANTS_PATH)}>Participants</span>)}
-            </div>
-            {user.isAdmin && (
+    const renderDefaultMenuItems = useCallback(
+        () => 
+            <>
+                <div className={menuSectionClassName}>
+                    <span onClick={() => onClickNavigate(CONTESTS_PATH)}>Contests</span>
+                    <span onClick={() => onClickNavigate(EXAM_GROUPS_PATH)}>Exam Groups</span>
+                    <span onClick={() => onClickNavigate(SUBMISSIONS_PATH)}>Submissions</span>
+                    {user.isAdmin && 
+                    <span onClick={() => onClickNavigate(CONTEST_CATEGORIES_PATH)}>Categories</span>}
+                    {user.isAdmin && 
+                    <span onClick={() => onClickNavigate(CONTEST_CATEGORIES_HIERARCHY_PATH)}>Categories Hierarchy</span>}
+                    {user.isAdmin && 
+                    <span onClick={() => onClickNavigate(PARTICIPANTS_PATH)}>Participants</span>}
+                </div>
+                {user.isAdmin && 
                 <>
                     <div className={menuSectionClassName}>
                         <span onClick={() => onClickNavigate(PROBLEMS_PATH)}>Problems</span>
@@ -107,9 +108,10 @@ const AdministrationMenu = ({ buttonType, items, isUsedInPageHeader = false }: I
                         <span onClick={() => onClickNavigate('')}>All Administrations</span>
                     </div>
                 </>
-            )}
-        </>
-    ), [ menuSectionClassName, onClickNavigate, user ]);
+            }
+            </>
+        , [ menuSectionClassName, onClickNavigate, user ],
+    );
 
     return (
         <div
@@ -128,19 +130,18 @@ const AdministrationMenu = ({ buttonType, items, isUsedInPageHeader = false }: I
               internalClassName={styles.menuButton}
             >
                 {buttonType === AdministrationMenuButtonType.text
-                    ? (
-                        <>
-                            Administration
-                            <IoIosArrowDown />
-                        </>
-                    )
-                    : (<GoGear />)}
+                    ? <>
+                        Administration
+                        <IoIosArrowDown />
+                    </>
+                    
+                    : <GoGear />}
             </Button>
 
             {/* Transparent spacer to cover the gap */}
             {isMenuVisible && <div className={styles.spacer} />}
 
-            {isMenuVisible && (
+            {isMenuVisible && 
             <div
               className={concatClassNames(
                   styles.dropdownMenu,
@@ -155,27 +156,23 @@ const AdministrationMenu = ({ buttonType, items, isUsedInPageHeader = false }: I
                     ? renderDefaultMenuItems()
                     : Array.isArray(items?.[0])
                     // Render sections if items is an array of arrays
-                        ? (items as IAdministrationMenuItem[][]).map((section, sectionIndex) => (
+                        ? (items as IAdministrationMenuItem[][]).map((section, sectionIndex) => 
                             <div key={sectionIndex} className={menuSectionClassName}>
-                                {section.map((menuItem, itemIndex) => (
+                                {section.map((menuItem, itemIndex) => 
                                     <span key={itemIndex} onClick={() => onClickNavigate(menuItem.link)}>
                                         {menuItem.text}
-                                    </span>
-                                ))}
-                            </div>
-                        ))
+                                    </span>)}
+                            </div>)
                     // Render individual spans if items is a flat array or not provided
-                        : (
-                            <div key={1} className={menuSectionClassName}>
-                                {(items as IAdministrationMenuItem[] || []).map((menuItem, itemIndex) => (
-                                    <span key={itemIndex} onClick={() => onClickNavigate(menuItem.link)}>
-                                        {menuItem.text}
-                                    </span>
-                                ))}
-                            </div>
-                        )}
+                        : <div key={1} className={menuSectionClassName}>
+                            {(items as IAdministrationMenuItem[] || []).map((menuItem, itemIndex) => 
+                                <span key={itemIndex} onClick={() => onClickNavigate(menuItem.link)}>
+                                    {menuItem.text}
+                                </span>)}
+                        </div>
+                        }
             </div>
-            )}
+            }
         </div>
     );
 };

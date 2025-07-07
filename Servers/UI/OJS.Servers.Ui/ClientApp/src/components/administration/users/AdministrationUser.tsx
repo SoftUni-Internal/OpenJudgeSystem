@@ -46,47 +46,43 @@ const AdministrationUser = () => {
         setTabName(newValue);
     };
 
-    const renderForm = () => (
+    const renderForm = () => 
         <UserForm
           id={userId}
           providedUser={user}
           onSuccess={refetch}
         />
-    );
+    ;
 
-    const renderProblemsInContestView = (key:string) => (
+    const renderProblemsInContestView = (key:string) => 
         userData?.roles.find((x) => x.name === LECTURER)
-            ? (
-                <div id={USER_LISTED_DATA.LECTURER_IN_CONTESTS}>
-                    <LecturerInContests
+            ? <div id={USER_LISTED_DATA.LECTURER_IN_CONTESTS}>
+                <LecturerInContests
                       key={key}
-                      userId={userData!.id}
+                      userId={userData.id}
                       setParentSuccessMessage={setSuccessMessage}
                     />
-                </div>
-            )
-            : (
-                <>
-                </>
-            )
-    );
+            </div>
+            
+            : <>
+            </>
+            
+    ;
 
-    const renderParticipantsInContestView = (key: string) => (
+    const renderParticipantsInContestView = (key: string) => 
         userData?.roles.find((x) => x.name === LECTURER)
-            ? (
-                <div id={USER_LISTED_DATA.LECTURER_IN_CATEGORIES}>
-                    <LecturerInCategories
+            ? <div id={USER_LISTED_DATA.LECTURER_IN_CATEGORIES}>
+                <LecturerInCategories
                       key={key}
-                      userId={userData!.id}
+                      userId={userData.id}
                       setParentSuccessMessage={setSuccessMessage}
                     />
-                </div>
-            )
-            : (
-                <>
-                </>
-            )
-    );
+            </div>
+            
+            : <>
+            </>
+            
+    ;
 
     if (isGetting) {
         return <SpinningLoader />;

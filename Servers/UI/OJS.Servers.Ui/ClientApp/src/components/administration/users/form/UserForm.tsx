@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { ChangeEvent, useEffect, useState } from 'react';
 import { Box, FormControl, FormGroup, TextField, Typography } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
@@ -17,7 +17,6 @@ import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import FormActionButton from '../../form-action-button/FormActionButton';
 import { handleDateTimePickerChange } from '../../utils/mui-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IUserFormProps {

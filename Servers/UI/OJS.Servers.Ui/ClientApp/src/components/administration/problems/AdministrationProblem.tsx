@@ -44,7 +44,7 @@ const AdministrationProblem = () => {
         }
     }, [ contestId, refetch, skipGettingContestActivity ]);
 
-    const returnProblemForm = () => (
+    const returnProblemForm = () => 
         <ProblemForm
           problemId={Number(problemId)}
           isEditMode
@@ -56,15 +56,15 @@ const AdministrationProblem = () => {
               setSkipGettingContestActivity(false);
           }}
         />
-    );
+    ;
 
-    const returnResourceInProblemView = (key:string) => (
+    const returnResourceInProblemView = (key:string) => 
         <div id={PROBLEM_LISTED_DATA.RESOURCES}>
             <ResourcesInView key={key} parentId={Number(problemId)} type={ResourceType.ProblemResource} />
         </div>
-    );
+    ;
 
-    const returnTests = (key: string) => (
+    const returnTests = (key: string) => 
         <div id={PROBLEM_LISTED_DATA.TESTS}>
             <TestsInProblemView
               key={key}
@@ -74,7 +74,7 @@ const AdministrationProblem = () => {
               contestId={contestId}
             />
         </div>
-    );
+    ;
 
     return (
         <>

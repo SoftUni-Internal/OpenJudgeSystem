@@ -43,7 +43,7 @@ const ExecutionResult = ({
 
     const renderResult = useCallback(() => {
         if (isProcessed && !isCompiledSuccessfully) {
-            return (<ErrorResult />);
+            return <ErrorResult />;
         }
 
         if (!isProcessed && !isCompiledSuccessfully) {
@@ -53,11 +53,11 @@ const ExecutionResult = ({
         return (
             <div className={styles.executionResultInfo}>
                 {
-                    showDetailedResults && hasTestRuns() && (
+                    showDetailedResults && hasTestRuns() && 
                         <div className={styles.testRunsContainer}>
                             {renderTestRunIcons(testRuns)}
                         </div>
-                    )
+                    
                 }
                 <span>
                     {points}
