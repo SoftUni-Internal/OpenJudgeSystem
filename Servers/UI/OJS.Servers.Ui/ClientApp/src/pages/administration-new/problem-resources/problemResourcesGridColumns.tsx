@@ -41,12 +41,13 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
     {
         field: 'problemId',
         headerName: 'Problem Id',
-        flex: 0.5,
-        type: 'string',
+        flex: 0,
+        type: 'number',
         filterable: false,
         sortable: false,
         align: 'center',
         headerAlign: 'center',
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'problemName',
@@ -57,6 +58,11 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
+        renderCell: (params) => (
+            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
+                {params.row.problemName}
+            </Link>
+        ),
     },
     {
         field: 'type',
@@ -99,32 +105,6 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-    },
-    {
-        field: 'problemId',
-        headerName: 'Problem Id',
-        flex: 0,
-        type: 'number',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        valueFormatter: (_, row) => row.value?.toString(),
-    },
-    {
-        field: 'problemName',
-        headerName: 'Problem Name',
-        flex: 0.5,
-        type: 'string',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        renderCell: (params) =>
-            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
-                {params.row.problemName}
-            </Link>
-        ,
     },
     {
         field: 'isDeleted',
