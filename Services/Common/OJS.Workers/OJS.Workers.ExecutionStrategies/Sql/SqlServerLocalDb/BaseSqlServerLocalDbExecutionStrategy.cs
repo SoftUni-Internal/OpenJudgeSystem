@@ -105,7 +105,7 @@ public abstract class BaseSqlServerLocalDbExecutionStrategy<TSettings> : BaseSql
         {
             var fieldType = dataRecord.GetFieldType(index);
 
-            if (fieldType == DateTimeType)
+            if (fieldType == this.DateTimeType)
             {
                 return dataRecord.GetDateTime(index).ToString(DateTimeFormat, CultureInfo.InvariantCulture);
             }
@@ -117,7 +117,7 @@ public abstract class BaseSqlServerLocalDbExecutionStrategy<TSettings> : BaseSql
                     .ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture);
             }
 
-            if (fieldType == TimeSpanType)
+            if (fieldType == this.TimeSpanType)
             {
                 return ((SqlDataReader)dataRecord)
                     .GetTimeSpan(index)
