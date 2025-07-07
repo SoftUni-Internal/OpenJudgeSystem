@@ -20,6 +20,7 @@ public abstract class BaseSqlExecutionStrategy<TSettings> : BaseExecutionStrateg
     private readonly Type floatType = typeof(float);
     private readonly Type byteArrayType = typeof(byte[]);
     protected Type DateTimeType => typeof(DateTime);
+    protected Type DateTimeOffsetType => typeof(DateTimeOffset);
     protected Type TimeSpanType => typeof(TimeSpan);
 
     protected BaseSqlExecutionStrategy(
