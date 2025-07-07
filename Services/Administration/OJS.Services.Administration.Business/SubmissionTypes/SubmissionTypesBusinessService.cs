@@ -26,6 +26,7 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
     private readonly ISubmissionTypesInProblemsDataService submissionTypesInProblemsDataService;
     private readonly IProblemsDataService problemsDataService;
     private readonly IDeleteOrReplaceSubmissionTypeValidationService deleteOrReplaceSubmissionTypeValidationService;
+    private readonly IUserProviderService userProvider;
 
     public SubmissionTypesBusinessService(
         ISubmissionTypesDataService submissionTypesDataService,
@@ -34,7 +35,8 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
         ITestRunsDataService testRunsData,
         ISubmissionTypesInProblemsDataService submissionTypesInProblemsDataService,
         IProblemsDataService problemsDataService,
-        IDeleteOrReplaceSubmissionTypeValidationService deleteOrReplaceSubmissionTypeValidationService)
+        IDeleteOrReplaceSubmissionTypeValidationService deleteOrReplaceSubmissionTypeValidationService,
+        IUserProviderService userProvider)
     {
         this.submissionTypesDataService = submissionTypesDataService;
         this.contestsDataService = contestsDataService;
@@ -42,6 +44,7 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
         this.testRunsData = testRunsData;
         this.submissionTypesInProblemsDataService = submissionTypesInProblemsDataService;
         this.deleteOrReplaceSubmissionTypeValidationService = deleteOrReplaceSubmissionTypeValidationService;
+        this.userProvider = userProvider;
         this.problemsDataService = problemsDataService;
     }
 
@@ -69,6 +72,8 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
     {
         var stringBuilder = new StringBuilder();
 
+        var user = this.userProvider.GetCurrentUser();
+
         var submissionTypeToReplaceOrDelete = await this.submissionTypesDataService
             .GetByIdQuery(model.SubmissionTypeToReplace)
             .FirstOrDefaultAsync();
@@ -90,7 +95,8 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
                 model.SubmissionTypeToReplaceWith,
                 submissionTypeToReplaceOrDelete,
                 submissionTypeToReplaceWith,
-                shouldDoSubmissionsDeletion));
+                shouldDoSubmissionsDeletion,
+                user));
 
         if (!validationResult.IsValid)
         {

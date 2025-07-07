@@ -1,34 +1,24 @@
 namespace OJS.Services.Administration.Business.SubmissionTypes.Validators;
 
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using OJS.Data.Models.Submissions;
 using OJS.Services.Administration.Data;
-using OJS.Services.Infrastructure;
+using OJS.Services.Common.Models.Users;
 using OJS.Services.Infrastructure.Models;
 
-public class DeleteOrReplaceSubmissionTypeValidationService : IDeleteOrReplaceSubmissionTypeValidationService
+public class DeleteOrReplaceSubmissionTypeValidationService(ISubmissionsDataService submissionsDataService)
+    : IDeleteOrReplaceSubmissionTypeValidationService
 {
-    private readonly ISubmissionsDataService submissionsDataService;
-    private readonly IDatesService datesService;
-
-    public DeleteOrReplaceSubmissionTypeValidationService(
-        ISubmissionsDataService submissionsDataService,
-        IDatesService datesService)
-    {
-        this.submissionsDataService = submissionsDataService;
-        this.datesService = datesService;
-    }
-
-    public async Task<ValidationResult> GetValidationResult((int, int?, SubmissionType?, SubmissionType?, bool) item)
+    public async Task<ValidationResult> GetValidationResult((int, int?, SubmissionType?, SubmissionType?, bool, UserInfoModel) item)
     {
         var (
             requestSubmissionTypeToReplaceValue,
             requestSubmissionTypeToReplaceWithValue,
             submissionTypeToReplaceOrDelete,
             submissionTypeToReplaceWith,
-            shouldDoSubmissionsDeletion) = item;
+            shouldDoSubmissionsDeletion,
+            user) = item;
 
         if (requestSubmissionTypeToReplaceWithValue.HasValue && requestSubmissionTypeToReplaceValue == requestSubmissionTypeToReplaceWithValue)
         {
@@ -45,11 +35,11 @@ public class DeleteOrReplaceSubmissionTypeValidationService : IDeleteOrReplaceSu
             return ValidationResult.Invalid("Submission type to replace with not found");
         }
 
-        var submissionsByRegularUsersInTheLastMonth = await this.submissionsDataService
+        var submissionsByRegularUsersInTheLastMonth = await submissionsDataService
             .GetAllBySubmissionTypeSentByRegularUsersInTheLastNMonths(submissionTypeToReplaceOrDelete.Id, 1)
             .ToListAsync();
 
-        if (submissionsByRegularUsersInTheLastMonth.Count > 0)
+        if (submissionsByRegularUsersInTheLastMonth.Count > 0 && (shouldDoSubmissionsDeletion || !user.IsDeveloper))
         {
             return ValidationResult.Invalid("This submission type has been used in the last month and cannot be considered as deprecated. Try again later.");
         }
