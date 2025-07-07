@@ -122,7 +122,7 @@ public interface ITracingService
     /// <param name="itemCount">Number of items being processed (optional).</param>
     /// <param name="dataSize">Size of data being processed in bytes (optional).</param>
     void AddTechnicalContext(
-        Activity activity,
+        Activity? activity,
         string operation,
         string? component = null,
         int? itemCount = null,

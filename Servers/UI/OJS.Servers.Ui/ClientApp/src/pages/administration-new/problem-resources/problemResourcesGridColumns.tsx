@@ -58,11 +58,11 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) => 
             <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
                 {params.row.problemName}
             </Link>
-        ),
+        ,
     },
     {
         field: 'type',

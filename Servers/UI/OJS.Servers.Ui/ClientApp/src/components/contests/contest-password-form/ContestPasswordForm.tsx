@@ -34,14 +34,12 @@ const ContestPasswordForm = (props: IContestPasswordFormProps) => {
     const onPasswordSubmit = async () => {
         setIsLoading(true);
         setErrorMessage('');
-        const response = await registerUserForContest({ id: Number(id), isOfficial, password, hasConfirmedParticipation });
+        await registerUserForContest({ id: Number(id), isOfficial, password, hasConfirmedParticipation })
+            .unwrap()
+            .then(() => onSuccess())
+            .catch((err) => setErrorMessage(err?.data?.detail ?? 'Unexpected error.'));
+
         setPassword('');
-        if ((response as any).error) {
-            const { data } = (response as any).error;
-            setErrorMessage(data);
-        } else {
-            onSuccess();
-        }
         setIsLoading(false);
     };
 
