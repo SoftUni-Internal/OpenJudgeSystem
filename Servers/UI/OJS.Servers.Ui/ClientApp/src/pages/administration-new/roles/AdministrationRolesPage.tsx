@@ -77,7 +77,7 @@ const AdministrationRolesPage = () => {
         refetch();
     };
 
-    const renderRoleModal = (index: number, isEditMode: boolean) => (
+    const renderRoleModal = (index: number, isEditMode: boolean) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -95,7 +95,7 @@ const AdministrationRolesPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
     const renderLecturerActions = (index: number, isRemove: boolean, isContest: boolean) => {
         const showModal = isContest
@@ -128,13 +128,13 @@ const AdministrationRolesPage = () => {
         );
     };
 
-    const renderGridActions = () => (
+    const renderGridActions = () => 
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
     return (
         <>

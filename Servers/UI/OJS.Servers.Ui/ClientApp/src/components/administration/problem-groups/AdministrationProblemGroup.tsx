@@ -23,15 +23,15 @@ const AdministrationProblemGroup = () => {
 
     useScrollToTab({ hash, tabName, setTabName, tabNames: Object.values(PROBLEM_GROUP_LISTED_DATA) });
 
-    const returnProblemGroupForm = () => (
+    const returnProblemGroupForm = () => 
         <ProblemGroupForm id={Number(problemGroupId)} />
-    );
+    ;
 
-    const returnProblems = (key:string) => (
+    const returnProblems = (key:string) => 
         <div id={PROBLEM_GROUP_LISTED_DATA.PROBLEMS}>
             <ProblemsInProblemGroupView key={key} problemGroupId={Number(problemGroupId)} />
         </div>
-    );
+    ;
 
     return (
         <TabsInView

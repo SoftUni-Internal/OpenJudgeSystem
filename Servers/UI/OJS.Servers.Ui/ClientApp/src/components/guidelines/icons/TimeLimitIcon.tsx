@@ -13,13 +13,13 @@ const TimeLimitIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IInProgressIconProps) => (
+}: IInProgressIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       Component={BiTime}
       size={size}
       helperText={helperText}
     />
-);
+;
 
 export default TimeLimitIcon;

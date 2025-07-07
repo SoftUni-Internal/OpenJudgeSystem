@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types,css-modules/no-unused-class */
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Typography } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';

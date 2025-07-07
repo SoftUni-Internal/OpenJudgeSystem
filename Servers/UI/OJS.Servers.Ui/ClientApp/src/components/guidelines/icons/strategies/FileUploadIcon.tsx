@@ -13,13 +13,13 @@ const FileUploadIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IFileUploadIconProps) => (
+}: IFileUploadIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={AiOutlineUpload}
     />
-);
+;
 
 export default memo(FileUploadIcon);

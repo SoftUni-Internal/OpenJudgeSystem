@@ -23,14 +23,14 @@ const AdministrationTest = () => {
 
     useScrollToTab({ hash, tabName, setTabName, tabNames: Object.values(TESTS_LISTED_DATA) });
 
-    const returnTestForm = () => (
+    const returnTestForm = () => 
         <TestForm id={Number(testId)} />
-    );
-    const returnTestRuns = (key:string) => (
+    ;
+    const returnTestRuns = (key:string) => 
         <div id={TESTS_LISTED_DATA.TEST_RUNS}>
             <TestRunsInTestView key={key} testId={Number(testId)} />
         </div>
-    );
+    ;
 
     return (
         <TabsInView

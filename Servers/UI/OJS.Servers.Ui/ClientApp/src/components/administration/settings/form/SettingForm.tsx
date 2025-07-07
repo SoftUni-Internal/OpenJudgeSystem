@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, FormControl, FormControlLabel, FormLabel, InputLabel, MenuItem, Radio, RadioGroup, Select, TextField, Typography } from '@mui/material';
@@ -24,7 +24,6 @@ import DeleteButton from '../../common/delete/DeleteButton';
 import FormActionButton from '../../form-action-button/FormActionButton';
 import { handleDateTimePickerChange } from '../../utils/mui-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface ISettingFormProps {
@@ -53,7 +52,7 @@ const SettingForm = (props: ISettingFormProps) => {
         data: settingData,
         error: getError,
         isLoading: isGettingSetting,
-    } = useGetSettingByIdQuery(id!, { skip: !isEditMode });
+    } = useGetSettingByIdQuery(id, { skip: !isEditMode });
 
     const [
         create,
@@ -120,37 +119,35 @@ const SettingForm = (props: ISettingFormProps) => {
         }));
     };
 
-    const renderFormSubmitButtons = () => (
+    const renderFormSubmitButtons = () =>
         isEditMode
-            ? (
-                <>
-                    <FormActionButton
+            ? <>
+                <FormActionButton
                       className={formStyles.buttonsWrapper}
                       buttonClassName={formStyles.button}
                       onClick={() => update(setting)}
                       name={EDIT}
                     />
-                    <Box sx={{ alignSelf: 'flex-end' }}>
-                        <DeleteButton
-                          id={Number(id!)}
+                <Box sx={{ alignSelf: 'flex-end' }}>
+                    <DeleteButton
+                          id={Number(id)}
                           name={RECORD}
                           onSuccess={() => navigate(`/${NEW_ADMINISTRATION_PATH}/${SETTINGS_PATH}`)}
                           mutation={useDeleteSettingMutation}
                           text={DELETE_CONFIRMATION_MESSAGE}
                           setParentSuccessMessage={setParentSuccessMessage}
                         />
-                    </Box>
-                </>
-            )
-            : (
-                <FormActionButton
+                </Box>
+            </>
+
+            : <FormActionButton
                   className={formStyles.buttonsWrapper}
                   buttonClassName={formStyles.button}
                   onClick={() => create(setting)}
                   name={CREATE}
                 />
-            )
-    );
+
+    ;
 
     const renderValueField = () => {
         // eslint-disable-next-line default-case
@@ -280,11 +277,10 @@ const SettingForm = (props: ISettingFormProps) => {
                       onChange={(e) => onChange(e)}
                       onBlur={(e) => onChange(e)}
                     >
-                        {Object.keys(SettingTypeEnums).filter((key) => isNaN(Number(key))).map((key) => (
+                        {Object.keys(SettingTypeEnums).filter((key) => isNaN(Number(key))).map((key) =>
                             <MenuItem key={key} value={key} disabled={setting.type === key}>
                                 {key}
-                            </MenuItem>
-                        ))}
+                            </MenuItem>)}
                     </Select>
                 </FormControl>
                 {renderValueField()}

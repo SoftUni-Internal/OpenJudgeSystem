@@ -29,7 +29,7 @@ const AdminRoutes = () => {
     );
 };
 
-const AdminApp = () => (
+const AdminApp = () => 
     <Provider store={store}>
         <PersistGate persistor={persistor}>
             <Router>
@@ -37,6 +37,6 @@ const AdminApp = () => (
             </Router>
         </PersistGate>
     </Provider>
-);
+;
 
 export default AdminApp;

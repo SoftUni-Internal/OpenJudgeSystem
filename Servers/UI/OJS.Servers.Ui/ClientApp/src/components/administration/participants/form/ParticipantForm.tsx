@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { useEffect, useState } from 'react';
 import { Autocomplete, Checkbox, debounce, FormControl, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material';
 
@@ -20,7 +19,6 @@ import SpinningLoader from '../../../guidelines/spinning-loader/SpinningLoader';
 import AdministrationFormButtons from '../../common/administration-form-buttons/AdministrationFormButtons';
 import { autocompleteNameIdFormatFilterOptions } from '../../utils/mui-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IParticipantFormProps {
@@ -176,14 +174,14 @@ const ParticipantForm = (props: IParticipantFormProps) => {
                       getOptionLabel={(option) => option?.name}
                       disabled={contestId > 0}
                       value={{ id: participant.contestId, name: participant.contestName } as IContestAutocomplete}
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option.id} value={option.id}>
                               #
                               {option.id}
                               {' '}
                               {option.name}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
                 <FormControl className={formStyles.inputRow}>
@@ -194,11 +192,11 @@ const ParticipantForm = (props: IParticipantFormProps) => {
                       onInputChange={(event) => onUserInputChange(event)}
                       isOptionEqualToValue={(option, value) => option.id === value.id}
                       getOptionLabel={(option) => option?.userName}
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option.id} value={option.id}>
                               {option.userName}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
                 <FormControl className={formStyles.inputRow}>

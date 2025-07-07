@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import isNil from 'lodash/isNil';
 import BackToTop from 'src/components/common/back-to-top/BackToTop';
 import usePreserveScrollOnSearchParamsChange from 'src/hooks/common/usePreserveScrollOnSearchParamsChange';
@@ -36,6 +36,7 @@ const ProfilePage = () => {
     const { username } = useParams();
     const { themeColors, getColorClassName } = useTheme();
     const dispatch = useAppDispatch();
+    const navigate = useNavigate();
 
     const handleViewChange = useCallback((value: number, view: string) => {
         const newParams = new URLSearchParams(searchParams);
@@ -57,6 +58,13 @@ const ProfilePage = () => {
         isLoading: isProfileInfoLoading,
         error: isError,
     } ] = useLazyGetProfileQuery();
+
+    // Redirect to /login, only if trying to access personal profile while not authenticated
+    useEffect(() => {
+        if (isGetUserInfoCompleted && !isLoggedIn && isNilOrEmpty(profileUsername)) {
+            navigate('/login');
+        }
+    }, [ isLoggedIn, isGetUserInfoCompleted, navigate, profileUsername ]);
 
     useEffect(() => {
         if (isGetUserInfoCompleted && !isNilOrEmpty(profileUsername)) {
@@ -114,15 +122,13 @@ const ProfilePage = () => {
             {
                 isProfileInfoLoading ||
                 !isGetUserInfoCompleted ||
-                (isLoggedIn && isNil(currentUserIsProfileOwner))
-                    ? (
-                        <SpinningLoader />
-                    )
+                isLoggedIn && isNil(currentUserIsProfileOwner)
+                    ? <SpinningLoader />
+
                     : isNil(profile)
                         ? renderError()
-                        : (
-                            <div className={getColorClassName(themeColors.textColor)}>
-                                <Breadcrumbs
+                        : <div className={getColorClassName(themeColors.textColor)}>
+                            <Breadcrumbs
                                   keyPrefix="profile"
                                   items={[
                                         {
@@ -132,16 +138,16 @@ const ProfilePage = () => {
                                         } as IPageBreadcrumbsItem,
                                   ]}
                                 />
-                                <ProfileAboutInfo
+                            <ProfileAboutInfo
                                   userProfile={profile}
                                   isUserAdmin={internalUser.isAdmin}
                                   isUserLecturer={internalUser.isInRole}
                                   isUserProfileOwner={currentUserIsProfileOwner}
                                 />
-                                {currentUserIsProfileOwner && <LegacyInfoMessage />}
-                                {(currentUserIsProfileOwner || internalUser.canAccessAdministration) && (
-                                    <div className={styles.submissionsAndParticipationsToggle}>
-                                        <Button
+                            {currentUserIsProfileOwner && <LegacyInfoMessage />}
+                            {(currentUserIsProfileOwner || internalUser.canAccessAdministration) &&
+                            <div className={styles.submissionsAndParticipationsToggle}>
+                                <Button
                                           type={toggleValue === 1
                                               ? ButtonType.primary
                                               : ButtonType.secondary}
@@ -151,7 +157,7 @@ const ProfilePage = () => {
                                               : 'User Submissions'}
                                           onClick={() => handleViewChange(1, 'submissions')}
                                         />
-                                        <Button
+                                <Button
                                           type={toggleValue === 2
                                               ? ButtonType.primary
                                               : ButtonType.secondary}
@@ -161,20 +167,20 @@ const ProfilePage = () => {
                                               : 'User Contests'}
                                           onClick={() => handleViewChange(2, 'contests')}
                                         />
-                                    </div>
-                                )}
-                                <ProfileSubmissions
+                            </div>
+                                }
+                            <ProfileSubmissions
                                   userIsProfileOwner={currentUserIsProfileOwner}
                                   isChosenInToggle={toggleValue === 1}
                                 />
-                                <ProfileContestParticipations
+                            <ProfileContestParticipations
                                   userIsProfileOwner={currentUserIsProfileOwner}
                                   isChosenInToggle={toggleValue === 2}
                                   setSearchParams={setSearchParams}
                                   searchParams={searchParams}
                                 />
-                            </div>
-                        )
+                        </div>
+
             }
         </>
     );

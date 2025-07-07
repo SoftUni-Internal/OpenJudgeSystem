@@ -138,31 +138,33 @@ const SubmissionDetailsPage = () => {
         }
     }, [ downloadLogFile, solutionId ]);
 
-    const renderSolutionTitle = useCallback(() => (
-        <div className={styles.solutionTitle}>
-            Solution #
-            {solutionId}
-            {' '}
-            by
-            {' '}
-            <Link to={`/profile/${contestUser?.userName}`}>
-                {contestUser?.userName}
-            </Link>
-            {' '}
-            for problem
-            {' '}
-            <Link to={getContestsSolutionSubmitPageUrl({
-                isCompete: isOfficial,
-                contestId,
-                contestName,
-                problemId: problem?.id,
-                orderBy: problem?.orderBy,
-            })}
+    const renderSolutionTitle = useCallback(
+        () => 
+            <div className={styles.solutionTitle}>
+                Solution #
+                {solutionId}
+                {' '}
+                by
+                {' '}
+                <Link to={`/profile/${contestUser?.userName}`}>
+                    {contestUser?.userName}
+                </Link>
+                {' '}
+                for problem
+                {' '}
+                <Link to={getContestsSolutionSubmitPageUrl({
+                    isCompete: isOfficial,
+                    contestId,
+                    contestName,
+                    problemId: problem?.id,
+                    orderBy: problem?.orderBy,
+                })}
             >
-                {problem?.name}
-            </Link>
-        </div>
-    ), [ solutionId, contestUser?.userName, contestName, contestId, isOfficial, problem?.id, problem?.name, problem?.orderBy ]);
+                    {problem?.name}
+                </Link>
+            </div>
+        , [ solutionId, contestUser?.userName, contestName, contestId, isOfficial, problem?.id, problem?.name, problem?.orderBy ],
+    );
 
     const renderAdminButtons = useCallback(() => {
         const onViewCodeClick = () => {
@@ -179,7 +181,7 @@ const SubmissionDetailsPage = () => {
         return (
             <div className={styles.adminButtonsWrapper}>
                 <Button text="View Code" type={ButtonType.secondary} size={ButtonSize.small} onClick={onViewCodeClick} />
-                { userIsInRoleForContest && (
+                { userIsInRoleForContest && 
                     <>
                         <Button
                           text="Download logs"
@@ -205,9 +207,9 @@ const SubmissionDetailsPage = () => {
                         />
                         <CheckBox id="retest-verbosely-checkbox" onChange={setRetestVerbosely} label="Retest verbosely" />
                         {isDownloadLogsError &&
-                            (<div className={styles.logsDownloadFileErrorWrapper}>{getErrorMessage(downloadLogsError)}</div>)}
+                            <div className={styles.logsDownloadFileErrorWrapper}>{getErrorMessage(downloadLogsError)}</div>}
                     </>
-                )}
+                }
             </div>
         );
     }, [
@@ -266,14 +268,14 @@ const SubmissionDetailsPage = () => {
             );
         }
 
-        const renderTestRun = (testRun: ITestRunType, idx: number) => (
+        const renderTestRun = (testRun: ITestRunType, idx: number) => 
             <SubmissionTestRun
               key={`t-r-${testRun.testId}`}
               testRun={testRun}
               idx={idx}
               shouldRenderAdminData={userIsInRoleForContest}
             />
-        );
+        ;
 
         const sortedTestRuns = [ ...testRuns || [] ]?.sort(sortTestRunsByTrialTest);
 
@@ -319,13 +321,13 @@ const SubmissionDetailsPage = () => {
             -> '!isCompiledSuccessfully' - if the submission is not compiled successfully,
                 the data should be loaded.
          */
-        const shouldLoadData = !isRetestingStarted && ((testRuns && testRuns.length !== 0) || !isCompiledSuccessfully);
+        const shouldLoadData = !isRetestingStarted && (testRuns && testRuns.length !== 0 || !isCompiledSuccessfully);
 
         return (
             <>
                 <div className={styles.submissionDetailsWrapper}>
                     <div>
-                        {allowBinaryFilesUpload && (
+                        {allowBinaryFilesUpload && 
                             <div className={styles.buttonWrapper}>
                                 <Button
                                   id="download-submission"
@@ -333,7 +335,7 @@ const SubmissionDetailsPage = () => {
                                   onClick={handleDownloadFile}
                                 />
                             </div>
-                        )}
+                        }
                         <div className={styles.detailsRow}>
                             <span>Strategy: </span>
                             {submissionType?.name}
@@ -345,7 +347,7 @@ const SubmissionDetailsPage = () => {
                             <span>{preciseFormatDate(createdOn!)}</span>
                         </div>
 
-                        {user.canAccessAdministration && (
+                        {user.canAccessAdministration && 
                             <>
                                 <div className={styles.detailsRow}>
                                     <span>Modified on:</span>
@@ -364,11 +366,11 @@ const SubmissionDetailsPage = () => {
                                     <span>{workerName}</span>
                                 </div>
                             </>
-                        )}
+                        }
                     </div>
                 </div>
                 {downloadSolutionErrorMessage &&
-                    (<div className={styles.solutionDownloadFileErrorWrapper}>{downloadSolutionErrorMessage}</div>)}
+                    <div className={styles.solutionDownloadFileErrorWrapper}>{downloadSolutionErrorMessage}</div>}
             </>
         );
     }, [
@@ -386,19 +388,21 @@ const SubmissionDetailsPage = () => {
         workerName,
     ]);
 
-    const renderProcessingComment = useCallback(() => (
-        <div className={concatClassNames(
-            styles.processingErrorWrapper,
-            textColorClassName,
-            isDarkMode
-                ? styles.darkTheme
-                : '',
-        )}
+    const renderProcessingComment = useCallback(
+        () => 
+            <div className={concatClassNames(
+                styles.processingErrorWrapper,
+                textColorClassName,
+                isDarkMode
+                    ? styles.darkTheme
+                    : '',
+            )}
         >
-            <div>{getExceptionTypeMessage(exceptionType)}</div>
-            <MultiLineTextDisplay text={processingComment} maxVisibleLines={50} />
-        </div>
-    ), [ exceptionType, isDarkMode, processingComment, textColorClassName ]);
+                <div>{getExceptionTypeMessage(exceptionType)}</div>
+                <MultiLineTextDisplay text={processingComment} maxVisibleLines={50} />
+            </div>
+        , [ exceptionType, isDarkMode, processingComment, textColorClassName ],
+    );
 
     if (isLoading || retestIsLoading) {
         return (
@@ -430,11 +434,11 @@ const SubmissionDetailsPage = () => {
 
     return (
         <div className={`${styles.submissionsDetailsWrapper} ${textColorClassName}`}>
-            { isRetestingStarted && retestSuccess && (
+            { isRetestingStarted && retestSuccess && 
                 <div className={styles.succesfulRetestWrapper}>
                     Submission retest started!
                 </div>
-            )}
+            }
             <BackToTop />
             <ContestBreadcrumbs />
             <Mentor
@@ -471,12 +475,12 @@ const SubmissionDetailsPage = () => {
                         {renderAdminButtons()}
                         {processingComment && user.isAdmin && renderProcessingComment()}
                         {renderSubmissionExecutionDetails()}
-                        {content && (
+                        {content && 
                             <div className={styles.codeContentWrapper} id="code-content-wrapper">
                                 <div>Source Code</div>
                                 <CodeEditor code={content} readOnly />
                             </div>
-                        )}
+                        }
                         {renderSolutionDetails()}
                     </div>
                 </div>

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { useMemo } from 'react';
 import { MdOutlineRemoveCircle } from 'react-icons/md';
 import { Checkbox,

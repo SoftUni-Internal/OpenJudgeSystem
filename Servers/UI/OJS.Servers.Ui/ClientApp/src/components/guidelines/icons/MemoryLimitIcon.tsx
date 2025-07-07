@@ -13,13 +13,13 @@ const MemoryLimitIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IInProgressIconProps) => (
+}: IInProgressIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       Component={BiMemoryCard}
       size={size}
       helperText={helperText}
     />
-);
+;
 
 export default MemoryLimitIcon;

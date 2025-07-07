@@ -34,15 +34,15 @@ const ParticipantsAdministrationPage = () => {
         retakeParticipants();
     };
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () => 
         <CreateButton
           showModal={openCreateModal}
           showModalFunc={setOpenCreateModal}
           styles={{ width: '40px', height: '40px' }}
         />
-    );
+    ;
 
-    const renderParticipantModal = (index: number) => (
+    const renderParticipantModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -54,7 +54,7 @@ const ParticipantsAdministrationPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
     if (isLoadingParticipants) {
         return <SpinningLoader />;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import React, { useEffect, useMemo, useState } from 'react';
 import { Autocomplete, Box, FormControl, MenuItem, TextField, Typography } from '@mui/material';
 import downloadFile from 'src/utils/file-download-utils';
@@ -27,7 +26,6 @@ import FileUpload from '../../common/file-upload/FileUpload';
 import ProblemFormBasicInfo from '../problem-form-basic-info.tsx/ProblemFormBasicInfo';
 import ProblemSubmissionTypes from '../problem-submission-types/ProblemSubmissionTypes';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 import styles from '../../contests/contest-edit/ContestEdit.module.scss';
 
@@ -235,7 +233,7 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
             if (type.solutionSkeleton) {
                 formData.append(
                     `SubmissionTypes[${index}].SolutionSkeleton`,
-                    type?.solutionSkeleton!.toString(),
+                    type?.solutionSkeleton.toString(),
                 );
             }
 
@@ -278,7 +276,7 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
             const removedSubmissionType = filteredSubmissionTypes.find((st) => st.id === submissionType.id);
 
             let newSubmissionTypes = filteredSubmissionTypes;
-            const problemSubmissionTypes = [ ...currentProblem!.submissionTypes ];
+            const problemSubmissionTypes = [ ...currentProblem.submissionTypes ];
             if (removedSubmissionType) {
                 problemSubmissionTypes.push({
                     id: submissionType.id,
@@ -390,7 +388,7 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
             {currentProblem?.name && <Typography className={formStyles.centralize} variant="h4">{currentProblem?.name}</Typography>}
             <form className={formStyles.form}>
                 <ProblemFormBasicInfo currentProblem={currentProblem} onChange={onChange} problemGroups={problemGroupIds} />
-                {!isEditMode && (
+                {!isEditMode &&
                     <Box className={formStyles.fieldBox}>
                         <Typography className={formStyles.fieldBoxTitle} variant="h5">
                             Tests
@@ -411,7 +409,7 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
                             </Box>
                         </Box>
                     </Box>
-                )}
+                }
                 <Box className={formStyles.fieldBox}>
                     <Typography className={formStyles.fieldBoxTitle} variant="h5">
                         {SUBMISSION_TYPES}
@@ -422,24 +420,24 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
                             <FormControl className={formStyles.row}>
                                 <Autocomplete
                                   className={formStyles.inputRow}
-                                  options={filteredSubmissionTypes!}
+                                  options={filteredSubmissionTypes}
                                   renderInput={(params) => <TextField {...params} label="Select submission type" key={params.id} />}
                                   onChange={(event, newValue) => onStrategyAdd(newValue!)}
                                   value={null}
                                   isOptionEqualToValue={(option, value) => option.id === value.id}
                                   getOptionLabel={(option) => option?.name}
-                                  renderOption={(properties, option) => (
+                                  renderOption={(properties, option) =>
                                       <MenuItem {...properties} key={option.id} value={option.id}>
                                           {option.name}
                                       </MenuItem>
-                                  )}
+                                  }
                                 />
                             </FormControl>
                         </Box>
                     </Box>
                 </Box>
                 {
-            currentProblem?.submissionTypes.map((st : IProblemSubmissionType) => (
+            currentProblem?.submissionTypes.map((st : IProblemSubmissionType) =>
                 <ProblemSubmissionTypes
                   key={st.id}
                   onPropChange={onPropChangeInSubmissionType}
@@ -447,8 +445,7 @@ const ProblemForm = (props: IProblemFormCreateProps | IProblemFormEditProps) => 
                   strategy={st}
                   isDefaultStrategySelected={isDefaultStrategySelected}
                   defaultSubmissionTypeId={currentProblem.defaultSubmissionTypeId ?? 0}
-                />
-            ))
+                />)
         }
                 <Box className={formStyles.fieldBox}>
                     <Typography className={formStyles.fieldBoxTitle} variant="h5">

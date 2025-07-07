@@ -1,4 +1,4 @@
-/* eslint-disable prefer-destructuring */
+ 
 import { createApi } from '@reduxjs/toolkit/query/react';
 
 import { IFileModel, IGetAllAdminParams, IPagedResultType, IUserAdministrationModel, IUserAutocompleteData, IUserInExamGroupModel, IUserInListModel } from '../../../common/types';

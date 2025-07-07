@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { useEffect, useMemo, useState } from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import {
@@ -39,7 +39,6 @@ import { getAndSetExceptionMessage } from 'src/utils/messages-utils';
 import { renderErrorMessagesAlert } from 'src/utils/render-utils';
 import clearSuccessMessages from 'src/utils/success-messages-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 import styles from './ChangeParticipantsTime.module.scss';
 
@@ -261,7 +260,7 @@ const ChangeParticipantsTime = ({ contest, setParentSuccessMessage, onSuccess } 
 
         return (
             <FormControl fullWidth>
-                {openConfirmForSingle && (
+                {openConfirmForSingle &&
                     <ConfirmDialog
                       title="Change Time"
                       text={(
@@ -290,7 +289,7 @@ const ChangeParticipantsTime = ({ contest, setParentSuccessMessage, onSuccess } 
                       declineButtonColor={styles.neutral}
                       confirmButtonColor={dialogColor}
                     />
-                )}
+                }
                 <div className={styles.durationWrapper}>
                     <TextField
                       className={styles.duration}
@@ -329,11 +328,11 @@ const ChangeParticipantsTime = ({ contest, setParentSuccessMessage, onSuccess } 
                   onInputChange={(e, value: string) => setUsersSearchString(value)}
                   getOptionLabel={(option) => option?.userName || ''}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
-                  renderOption={(properties, option) => (
+                  renderOption={(properties, option) =>
                       <MenuItem {...properties} key={option.id}>
                           {option.userName}
                       </MenuItem>
-                  )}
+                  }
                 />
                 <FormActionButton
                   disabled={isDisabled}
@@ -369,7 +368,7 @@ const ChangeParticipantsTime = ({ contest, setParentSuccessMessage, onSuccess } 
 
         return (
             <Box>
-                {openConfirmForMultiple && (
+                {openConfirmForMultiple &&
                     <ConfirmDialog
                       title="Change Time"
                       text={(
@@ -405,7 +404,7 @@ const ChangeParticipantsTime = ({ contest, setParentSuccessMessage, onSuccess } 
                       declineButtonColor={styles.neutral}
                       confirmButtonColor={dialogColor}
                     />
-                )}
+                }
                 <div className={styles.durationWrapper}>
                     <TextField
                       className={styles.duration}
@@ -490,15 +489,15 @@ const ChangeParticipantsTime = ({ contest, setParentSuccessMessage, onSuccess } 
                             Change contest duration for participants
                         </Typography>
                         <Typography className={concatClassNames(formStyles.centralize, styles.link)} variant="h5">
-                            {(contest.name && (
+                            {contest.name &&
                                 <ExternalLink
                                   to={getContestsDetailsPageUrl({
                                       contestId: contest.id,
                                       contestName: contest.name,
                                   })}
                                   text={contest.name}
-                                />
-                            )) || 'Contest form'}
+                                /> ||
+                             'Contest form'}
                         </Typography>
                     </div>
                     <Typography variant="subtitle1" className={formStyles.centralize}>

@@ -13,13 +13,13 @@ const TickIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: ITickIconProps) => (
+}: ITickIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={FaCheck}
     />
-);
+;
 
 export default TickIcon;

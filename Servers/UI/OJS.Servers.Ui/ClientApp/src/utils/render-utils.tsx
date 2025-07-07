@@ -1,12 +1,12 @@
-/* eslint-disable react/jsx-no-useless-fragment */
+ 
 import { Alert, AlertHorizontalOrientation, AlertSeverity, AlertVariant, AlertVerticalOrientation } from '../components/guidelines/alert/Alert';
 
 const renderAlert = (
     message: string,
     severity: AlertSeverity,
     index: number,
-    autoHideDuration?: number | undefined,
-) => (
+    autoHideDuration?: number ,
+) => 
     <Alert
       key={index}
       autoHideDuration={autoHideDuration}
@@ -17,7 +17,7 @@ const renderAlert = (
       message={message}
       styles={{ marginTop: `${index * 4}rem` }}
     />
-);
+;
 
 const renderSuccessfullAlert = (message: string | null, autoHideDuration?: number) => {
     if (!message) {

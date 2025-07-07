@@ -13,13 +13,13 @@ const MySqlIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IMySqlIconProps) => (
+}: IMySqlIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={GrMysql}
     />
-);
+;
 
 export default memo(MySqlIcon);

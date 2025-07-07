@@ -13,13 +13,13 @@ const PhpIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IPhpIconProps) => (
+}: IPhpIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={FaPhp}
     />
-);
+;
 
 export default memo(PhpIcon);

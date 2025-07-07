@@ -21,9 +21,7 @@ import FormActionButton from '../../form-action-button/FormActionButton';
 import UserForm from '../../users/form/UserForm';
 import { onAutocompleteInputChange } from '../../utils/mui-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import styles from '../../../../pages/administration-new/AdministrationStyles.module.scss';
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IUsersInRoleViewProps {
@@ -135,16 +133,16 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
         setShowConfirmDialog(true);
     };
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () =>
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
           styles={{ width: '40px', height: '40px' }}
           tooltipLabel="Add user to role"
         />
-    );
+    ;
 
-    const renderConfirmDialog = (index: number) => (
+    const renderConfirmDialog = (index: number) =>
         <ConfirmDialog
           key={index}
           text="Are you sure you want to remove user from role."
@@ -157,8 +155,8 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
               setShowConfirmDialog(false);
           }}
         />
-    );
-    const renderUserEditModal = (i: number) => (
+    ;
+    const renderUserEditModal = (i: number) =>
         <AdministrationModal
           key={i}
           index={i}
@@ -176,9 +174,9 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderCreateModal = (i: number) => (
+    const renderCreateModal = (i: number) =>
         <AdministrationModal
           key={i}
           index={i}
@@ -201,11 +199,11 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
                       onInputChange={(e: any) => onAutocompleteInputChange(e, setUsersSearchString)}
                       isOptionEqualToValue={(option, value) => option.id === value.id}
                       getOptionLabel={(option) => option?.userName}
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option.id} value={option.id}>
                               {option.userName}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
                 <FormActionButton
@@ -220,7 +218,7 @@ const UsersInRoleView = (props: IUsersInRoleViewProps) => {
                 />
             </form>
         </AdministrationModal>
-    );
+    ;
 
     if (isGetting || isAddingToRole || isRemovingFromRole) {
         return (
