@@ -3,7 +3,6 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 using OJS.Workers.Common;
-using System;
 using System.Data;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -14,7 +13,6 @@ public abstract class BaseSqlServerLocalDbExecutionStrategy<TSettings> : BaseSql
     private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
     private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffffff zzz";
     private const string TimeSpanFormat = "HH:mm:ss.fffffff";
-    private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
 
     protected BaseSqlServerLocalDbExecutionStrategy(
         IOjsSubmission submission,
@@ -105,19 +103,19 @@ public abstract class BaseSqlServerLocalDbExecutionStrategy<TSettings> : BaseSql
         {
             var fieldType = dataRecord.GetFieldType(index);
 
-            if (fieldType == DateTimeType)
+            if (fieldType == this.DateTimeType)
             {
                 return dataRecord.GetDateTime(index).ToString(DateTimeFormat, CultureInfo.InvariantCulture);
             }
 
-            if (fieldType == DateTimeOffsetType)
+            if (fieldType == this.DateTimeOffsetType)
             {
                 return ((SqlDataReader)dataRecord)
                     .GetDateTimeOffset(index)
                     .ToString(DateTimeOffsetFormat, CultureInfo.InvariantCulture);
             }
 
-            if (fieldType == TimeSpanType)
+            if (fieldType == this.TimeSpanType)
             {
                 return ((SqlDataReader)dataRecord)
                     .GetTimeSpan(index)
