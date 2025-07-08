@@ -1,6 +1,5 @@
 ﻿namespace OJS.Services.Administration.Business.SubmissionTypes;
 
-using FluentExtensions.Extensions;
 using Microsoft.EntityFrameworkCore;
 using OJS.Data.Models;
 using OJS.Data.Models.Problems;
@@ -130,12 +129,6 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
         var problemIds = problems?.Select(p => p.Id).ToList()
             ?? await problemsQuery.Select(p => p.Id).ToListAsync();
 
-        var submissionIds = this.submissionsDataService
-            .GetAllByProblems(problemIds)
-            .Where(s => s.SubmissionTypeId == submissionTypeToReplaceOrDelete.Id)
-            .Select(s => s.Id)
-            .ToList();
-
         // Update the default submission type of associated problems
         await this.problemsDataService
             .Update(
@@ -173,11 +166,18 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
                 break;
             }
             case false:
+            {
+                var submissionIds = this.submissionsDataService
+                    .GetQuery(s => s.SubmissionTypeId == submissionTypeToReplaceOrDelete.Id)
+                    .Select(s => s.Id)
+                    .ToList();
+
                 await this.testRunsData.ExecuteDelete(tr => submissionIds.Contains(tr.SubmissionId));
                 await this.submissionsDataService.ExecuteDelete(s => submissionIds.Contains(s.Id));
                 await DeleteOldSubmissionTypeFromProblems();
                 this.submissionTypesDataService.Delete(submissionTypeToReplaceOrDelete);
                 break;
+            }
             default:
                 throw new InvalidOperationException("Submission type to replace with is null. Cannot replace.");
         }
