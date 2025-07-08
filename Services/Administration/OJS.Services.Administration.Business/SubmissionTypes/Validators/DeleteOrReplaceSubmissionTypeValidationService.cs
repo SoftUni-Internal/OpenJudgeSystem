@@ -17,10 +17,10 @@ public class DeleteOrReplaceSubmissionTypeValidationService(ISubmissionsDataServ
             requestSubmissionTypeToReplaceWithValue,
             submissionTypeToReplaceOrDelete,
             submissionTypeToReplaceWith,
-            shouldDoSubmissionsDeletion,
+            isReplacingSubmissionType,
             user) = item;
 
-        if (requestSubmissionTypeToReplaceWithValue.HasValue && requestSubmissionTypeToReplaceValue == requestSubmissionTypeToReplaceWithValue)
+        if (requestSubmissionTypeToReplaceValue == requestSubmissionTypeToReplaceWithValue)
         {
             return ValidationResult.Invalid("Cannot replace submission type with identical submission type");
         }
@@ -30,16 +30,16 @@ public class DeleteOrReplaceSubmissionTypeValidationService(ISubmissionsDataServ
             return ValidationResult.Invalid("Submission type does not exist");
         }
 
-        if (!shouldDoSubmissionsDeletion && submissionTypeToReplaceWith == null)
+        if (isReplacingSubmissionType && submissionTypeToReplaceWith == null)
         {
             return ValidationResult.Invalid("Submission type to replace with not found");
         }
 
-        var submissionsByRegularUsersInTheLastMonth = await submissionsDataService
+        var submissionsByRegularUsersInTheLastMonthCount = await submissionsDataService
             .GetAllBySubmissionTypeSentByRegularUsersInTheLastNMonths(submissionTypeToReplaceOrDelete.Id, 1)
-            .ToListAsync();
+            .CountAsync();
 
-        if (submissionsByRegularUsersInTheLastMonth.Count > 0 && (shouldDoSubmissionsDeletion || !user.IsDeveloper))
+        if (submissionsByRegularUsersInTheLastMonthCount > 0 && (!isReplacingSubmissionType || !user.IsDeveloper))
         {
             return ValidationResult.Invalid("This submission type has been used in the last month and cannot be considered as deprecated. Try again later.");
         }
