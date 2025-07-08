@@ -100,18 +100,6 @@ const AdministrationReplaceDeleteSubmissionTypesPage = () => {
                     </span>
                     submission type.
                 </p>
-                <p>
-                    Problems using only this submission type will remain with
-                    <span className={styles.redText}> 0</span>
-                    {' '}
-                    submission types attached.
-                    All submissions associated will be updated with the new one (
-                    <span className={styles.blueText}>{replaceWith}</span>
-                    ) but they will
-                    {' '}
-                    <span className={styles.redText}> not be retested</span>
-                    .
-                </p>
                 <p>Changes might need to be made to the problems, tests or submissions in order to execute correctly.</p>
             </Typography>
         ,

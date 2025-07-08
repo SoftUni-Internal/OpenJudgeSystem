@@ -1,6 +1,5 @@
 ﻿namespace OJS.Services.Administration.Business.SubmissionTypes;
 
-using FluentExtensions.Extensions;
 using Microsoft.EntityFrameworkCore;
 using OJS.Data.Models;
 using OJS.Data.Models.Problems;
@@ -26,6 +25,7 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
     private readonly ISubmissionTypesInProblemsDataService submissionTypesInProblemsDataService;
     private readonly IProblemsDataService problemsDataService;
     private readonly IDeleteOrReplaceSubmissionTypeValidationService deleteOrReplaceSubmissionTypeValidationService;
+    private readonly IUserProviderService userProvider;
 
     public SubmissionTypesBusinessService(
         ISubmissionTypesDataService submissionTypesDataService,
@@ -34,7 +34,8 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
         ITestRunsDataService testRunsData,
         ISubmissionTypesInProblemsDataService submissionTypesInProblemsDataService,
         IProblemsDataService problemsDataService,
-        IDeleteOrReplaceSubmissionTypeValidationService deleteOrReplaceSubmissionTypeValidationService)
+        IDeleteOrReplaceSubmissionTypeValidationService deleteOrReplaceSubmissionTypeValidationService,
+        IUserProviderService userProvider)
     {
         this.submissionTypesDataService = submissionTypesDataService;
         this.contestsDataService = contestsDataService;
@@ -42,6 +43,7 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
         this.testRunsData = testRunsData;
         this.submissionTypesInProblemsDataService = submissionTypesInProblemsDataService;
         this.deleteOrReplaceSubmissionTypeValidationService = deleteOrReplaceSubmissionTypeValidationService;
+        this.userProvider = userProvider;
         this.problemsDataService = problemsDataService;
     }
 
@@ -69,20 +71,23 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
     {
         var stringBuilder = new StringBuilder();
 
-        var submissionTypeToReplaceOrDelete = await this.submissionTypesDataService
+        var user = this.userProvider.GetCurrentUser();
+
+        var submissionTypeToReplaceOrDelete = (await this.submissionTypesDataService
             .GetByIdQuery(model.SubmissionTypeToReplace)
-            .FirstOrDefaultAsync();
+            .FirstOrDefaultAsync())
+            ?? throw new BusinessServiceException("Submission type to replace or delete not found.");
 
         SubmissionType? submissionTypeToReplaceWith = null;
 
         if (model.SubmissionTypeToReplaceWith.HasValue)
         {
             submissionTypeToReplaceWith = await this.submissionTypesDataService
-                .GetByIdQuery(model.SubmissionTypeToReplaceWith!.Value)
+                .GetByIdQuery(model.SubmissionTypeToReplaceWith)
                 .FirstOrDefaultAsync();
         }
 
-        var shouldDoSubmissionsDeletion = !model.SubmissionTypeToReplaceWith.HasValue;
+        var isReplacingSubmissionType = model.SubmissionTypeToReplaceWith.HasValue;
 
         var validationResult = await this.deleteOrReplaceSubmissionTypeValidationService.GetValidationResult(
             (
@@ -90,68 +95,104 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
                 model.SubmissionTypeToReplaceWith,
                 submissionTypeToReplaceOrDelete,
                 submissionTypeToReplaceWith,
-                shouldDoSubmissionsDeletion));
+                isReplacingSubmissionType,
+                user));
 
         if (!validationResult.IsValid)
         {
             throw new BusinessServiceException(validationResult.Message);
         }
 
-        var problems = await this.problemsDataService
+        var problemsQuery = this.problemsDataService
             .GetQuery(p => p.SubmissionTypesInProblems
-                .Any(st => st.SubmissionTypeId == submissionTypeToReplaceOrDelete!.Id))
-            .Include(p => p.SubmissionTypesInProblems)
-            .ToListAsync();
+                .Any(st => st.SubmissionTypeId == submissionTypeToReplaceOrDelete.Id))
+            .Include(p => p.SubmissionTypesInProblems);
+        List<Problem>? problems = null;
 
-        if (shouldDoSubmissionsDeletion)
+        if (isReplacingSubmissionType)
         {
             stringBuilder.Append(
-                $"Submission type \"{submissionTypeToReplaceOrDelete!.Name}\" is deleted and all submissions associated with it");
-            stringBuilder.AppendLine();
-
-            // Must be called before delete so problems with 1 submission type are calculated correctly
-            await this.AppendMessageForProblemsThatWillBeLeftWithNoSubmissionType(stringBuilder, problems);
+                $"Submission type \"{submissionTypeToReplaceOrDelete!.Name}\" is replaced with \"{submissionTypeToReplaceWith!.Name}\"");
         }
         else
         {
             stringBuilder.Append(
-                $"Submission type \"{submissionTypeToReplaceOrDelete!.Name}\" is deleted and replaced with \"{submissionTypeToReplaceWith!.Name}\"");
+                $"Submission type \"{submissionTypeToReplaceOrDelete!.Name}\" is deleted along with all submissions associated with it");
+            stringBuilder.AppendLine();
+
+            problems = await problemsQuery.ToListAsync();
+
+            // Must be called before delete so problems with 1 submission type are calculated correctly
+            await this.AppendMessageForProblemsThatWillBeLeftWithNoSubmissionType(stringBuilder, problems);
         }
 
-        await problems.Chunk(100).ForEachSequential(async problemChunk =>
+        var problemIds = problems?.Select(p => p.Id).ToList()
+            ?? await problemsQuery.Select(p => p.Id).ToListAsync();
+
+        // Update the default submission type of associated problems
+        await this.problemsDataService
+            .Update(
+                p => problemIds.Contains(p.Id),
+                setters => setters
+                    .SetProperty(p => p.DefaultSubmissionTypeId,
+                        p => p.DefaultSubmissionTypeId == submissionTypeToReplaceOrDelete.Id
+                            ? submissionTypeToReplaceWith != null
+                                ? submissionTypeToReplaceWith.Id
+                                : null
+                            : p.DefaultSubmissionTypeId));
+
+        switch (isReplacingSubmissionType)
         {
-            var problemIdsInChunk = problemChunk.Select(p => p.Id).ToList();
-
-            var submissionsInChunk = this.submissionsDataService
-                .GetAllByProblems(problemIdsInChunk)
-                .Where(s => s.SubmissionTypeId == submissionTypeToReplaceOrDelete!.Id);
-
-            if (shouldDoSubmissionsDeletion)
+            case true when submissionTypeToReplaceWith != null:
             {
-                await this.DeleteSubmissions(submissionsInChunk);
+                var problemsWithoutSubmissionTypeIds = problemsQuery
+                    .Where(p => p.SubmissionTypesInProblems.All(s => s.SubmissionTypeId != submissionTypeToReplaceWith.Id))
+                    .Select(p => p.Id)
+                    .ToList();
+
+                // First, we add the new submission type to problems that don't have it, then we delete the old one
+                await this.submissionTypesInProblemsDataService
+                    .AddMany(problemsWithoutSubmissionTypeIds.Select(pId => new SubmissionTypeInProblem
+                    {
+                        ProblemId = pId,
+                        SubmissionTypeId = submissionTypeToReplaceWith.Id,
+                    }));
+
+                await this.submissionTypesInProblemsDataService.SaveChanges();
+                await DeleteOldSubmissionTypeFromProblems();
+
+                submissionTypeToReplaceOrDelete.Name += " / Deprecated";
+
+                break;
             }
-            else
+            case false:
             {
-                await this.ReplaceSubmissionTypeInSubmissionsAndProblems(
-                    problemChunk,
-                    submissionsInChunk,
-                    submissionTypeToReplaceOrDelete!,
-                    submissionTypeToReplaceWith!);
+                var submissionIds = this.submissionsDataService
+                    .GetQuery(s => s.SubmissionTypeId == submissionTypeToReplaceOrDelete.Id)
+                    .Select(s => s.Id)
+                    .ToList();
+
+                await this.testRunsData.ExecuteDelete(tr => submissionIds.Contains(tr.SubmissionId));
+                await this.submissionsDataService.ExecuteDelete(s => submissionIds.Contains(s.Id));
+                await DeleteOldSubmissionTypeFromProblems();
+                this.submissionTypesDataService.Delete(submissionTypeToReplaceOrDelete);
+                break;
             }
-
-            await this.submissionTypesDataService.SaveChanges();
-
-            this.submissionTypesInProblemsDataService
-                .Delete(stp =>
-                    stp.SubmissionTypeId == submissionTypeToReplaceOrDelete!.Id &&
-                    problemIdsInChunk.Contains(stp.ProblemId));
-        });
-
-        this.submissionTypesDataService.Delete(submissionTypeToReplaceOrDelete!);
+            default:
+                throw new InvalidOperationException("Submission type to replace with is null. Cannot replace.");
+        }
 
         await this.submissionTypesDataService.SaveChanges();
 
         return stringBuilder.ToString();
+
+        async Task DeleteOldSubmissionTypeFromProblems()
+        {
+            await this.submissionTypesInProblemsDataService
+                .ExecuteDelete(stp =>
+                    stp.SubmissionTypeId == submissionTypeToReplaceOrDelete.Id &&
+                    problemIds.Contains(stp.ProblemId));
+        }
     }
 
     public override async Task<SubmissionTypeAdministrationModel> Get(int id) =>
@@ -193,40 +234,6 @@ public class SubmissionTypesBusinessService : AdministrationOperationService<Sub
     {
         await this.submissionTypesDataService.DeleteById(id);
         await this.submissionTypesDataService.SaveChanges();
-    }
-
-    private async Task ReplaceSubmissionTypeInSubmissionsAndProblems(
-        Problem[] problems,
-        IQueryable<Submission> submissionsQuery,
-        SubmissionType submissionTypeToReplaceOrDelete,
-        SubmissionType submissionTypeToReplaceWith)
-    {
-        var commentUpdate = $"{Environment.NewLine}The submission type of this submission was updated from {submissionTypeToReplaceOrDelete.Name} to {submissionTypeToReplaceWith.Name} and changes to the problem or submission might be needed for correct execution.";
-
-        await submissionsQuery.UpdateFromQueryAsync(s => new Submission
-        {
-            SubmissionTypeId = submissionTypeToReplaceWith!.Id,
-            ProcessingComment = s.ProcessingComment + commentUpdate,
-        });
-
-        var problemsWithoutSubmissionType = problems
-            .Where(p => p.SubmissionTypesInProblems.All(s => s.SubmissionTypeId != submissionTypeToReplaceWith.Id));
-
-        foreach (var problem in problemsWithoutSubmissionType)
-        {
-            await this.submissionTypesInProblemsDataService.Add(new SubmissionTypeInProblem
-            {
-                Problem = problem, SubmissionType = submissionTypeToReplaceWith!,
-            });
-        }
-    }
-
-    private async Task DeleteSubmissions(IQueryable<Submission> submissionsQuery)
-    {
-        var submissions = submissionsQuery.ToList();
-        await this.testRunsData.DeleteBySubmissions(submissions.Select(s => s.Id).ToList());
-
-        this.submissionsDataService.DeleteMany(submissions);
     }
 
     private async Task AppendMessageForProblemsThatWillBeLeftWithNoSubmissionType(

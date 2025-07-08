@@ -11,8 +11,6 @@
 
         Task DeleteBySubmission(int submissionId);
 
-        Task DeleteBySubmissions(IEnumerable<int> submissionIds);
-
         Task DeleteInBatchesBySubmissionIds(IEnumerable<int> submissionIds);
     }
 }
