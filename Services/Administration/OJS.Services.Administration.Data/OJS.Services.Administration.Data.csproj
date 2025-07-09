@@ -9,8 +9,8 @@
     <ProjectReference Include="..\..\Infrastructure\OJS.Services.Infrastructure\OJS.Services.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.104.0-preview2" />
-    <PackageReference Include="SixLabors.Fonts" Version="2.0.3" />
-    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.103.0" />
+    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="SixLabors.Fonts" Version="2.0.9" />
+    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.103.9.1" />
   </ItemGroup>
 </Project>

@@ -4,12 +4,12 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="Hangfire.Core" Version="1.7.26" />
-    <PackageReference Include="StackExchange.Redis" Version="2.2.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
+    <PackageReference Include="Hangfire.Core" Version="1.7.37" />
+    <PackageReference Include="StackExchange.Redis" Version="2.2.88" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.18" />
     <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
-    <PackageReference Include="Polly.Core" Version="8.4.1" />
+    <PackageReference Include="Polly.Core" Version="8.4.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Common\OJS.Common\OJS.Common.csproj" />

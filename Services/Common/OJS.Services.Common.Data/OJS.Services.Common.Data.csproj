@@ -10,6 +10,6 @@
     <ProjectReference Include="..\OJS.Services.Common\OJS.Services.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.103.0" />
+    <PackageReference Include="Z.EntityFramework.Extensions.EFCore" Version="8.103.9.1" />
   </ItemGroup>
 </Project>
