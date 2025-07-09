@@ -42,6 +42,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import StyledTooltip from 'src/components/administration/common/styled-tooltip/StyledTooltip';
 import UserActions from 'src/components/administration/common/user-actions/UserActions';
 import AdministrationAccessLogsPage from 'src/pages/administration-new/access-logs/AdministrationAccessLogsPage';
+import AdministrationContestResourcesPage
+    from 'src/pages/administration-new/contest-resources/AdministrationContestResourcesPage';
 import AdministrationMentorPromptTemplatesPage
     from 'src/pages/administration-new/mentor-prompt-templates/AdministrationMentorPromptTemplatesPage';
 import AdministrationUsersMentorsPage from 'src/pages/administration-new/users-mentors/AdministrationUsersMentorsPage';
@@ -53,7 +55,7 @@ import {
     ACCESS_LOGS_PATH,
     CHECKERS_PATH,
     CONTEST_CATEGORIES_HIERARCHY_PATH,
-    CONTEST_CATEGORIES_PATH,
+    CONTEST_CATEGORIES_PATH, CONTEST_RESOURCES_PATH,
     CONTESTS_PATH,
     EXAM_GROUPS_PATH, MENTOR_PROMPT_TEMPLATES_PATH,
     NEW_ADMINISTRATION_PATH,
@@ -100,8 +102,6 @@ import AdministrationReplaceDeleteSubmissionTypesPage
 import AdministrationSubmissionTypesPage
     from '../../../pages/administration-new/submission-types/AdministrationSubmissionTypesPage';
 import AdministrationSubmissionsPage from '../../../pages/administration-new/submissions/AdministrationSubmissionsPage';
-import AdminSubmissionForProcessingDetails
-    from '../../../pages/administration-new/submissions-for-processing/AdministrationSubmissionForProcessing';
 import AdministrationSubmissionsForProcessingPage
     from '../../../pages/administration-new/submissions-for-processing/AdministrationSubmissionsForProcessingPage';
 import SubmissionsSimillarity from '../../../pages/administration-new/submissions-simillarity/SubmissionsSimillarity';
@@ -113,7 +113,7 @@ import { useAppSelector } from '../../../redux/store';
 import AdministrationContestPage from '../../administration/contests/AdministrationContestPage';
 import AdministrationExamGroupPage from '../../administration/exam-groups/AdministrationExamGroupPage';
 import AdministrationProblemGroup from '../../administration/problem-groups/AdministrationProblemGroup';
-import AdministrationProblemResource from '../../administration/problem-resources/AdministrationProblemResource';
+import AdministrationResource from '../../administration/problem-resources/AdministrationResource';
 import AdministrationProblem from '../../administration/problems/AdministrationProblem';
 import AdministrationRole from '../../administration/roles/AdministrationRole';
 import AdministrationSubmissionTypeDocumentPage
@@ -178,6 +178,12 @@ const administrationItems = [
         name: 'Problem Resources',
         icon: <GiFiles className={styles.iconSize} />,
         path: `${PROBLEM_RESOURCES_PATH}`,
+        visibleOnlyForAdmin: false,
+    },
+    {
+        name: 'Contest Resources',
+        icon: <GiFiles className={styles.iconSize} />,
+        path: `${CONTEST_RESOURCES_PATH}`,
         visibleOnlyForAdmin: false,
     },
     {
@@ -310,7 +316,7 @@ const AdministrationPortal = () => {
 
     const [ open, setOpen ] = useState(true);
     const [ showMenu, setShowMenu ] = useState<boolean>(false);
-    const iconButtonRef = useRef(null);
+    const iconButtonRef = useRef<HTMLButtonElement>(null);
 
     useEffect(() => {
         const locationPathnameElements = location.pathname.split('/');
@@ -404,11 +410,6 @@ const AdministrationPortal = () => {
             visibleOnlyForAdmin: true,
         },
         {
-            path: `${SUBMISSIONS_FOR_PROCESSING_PATH}/:id`,
-            Element: AdminSubmissionForProcessingDetails,
-            visibleOnlyForAdmin: true,
-        },
-        {
             path: `${TESTS_PATH}`,
             Element: AdministrationTestsPage,
             visibleOnlyForAdmin: false,
@@ -439,13 +440,18 @@ const AdministrationPortal = () => {
             visibleOnlyForAdmin: false,
         },
         {
+            path: `${CONTEST_RESOURCES_PATH}`,
+            Element: AdministrationContestResourcesPage,
+            visibleOnlyForAdmin: false,
+        },
+        {
             path: `${PROBLEM_RESOURCES_PATH}`,
             Element: AdministrationProblemResourcesPage,
             visibleOnlyForAdmin: false,
         },
         {
             path: `${PROBLEM_RESOURCES_PATH}/:id`,
-            Element: AdministrationProblemResource,
+            Element: AdministrationResource,
             visibleOnlyForAdmin: false,
         },
         {
@@ -556,26 +562,24 @@ const AdministrationPortal = () => {
                   open={open}
                 >
                     {!open
-                        ? (
-                            <IconButton
+                        ? <IconButton
                               sx={{ backgroundColor: getColors(themeMode).palette.secondary.main }}
                               className={`${styles.arrowRight} ${styles.arrowCommon}`}
                               color="primary"
                               onClick={handleDrawerOpen}
                             >
-                                <ChevronRightIcon />
-                            </IconButton>
-                        )
-                        : (
-                            <IconButton
+                            <ChevronRightIcon />
+                        </IconButton>
+                        
+                        : <IconButton
                               className={`${styles.arrow} ${styles.arrowCommon}`}
                               sx={{ backgroundColor: getColors(themeMode).palette.secondary.main }}
                               color="primary"
                               onClick={handleDrawerClose}
                             >
-                                <ChevronLeftIcon />
-                            </IconButton>
-                        )}
+                            <ChevronLeftIcon />
+                        </IconButton>
+                        }
                     <DrawerHeader className={styles.drawerHeader}>
                         <UserActions
                           isDropdown={!open}
@@ -595,20 +599,20 @@ const AdministrationPortal = () => {
                               iconButtonRef={iconButtonRef}
                             />
                             <DrawerHeader className={styles.username}>
-                                {open && (
+                                {open && 
                                     <>
                                         <Typography variant="subtitle1">
                                             {user.userName}
                                         </Typography>
                                         <Divider sx={{ color: 'red', width: '90%' }} />
                                     </>
-                                )}
+                                }
                             </DrawerHeader>
                         </DrawerHeader>
                     </DrawerHeader>
                     <List className={styles.list}>
                         <Divider />
-                        {administrationItems.map((item) => (user.isAdmin || !item.visibleOnlyForAdmin) && (
+                        {administrationItems.map((item) => (user.isAdmin || !item.visibleOnlyForAdmin) && 
                             <StyledTooltip
                               key={item.path}
                               title={item.name}
@@ -643,8 +647,7 @@ const AdministrationPortal = () => {
                                     </ListItem>
                                     <Divider />
                                 </div>
-                            </StyledTooltip>
-                        ))}
+                            </StyledTooltip>)}
                     </List>
                 </Drawer>
                 <Box

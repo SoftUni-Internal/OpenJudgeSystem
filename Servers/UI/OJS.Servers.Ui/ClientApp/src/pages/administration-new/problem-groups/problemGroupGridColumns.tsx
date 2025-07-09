@@ -1,6 +1,6 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/self-closing-comp */
+
+
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { ProblemGroupTypes } from '../../../common/enums';
@@ -26,7 +26,7 @@ const filterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'contest',
@@ -47,7 +47,7 @@ const filterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'isDeleted',
@@ -73,13 +73,13 @@ const filterableColumns: AdministrationGridColDef[] = [
         field: 'type',
         headerName: 'Type',
         flex: 1,
-        type: 'enum',
+        type: 'singleSelect',
         filterable: false,
         sortable: false,
         align: 'center',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemGroupTypes),
-        valueFormatter: (params) => ProblemGroupTypes[params.value],
+        valueFormatter: (_, row) => ProblemGroupTypes[row.value],
     } as GridColDef & IEnumType,
     {
         field: 'createdOn',
@@ -88,7 +88,7 @@ const filterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -97,7 +97,7 @@ const filterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 
@@ -115,7 +115,7 @@ export const returnNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton
@@ -131,7 +131,7 @@ export const returnNonFilterableColumns = (
                   mutation={useDeleteProblemGroupMutation}
                 />
             </div>
-        ),
+        ,
     } ] as GridColDef[];
 
 export default filterableColumns;

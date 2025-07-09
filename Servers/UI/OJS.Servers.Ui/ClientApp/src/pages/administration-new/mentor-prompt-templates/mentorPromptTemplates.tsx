@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types,max-len */
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import QuickEditButton from 'src/components/administration/common/edit/QuickEditButton';
 
@@ -19,7 +19,7 @@ const mentorPromptTemplatesFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'title',
@@ -53,11 +53,11 @@ export const returnNonFilterableColumns = (onEditClick: (id: number) => void) =>
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(params.row.id)} />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

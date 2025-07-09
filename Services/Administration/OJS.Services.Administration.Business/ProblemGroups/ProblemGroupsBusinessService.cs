@@ -3,18 +3,20 @@ namespace OJS.Services.Administration.Business.ProblemGroups
     using FluentExtensions.Extensions;
     using Microsoft.EntityFrameworkCore;
     using OJS.Data.Models;
+    using OJS.Data.Models.Contests;
     using OJS.Data.Models.Problems;
     using OJS.Data.Models.Tests;
     using OJS.Services.Administration.Data;
     using OJS.Services.Administration.Models.ProblemGroups;
-    using OJS.Services.Common.Models;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
+    using OJS.Data.Models.Resources;
     using Resource = OJS.Common.Resources.ProblemGroupsBusiness;
     using SharedResource = OJS.Common.Resources.ContestsGeneral;
     using OJS.Services.Infrastructure.Extensions;
     using OJS.Services.Infrastructure.Exceptions;
+    using OJS.Services.Infrastructure.Models;
 
     public class ProblemGroupsBusinessService : AdministrationOperationService<ProblemGroup, int, ProblemGroupsAdministrationModel>, IProblemGroupsBusinessService
     {
@@ -100,7 +102,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
             await this.ReevaluateProblemsAndProblemGroupsOrder(contestId);
         }
 
-        public async Task<ServiceResult> DeleteById(int id)
+        public async Task<ServiceResult<VoidResult>> DeleteById(int id)
         {
             var problemGroup = await this.problemGroupsData.GetByIdQuery(id)
                 .Include(p => p.Problems)
@@ -110,7 +112,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
             {
                 if (problemGroup.Problems.Any(p => !p.IsDeleted))
                 {
-                    return new ServiceResult(Resource.CannotDeleteProblemGroupWithProblems);
+                    return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotDeleteProblemGroupWithProblems);
                 }
 
                 this.problemGroupsData.Delete(problemGroup);
@@ -119,26 +121,26 @@ namespace OJS.Services.Administration.Business.ProblemGroups
                 await this.ReevaluateProblemsAndProblemGroupsOrder(problemGroup.ContestId);
             }
 
-            return ServiceResult.Success;
+            return ServiceResult.EmptySuccess;
         }
 
-        public async Task<ServiceResult> CopyAllToContestBySourceAndDestinationContest(
+        public async Task<ServiceResult<VoidResult>> CopyAllToContestBySourceAndDestinationContest(
             int sourceContestId,
             int destinationContestId)
         {
             if (sourceContestId == destinationContestId)
             {
-                return new ServiceResult(Resource.CannotCopyProblemGroupsIntoSameContest);
+                return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemGroupsIntoSameContest);
             }
 
             if (!await this.contestsData.ExistsById(destinationContestId))
             {
-                return new ServiceResult(SharedResource.ContestNotFound);
+                return ServiceResult.NotFound<VoidResult>(nameof(Contest), SharedResource.ContestNotFound, destinationContestId);
             }
 
             if (await this.contestsData.IsActiveById(destinationContestId))
             {
-                return new ServiceResult(Resource.CannotCopyProblemGroupsIntoActiveContest);
+                return ServiceResult.BusinessRuleViolation<VoidResult>(Resource.CannotCopyProblemGroupsIntoActiveContest);
             }
 
             var sourceContestProblemGroups = await this.problemGroupsData
@@ -154,7 +156,7 @@ namespace OJS.Services.Administration.Business.ProblemGroups
             await sourceContestProblemGroups
                 .ForEachSequential(async pg => await this.CopyProblemGroupToContest(pg, destinationContestId));
 
-            return ServiceResult.Success;
+            return ServiceResult.EmptySuccess;
         }
 
         public async Task ReevaluateProblemsAndProblemGroupsOrder(int contestId)

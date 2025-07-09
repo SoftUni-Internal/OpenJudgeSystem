@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
@@ -12,7 +12,7 @@ import DownloadIconButton from '../../../components/administration/common/downlo
 import QuickEditButton from '../../../components/administration/common/edit/QuickEditButton';
 import RedirectButton from '../../../components/administration/common/edit/RedirectButton';
 import { AdministrationGridColDef } from '../../../components/administration/utils/mui-utils';
-import { useDeleteProblemResourceMutation, useDownloadResourceQuery } from '../../../redux/services/admin/problemResourcesAdminService';
+import { useDeleteResourceMutation, useDownloadResourceQuery } from '../../../redux/services/admin/resourcesAdminService';
 import { adminFormatDate } from '../../../utils/administration/administration-dates';
 import { getStringObjectKeys } from '../../../utils/object-utils';
 
@@ -26,7 +26,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
@@ -39,16 +39,42 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
+        field: 'problemId',
+        headerName: 'Problem Id',
+        flex: 0,
+        type: 'number',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+        valueFormatter: (_, row) => row.value?.toString(),
+    },
+    {
+        field: 'problemName',
+        headerName: 'Problem Name',
+        flex: 0.5,
+        type: 'string',
+        filterable: false,
+        sortable: false,
+        align: 'center',
+        headerAlign: 'center',
+        renderCell: (params) => 
+            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
+                {params.row.problemName}
+            </Link>
+        ,
+    },
+    {
         field: 'type',
         headerName: 'Type',
         flex: 0,
         filterable: false,
         sortable: false,
         align: 'center',
-        type: 'enum',
+        type: 'singleSelect',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(ProblemResourceType),
-        valueFormatter: (params) => ProblemResourceType[params.value],
+        valueFormatter: (_, row) => ProblemResourceType[row.value],
     } as GridColDef & IEnumType,
     {
         field: 'fileExtension',
@@ -81,32 +107,6 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         headerAlign: 'center',
     },
     {
-        field: 'problemId',
-        headerName: 'Problem Id',
-        flex: 0,
-        type: 'number',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
-    },
-    {
-        field: 'problemName',
-        headerName: 'Problem Name',
-        flex: 0.5,
-        type: 'string',
-        filterable: false,
-        sortable: false,
-        align: 'center',
-        headerAlign: 'center',
-        renderCell: (params) => (
-            <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
-                {params.row.problemName}
-            </Link>
-        ),
-    },
-    {
         field: 'isDeleted',
         headerName: 'Is Deleted',
         flex: 1,
@@ -123,7 +123,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -132,7 +132,7 @@ const problemResourceFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 
@@ -150,7 +150,7 @@ export const returnProblemResourceNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton
@@ -161,7 +161,7 @@ export const returnProblemResourceNonFilterableColumns = (
                   id={Number(params.row.id)}
                   name={`${PROBLEM_RESOURCE}`}
                   text={DELETE_CONFIRMATION_MESSAGE}
-                  mutation={useDeleteProblemResourceMutation}
+                  mutation={useDeleteResourceMutation}
                   onSuccess={onSuccessfulDelete}
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
@@ -171,6 +171,6 @@ export const returnProblemResourceNonFilterableColumns = (
                   disabled={!!params.row.link}
                 />
             </div>
-        ),
+        ,
     } ] as GridColDef[];
 export default problemResourceFilterableColumns;

@@ -3,9 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 
 import { IGetAllAdminParams } from '../../../common/types';
 import AdministrationModal from '../../../components/administration/common/modals/administration-modal/AdministrationModal';
-import ProblemResourceForm from '../../../components/administration/problem-resources/problem-resource-form/ProblemResourceForm';
+import ResourceForm from '../../../components/administration/problem-resources/problem-resource-form/ResourceForm';
 import { getColors, useAdministrationTheme } from '../../../hooks/use-administration-theme-provider';
-import { useGetAllAdminProblemResourcesQuery, useLazyExportProblemResourcesToExcelQuery } from '../../../redux/services/admin/problemResourcesAdminService';
+import {
+    useGetAllAdminProblemResourcesQuery,
+    useLazyExportResourcesToExcelQuery,
+} from '../../../redux/services/admin/resourcesAdminService';
 import { renderSuccessfullAlert } from '../../../utils/render-utils';
 import { applyDefaultFilterToQueryString } from '../administration-filters/AdministrationFilters';
 import AdministrationGridView, { defaultFilterToAdd, defaultSorterToAdd } from '../AdministrationGridView';
@@ -22,10 +25,10 @@ const AdministrationProblemResourcesPage = () => {
     // eslint-disable-next-line max-len
     const [ queryParams, setQueryParams ] = useState<IGetAllAdminParams>(applyDefaultFilterToQueryString(defaultFilterToAdd, defaultSorterToAdd, searchParams));
 
-    const { refetch: retakeData, data, error } = useGetAllAdminProblemResourcesQuery(queryParams);
+    const { refetch, data, error } = useGetAllAdminProblemResourcesQuery(queryParams);
 
     const onClose = () => {
-        retakeData();
+        refetch();
         setOpenEditModal(false);
     };
 
@@ -34,26 +37,26 @@ const AdministrationProblemResourcesPage = () => {
         setProblemResourceId(id);
     };
 
-    const renderProblemResourceModal = (index: number) => (
+    const renderProblemResourceModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
           open={openEditModal}
           onClose={onClose}
         >
-            <ProblemResourceForm
+            <ResourceForm
               id={problemResourceId}
               onSuccess={onClose}
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
     return (
         <>
             {renderSuccessfullAlert(successMessage, 7000)}
             <AdministrationGridView
               filterableGridColumnDef={problemResourceFilterableColumns}
-              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, retakeData, setSuccessMessage)}
+              notFilterableGridColumnDef={returnProblemResourceNonFilterableColumns(onEditClick, refetch, setSuccessMessage)}
               data={data}
               error={error}
               queryParams={queryParams}
@@ -62,7 +65,7 @@ const AdministrationProblemResourcesPage = () => {
               modals={[
                   { showModal: openEditModal, modal: (i) => renderProblemResourceModal(i) },
               ]}
-              excelMutation={useLazyExportProblemResourcesToExcelQuery}
+              excelMutation={useLazyExportResourcesToExcelQuery}
             />
         </>
     );

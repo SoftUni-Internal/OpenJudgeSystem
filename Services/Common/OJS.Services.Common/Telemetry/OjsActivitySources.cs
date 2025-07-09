@@ -93,6 +93,7 @@ public static class OjsActivitySources
         public const string ProcessingStarted = "submission.processing_started";
         public const string Execution = "submission.execution";
         public const string ProcessingExecutionResult = "submission.processing_result";
+        public const string ProcessingExecutionErrorResult = "submission.processing_error_result";
         public const string Retest = "submission.retest";
     }
 
@@ -176,6 +177,22 @@ public static class OjsActivitySources
         public const string Remove = "cache.remove";
         public const string Clear = "cache.clear";
         public const string Refresh = "cache.refresh";
+    }
+
+    /// <summary>
+    /// Tags for submission-related activities.
+    /// </summary>
+    public static class SubmissionTags
+    {
+        public const string Verbosely = "submission.verbosely";
+        public const string Strategy = "submission.strategy";
+        public const string ContentLength = "submission.content_length";
+        public const string Updated = "submission.updated";
+        public const string SubmissionForProcessingStateUpdated = "submission.submission_for_processing_state_updated";
+        public const string ProcessingSuccess = "submission.processing_success";
+        public const string RetestSuccess = "submission.retest_success";
+        public const string WorkerException = "worker.exception";
+        public const string WorkerName = "worker.name";
     }
 
     /// <summary>

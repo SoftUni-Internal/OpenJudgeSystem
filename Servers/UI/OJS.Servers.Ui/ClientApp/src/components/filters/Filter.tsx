@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
-/* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable import/group-exports */
+ 
+ 
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
 import { NavigateOptions, URLSearchParamsInit } from 'react-router-dom';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
@@ -286,13 +285,13 @@ const Filter = (props: IFilterProps) => {
         setSelectedFilters({ ...filter, [updateProperty]: value }, indexToUpdate);
     };
 
-    const renderTextField = (params: TextFieldProps, commonTextFieldSx: object) => (
+    const renderTextField = (params: TextFieldProps, commonTextFieldSx: object) => 
         <TextField
           {...params}
           variant="standard"
           sx={commonTextFieldSx}
         />
-    );
+    ;
 
     const renderInputField = (idx: number) => {
         const selectedFilter = selectedFilters[idx];
@@ -459,7 +458,7 @@ const Filter = (props: IFilterProps) => {
         );
     };
 
-    const renderFilter = (idx: number) => (
+    const renderFilter = (idx: number) => 
         <Box
           sx={{
               backgroundColor: isDarkMode
@@ -529,7 +528,7 @@ const Filter = (props: IFilterProps) => {
                     width: '2.5rem !important',
                 }}
                 >
-                    {idx !== 0 && (
+                    {idx !== 0 && 
                         <DeleteIcon
                           sx={{
                               color: '#ef5350',
@@ -539,11 +538,11 @@ const Filter = (props: IFilterProps) => {
                           }}
                           onClick={() => removeSingleFilter(idx)}
                         />
-                    )}
+                    }
                 </Box>
             </Box>
         </Box>
-    );
+    ;
 
     return (
         <Box>
@@ -580,7 +579,7 @@ const Filter = (props: IFilterProps) => {
                           : 'rotate(0)',
                   }}
                 />
-                {selectedFilters.length > 1 && (
+                {selectedFilters.length > 1 && 
                     <Box
                       sx={{
                           backgroundColor: isDarkMode
@@ -603,7 +602,7 @@ const Filter = (props: IFilterProps) => {
                     >
                         {selectedFilters.length - 1}
                     </Box>
-                )}
+                }
             </Box>
             <Popper
               className={`${styles.popupContainer} ${isDarkMode

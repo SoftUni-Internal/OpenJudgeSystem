@@ -111,5 +111,13 @@
                 public const string PlainText = "plaintext";
             }
         }
+
+        public static class ErrorCodes
+        {
+            public const string NotFound = "NotFound";
+            public const string Forbidden = "Forbidden";
+            public const string Unauthorized = "Unauthorized";
+            public const string BusinessRuleViolation = "BusinessRuleViolation";
+        }
     }
 }

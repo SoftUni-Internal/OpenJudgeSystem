@@ -66,7 +66,7 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
                 } ];
             } else if (errorResult.data && !Array.isArray(errorResult.data)) {
                 // Handle case where error.data is a single ExceptionData object
-                const singleError = errorResult.data as ExceptionData;
+                const singleError = errorResult.data;
                 data = [ {
                     message: singleError.message || UNEXPECTED_ERROR_MESSAGE,
                     name: singleError.name || '',
@@ -74,10 +74,10 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
                 } ];
             } else if (Array.isArray(errorResult.data)) {
                 // Handle case where error.data is an array of ExceptionData
-                data = errorResult.data as Array<ExceptionData>;
+                data = errorResult.data;
                 data.forEach((x) => {
                     if (!x.message) {
-                        // eslint-disable-next-line no-param-reassign
+                         
                         x.message = UNEXPECTED_ERROR_MESSAGE;
                     }
                 });
@@ -100,7 +100,7 @@ const getCustomBaseQuery = (baseQueryName: string) => async (args: FetchArgs, ap
         return { error: data };
     }
 
-    if (response && successfulStatusCodes.some((status) => status === response!.status)) {
+    if (response && successfulStatusCodes.some((status) => status === response.status)) {
         const contentType = response.headers.get('Content-Type');
         if (contentType?.includes('text')) {
             return { data: result.error?.data };

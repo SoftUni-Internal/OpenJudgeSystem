@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ResourceType } from 'src/common/enums';
+import ResourcesInView
+    from 'src/components/administration/problems/problem-resources-in-problem-view/ResourcesInView';
 
 import { ContestVariation } from '../../../common/contest-types';
 import useScrollToTab from '../../../hooks/common/use-scroll-to-tab';
@@ -15,7 +18,8 @@ import ProblemsInContestView from './problems-in-contest-view/ProblemsInContestV
 
 enum CONTEST_LISTED_DATA {
     PROBLEMS = 'problems',
-    PARTICIPANTS = 'participants'
+    PARTICIPANTS = 'participants',
+    RESOURCES = 'resources'
 }
 
 const AdministrationContestPage = () => {
@@ -41,7 +45,7 @@ const AdministrationContestPage = () => {
         getAndSetExceptionMessage([ activityError, error ], setErrorMessages);
     }, [ activityError, error ]);
 
-    const renderContestEdit = () => (
+    const renderContestEdit = () => 
         <ContestEdit
           contestId={Number(contestId)}
           currentContest={data}
@@ -49,9 +53,15 @@ const AdministrationContestPage = () => {
           setParentSuccessMessage={setSuccessMessage}
           skipGettingContest
         />
-    );
+    ;
 
-    const renderProblemsInContestView = (key: string) => (
+    const returnResourceInProblemView = (key:string) => 
+        <div id={CONTEST_LISTED_DATA.RESOURCES}>
+            <ResourcesInView key={key} parentId={Number(contestId)} type={ResourceType.ContestResource} />
+        </div>
+    ;
+
+    const renderProblemsInContestView = (key: string) => 
         <div key={key} id={CONTEST_LISTED_DATA.PROBLEMS}>
             <ProblemsInContestView
               key={key}
@@ -61,9 +71,9 @@ const AdministrationContestPage = () => {
               canContestBeCompeted={activityData?.canBeCompeted || false}
             />
         </div>
-    );
+    ;
 
-    const renderParticipantsInContestView = (key: string) => (
+    const renderParticipantsInContestView = (key: string) => 
         <div key={key} id={CONTEST_LISTED_DATA.PARTICIPANTS}>
             <ParticipantsInContestView
               key={key}
@@ -73,10 +83,10 @@ const AdministrationContestPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </div>
-    );
+    ;
 
     if (!successMessage && (isFetching || isLoading || isLoadingActivity || isFetchingActivity)) {
-        return (<SpinningLoader />);
+        return <SpinningLoader />;
     }
 
     return (
@@ -90,6 +100,7 @@ const AdministrationContestPage = () => {
               tabs={[
                   { value: CONTEST_LISTED_DATA.PROBLEMS, label: 'Problems', node: renderProblemsInContestView },
                   { value: CONTEST_LISTED_DATA.PARTICIPANTS, label: 'Participants', node: renderParticipantsInContestView },
+                  { value: CONTEST_LISTED_DATA.RESOURCES, label: 'Resources', node: returnResourceInProblemView },
               ]}
             />
         </>

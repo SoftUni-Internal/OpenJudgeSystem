@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { getContestsDetailsPageUrl } from 'src/common/urls/compose-client-urls';
 import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
@@ -22,7 +22,7 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
         type: 'number',
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
@@ -44,7 +44,7 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         flex: 2,
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsDetailsPageUrl({
                   contestId: params.row.contestId,
@@ -52,7 +52,7 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'contestId',
@@ -83,7 +83,7 @@ const examGroupsFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         flex: 0.5,
-        valueFormatter: (params) => params.value?.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
 ];
 
@@ -101,7 +101,7 @@ export const returnExamGroupsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton
@@ -117,7 +117,7 @@ export const returnExamGroupsNonFilterableColumns = (
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

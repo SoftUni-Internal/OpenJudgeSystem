@@ -24,7 +24,7 @@ const Page = ({ children, title } : IHaveChildrenPropsWithTitle) => {
     }, [ pageTitle ]);
 
     return (
-        // eslint-disable-next-line react/jsx-no-useless-fragment
+         
         <>
             {children}
         </>
@@ -34,10 +34,10 @@ const Page = ({ children, title } : IHaveChildrenPropsWithTitle) => {
 const withTitle = (
     ComponentToWrap: FC,
     title: string | ((params: Params, searchParams: URLSearchParams) => string),
-) => (props: Anything) => (
+) => (props: Anything) => 
     <Page title={title}>
         <ComponentToWrap {...props} />
     </Page>
-);
+;
 
 export default withTitle;

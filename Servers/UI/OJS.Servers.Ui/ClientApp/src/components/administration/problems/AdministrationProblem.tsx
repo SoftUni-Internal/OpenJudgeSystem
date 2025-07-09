@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router';
+import { ResourceType } from 'src/common/enums';
 
 import useScrollToTab from '../../../hooks/common/use-scroll-to-tab';
 import { useGetContestActivityQuery } from '../../../redux/services/admin/contestsAdminService';
@@ -8,7 +9,7 @@ import { renderErrorMessagesAlert } from '../../../utils/render-utils';
 import TabsInView from '../common/tabs/TabsInView';
 
 import ProblemForm from './problem-form/ProblemForm';
-import ResourcesInProblemView from './problem-resources-in-problem-view/ResourcesInProblemView';
+import ResourcesInView from './problem-resources-in-problem-view/ResourcesInView';
 import TestsInProblemView from './tests-in-problem-view/TestsInProblemView';
 
 enum PROBLEM_LISTED_DATA {
@@ -43,7 +44,7 @@ const AdministrationProblem = () => {
         }
     }, [ contestId, refetch, skipGettingContestActivity ]);
 
-    const returnProblemForm = () => (
+    const returnProblemForm = () => 
         <ProblemForm
           problemId={Number(problemId)}
           isEditMode
@@ -55,15 +56,15 @@ const AdministrationProblem = () => {
               setSkipGettingContestActivity(false);
           }}
         />
-    );
+    ;
 
-    const returnResourceInProblemView = (key:string) => (
+    const returnResourceInProblemView = (key:string) => 
         <div id={PROBLEM_LISTED_DATA.RESOURCES}>
-            <ResourcesInProblemView key={key} problemId={Number(problemId)} />
+            <ResourcesInView key={key} parentId={Number(problemId)} type={ResourceType.ProblemResource} />
         </div>
-    );
+    ;
 
-    const returnTests = (key: string) => (
+    const returnTests = (key: string) => 
         <div id={PROBLEM_LISTED_DATA.TESTS}>
             <TestsInProblemView
               key={key}
@@ -73,7 +74,7 @@ const AdministrationProblem = () => {
               contestId={contestId}
             />
         </div>
-    );
+    ;
 
     return (
         <>

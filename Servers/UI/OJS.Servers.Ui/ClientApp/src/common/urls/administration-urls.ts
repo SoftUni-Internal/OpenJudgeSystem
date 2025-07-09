@@ -1,5 +1,5 @@
-/* eslint-disable import/group-exports */
-/* eslint-disable import/prefer-default-export */
+ 
+ 
 
 // Endpoints
 export const CREATE_ENDPOINT = 'Create';
@@ -25,6 +25,7 @@ export const TESTS_PATH = 'tests';
 export const PROBLEMS_PATH = 'problems';
 export const PROBLEM_GROUPS_PATH = 'problem-groups';
 export const PROBLEM_RESOURCES_PATH = 'problem-resources';
+export const CONTEST_RESOURCES_PATH = 'contest-resources';
 export const SUBMISSION_TYPES_PATH = 'submission-types';
 export const SUBMISSION_TYPE_DOCUMENTS_PATH = 'submission-type-documents';
 export const SUBMISSION_TYPE_DOCUMENTS_VIEW_PATH = 'submission-type-documents-view';

@@ -8,13 +8,12 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using OJS.Services.Common.Models.Pagination;
-    using static OJS.Services.Common.Constants.PaginationConstants.Submissions;
 
     public interface ISubmissionsBusinessService : IService
     {
-        Task Submit(SubmitSubmissionServiceModel model);
+        Task<ServiceResult<VoidResult>> Submit(SubmitSubmissionServiceModel model);
 
-        Task Retest(int submissionId, bool verbosely = false);
+        Task<ServiceResult<VoidResult>> Retest(int submissionId, bool verbosely = false);
 
         Task<SubmissionDetailsServiceModel> GetDetailsById(int submissionId);
 
@@ -24,7 +23,7 @@
 
         Task ProcessExecutionResult(SubmissionExecutionResult submissionExecutionResult);
 
-        Task<PagedResult<SubmissionForSubmitSummaryServiceModel>> GetUserSubmissionsByProblem(int problemId, bool isOfficial, PaginationRequestModel requestModel);
+        Task<ServiceResult<PagedResult<SubmissionForSubmitSummaryServiceModel>>> GetUserSubmissionsByProblem(int problemId, bool isOfficial, PaginationRequestModel requestModel);
 
         Task<int> GetTotalCount();
 

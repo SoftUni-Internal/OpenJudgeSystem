@@ -1,4 +1,3 @@
-/* eslint-disable max-len,css-modules/no-unused-class,@typescript-eslint/ban-types */
 import React, { useEffect, useState } from 'react';
 import { Box, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers';
@@ -169,7 +168,7 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
         <Box className={styles.flex}>
             {renderErrorMessagesAlert(errorMessages)}
             {renderSuccessfullAlert(successMessage)}
-            {showConfirmationDialog && (
+            {showConfirmationDialog &&
             <ConfirmDialog
               title={`Are you sure you want to edit all contests${categoryName
                   ? ` in ${categoryName}`
@@ -221,15 +220,15 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
               onClose={() => setConfirmationDialog(!showConfirmationDialog)}
               confirmFunction={() => bulkEditContests(formData)}
             />
-            )}
+            }
             <Typography className={formStyles.centralize} variant="h4">
                 Contests Edit
             </Typography>
-            {categoryName && (
+            {categoryName &&
             <Typography className={formStyles.centralize} variant="h5">
                 {categoryName}
             </Typography>
-            )}
+            }
             <Box className={formStyles.fieldBox}>
                 <Typography className={formStyles.fieldBoxTitle} variant="h6">
                     General Information
@@ -252,13 +251,12 @@ const ContestsBulkEdit = ({ categoryId, categoryName, setParentSuccessMessage, o
                                   : 'primary'}
                               error={formDataValidations.isTypeTouched && !formDataValidations.isTypeValid}
                             >
-                                {Object.keys(ContestVariation).filter((key) => Number.isNaN(Number(key))).map((key) => (
-                                    <MenuItem key={key} value={key}>{key}</MenuItem>
-                                ))}
+                                {Object.keys(ContestVariation).filter((key) => Number.isNaN(Number(key))).map((key) =>
+                                    <MenuItem key={key} value={key}>{key}</MenuItem>)}
                             </Select>
-                            {formDataValidations.isTypeTouched && !formDataValidations.isTypeValid && (
+                            {formDataValidations.isTypeTouched && !formDataValidations.isTypeValid &&
                                 <Typography variant="caption" color="error">{CONTEST_TYPE_VALIDATION}</Typography>
-                            )}
+                            }
                         </FormControl>
                     </Box>
                 </Box>

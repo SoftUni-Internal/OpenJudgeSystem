@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types,max-len */
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import QuickEditButton from 'src/components/administration/common/edit/QuickEditButton';
 import { adminFormatDate } from 'src/utils/administration/administration-dates';
@@ -42,7 +42,7 @@ const usersMentorsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'requestsMade',
@@ -53,7 +53,7 @@ const usersMentorsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'totalRequestsMade',
@@ -64,7 +64,7 @@ const usersMentorsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'quotaLimit',
@@ -75,7 +75,7 @@ const usersMentorsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value?.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
 ];
 
@@ -89,11 +89,11 @@ export const returnNonFilterableColumns = (onEditClick: (id: string) => void) =>
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(params.row.id)} />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

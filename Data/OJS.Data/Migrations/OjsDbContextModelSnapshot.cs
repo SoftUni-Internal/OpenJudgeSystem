@@ -775,7 +775,7 @@ namespace OJS.Data.Migrations
                     b.ToTable("ProblemGroups");
                 });
 
-            modelBuilder.Entity("OJS.Data.Models.Problems.ProblemResource", b =>
+            modelBuilder.Entity("OJS.Data.Models.Resources.Resource", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -813,17 +813,21 @@ namespace OJS.Data.Migrations
                     b.Property<double>("OrderBy")
                         .HasColumnType("float");
 
-                    b.Property<int>("ProblemId")
-                        .HasColumnType("int");
+                    b.Property<string>("ResourceType")
+                        .IsRequired()
+                        .HasMaxLength(21)
+                        .HasColumnType("nvarchar(21)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProblemId");
+                    b.ToTable("Resources");
 
-                    b.ToTable("ProblemResources");
+                    b.HasDiscriminator<string>("ResourceType").HasValue("Resource");
+
+                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("OJS.Data.Models.Setting", b =>
@@ -1321,6 +1325,30 @@ namespace OJS.Data.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("OJS.Data.Models.Resources.ContestResource", b =>
+                {
+                    b.HasBaseType("OJS.Data.Models.Resources.Resource");
+
+                    b.Property<int?>("ContestId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("ContestId");
+
+                    b.HasDiscriminator().HasValue("ContestResource");
+                });
+
+            modelBuilder.Entity("OJS.Data.Models.Resources.ProblemResource", b =>
+                {
+                    b.HasBaseType("OJS.Data.Models.Resources.Resource");
+
+                    b.Property<int?>("ProblemId")
+                        .HasColumnType("int");
+
+                    b.HasIndex("ProblemId");
+
+                    b.HasDiscriminator().HasValue("ProblemResource");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("OJS.Data.Models.Users.Role", null)
@@ -1571,17 +1599,6 @@ namespace OJS.Data.Migrations
                     b.Navigation("Contest");
                 });
 
-            modelBuilder.Entity("OJS.Data.Models.Problems.ProblemResource", b =>
-                {
-                    b.HasOne("OJS.Data.Models.Problems.Problem", "Problem")
-                        .WithMany("Resources")
-                        .HasForeignKey("ProblemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Problem");
-                });
-
             modelBuilder.Entity("OJS.Data.Models.SubmissionTypeInProblem", b =>
                 {
                     b.HasOne("OJS.Data.Models.Problems.Problem", "Problem")
@@ -1770,6 +1787,26 @@ namespace OJS.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("OJS.Data.Models.Resources.ContestResource", b =>
+                {
+                    b.HasOne("OJS.Data.Models.Contests.Contest", "Contest")
+                        .WithMany("Resources")
+                        .HasForeignKey("ContestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Contest");
+                });
+
+            modelBuilder.Entity("OJS.Data.Models.Resources.ProblemResource", b =>
+                {
+                    b.HasOne("OJS.Data.Models.Problems.Problem", "Problem")
+                        .WithMany("Resources")
+                        .HasForeignKey("ProblemId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Problem");
+                });
+
             modelBuilder.Entity("OJS.Data.Models.Contests.Contest", b =>
                 {
                     b.Navigation("ExamGroups");
@@ -1781,6 +1818,8 @@ namespace OJS.Data.Migrations
                     b.Navigation("Participants");
 
                     b.Navigation("ProblemGroups");
+
+                    b.Navigation("Resources");
                 });
 
             modelBuilder.Entity("OJS.Data.Models.Contests.ContestCategory", b =>

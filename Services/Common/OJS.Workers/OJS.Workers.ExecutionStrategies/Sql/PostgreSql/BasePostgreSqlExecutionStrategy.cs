@@ -185,13 +185,13 @@ public abstract class BasePostgreSqlExecutionStrategy<TSettings> : BaseSqlExecut
 
         var fieldType = dataRecord.GetFieldType(index);
 
-        if (fieldType == DateTimeType)
+        if (fieldType == this.DateTimeType)
         {
             return dataRecord.GetDateTime(index)
                 .ToString(DateTimeFormat, CultureInfo.InvariantCulture);
         }
 
-        if (fieldType == TimeSpanType)
+        if (fieldType == this.TimeSpanType)
         {
             return ((NpgsqlDataReader)dataRecord)
                 .GetTimeSpan(index)

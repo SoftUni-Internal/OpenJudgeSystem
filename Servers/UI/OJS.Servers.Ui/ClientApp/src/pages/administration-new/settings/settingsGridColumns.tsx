@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
 import { SettingTypeEnums } from '../../../common/enums';
@@ -19,7 +19,7 @@ const settingsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'name',
@@ -45,13 +45,13 @@ const settingsFilterableColumns: AdministrationGridColDef[] = [
         field: 'type',
         headerName: 'Type',
         flex: 3,
-        type: 'enum',
+        type: 'singleSelect',
         filterable: false,
         sortable: false,
         align: 'center',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(SettingTypeEnums),
-        valueFormatter: (params) => SettingTypeEnums[params.value],
+        valueFormatter: (_, row) => SettingTypeEnums[row.value],
     } as GridColDef & IEnumType,
 ];
 
@@ -70,7 +70,7 @@ export const returnSettingsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(params.row.id)} />
                 <DeleteButton
@@ -82,7 +82,7 @@ export const returnSettingsNonFilterableColumns = (
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

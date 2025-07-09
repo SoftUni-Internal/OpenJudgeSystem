@@ -7,6 +7,7 @@ using OJS.Data.Models.Contests;
 using OJS.Data.Models.Mentor;
 using OJS.Data.Models.Participants;
 using OJS.Data.Models.Problems;
+using OJS.Data.Models.Resources;
 using OJS.Data.Models.Submissions;
 using OJS.Data.Models.Tests;
 using OJS.Data.Models.Users;
@@ -78,6 +79,23 @@ public static class ModelBuilderExtensions
             .HasForeignKey(x => x.ParticipantId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<Resource>()
+            .HasDiscriminator<string>(nameof(Resource.ResourceType))
+            .HasValue<ProblemResource>(nameof(ProblemResource))
+            .HasValue<ContestResource>(nameof(ContestResource));
+
+        builder.Entity<ProblemResource>()
+            .HasOne(pr => pr.Problem)
+            .WithMany(p => p.Resources)
+            .HasForeignKey(pr => pr.ProblemId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<ContestResource>()
+            .HasOne(cr => cr.Contest)
+            .WithMany(c => c.Resources)
+            .HasForeignKey(cr => cr.ContestId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         return builder.FixMultipleCascadePaths();
     }
 
@@ -108,7 +126,7 @@ public static class ModelBuilderExtensions
         builder.Entity<ProblemGroup>()
             .HasQueryFilter(x => !x.IsDeleted);
 
-        builder.Entity<ProblemResource>()
+        builder.Entity<Resource>()
             .HasQueryFilter(x => !x.IsDeleted);
 
         builder.Entity<Submission>()

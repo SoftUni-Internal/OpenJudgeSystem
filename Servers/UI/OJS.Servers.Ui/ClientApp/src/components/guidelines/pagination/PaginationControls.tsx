@@ -1,4 +1,3 @@
-import makeStyles from '@material-ui/core/styles/makeStyles';
 import { PaginationItem } from '@mui/material';
 import Pagination from '@mui/material/Pagination';
 import useTheme from 'src/hooks/use-theme';
@@ -31,22 +30,6 @@ const PaginationControls = ({
         className,
     );
 
-    const useStyles = makeStyles(() => ({
-        ul: {
-            // This sets the background color of the selected page button
-            '& .MuiPaginationItem-root.Mui-selected': { backgroundColor: '#44a9f8', color: '#ffffff' },
-            '& .MuiPaginationItem-root': { color: themeColors.textColor },
-            '& .MuiPaginationItem-ellipsis': { cursor: 'pointer' },
-            '& .Mui-disabled': { pointerEvents: 'none' },
-        },
-        ellipsis: {
-            pointerEvents: 'auto',
-            cursor: 'pointer',
-        },
-    }));
-
-    const classes = useStyles();
-
     const handleEllipsisClick = (type: string) => {
         if (isDataFetching) {
             return;
@@ -66,35 +49,32 @@ const PaginationControls = ({
     };
 
     return count > 1
-        ? (
-            <Pagination
+        ? <Pagination
               count={count}
               siblingCount={PAGE_SIBLING_COUNT}
               boundaryCount={PAGE_BOUNDARY_COUNT}
-              onChange={(ev, value) => {
-                  onChange(value);
-              }}
+              onChange={(ev, value) => onChange(value)}
               page={page}
               className={paginationClassNames}
-              classes={{ ul: classes.ul }}
+              sx={{
+                  ul: {
+                      '& .MuiPaginationItem-root.Mui-selected': {
+                          backgroundColor: '#44a9f8',
+                          color: '#ffffff',
+                      },
+                      '& .MuiPaginationItem-root': { color: themeColors.textColor },
+                      '& .MuiPaginationItem-ellipsis': { cursor: 'pointer' },
+                      '& .Mui-disabled': { pointerEvents: 'none' },
+                  },
+              }}
               showFirstButton
               showLastButton
               disabled={isDataFetching}
               renderItem={(item) => {
-                  if (item.type === 'start-ellipsis') {
+                  if (item.type === 'start-ellipsis' || item.type === 'end-ellipsis') {
                       return (
                           <div
-                            className={classes.ellipsis}
-                            onClick={() => handleEllipsisClick(item.type)}
-                          >
-                              <PaginationItem {...item}>...</PaginationItem>
-                          </div>
-                      );
-                  }
-                  if (item.type === 'end-ellipsis') {
-                      return (
-                          <div
-                            className={classes.ellipsis}
+                            style={{ cursor: 'pointer', pointerEvents: 'auto' }}
                             onClick={() => handleEllipsisClick(item.type)}
                           >
                               <PaginationItem {...item}>...</PaginationItem>
@@ -104,7 +84,7 @@ const PaginationControls = ({
                   return <PaginationItem {...item} />;
               }}
             />
-        )
+        
         : null;
 };
 

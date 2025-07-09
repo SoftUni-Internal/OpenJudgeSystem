@@ -13,13 +13,13 @@ const HtmlCssIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IHtmlCssIconProps) => (
+}: IHtmlCssIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={FaHtml5}
     />
-);
+;
 
 export default memo(HtmlCssIcon);

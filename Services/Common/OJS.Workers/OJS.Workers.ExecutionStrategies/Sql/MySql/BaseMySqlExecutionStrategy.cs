@@ -94,12 +94,12 @@ public abstract class BaseMySqlExecutionStrategy<TSettings> : BaseSqlExecutionSt
         {
             var fieldType = dataRecord.GetFieldType(index);
 
-            if (fieldType == DateTimeType)
+            if (fieldType == this.DateTimeType)
             {
                 return dataRecord.GetDateTime(index).ToString(DateTimeFormat, CultureInfo.InvariantCulture);
             }
 
-            if (fieldType == TimeSpanType)
+            if (fieldType == this.TimeSpanType)
             {
                 return ((MySqlDataReader)dataRecord)
                     .GetTimeSpan(index)

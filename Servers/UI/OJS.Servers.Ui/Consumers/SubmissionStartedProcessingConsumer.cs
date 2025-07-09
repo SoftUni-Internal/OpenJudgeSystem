@@ -4,11 +4,11 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using OJS.Common.Enumerations;
 using OJS.PubSub.Worker.Models.Submissions;
-using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Services.Common.Data;
 using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure.Constants;
 using System.Threading.Tasks;
+using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources;
 
 public class SubmissionStartedProcessingConsumer(
     ISubmissionsForProcessingCommonDataService submissionsForProcessingCommonData,
@@ -18,27 +18,33 @@ public class SubmissionStartedProcessingConsumer(
 {
     public async Task Consume(ConsumeContext<SubmissionStartedProcessingPubSubModel> context)
         => await tracingService.TraceAsync(
-            OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.ProcessingStarted,
+            submissions,
+            SubmissionActivities.ProcessingStarted,
             async activity =>
             {
                 var submissionId = context.Message.SubmissionId;
 
                 var submissionForProcessing = await submissionsForProcessingCommonData.GetBySubmission(submissionId);
 
+                var isUpdated = false;
                 if (submissionForProcessing == null)
                 {
-                    activity?.SetTag("submission.submission_for_processing_state_updated", false);
                     logger.LogSubmissionForProcessingNotFoundForSubmission(null, submissionId);
-                    return;
+                }
+                else if (submissionForProcessing.State == SubmissionProcessingState.Enqueued)
+                {
+                    // Update the processing state only if the submission is still in the enqueued state.
+                    // It's possible that the submission is already being processed and marked as processed.
+                    // In this case, we don't want to revert the state to processing.
+                    await submissionsForProcessingCommonData.SetProcessingState(
+                        submissionForProcessing,
+                        SubmissionProcessingState.Processing,
+                        context.Message.ProcessingStartedAt);
+
+                    isUpdated = true;
                 }
 
-                await submissionsForProcessingCommonData.SetProcessingState(
-                    submissionForProcessing,
-                    SubmissionProcessingState.Processing,
-                    context.Message.ProcessingStartedAt);
-
-                activity?.SetTag("submission.submission_for_processing_state_updated", true);
+                activity?.SetTag(SubmissionTags.SubmissionForProcessingStateUpdated, isUpdated);
             },
             tags: null,
             BusinessContext.ForSubmission(context.Message.SubmissionId),

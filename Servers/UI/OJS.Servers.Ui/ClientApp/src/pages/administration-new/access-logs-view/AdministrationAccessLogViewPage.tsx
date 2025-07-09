@@ -13,7 +13,6 @@ import SpinningLoader from 'src/components/guidelines/spinning-loader/SpinningLo
 import { useGetAccessLogByIdQuery } from 'src/redux/services/admin/accessLogsAdminService';
 import { getDateAsLocal } from 'src/utils/administration/administration-dates';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../../components/administration/common/styles/FormStyles.module.scss';
 
 interface IAdministrationAccessLogViewPageProps {

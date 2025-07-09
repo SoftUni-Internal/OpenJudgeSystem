@@ -18,7 +18,7 @@ public class ContestDetailsValidationService(IDatesService dates) : IContestDeta
         var contestIsVisible = contest?.IsVisible == true || contest?.VisibleFrom <= dates.GetUtcNow();
 
         return contest == null || contest.IsDeleted || !contestIsVisible || contestCategory is not { IsVisible: true }
-            ? ValidationResult.Invalid(ValidationMessages.Contest.NotFound)
+            ? ValidationResult.NotFound(nameof(contest))
             : ValidationResult.Valid();
     }
 }

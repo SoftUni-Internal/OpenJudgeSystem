@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable no-restricted-syntax */
+ 
+ 
+ 
 /* eslint-disable consistent-return */
 import { SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
+import { TreeItem } from '@mui/x-tree-view';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
-import { TreeItem2 } from '@mui/x-tree-view/TreeItem2';
 
 import { IContestCategory } from '../../../common/types';
 import { getAllContestsPageUrl } from '../../../common/urls/compose-client-urls';
@@ -81,7 +81,7 @@ const ContestCategories = (props: IContestCategoriesProps) => {
     }, [ categoryId ]);
 
     const handleExpandedItemsChange = (
-        event: SyntheticEvent,
+        event: SyntheticEvent | null,
         itemIds: string[],
     ) => {
         setExpandedItems(itemIds);
@@ -118,7 +118,7 @@ const ContestCategories = (props: IContestCategoriesProps) => {
 
         if (category.children.length > 0) {
             return (
-                <TreeItem2
+                <TreeItem
                   itemId={`${category.id}`}
                   key={category.id}
                   label={category.name}
@@ -126,7 +126,7 @@ const ContestCategories = (props: IContestCategoriesProps) => {
                   classes={{ content: categoryListItemContentClassNames }}
                 >
                     {category.children.map((child) => renderCategory(child, true))}
-                </TreeItem2>
+                </TreeItem>
             );
         }
 
@@ -165,26 +165,25 @@ const ContestCategories = (props: IContestCategoriesProps) => {
             </div>
             {categoriesError
                 ? <div className={textColorClassName}>Error loading categories</div>
-                : (
-                    <div
+                : <div
                       className={`${styles.contestCategoriesInnerWrapper} ${textColorClassName}`}
                     >
-                        <Box>
-                            <SimpleTreeView
+                    <Box>
+                        <SimpleTreeView
                               expandedItems={expandedItems}
                               onExpandedItemsChange={handleExpandedItemsChange}
                             >
-                                {Array.isArray(contestCategories) &&
+                            {Array.isArray(contestCategories) &&
                                     contestCategories?.map((contestCategory: IContestCategory) => renderCategory(contestCategory))}
-                            </SimpleTreeView>
-                        </Box>
-                    </div>
-                )}
+                        </SimpleTreeView>
+                    </Box>
+                </div>
+                }
         </div>
     );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-shadow
+ 
 const findParentNames = (collection: Array<IContestCategory> | undefined, selectedId: number) => {
     if (!collection || !selectedId) {
         return;
@@ -227,7 +226,7 @@ const findContestCategoryByIdRecursive =
         if (!elements) {
             return null;
         }
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const contestCategory of elements) {
             if (contestCategory.id === id) {
                 return contestCategory;

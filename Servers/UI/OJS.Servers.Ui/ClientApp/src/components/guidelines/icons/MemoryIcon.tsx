@@ -9,13 +9,13 @@ const MemoryIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: IMemoryIconProps) => (
+}: IMemoryIconProps) => 
     <Icon
       className={className}
       Component={BiMemoryCard}
       size={size}
       helperText={helperText}
     />
-);
+;
 
 export default MemoryIcon;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import BallotIcon from '@mui/icons-material/Ballot';
 import EditIcon from '@mui/icons-material/Edit';
 import { IconButton } from '@mui/material';
@@ -23,7 +22,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         filterable: false,
         align: 'center',
         sortable: false,
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'isDeleted',
@@ -65,7 +64,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsByCategoryUrl({
                   categoryId: params.row.id,
@@ -73,7 +72,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'orderBy',
@@ -95,7 +94,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         type: 'string',
         filterable: false,
         sortable: false,
-        renderCell: (params) => params.value && (
+        renderCell: (params) => params.value &&
             <ExternalLink
               to={getContestsByCategoryUrl({
                   categoryId: params.row.parentId,
@@ -103,7 +102,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'parentId',
@@ -136,7 +135,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         type: 'date',
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'createdOn',
@@ -145,7 +144,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -154,7 +153,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 
@@ -173,7 +172,7 @@ export const returnCategoriesNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <IconButton onClick={() => onEditClick(params.row.id)}>
                     <EditIcon color="warning" />
@@ -193,7 +192,7 @@ export const returnCategoriesNonFilterableColumns = (
                     />
                 </IconButton>
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

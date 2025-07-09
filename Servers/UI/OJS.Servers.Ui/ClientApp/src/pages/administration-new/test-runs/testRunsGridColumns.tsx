@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 
@@ -24,7 +24,7 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'timeUsed',
@@ -35,7 +35,7 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => `${(params.value * 0.001).toFixed(3)} sec`,
+        valueFormatter: (_, row) => `${(row.value * 0.001).toFixed(3)} sec`,
     },
     {
         field: 'memoryUsed',
@@ -46,7 +46,7 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => `${(params.value * 0.000001).toFixed(2)} MB`,
+        valueFormatter: (_, row) => `${(row.value * 0.000001).toFixed(2)} MB`,
     },
     {
         field: 'executionComment',
@@ -72,7 +72,7 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         field: 'resultType',
         headerName: 'Result Type',
         flex: 1,
-        type: 'enum',
+        type: 'singleSelect',
         filterable: false,
         sortable: false,
         align: 'center',
@@ -101,11 +101,11 @@ const testRunsFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <Link to={`/submissions/${params.row.submissionId}/details`} target="_blank">
                 {params.row.submissionId}
             </Link>
-        ),
+        ,
     },
 ];
 

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { useEffect, useState } from 'react';
 import { Autocomplete, debounce, FormControl, FormGroup, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import isNaN from 'lodash/isNaN';
@@ -20,7 +20,6 @@ import { autocompleteNameIdFormatFilterOptions } from '../../utils/mui-utils';
 import { IProblemGroupAdministrationModel } from '../types';
 
 // The classes are used in multiple files. But not all of them are used in single file
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../common/styles/FormStyles.module.scss';
 
 interface IProblemFormProps {
@@ -168,16 +167,15 @@ const ProblemGroupForm = (props: IProblemFormProps) => {
                       value={currentProblemGroup.type || 'None'}
                       name="type"
                     >
-                        {Object.keys(ProblemGroupTypes).filter((key) => isNaN(Number(key))).map((key) => (
+                        {Object.keys(ProblemGroupTypes).filter((key) => isNaN(Number(key))).map((key) =>
                             <MenuItem key={key} value={key}>
                                 {key}
-                            </MenuItem>
-                        ))}
+                            </MenuItem>)}
                     </Select>
                 </FormGroup>
                 <FormControl className={formStyles.inputRow}>
                     <Autocomplete<IContestAutocomplete>
-                      options={contestsData!}
+                      options={contestsData}
                       filterOptions={autocompleteNameIdFormatFilterOptions}
                       renderInput={(params) => <TextField {...params} label="Select Contest" key={params.id} />}
                       onChange={(event, newValue) => onSelect(newValue!)}
@@ -187,14 +185,14 @@ const ProblemGroupForm = (props: IProblemFormProps) => {
                           : null}
                       isOptionEqualToValue={(option, value) => option.id === value.id && option.name === value.name}
                       getOptionLabel={(option) => option?.name}
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option.id} value={option.id}>
                               #
                               {option.id}
                               {' '}
                               {option.name}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
                 <AdministrationFormButtons

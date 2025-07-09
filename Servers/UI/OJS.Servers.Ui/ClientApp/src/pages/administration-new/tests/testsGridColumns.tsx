@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { Link } from 'react-router-dom';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { TestType } from 'src/common/enums';
@@ -25,7 +25,7 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'orderBy',
@@ -63,13 +63,13 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         field: 'type',
         headerName: 'Test Type',
         flex: 1,
-        type: 'enum',
+        type: 'singleSelect',
         filterable: false,
         sortable: false,
         align: 'center',
         headerAlign: 'center',
         enumValues: getStringObjectKeys(TestType),
-        valueFormatter: (params) => testTypesToFEStringsMapping[params.value],
+        valueFormatter: (_, row) => testTypesToFEStringsMapping[row.value],
         customFilter: (value: string) => {
             if (value === 'Compete') {
                 return 'isOpenTest~equals~false&&;isTrialTest~equals~false';
@@ -95,11 +95,11 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) =>
             <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${params.row.problemId}`}>
                 {params.row.problemName}
             </Link>
-        ),
+        ,
     },
     {
         field: 'problemId',
@@ -110,7 +110,7 @@ const testsFilterableColums: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
 ];
 
@@ -128,7 +128,7 @@ export const returnTestsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${TESTS_PATH}/${Number(params.row.id)}`} location={`${EDIT} page`} />
@@ -141,7 +141,7 @@ export const returnTestsNonFilterableColumns = (
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

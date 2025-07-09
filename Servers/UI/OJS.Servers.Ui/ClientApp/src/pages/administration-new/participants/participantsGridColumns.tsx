@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { getContestsDetailsPageUrl } from 'src/common/urls/compose-client-urls';
 import ExternalLink from 'src/components/guidelines/buttons/ExternalLink';
@@ -21,7 +21,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         flex: 0.5,
-        valueFormatter: (params) => params.value.toString(),
+        valueFormatter: (_, row) => row.value?.toString(),
     },
     {
         field: 'userName',
@@ -55,7 +55,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 2,
         filterable: false,
         sortable: false,
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsDetailsPageUrl({
                   contestId: params.row.contestId,
@@ -63,7 +63,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'isOfficial',
@@ -94,7 +94,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'modifiedOn',
@@ -103,7 +103,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'participationStartTime',
@@ -112,7 +112,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'participationEndTime',
@@ -121,7 +121,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
     {
         field: 'lastSubmissionTime',
@@ -130,7 +130,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        valueFormatter: (params) => adminFormatDate(params.value),
+        valueFormatter: (_, row) => adminFormatDate(row.value),
     },
 ];
 
@@ -147,7 +147,7 @@ export const returnparticipantsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <DeleteButton
                   id={Number(params.row.id)}
@@ -158,7 +158,7 @@ export const returnparticipantsNonFilterableColumns = (
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

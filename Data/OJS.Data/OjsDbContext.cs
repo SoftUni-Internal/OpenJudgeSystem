@@ -9,6 +9,7 @@ namespace OJS.Data
     using OJS.Data.Models.Mentor;
     using OJS.Data.Models.Participants;
     using OJS.Data.Models.Problems;
+    using OJS.Data.Models.Resources;
     using OJS.Data.Models.Submissions;
     using OJS.Data.Models.Tests;
     using OJS.Data.Models.Users;
@@ -37,7 +38,7 @@ namespace OJS.Data
 
         public DbSet<ProblemGroup> ProblemGroups { get; set; } = null!;
 
-        public DbSet<ProblemResource> ProblemResources { get; set; } = null!;
+        public DbSet<Resource> Resources { get; set; } = null!;
 
         public DbSet<ProblemForParticipant> ProblemsForParticipants { get; set; } = null!;
 

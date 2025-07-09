@@ -10,7 +10,7 @@ const usersSlice = createSlice({
     initialState,
     reducers: {
         setProfile: (state: IUsersState, action: PayloadAction<IUserProfileType | null>) => {
-            // eslint-disable-next-line no-param-reassign
+             
             state.profile = action.payload;
         },
     },

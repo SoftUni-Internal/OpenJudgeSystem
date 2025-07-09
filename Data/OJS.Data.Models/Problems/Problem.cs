@@ -8,6 +8,7 @@ namespace OJS.Data.Models.Problems
     using OJS.Data.Models.Submissions;
     using OJS.Data.Models.Tests;
     using OJS.Data.Models.Common;
+    using OJS.Data.Models.Resources;
     using static OJS.Data.Validation.ConstraintConstants.Problem;
 
     public class Problem : DeletableAuditInfoEntity<int>, IOrderableEntity

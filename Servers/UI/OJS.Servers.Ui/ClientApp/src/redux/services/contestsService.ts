@@ -18,12 +18,11 @@ import { IContestResultsType } from '../../hooks/contests/types';
 import {
     IContestDetailsUrlParams,
     IGetContestResultsParams,
-    ISubmitContestPasswordParams,
     ISubmitContestSolutionParams,
     IRegisterUserForContestParams,
 } from '../../common/url-types';
 
-// eslint-disable-next-line import/group-exports
+ 
 export const contestsService = createApi({
     reducerPath: 'contestService',
     baseQuery: fetchBaseQuery({
@@ -73,10 +72,7 @@ export const contestsService = createApi({
             query: ({ id }) => ({ url: `/Contests/Details/${id}` }),
             keepUnusedDataFor: 10,
         }),
-        getContestCategories: builder.query<Array<IContestCategory>, void>({
-            query: () => ({ url: '/ContestCategories/GetCategoriesTree' }),
-            /* eslint-disable object-curly-newline */
-        }),
+        getContestCategories: builder.query<Array<IContestCategory>, void>({ query: () => ({ url: '/ContestCategories/GetCategoriesTree' }) }),
         getContestStrategies: builder.query<IContestStrategyFilter[], { contestCategoryId: number }>({
             query: ({ contestCategoryId }) => ({ url: `/SubmissionTypes/GetAllForContestCategory?contestCategoryId=${contestCategoryId}` }),
             /* eslint-disable object-curly-newline */
@@ -136,14 +132,6 @@ export const contestsService = createApi({
                 };
             },
         }),
-        submitContestPassword: builder.mutation<void, ISubmitContestPasswordParams>({
-            query: ({ contestId, isOfficial, password }) => ({
-                url: `/contests/SubmitContestPassword/${contestId}`,
-                method: 'POST',
-                params: { isOfficial },
-                body: { password },
-            }),
-        }),
         registerUserForContest: builder.mutation<
             { isRegisteredSuccessfully: boolean },
             IRegisterUserForContestParams>({
@@ -183,14 +171,14 @@ export const contestsService = createApi({
         }),
         downloadContestProblemResource: builder.query<{ blob: Blob; fileName: string }, { id: number }>({
             query: ({ id }) => ({
-                url: `/ProblemResources/GetResource/${id}`,
+                url: `/Resources/GetResource/${id}`,
             }),
             keepUnusedDataFor: 0,
         }),
     }),
 });
 
-// eslint-disable-next-line import/group-exports
+ 
 export const {
     useGetAllContestsQuery,
     useGetContestCategoriesQuery,

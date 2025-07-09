@@ -99,6 +99,8 @@ public class ContestAdministrationModel : BaseAdministrationModel<int>, IMapExpl
             .ForMember(crm => crm.ModifiedOn, opt
                 => opt.Ignore())
             .ForMember(crm => crm.AutoChangeTestsFeedbackVisibility, opt
+                => opt.Ignore())
+            .ForMember(crm => crm.Resources, opt
                 => opt.Ignore());
     }
 }

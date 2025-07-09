@@ -12,9 +12,9 @@ const AdministrationSubmissionTypeDocumentPage = () => {
 
     const isEditMode = params.get('isEditMode') === 'true';
 
-    const renderSubmissionTypeDocumentForm = () => (
+    const renderSubmissionTypeDocumentForm = () =>
         <SubmissionTypeDocumentForm id={Number(submissionTypeDocumentId)} isEditMode={isEditMode} />
-    );
+    ;
 
     return (
         <TabsInView form={renderSubmissionTypeDocumentForm} />

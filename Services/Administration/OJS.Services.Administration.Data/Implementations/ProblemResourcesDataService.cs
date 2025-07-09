@@ -6,6 +6,7 @@
     using System;
     using System.Linq;
     using System.Linq.Expressions;
+    using OJS.Data.Models.Resources;
 
     public class ProblemResourcesDataService : AdministrationDataService<ProblemResource>, IProblemResourcesDataService
     {

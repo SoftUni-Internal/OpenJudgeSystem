@@ -65,7 +65,7 @@ const ContestCard = (props: IContestCardProps) => {
         requirePasswordForPractice,
     } = contest;
 
-    const contestStartTime = canBeCompeted || (!canBeCompeted && !canBePracticed)
+    const contestStartTime = canBeCompeted || !canBeCompeted && !canBePracticed
         ? startTime
         : practiceStartTime;
 
@@ -96,7 +96,7 @@ const ContestCard = (props: IContestCardProps) => {
             return;
         }
 
-        const renderBody = () => (
+        const renderBody = () =>
             <>
                 {' '}
                 <Icon className={styles.icon} />
@@ -108,52 +108,50 @@ const ContestCard = (props: IContestCardProps) => {
                     {text}
                 </div>
             </>
-        );
+        ;
 
         const content = participationType
-            ? (
-                <Link
+            ? <Link
                   className={`${styles.contestDetailsFragment} ${isGreenColor
                       ? styles.greenColor
                       : ''}`}
                   to={getContestsResultsPageUrl({
                       contestName: name,
-                      contestId: id!,
+                      contestId: id,
+                      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
                       participationType: participationType === ContestParticipationType.Compete
                           ? ContestParticipationType.Compete
                           : ContestParticipationType.Practice,
                       isSimple: true,
                   })}
                 >
-                    {renderBody()}
-                </Link>
-            )
-            : (
-                <div className={`${styles.contestDetailsFragment} ${isGreenColor
-                    ? styles.greenColor
-                    : ''}`}
+                {renderBody()}
+            </Link>
+
+            : <div className={`${styles.contestDetailsFragment} ${isGreenColor
+                ? styles.greenColor
+                : ''}`}
                 >
-                    {renderBody()}
-                </div>
-            );
+                {renderBody()}
+            </div>
+            ;
 
         // eslint-disable-next-line consistent-return
         return (
             tooltipTitle
-                ? (
-                    <Tooltip title={tooltipTitle}>
-                        {content}
-                    </Tooltip>
-                )
+                ? <Tooltip title={tooltipTitle}>
+                    {content}
+                </Tooltip>
+
                 : content
         );
     };
 
-    const renderPointsText = (totalPoints: number, pointsReceived?: number) => !isNil(pointsReceived) && (
+    const renderPointsText = (totalPoints: number, pointsReceived?: number) => !isNil(pointsReceived) &&
         <span className={styles.points}>
             {`${pointsReceived} / ${totalPoints}`}
         </span>
-    );
+    ;
 
     const renderContestButton = (isCompete: boolean) => {
         const isDisabled = isCompete
@@ -212,14 +210,14 @@ const ContestCard = (props: IContestCardProps) => {
                         >
                             <EditIcon className={styles.icon} fontSize="small" />
                         </AdministrationLink>
-                        {!contest.canBeCompeted && contest.competeResults > 0 && (
+                        {!contest.canBeCompeted && contest.competeResults > 0 &&
                         <AdministrationLink
                           type={LinkButtonType.plain}
                           to={`/${CONTESTS_PATH}/${id}?openTransfer=true`}
                         >
                             <BiTransfer className={styles.icon} />
                         </AdministrationLink>
-                        )}
+                        }
                     </div>
                 </div>
                 <div className={styles.contestCardSubTitle}>{category}</div>

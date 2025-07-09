@@ -15,15 +15,18 @@ public class ContestsCacheService : IContestsCacheService
     private readonly ICacheService cache;
     private readonly IContestsDataService contestsData;
     private readonly IProblemsDataService problemsData;
+    private readonly IContestResourcesDataService contestResourcesData;
 
     public ContestsCacheService(
         ICacheService cache,
         IContestsDataService contestsData,
-        IProblemsDataService problemsData)
+        IProblemsDataService problemsData,
+        IContestResourcesDataService contestResourcesData)
     {
         this.cache = cache;
         this.contestsData = contestsData;
         this.problemsData = problemsData;
+        this.contestResourcesData = contestResourcesData;
     }
 
     public async Task<ContestDetailsServiceModel?> GetContestDetailsServiceModel(int contestId)
@@ -53,6 +56,11 @@ public class ContestsCacheService : IContestsCacheService
             .DistinctBy(st => st.Id)
             .MapCollection<ContestDetailsSubmissionTypeServiceModel>()
             .ToList();
+
+        contest.Resources = await this.contestResourcesData
+            .GetByContestQuery(contestId)
+            .MapCollection<ContestResourceDetailsServiceModel>()
+            .ToListAsync();
 
         return contest;
     }
