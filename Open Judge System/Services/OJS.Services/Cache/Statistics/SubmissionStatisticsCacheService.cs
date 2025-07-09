@@ -49,7 +49,7 @@
             => this.cacheService.GetOrSet(
                 SubmissionsCountByMonthsForPastElevenMonthsKey,
                 () => this.GetSubmissionsCountGroupsForPastYearExceptLastMonth(currentDate),
-                TimeSpan.FromTicks(this.GetAbsoluteEndOfMonth(currentDate).Ticks));
+                this.GetAbsoluteEndOfMonth(currentDate) - currentDate);
 
         private IEnumerable<SubmissionCountByMonthStatisticsModel> GetSubsmissionsCountByMonthForLastMonth(DateTime currentDate)
             => this.cacheService.GetOrSet(
