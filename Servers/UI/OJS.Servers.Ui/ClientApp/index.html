@@ -24,6 +24,19 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap&family=Lato&display=swap" rel="stylesheet">
+
+    <% if (import.meta.env.PROD && import.meta.env.VITE_GA_ID) { %>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= import.meta.env.VITE_GA_ID %>"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+            dataLayer.push(arguments);
+        }
+        gtag('js', new Date());
+        gtag('config', '<%= import.meta.env.VITE_GA_ID %>');
+    </script>
+    <% } %>
 </head>
 <body>
 <noscript>
