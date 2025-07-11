@@ -20,11 +20,3 @@ declare module '*.svg?react' {
 
     export default ReactComponent;
 }
-
-declare global {
-    interface Window {
-        gtag?: (...args: any[]) => void;
-    }
-}
-
-export {};
