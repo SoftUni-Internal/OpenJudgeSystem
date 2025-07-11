@@ -15,6 +15,7 @@
         private readonly ISubmissionsForProcessingBusinessService submissionsForProcessing;
         private readonly IParticipantsBusinessService participantsBusinessService;
         private readonly IParticipantScoresBusinessService participantScoresBusiness;
+        private readonly IArchivedSubmissionsBusinessService archivedSubmissionsBusiness;
         private readonly IBusControl bus;
         private readonly ILogger<RecurringBackgroundJobsBusinessService> logger;
 
@@ -22,12 +23,14 @@
             ISubmissionsForProcessingBusinessService submissionsForProcessing,
             IParticipantsBusinessService participantsBusinessService,
             IParticipantScoresBusinessService participantScoresBusiness,
+            IArchivedSubmissionsBusinessService archivedSubmissionsBusiness,
             IBusControl bus,
             ILogger<RecurringBackgroundJobsBusinessService> logger)
         {
             this.submissionsForProcessing = submissionsForProcessing;
             this.participantsBusinessService = participantsBusinessService;
             this.participantScoresBusiness = participantScoresBusiness;
+            this.archivedSubmissionsBusiness = archivedSubmissionsBusiness;
             this.bus = bus;
             this.logger = logger;
         }
@@ -76,6 +79,28 @@
             await this.participantScoresBusiness.NormalizeAllPointsThatExceedAllowedLimit();
 
             return "Successfully normalized all points that exceed allowed limit";
+        }
+
+        public async Task<object> ArchiveOldSubmissionsDailyBatch()
+        {
+            const int archiveDailyBatchLimit = 500_000;
+            const int archiveMaxSubBatchSize = 10_000;
+
+            var archivedCount = await this.archivedSubmissionsBusiness.ArchiveOldSubmissionsDailyBatch(
+                archiveDailyBatchLimit,
+                archiveMaxSubBatchSize);
+
+            return $"Successfully archived {archivedCount} submissions.";
+        }
+
+        public async Task<object> HardDeleteArchivedSubmissions()
+        {
+            const int archiveSingleBatchLimit = 25_000;
+
+            var hardDeletedCount = await this.archivedSubmissionsBusiness.HardDeleteArchivedByLimit(
+                archiveSingleBatchLimit);
+
+            return $"Successfully hard deleted {hardDeletedCount} archived submissions.";
         }
     }
 }

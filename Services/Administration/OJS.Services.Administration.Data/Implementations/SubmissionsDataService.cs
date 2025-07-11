@@ -8,17 +8,38 @@
     using OJS.Services.Infrastructure.Extensions;
     using System;
     using System.Collections.Generic;
+    using System.Data;
     using System.Linq;
     using System.Linq.Expressions;
     using System.Threading.Tasks;
+    using OJS.Common;
+    using OJS.Common.Extensions;
+    using OJS.Services.Common.Data;
     using static OJS.Common.GlobalConstants.Roles;
 
     public class SubmissionsDataService : AdministrationDataService<Submission>, ISubmissionsDataService
     {
         private readonly IDatesService datesService;
-        public SubmissionsDataService(OjsDbContext submissions, IDatesService datesService)
+        private readonly IArchivesDataService archivesDataService;
+        private readonly ITestRunsDataService testRunsDataService;
+        private readonly IParticipantScoresDataService participantScoresData;
+        private readonly ITransactionsProvider transactions;
+
+        public SubmissionsDataService(
+            OjsDbContext submissions,
+            IDatesService datesService,
+            IArchivesDataService archivesDataService,
+            ITestRunsDataService testRunsDataService,
+            IParticipantScoresDataService participantScoresData,
+            ITransactionsProvider transactions)
             : base(submissions)
-            => this.datesService = datesService;
+        {
+            this.datesService = datesService;
+            this.archivesDataService = archivesDataService;
+            this.testRunsDataService = testRunsDataService;
+            this.participantScoresData = participantScoresData;
+            this.transactions = transactions;
+        }
 
         public Submission? GetBestForParticipantByProblem(int participantId, int problemId)
             => this.GetAllByProblemAndParticipant(problemId, participantId)
@@ -98,6 +119,68 @@
             => await this.GetAllByProblem(problemId)
                 .Select(s => s.Id)
                 .ToListAsync();
+
+        /// <summary>
+        /// Deletes archived submissions from OnlineJudgeSystem Db and marks them as Hard Deleted in OnlineJudgeSystemArchives.
+        /// </summary>
+        /// <param name="deleteCountLimit">Specifies a limit to the number of submissions deleted, if omitted or 0 is passed, delete all available, without limits.</param>
+        /// <returns></returns>
+        public async Task<int> HardDeleteArchived(int deleteCountLimit = 0)
+        {
+            var hardDeletedCount = 0;
+
+            var submissionBatches = deleteCountLimit > 0 ?
+                this.archivesDataService
+                 .GetAllNotHardDeletedFromMainDatabase()
+                 .Distinct()
+                 .OrderBy(x => x.Id)
+                 .InSelfModifyingBatches(GlobalConstants.BatchOperationsChunkSize, deleteCountLimit) :
+                this.archivesDataService
+                .GetAllNotHardDeletedFromMainDatabase()
+                .Distinct()
+                .OrderBy(x => x.Id)
+                .InSelfModifyingBatches(GlobalConstants.BatchOperationsChunkSize);
+
+            foreach (var submissionIdsBatch in submissionBatches)
+            {
+                var archivedIds = submissionIdsBatch
+                    .Select(s => s.Id)
+                    .ToHashSet();
+
+                if(archivedIds.Count == 0)
+                {
+                    break;
+                }
+
+                var idsSet = await this.GetQuery()
+                    .Where(s => archivedIds.Contains(s.Id))
+                    .Select(x => x.Id)
+                    .ToListAsync();
+
+                if(idsSet.Count > 0)
+                {
+                    await this.transactions.ExecuteInTransaction(async () =>
+                    {
+                        await this.participantScoresData.RemoveSubmissionIdsBySubmissionIds(idsSet);
+
+                        await this.testRunsDataService.Delete(
+                            tr => idsSet.Contains(tr.SubmissionId),
+                            batchSize: GlobalConstants.BatchOperationsChunkSize);
+
+                        await this.GetQuery(s => idsSet.Contains(s.Id)).DeleteFromQueryAsync();
+                    }, IsolationLevel.ReadCommitted);
+                }
+
+                foreach (var archivedIdsBatch in archivedIds.InBatches(GlobalConstants.BatchOperationsChunkSize / 10))
+                {
+                    await this.archivesDataService.MarkAsHardDeletedFromMainDatabase(archivedIdsBatch);
+                }
+
+                hardDeletedCount += idsSet.Count;
+            }
+
+            return hardDeletedCount;
+        }
 
         protected override Expression<Func<Submission, bool>> GetUserFilter(UserInfoModel user)
             => submission => user.IsAdmin ||
