@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable import/no-unused-modules */
+
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
@@ -7,6 +7,7 @@ interface ImportMetaEnv {
   readonly VITE_ADMINISTRATION_URL: string;
   readonly VITE_PLATFORM_URL: string;
   readonly VITE_YOUTUBE_VIDEO_ID: string;
+  readonly VITE_GA_ID: string;
 }
 
 declare module '*.css';

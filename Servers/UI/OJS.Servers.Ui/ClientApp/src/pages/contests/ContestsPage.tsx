@@ -93,9 +93,11 @@ const ContestsPage = () => {
         }
     }, [ allContests, dispatch ]);
 
-    const renderContest = useCallback((contest: IIndexContestsType) => (
-        <ContestCard contest={contest} />
-    ), []);
+    const renderContest = useCallback(
+        (contest: IIndexContestsType) => 
+            <ContestCard contest={contest} />
+        , [],
+    );
 
     const renderContests = useCallback(() => {
         if (areContestsFetching) {
@@ -166,7 +168,7 @@ const ContestsPage = () => {
                             : 'All Categories'}
                     </div>
                     <div className={styles.headingActions}>
-                        {selectedCategory?.id && selectedCategory?.children.length === 0 && (
+                        {selectedCategory?.id && selectedCategory?.children.length === 0 && 
                             <>
                                 <AdministrationLink
                                   text="Edit Contests"
@@ -177,7 +179,7 @@ const ContestsPage = () => {
                                   to={`/${CONTESTS_PATH}?${OPEN_CREATE_PARAM}=true&${CATEGORY_ID_PARAM}=${selectedCategory.id}`}
                                 />
                             </>
-                        )}
+                        }
                         <ContestStrategies
                           setSearchParams={setSearchParams}
                           searchParams={searchParams}

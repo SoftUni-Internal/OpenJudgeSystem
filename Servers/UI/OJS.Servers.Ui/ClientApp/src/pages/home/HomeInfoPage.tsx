@@ -86,9 +86,9 @@ const HomePage = () => {
                 <div className={concatClassNames(styles.homeStatistics)}>
                     {HOME_STATISTICS.map((el, idx) => {
                         const { iconType, title, dataKey } = el;
-                        // eslint-disable-next-line prefer-destructuring
+                         
                         return (
-                            // eslint-disable-next-line react/no-array-index-key
+                             
                             <HomePageStatistic
                               key={`home-page-statistic-item-${idx}`}
                               title={title}

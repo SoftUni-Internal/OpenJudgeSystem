@@ -40,7 +40,7 @@ const ResourcesInView = (props : IResourceInProblemViewProps) => {
         data: problemResourcesData,
         isLoading: isGettingProblemResources,
         error: problemResourcesError,
-        // eslint-disable-next-line no-undef
+         
     } = useGetProblemResourcesQuery({ parentId: Number(parentId), ...queryParams });
 
     const {
@@ -91,14 +91,14 @@ const ResourcesInView = (props : IResourceInProblemViewProps) => {
         );
     };
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () => 
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
           styles={{ width: '40px', height: '40px' }}
         />
 
-    );
+    ;
 
     if (isGettingProblemResources || isGettingContestResources) {
         return <SpinningLoader />;

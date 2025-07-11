@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types,max-len */
+
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import QuickEditButton from 'src/components/administration/common/edit/QuickEditButton';
 import { adminFormatDate } from 'src/utils/administration/administration-dates';
@@ -89,11 +89,11 @@ export const returnNonFilterableColumns = (onEditClick: (id: string) => void) =>
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(params.row.id)} />
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

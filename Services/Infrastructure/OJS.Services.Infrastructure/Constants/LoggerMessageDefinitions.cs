@@ -116,6 +116,19 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(380, LogLevel.Warning, "Couldn't find a valid alternative SVN base url in settings for link: {Link}.")]
     public static partial void LogAlternativeBaseUrlNotFoundForLink(this ILogger logger, string link);
 
+    // ServiceResult error handling
+    [LoggerMessage(600, LogLevel.Warning, "Resource not found (instance: {InstanceId}). {Message}")]
+    public static partial void LogServiceResultNotFound(this ILogger logger, string? instanceId, string? message);
+
+    [LoggerMessage(601, LogLevel.Warning, "Access denied. (instance: {InstanceId}). {Message}")]
+    public static partial void LogServiceResultAccessDenied(this ILogger logger, string? instanceId, string? message);
+
+    [LoggerMessage(602, LogLevel.Warning, "Business rule violation (instance: {InstanceId}). {Message}")]
+    public static partial void LogServiceResultBusinessRuleViolation(this ILogger logger, string? instanceId, string? message);
+
+    [LoggerMessage(620, LogLevel.Error, "Service error (instance: {InstanceId}). {Message}.", SkipEnabledCheck = true)]
+    public static partial void LogServiceResultError(this ILogger logger, string? instanceId, string? message);
+
     // Submissions
     [LoggerMessage(1010, LogLevel.Error, "Exception in publishing submission #{SubmissionId}", SkipEnabledCheck = true)]
     public static partial void LogExceptionPublishingSubmission(this ILogger logger, int submissionId, Exception ex);

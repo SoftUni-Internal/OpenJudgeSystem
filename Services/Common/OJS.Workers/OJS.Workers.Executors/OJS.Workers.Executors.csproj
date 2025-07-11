@@ -8,6 +8,6 @@
     <ProjectReference Include="..\OJS.Workers.Common\OJS.Workers.Common.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.3" />
   </ItemGroup>
 </Project>

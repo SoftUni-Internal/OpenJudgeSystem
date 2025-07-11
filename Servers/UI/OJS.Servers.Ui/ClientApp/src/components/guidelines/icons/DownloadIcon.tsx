@@ -10,13 +10,13 @@ const DownloadIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}:IDownloadIconProps) => (
+}:IDownloadIconProps) => 
     <Icon
       className={className}
       size={size}
       helperText={helperText}
       Component={GoDesktopDownload}
     />
-);
+;
 
 export default memo(DownloadIcon);

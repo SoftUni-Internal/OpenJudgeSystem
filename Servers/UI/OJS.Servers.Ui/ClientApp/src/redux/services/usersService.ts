@@ -1,4 +1,4 @@
-/* eslint-disable max-len */
+ 
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 import { defaultPathIdentifier } from '../../common/constants';

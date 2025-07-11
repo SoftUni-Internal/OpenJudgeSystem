@@ -1,5 +1,5 @@
-/* eslint-disable import/exports-last */
-/* eslint-disable import/no-unused-modules */
+ 
+ 
 import InfoIcon from '@mui/icons-material/Info';
 import { Box, List, ListItem, Tooltip } from '@mui/material';
 
@@ -17,7 +17,7 @@ const LegendBox = (props: ILegendBoxProps) => {
               color="info"
               title={(
                   <List sx={{ p: 0 }}>
-                      {renders.map((x) => (
+                      {renders.map((x) => 
                           <ListItem key={x.message}>
                               <Box className={styles.legendBox}>
                                   <Box className={styles.rowColorBox}>
@@ -29,8 +29,7 @@ const LegendBox = (props: ILegendBoxProps) => {
                                       <p>{x.message}</p>
                                   </Box>
                               </Box>
-                          </ListItem>
-                      ))}
+                          </ListItem>)}
                   </List>
 )}
             >

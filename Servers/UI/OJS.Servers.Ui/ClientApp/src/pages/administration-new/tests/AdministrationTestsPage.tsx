@@ -38,7 +38,7 @@ const AdministrationTestsPage = () => {
         retakeTests();
     };
 
-    const renderTestEditModal = (index: number) => (
+    const renderTestEditModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -51,7 +51,7 @@ const AdministrationTestsPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
     if (isLoadingTests) {
         return <SpinningLoader />;

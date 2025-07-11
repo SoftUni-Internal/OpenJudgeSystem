@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable react/react-in-jsx-scope */
+
+
 import { FaCopy } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import ReplayIcon from '@mui/icons-material/Replay';
@@ -73,7 +73,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) =>
             <ExternalLink
               to={getContestsDetailsPageUrl({
                   contestId: params.row.contestId,
@@ -81,7 +81,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
               })}
               text={params.value.toString()}
             />
-        ),
+        ,
     },
     {
         field: 'problemGroupId',
@@ -92,11 +92,11 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) => 
             <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEM_GROUPS_PATH}/${params.value}`}>
                 {params.value}
             </Link>
-        ),
+        ,
     },
     {
         field: 'problemGroupOrderBy',
@@ -107,11 +107,11 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
         sortable: false,
         align: 'center',
         headerAlign: 'center',
-        renderCell: (params) => (
+        renderCell: (params) => 
             <Link to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEM_GROUPS_PATH}/${params.row.problemGroupId}`}>
                 {params.value}
             </Link>
-        ),
+        ,
     },
     {
         field: 'problemGroupType',
@@ -191,7 +191,7 @@ export const returnProblemsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <QuickEditButton onEdit={() => onEditClick(Number(params.row.id))} />
                 <RedirectButton path={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${Number(params.row.id)}`} location={`${EDIT} page`} />
@@ -203,22 +203,22 @@ export const returnProblemsNonFilterableColumns = (
                   onSuccess={onSuccessfulDelete}
                   setParentSuccessMessage={setParentSuccessMessage}
                 />
-                {retestProblem && (
+                {retestProblem &&
                 <Tooltip title="Retest">
                     <IconButton onClick={() => retestProblem(Number(params.row.id))}>
                         <ReplayIcon />
                     </IconButton>
                 </Tooltip>
-                )}
-                {onCopyProblem && (
+                }
+                {onCopyProblem &&
                 <Tooltip title="Copy">
                     <IconButton onClick={() => onCopyProblem(Number(params.row.id))}>
                         <FaCopy />
                     </IconButton>
                 </Tooltip>
-                )}
+                }
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

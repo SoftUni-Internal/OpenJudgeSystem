@@ -2,6 +2,7 @@ namespace OJS.Services.Common.Data.Implementations;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Query;
 using OJS.Common.Extensions;
 using OJS.Common.Utils;
 using OJS.Data;
@@ -40,8 +41,10 @@ public class DataService<TEntity> : IDataService<TEntity>
     public virtual void Update(TEntity entity)
         => this.dbSet.Update(entity);
 
-    public void Update(Expression<Func<TEntity, bool>>? filter = null)
-        => this.dbSet.UpdateRange(this.GetQuery(filter));
+    public Task<int> Update(
+        Expression<Func<TEntity, bool>> filter,
+        Expression<Func<SetPropertyCalls<TEntity>, SetPropertyCalls<TEntity>>> setPropertyCalls)
+        => this.GetQuery(filter).ExecuteUpdateAsync(setPropertyCalls);
 
     public async Task<int> Update(
         Expression<Func<TEntity, bool>> filterExpression,
@@ -64,6 +67,9 @@ public class DataService<TEntity> : IDataService<TEntity>
 
     public virtual void DeleteMany(IEnumerable<TEntity> entities)
         => this.dbSet.RemoveRange(entities);
+
+    public Task ExecuteDelete(Expression<Func<TEntity, bool>> filter)
+        => this.GetQuery(filter).ExecuteDeleteAsync();
 
     public virtual async Task DeleteById(object id)
     {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, Box, Checkbox, FormControl, FormControlLabel, MenuItem, TextField, Typography } from '@mui/material';
 
@@ -213,18 +212,17 @@ const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
     return (
         isFetching || isLoading || isGettingCategories || isCreating || isUpdating
             ? <SpinningLoader />
-            : (
-                <Box className={`${styles.flex}`}>
-                    {renderSuccessfullAlert(successMessage)}
-                    {renderErrorMessagesAlert(errorMessages)}
-                    <Typography className={styles.centralize} variant="h4">
-                        {isEditMode
-                            ? contestCategory.name
-                            : 'Contest Category form'}
-                    </Typography>
-                    <form className={`${styles.form}`}>
-                        <Box>
-                            <TextField
+            : <Box className={`${styles.flex}`}>
+                {renderSuccessfullAlert(successMessage)}
+                {renderErrorMessagesAlert(errorMessages)}
+                <Typography className={styles.centralize} variant="h4">
+                    {isEditMode
+                        ? contestCategory.name
+                        : 'Contest Category form'}
+                </Typography>
+                <form className={`${styles.form}`}>
+                    <Box>
+                        <TextField
                               className={styles.inputRow}
                               label="Name"
                               variant="standard"
@@ -236,9 +234,9 @@ const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
                                   : 'primary'}
                               error={(contestCategoryValidations.isNameTouched && !contestCategoryValidations.isNameValid)}
                                     // eslint-disable-next-line max-len
-                              helperText={(contestCategoryValidations.isNameTouched && !contestCategoryValidations.isNameValid) && 'Category name length must be between 2 and 100 characters long'}
+                              helperText={contestCategoryValidations.isNameTouched && !contestCategoryValidations.isNameValid && 'Category name length must be between 2 and 100 characters long'}
                             />
-                            <TextField
+                        <TextField
                               className={styles.inputRow}
                               type="number"
                               label="Order By"
@@ -252,24 +250,24 @@ const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
                                   : 'primary'}
                               error={(contestCategoryValidations.isOrderByTouched && !contestCategoryValidations.isOrderByValid)}
                                     // eslint-disable-next-line max-len
-                              helperText={(contestCategoryValidations.isOrderByTouched && !contestCategoryValidations.isOrderByValid) && 'Order by cannot be less than 0'}
+                              helperText={contestCategoryValidations.isOrderByTouched && !contestCategoryValidations.isOrderByValid && 'Order by cannot be less than 0'}
                             />
-                            <FormControlLabel
+                        <FormControlLabel
                               sx={{ marginTop: '1rem' }}
                               control={<Checkbox checked={contestCategory.isVisible} />}
                               label="IsVisible"
                               name="isVisible"
                               onChange={(e) => onChange(e)}
                             />
-                            <FormControlLabel
+                        <FormControlLabel
                               sx={{ marginTop: '1rem' }}
                               control={<Checkbox checked={contestCategory.allowMentor} />}
                               label="AllowMentor"
                               name="allowMentor"
                               onChange={(e) => onChange(e)}
                             />
-                            <FormControl className={styles.textArea} sx={{ margin: '15px 0' }}>
-                                <Autocomplete
+                        <FormControl className={styles.textArea} sx={{ margin: '15px 0' }}>
+                            <Autocomplete
                                   sx={{ width: '100%' }}
                                   className={styles.inputRow}
                                   onChange={(event, newValue) => handleAutocompleteChange('parent', newValue!)}
@@ -277,23 +275,23 @@ const ContestCategoryEdit = (props:IContestCategoryEditProps) => {
                                   options={contestCategories!}
                                   renderInput={(params) => <TextField {...params} label="Parent Category" key={params.id} />}
                                   getOptionLabel={(option) => option?.name}
-                                  renderOption={(properties, option) => (
+                                  renderOption={(properties, option) =>
                                       <MenuItem {...properties} key={option.id} value={option.id}>
                                           {option.name}
                                       </MenuItem>
-                                  )}
+                                  }
                                 />
-                            </FormControl>
-                        </Box>
-                    </form>
-                    <AdministrationFormButtons
+                        </FormControl>
+                    </Box>
+                </form>
+                <AdministrationFormButtons
                       isEditMode={isEditMode}
                       onCreateClick={() => create()}
                       onEditClick={() => edit()}
                       disabled={!isValidForm}
                     />
-                </Box>
-            )
+            </Box>
+
     );
 };
 

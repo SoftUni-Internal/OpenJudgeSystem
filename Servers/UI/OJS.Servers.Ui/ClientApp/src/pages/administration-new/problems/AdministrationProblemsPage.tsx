@@ -74,7 +74,7 @@ const AdministrationProblemsPage = () => {
 
     const findProblemInData = useCallback(() => problemsData?.items?.find((x) => x.id === problemId), [ problemId, problemsData ]);
 
-    const renderRetestModal = (index: number) => (
+    const renderRetestModal = (index: number) => 
         <ProblemRetest
           key={index}
           contestId={findProblemInData()?.contestId || 0}
@@ -89,9 +89,9 @@ const AdministrationProblemsPage = () => {
           problemToRetest={problemId!}
           onSuccess={onSuccessOperation}
         />
-    );
+    ;
 
-    const renderProblemsEditModal = (index: number) => (
+    const renderProblemsEditModal = (index: number) => 
         <AdministrationModal
           index={index}
           open={openEditProblemModal}
@@ -106,9 +106,9 @@ const AdministrationProblemsPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderCopyModal = (index: number) => (
+    const renderCopyModal = (index: number) => 
         <CopyModal
           key={index}
           index={index}
@@ -121,7 +121,7 @@ const AdministrationProblemsPage = () => {
           setParentSuccessMessage={setSuccessMessage}
           onClose={retakeProblems}
         />
-    );
+    ;
 
     if (isLoadingProblems) {
         return <div style={{ ...flexCenterObjectStyles }}><SpinningLoader /></div>;

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/ban-types */
 import { Link } from 'react-router-dom';
 import { IconButton, Tooltip } from '@mui/material';
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
@@ -24,9 +23,9 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 1,
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <ExternalLink to={`/submissions/${Number(params.row.id)}/details`} text={params.row.id.toString()} />
-        ),
+        ,
         hidden: false,
     },
     {
@@ -49,13 +48,13 @@ const dataColumns: AdministrationGridColDef[] = [
         filterable: false,
         sortable: false,
         hidden: true,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <Link
               to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${Number(params.row?.problemId)}`}
             >
                 {params.row?.problemId}
             </Link>
-        ),
+        ,
     },
     {
         field: 'problemName',
@@ -66,13 +65,13 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 2.5,
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <Link
               to={`/${NEW_ADMINISTRATION_PATH}/${PROBLEMS_PATH}/${Number(params.row?.problemId)}`}
             >
                 {params.row?.problemName}
             </Link>
-        ),
+        ,
     },
     {
         field: 'contestName',
@@ -83,13 +82,13 @@ const dataColumns: AdministrationGridColDef[] = [
         flex: 3,
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <Link
               to={`/${NEW_ADMINISTRATION_PATH}/${CONTESTS_PATH}/${Number(params.row?.contestId)}`}
             >
                 {params.row?.contestName}
             </Link>
-        ),
+        ,
     },
     {
         field: 'submissionTypeName',
@@ -225,7 +224,7 @@ export const returnSubmissionsNonFilterableColumns = (
         align: 'center',
         filterable: false,
         sortable: false,
-        renderCell: (params: GridRenderCellParams) => (
+        renderCell: (params: GridRenderCellParams) =>
             <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between' }}>
                 <Tooltip title="Retest">
                     <IconButton
@@ -254,7 +253,7 @@ export const returnSubmissionsNonFilterableColumns = (
                 </Tooltip>
 
             </div>
-        ),
+        ,
     },
 ] as GridColDef[];
 

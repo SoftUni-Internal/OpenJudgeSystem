@@ -47,7 +47,7 @@ const AdministrationMentorPromptTemplatesPage = () => {
         setMentorPromptTemplateId(id);
     };
 
-    const renderContestModal = (index: number) => (
+    const renderContestModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -60,7 +60,7 @@ const AdministrationMentorPromptTemplatesPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
     return (
         <>

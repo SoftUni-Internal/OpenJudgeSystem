@@ -23,9 +23,10 @@ public static class AutoMapperServiceCollectionExtensions
     {
         var assemblyPrefix = programType.GetAssemblyPrefix();
         var modelsRegexPattern = string.Format(ModelsRegexPatternTemplate, assemblyPrefix);
+        var infrastructureServicesRegexPattern = string.Format(InfrastructureServicesRegexPatternTemplate, assemblyPrefix);
 
         var mappingAssemblies = programType.Assembly
-            .GetAllReferencedAssembliesWhereFullNameMatchesPatterns(modelsRegexPattern)
+            .GetAllReferencedAssembliesWhereFullNameMatchesPatterns(modelsRegexPattern, infrastructureServicesRegexPattern)
             .Concat([programType.Assembly])
             .ToArray();
 

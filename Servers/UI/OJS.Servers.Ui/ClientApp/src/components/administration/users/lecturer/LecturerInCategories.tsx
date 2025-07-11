@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { useEffect, useState } from 'react';
 
 import { SELECT_CATEGORY } from '../../../../common/labels';
@@ -113,7 +113,7 @@ const LecturerInCategories = (props: ILecturerInCategoriesProps) => {
         setCategoryToAdd(category?.id ?? 0);
     };
 
-    const renderCreateModal = (i: number) => (
+    const renderCreateModal = (i: number) =>
         <AdministrationModal
           key={i}
           index={i}
@@ -134,9 +134,9 @@ const LecturerInCategories = (props: ILecturerInCategoriesProps) => {
               }}
             />
         </AdministrationModal>
-    );
+    ;
 
-    const renderConfirmDialog = (index: number) => (
+    const renderConfirmDialog = (index: number) =>
         <ConfirmDialog
           key={index}
           text="Are you sure you want to remove lecturer from contest."
@@ -149,18 +149,18 @@ const LecturerInCategories = (props: ILecturerInCategoriesProps) => {
               setShowConfirmDialog(false);
           }}
         />
-    );
+    ;
 
-    const renderGridSettings = () => (
+    const renderGridSettings = () =>
         <CreateButton
           showModal={showCreateModal}
           showModalFunc={setShowCreateModal}
           styles={{ width: '40px', height: '40px', color: 'rgb(25,118,210)' }}
           tooltipLabel="Add lecturer to category"
         />
-    );
+    ;
 
-    if (isLoading || (isFetching && !showConfirmDialog)) {
+    if (isLoading || isFetching && !showConfirmDialog) {
         return <SpinningLoader />;
     }
 

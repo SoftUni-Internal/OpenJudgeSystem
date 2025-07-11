@@ -75,7 +75,7 @@ const useTheme = () => {
         [themeColors.light.baseColor500]: styles.lightBaseColor500ClassName,
     };
 
-    // eslint-disable-next-line prefer-destructuring
+     
     const selectedThemeColors = themeColors[mode];
 
     const getColorClassName = (color: string) => colorClassName[color];

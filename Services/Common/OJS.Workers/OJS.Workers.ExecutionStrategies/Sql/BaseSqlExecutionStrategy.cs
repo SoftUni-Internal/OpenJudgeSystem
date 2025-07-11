@@ -15,12 +15,13 @@ public abstract class BaseSqlExecutionStrategy<TSettings> : BaseExecutionStrateg
     where TSettings : BaseSqlExecutionStrategySettings
 {
     protected const int DefaultTimeLimit = 2 * 60 * 1000;
-    protected static readonly Type DecimalType = typeof(decimal);
-    protected static readonly Type DoubleType = typeof(double);
-    protected static readonly Type FloatType = typeof(float);
-    protected static readonly Type ByteArrayType = typeof(byte[]);
-    protected static readonly Type DateTimeType = typeof(DateTime);
-    protected static readonly Type TimeSpanType = typeof(TimeSpan);
+    private readonly Type decimalType = typeof(decimal);
+    private readonly Type doubleType = typeof(double);
+    private readonly Type floatType = typeof(float);
+    private readonly Type byteArrayType = typeof(byte[]);
+    protected Type DateTimeType => typeof(DateTime);
+    protected Type DateTimeOffsetType => typeof(DateTimeOffset);
+    protected Type TimeSpanType => typeof(TimeSpan);
 
     protected BaseSqlExecutionStrategy(
         IOjsSubmission submission,
@@ -145,19 +146,19 @@ public abstract class BaseSqlExecutionStrategy<TSettings> : BaseExecutionStrateg
             var fieldType = dataRecord.GetFieldType(index);
 
             // Using CultureInfo.InvariantCulture to have consistent decimal separator.
-            if (fieldType == DecimalType)
+            if (fieldType == this.decimalType)
             {
                 result = dataRecord.GetDecimal(index).ToString(CultureInfo.InvariantCulture);
             }
-            else if (fieldType == DoubleType)
+            else if (fieldType == this.doubleType)
             {
                 result = dataRecord.GetDouble(index).ToString(CultureInfo.InvariantCulture);
             }
-            else if (fieldType == FloatType)
+            else if (fieldType == this.floatType)
             {
                 result = dataRecord.GetFloat(index).ToString(CultureInfo.InvariantCulture);
             }
-            else if (fieldType == ByteArrayType)
+            else if (fieldType == this.byteArrayType)
             {
                 var bytes = (byte[])dataRecord.GetValue(index);
                 result = bytes.ToHexString();

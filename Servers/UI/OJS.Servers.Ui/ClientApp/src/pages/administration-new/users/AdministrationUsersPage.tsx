@@ -54,7 +54,7 @@ const AdministrationUsersPage = () => {
         setUserId(id);
     };
 
-    const renderUserModal = (index: number) => (
+    const renderUserModal = (index: number) => 
         <AdministrationModal
           key={index}
           index={index}
@@ -73,7 +73,7 @@ const AdministrationUsersPage = () => {
               setParentSuccessMessage={setSuccessMessage}
             />
         </AdministrationModal>
-    );
+    ;
 
     const openLecturerActionModal = (isRemove: boolean, isContest: boolean) => {
         setLecturerActionModal({ isVisible: true, isRemove, isContest });
@@ -88,7 +88,7 @@ const AdministrationUsersPage = () => {
         return <SpinningLoader />;
     }
 
-    const renderLecturerActions = () => (
+    const renderLecturerActions = () => 
         <>
             <AdministrationGridDropdown
               icon={<TbBinaryTree className={styles.icon} />}
@@ -125,11 +125,11 @@ const AdministrationUsersPage = () => {
               id={2}
             />
         </>
-    );
+    ;
 
     return (
         <>
-            {lecturerActionModal.isVisible && (
+            {lecturerActionModal.isVisible && 
                 <LecturerActions
                   index={
                         lecturerActionModal.isRemove
@@ -147,7 +147,7 @@ const AdministrationUsersPage = () => {
                   setParentSuccessMessage={setSuccessMessage}
                   onSuccess={() => setLecturerActionModal({ ...lecturerActionModal, isVisible: false })}
                 />
-            )}
+            }
             {renderSuccessfullAlert(successMessage)}
             <AdministrationGridView
               filterableGridColumnDef={usersFilterableColumns}

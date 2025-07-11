@@ -69,7 +69,7 @@ const ProfileSubmissions = ({ userIsProfileOwner, isChosenInToggle }: IProfileSu
             <SubmissionsGrid
               isDataFetching={areSubmissionsFetching}
               isDataLoaded={!areSubmissionsLoading}
-              submissions={userSubmissions!}
+              submissions={userSubmissions}
               className={styles.profileSubmissionsGrid}
               options={{
                   showTaskDetails: true,

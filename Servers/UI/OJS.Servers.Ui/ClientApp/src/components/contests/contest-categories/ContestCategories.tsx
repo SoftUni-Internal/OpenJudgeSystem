@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-use-before-define */
-/* eslint-disable jsx-a11y/no-static-element-interactions */
-/* eslint-disable jsx-a11y/click-events-have-key-events */
-/* eslint-disable no-restricted-syntax */
+ 
+ 
+ 
 /* eslint-disable consistent-return */
 import { SyntheticEvent, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
@@ -165,26 +165,25 @@ const ContestCategories = (props: IContestCategoriesProps) => {
             </div>
             {categoriesError
                 ? <div className={textColorClassName}>Error loading categories</div>
-                : (
-                    <div
+                : <div
                       className={`${styles.contestCategoriesInnerWrapper} ${textColorClassName}`}
                     >
-                        <Box>
-                            <SimpleTreeView
+                    <Box>
+                        <SimpleTreeView
                               expandedItems={expandedItems}
                               onExpandedItemsChange={handleExpandedItemsChange}
                             >
-                                {Array.isArray(contestCategories) &&
+                            {Array.isArray(contestCategories) &&
                                     contestCategories?.map((contestCategory: IContestCategory) => renderCategory(contestCategory))}
-                            </SimpleTreeView>
-                        </Box>
-                    </div>
-                )}
+                        </SimpleTreeView>
+                    </Box>
+                </div>
+                }
         </div>
     );
 };
 
-// eslint-disable-next-line @typescript-eslint/no-shadow
+ 
 const findParentNames = (collection: Array<IContestCategory> | undefined, selectedId: number) => {
     if (!collection || !selectedId) {
         return;
@@ -227,7 +226,7 @@ const findContestCategoryByIdRecursive =
         if (!elements) {
             return null;
         }
-        // eslint-disable-next-line no-restricted-syntax
+         
         for (const contestCategory of elements) {
             if (contestCategory.id === id) {
                 return contestCategory;

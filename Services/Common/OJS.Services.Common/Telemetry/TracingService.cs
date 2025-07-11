@@ -363,12 +363,17 @@ public class TracingService(IHttpContextAccessor httpContextAccessor) : ITracing
     }
 
     public void AddTechnicalContext(
-        Activity activity,
+        Activity? activity,
         string operation,
         string? component = null,
         int? itemCount = null,
         long? dataSize = null)
     {
+        if (activity == null)
+        {
+            return;
+        }
+
         activity.SetTag(OjsActivitySources.CommonTags.Operation, operation);
 
         if (!string.IsNullOrEmpty(component))

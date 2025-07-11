@@ -11,10 +11,10 @@
     <ProjectReference Include="..\OJS.Workers.Executors\OJS.Workers.Executors.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Build" Version="17.0.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.4" />
+    <PackageReference Include="Microsoft.Build" Version="17.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.7" />
     <PackageReference Include="MySql.Data" Version="8.0.33" />
-    <PackageReference Include="Npgsql" Version="8.0.0-preview.4" />
+    <PackageReference Include="Npgsql" Version="8.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.CodeDom" Version="8.0.0" />
   </ItemGroup>

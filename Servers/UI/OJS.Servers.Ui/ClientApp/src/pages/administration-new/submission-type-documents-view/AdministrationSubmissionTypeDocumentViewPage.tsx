@@ -44,13 +44,12 @@ const AdministrationSubmissionTypeDocumentViewPage = () => {
             : styles.light}`}
         >
             {!submissionTypeDocumentsData || submissionTypeDocumentsData.length === 0
-                ? (
-                    <div className={styles.noDocumentsMessage}>No documents were found for the given submission type(s).</div>
-                )
-                : submissionTypeDocumentsData.map((submissionType: ISubmissionTypeInSubmissionDocumentInViewModel, typeIndex: number) => (
+                ? <div className={styles.noDocumentsMessage}>No documents were found for the given submission type(s).</div>
+                
+                : submissionTypeDocumentsData.map((submissionType: ISubmissionTypeInSubmissionDocumentInViewModel, typeIndex: number) => 
                     <div key={submissionType.submissionTypeDocumentId}>
                         <ol className={styles.submissionTypeList}>
-                            {submissionType.submissionTypes.map((type, index) => (
+                            {submissionType.submissionTypes.map((type, index) => 
                                 <button
                                   key={index}
                                   className={styles.submissionTypeItem}
@@ -58,8 +57,7 @@ const AdministrationSubmissionTypeDocumentViewPage = () => {
                                   onClick={() => navigate(`/${NEW_ADMINISTRATION_PATH}/${SUBMISSION_TYPE_DOCUMENTS_PATH}/${submissionType.submissionTypeDocumentId}?isEditMode=true`)}
                                 >
                                     {type}
-                                </button>
-                            ))}
+                                </button>)}
                         </ol>
                         <div className={styles.entityContainer}>
                             <h2 className={styles.title}>{submissionType.submissionTypeDocumentTitle}</h2>
@@ -70,11 +68,10 @@ const AdministrationSubmissionTypeDocumentViewPage = () => {
                               dangerouslySetInnerHTML={{ __html: submissionType.submissionTypeDocumentContent }}
                             />
                         </div>
-                        {typeIndex < submissionTypeDocumentsData.length - 1 && (
+                        {typeIndex < submissionTypeDocumentsData.length - 1 && 
                         <hr className={styles.divider} />
-                        )}
-                    </div>
-                ))}
+                        }
+                    </div>)}
         </div>
     );
 };

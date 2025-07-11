@@ -5,13 +5,13 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using OJS.PubSub.Worker.Models.Submissions;
-using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Services.Common.Data;
 using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Ui.Data;
 using System;
 using System.Threading.Tasks;
+using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources;
 using static OJS.Common.Enumerations.SubmissionProcessingState;
 
 public class ExecutionResultErrorConsumer(
@@ -27,8 +27,8 @@ public class ExecutionResultErrorConsumer(
     /// </summary>
     public async Task Consume(ConsumeContext<Fault<ProcessedSubmissionPubSubModel>> context)
         => await tracingService.TraceAsync(
-            OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.ProcessingExecutionResult,
+            submissions,
+            SubmissionActivities.ProcessingExecutionErrorResult,
             async activity =>
             {
                 // If we get here, the submission result was not processed successfully, and there is an unexpected error.
@@ -45,7 +45,7 @@ public class ExecutionResultErrorConsumer(
                 {
                     var workerException = message.Exception?.Message + Environment.NewLine + message.Exception?.StackTrace;
                     logger.LogExceptionFromWorker(message.Id, message.WorkerName, workerException);
-                    activity?.SetTag("worker.exception", workerException);
+                    activity?.SetTag(SubmissionTags.WorkerException, workerException);
                 }
 
                 var submissionForProcessing = await submissionsForProcessingData.GetBySubmission(submissionId);
@@ -53,7 +53,7 @@ public class ExecutionResultErrorConsumer(
                 if (submissionForProcessing is not null)
                 {
                     await submissionsForProcessingData.SetProcessingState(submissionForProcessing, Faulted);
-                    activity?.SetTag("submission.submission_for_processing_state_updated", true);
+                    activity?.SetTag(SubmissionTags.SubmissionForProcessingStateUpdated, true);
                 }
                 else
                 {
@@ -77,12 +77,12 @@ public class ExecutionResultErrorConsumer(
                     submission.ProcessingComment = context.Message.Exceptions[0].Message;
                     submissionsData.Update(submission);
                     await submissionsData.SaveChanges();
-                    activity?.SetTag("submission.updated", true);
+                    activity?.SetTag(SubmissionTags.Updated, true);
                 }
                 else
                 {
                     logger.LogSubmissionNotFound(submissionId);
-                    activity?.SetTag("submission.updated", false);
+                    activity?.SetTag(SubmissionTags.Updated, false);
                 }
             },
             tags: null,

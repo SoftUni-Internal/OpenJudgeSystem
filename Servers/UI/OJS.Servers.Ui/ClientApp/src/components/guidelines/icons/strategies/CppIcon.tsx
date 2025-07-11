@@ -13,13 +13,13 @@ const CppIcon = ({
     className = '',
     size = IconSize.Medium,
     helperText = '',
-}: ICppIconProps) => (
+}: ICppIconProps) => 
     <Icon
       className={concatClassNames(styles.icon, className)}
       size={size}
       helperText={helperText}
       Component={CgCPlusPlus}
     />
-);
+;
 
 export default memo(CppIcon);

@@ -127,6 +127,7 @@ const SearchBar = () => {
 
     const handleSearchCheckboxClick = (checkbox: string) => {
         const newSelectedTerms = selectedTerms.includes(checkbox as CheckboxSearchValues)
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
             ? selectedTerms.filter((term) => term !== checkbox)
             : [ ...selectedTerms, checkbox as CheckboxSearchValues ];
 
@@ -166,7 +167,7 @@ const SearchBar = () => {
                   autoComplete="off"
                 />
                 <div className={styles.checkboxContainer}>
-                    {CHECKBOXES.map((checkbox) => (
+                    {CHECKBOXES.map((checkbox) =>
                         <div key={`search-bar-checkbox-${checkbox}`} className={styles.checkboxWrapper}>
                             <Checkbox
                               sx={{
@@ -182,8 +183,7 @@ const SearchBar = () => {
                             <span className={`${styles.checkboxText} ${textColorClassName}`}>
                                 {checkbox}
                             </span>
-                        </div>
-                    ))}
+                        </div>)}
                 </div>
             </Form>
             <IoIosClose

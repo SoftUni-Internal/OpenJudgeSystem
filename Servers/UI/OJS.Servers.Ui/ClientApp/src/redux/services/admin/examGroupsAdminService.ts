@@ -1,4 +1,4 @@
-/* eslint-disable prefer-destructuring */
+ 
 /* eslint-disable max-len */
 import { createApi } from '@reduxjs/toolkit/query/react';
 
@@ -13,7 +13,7 @@ import { IExamGroupUrlParams } from '../../../common/url-types';
 import { EXCEL_RESULTS_ENDPOINT, GET_ENDPOINT } from '../../../common/urls/administration-urls';
 import getCustomBaseQuery from '../../middlewares/customBaseQuery';
 
-// eslint-disable-next-line import/group-exports
+ 
 export const examGroupsService = createApi({
     reducerPath: 'examGroups',
     baseQuery: getCustomBaseQuery('examGroups'),
@@ -71,7 +71,7 @@ export const examGroupsService = createApi({
     }),
 });
 
-// eslint-disable-next-line import/group-exports
+ 
 export const {
     useGetAllAdminExamGroupsQuery,
     useGetExamGroupByIdQuery,

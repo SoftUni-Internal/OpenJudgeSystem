@@ -1,4 +1,4 @@
-/* eslint-disable import/prefer-default-export */
+ 
 import { SubmissionStatus } from './enums';
 import { IGetAllAdminParams } from './types';
 
@@ -36,12 +36,6 @@ interface IGetByExamGroupId extends IGetAllAdminParams {
 
 interface IContestCategoriesUrlParams {
     id: number;
-}
-
-interface ISubmitContestPasswordParams {
-    contestId: string;
-    isOfficial: boolean;
-    password: string;
 }
 
 interface IGetSubmissionsUrlParams {
@@ -136,7 +130,6 @@ export type {
     IGetByTestId,
     IGetByRoleId,
     IGetByUserId,
-    ISubmitContestPasswordParams,
     ISubmitContestSolutionParams,
     IGetSubmissionsByUserParams,
     IRegisterUserForContestParams,

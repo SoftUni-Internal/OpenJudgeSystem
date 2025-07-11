@@ -10,13 +10,17 @@ interface IErrorDataType {
     status: number;
     detail: string;
     extensions: IDictionary<object>;
+    errorCode: string;
+    instance: string;
+    traceId: string | null;
+    errorContext: object | null;
 }
 
 const defaultErrorMessage = 'Something went wrong, please try again!';
 
 const getErrorMessage = (
     err: FetchBaseQueryError | SerializedError | ExceptionData[] | undefined,
-    defaultMessage = defaultErrorMessage,
+    defaultMessage: string = defaultErrorMessage,
 ): string => {
     if (isNil(err) || !err) {
         return defaultMessage;

@@ -9,10 +9,9 @@ import { useExportSimilaritiesToExcelMutation, useGetContestAutocompleteQuery } 
 import { getAndSetExceptionMessage } from '../../../utils/messages-utils';
 import { renderErrorMessagesAlert } from '../../../utils/render-utils';
 
-// eslint-disable-next-line css-modules/no-unused-class
 import formStyles from '../../../components/administration/common/styles/FormStyles.module.scss';
 
-// eslint-disable-next-line import/exports-last
+
 export enum SimillarityType {
     Text = 3,
 }
@@ -65,11 +64,11 @@ const SubmissionsSimillarity = () => {
                       onInputChange={(event) => onInputChange(event)}
                       isOptionEqualToValue={(option, value) => option.id === value.id}
                       getOptionLabel={(option) => option?.name}
-                      renderOption={(properties, option) => (
+                      renderOption={(properties, option) =>
                           <MenuItem {...properties} key={option.id} value={option.id}>
                               {option.name}
                           </MenuItem>
-                      )}
+                      }
                     />
                 </FormControl>
                 <FormControl className={formStyles.inputRow}>
@@ -84,11 +83,10 @@ const SubmissionsSimillarity = () => {
                       onBlur={(e) => onChange(e)}
                     >
                         {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-                        {Object.entries(SimillarityType).filter(([ key, value ]) => !isNaN(Number(value))).map(([ key, value ]) => (
+                        {Object.entries(SimillarityType).filter(([ key, value ]) => !isNaN(Number(value))).map(([ key, value ]) =>
                             <MenuItem key={key} value={value}>
                                 {key}
-                            </MenuItem>
-                        ))}
+                            </MenuItem>)}
                     </Select>
                 </FormControl>
                 <ExportExcel

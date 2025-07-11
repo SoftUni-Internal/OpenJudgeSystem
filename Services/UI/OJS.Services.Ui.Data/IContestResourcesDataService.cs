@@ -6,5 +6,5 @@ using OJS.Services.Common.Data;
 
 public interface IContestResourcesDataService : IDataService<ContestResource>
 {
-    public IQueryable<ContestResource> GetByContestQuery(int contestId);
+    IQueryable<ContestResource> GetByContestQuery(int contestId);
 }

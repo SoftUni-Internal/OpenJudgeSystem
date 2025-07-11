@@ -5,12 +5,12 @@ using MassTransit;
 using Microsoft.Extensions.Logging;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.PubSub.Worker.Models.Submissions;
-using OJS.Servers.Infrastructure.Telemetry;
 using OJS.Services.Common.Models.Submissions;
 using OJS.Services.Common.Telemetry;
 using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Ui.Business;
 using System;
+using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources;
 
 public class ExecutionResultConsumer(
     ISubmissionsBusinessService submissionsBusinessService,
@@ -20,12 +20,12 @@ public class ExecutionResultConsumer(
 {
     public async Task Consume(ConsumeContext<ProcessedSubmissionPubSubModel> context)
         => await tracingService.TraceAsync(
-            OjsActivitySources.submissions,
-            OjsActivitySources.SubmissionActivities.ProcessingExecutionResult,
+            submissions,
+            SubmissionActivities.ProcessingExecutionResult,
             async activity =>
             {
                 var workerName = context.Message.WorkerName + $" ({context.Host.MachineName})";
-                activity?.SetTag("worker.name", workerName);
+                activity?.SetTag(SubmissionTags.WorkerName, workerName);
 
                 logger.LogReceivedExecutionResult(context.Message.Id, workerName);
 
@@ -42,11 +42,12 @@ public class ExecutionResultConsumer(
 
                     await submissionsBusinessService.ProcessExecutionResult(executionResult);
                     logger.LogProcessedExecutionResult(executionResult.SubmissionId, workerName);
-                    activity?.SetTag("processing.result", "success");
+                    activity?.SetTag(SubmissionTags.ProcessingSuccess, true);
                 }
                 catch (Exception ex)
                 {
                     logger.LogErrorProcessingExecutionResult(context.Message.Id, workerName, ex);
+                    activity?.SetTag(SubmissionTags.ProcessingSuccess, false);
                     throw;
                 }
             },

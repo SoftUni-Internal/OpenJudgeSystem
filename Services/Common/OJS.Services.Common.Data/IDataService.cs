@@ -1,6 +1,7 @@
 namespace OJS.Services.Common.Data
 {
     using Microsoft.EntityFrameworkCore.ChangeTracking;
+    using Microsoft.EntityFrameworkCore.Query;
     using OJS.Services.Common.Models.Users;
     using OJS.Data.Models.Common;
     using OJS.Services.Infrastructure;
@@ -19,7 +20,7 @@ namespace OJS.Services.Common.Data
 
         void Update(TEntity entity);
 
-        void Update(Expression<Func<TEntity, bool>>? filter = null);
+        Task<int> Update(Expression<Func<TEntity, bool>> filter, Expression<Func<SetPropertyCalls<TEntity>,SetPropertyCalls<TEntity>>> setPropertyCalls);
 
         Task<int> Update(
             Expression<Func<TEntity, bool>> filterExpression,
@@ -35,6 +36,8 @@ namespace OJS.Services.Common.Data
         Task<int> Delete(Expression<Func<TEntity, bool>> filterExpression, int batchSize);
 
         void DeleteMany(IEnumerable<TEntity> entities);
+
+        Task ExecuteDelete(Expression<Func<TEntity, bool>> filter);
 
         Task DeleteById(object id);
 

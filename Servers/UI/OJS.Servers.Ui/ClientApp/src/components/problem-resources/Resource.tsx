@@ -37,7 +37,7 @@ const Resource = ({ resource }: IProblemResourceProps) => {
     // eslint-disable-next-line consistent-return
     useEffect(() => {
         if (problemResourceDownloadErrorState &&
-            'status' in problemResourceDownloadError! &&
+            'status' in problemResourceDownloadError &&
         problemResourceDownloadError.status === 401) {
             setIsUnauthorized(true);
             const timeout = setTimeout(() => {
@@ -52,41 +52,37 @@ const Resource = ({ resource }: IProblemResourceProps) => {
         <>
             {
                 resource.link
-                    ? (
-                        <Link key={`resource-problem-${id}`} className={styles.resourceElement} target="_blank" to={link}>
-                            <IoDocumentText size={20} />
-                            {' '}
-                            {linkName}
-                        </Link>
-                    )
-                    : (
-                        <div
+                    ? <Link key={`resource-problem-${id}`} className={styles.resourceElement} target="_blank" to={link}>
+                        <IoDocumentText size={20} />
+                        {' '}
+                        {linkName}
+                    </Link>
+                    
+                    : <div
                           key={`resource-problem-${id}`}
                           className={styles.resourceElement}
                           onClick={() => downloadResourceFile({ id })}
                         >
-                            <IoDocumentText size={20} />
-                            {linkName}
-                        </div>
-                    )
+                        <IoDocumentText size={20} />
+                        {linkName}
+                    </div>
+                    
             }
             {problemResourceDownloadErrorState || problemResourceDownloadIsLoading
-                ? (
-                    <div className={styles.problemResourceIndicator}>
-                        {problemResourceDownloadErrorState
-                            ? (
-                                <div className={styles.problemResourceDownloadErrorState}>
-                                    {isUnauthorized
-                                        ? 'Unable to download the resource because you are not logged in. Please log in and try again.'
-                                        : 'Unable to download the resource. Please try again later.'}
-                                </div>
-                            )
-                            : ''}
-                        {problemResourceDownloadIsLoading
-                            ? <div className={styles.problemResourceLoading}>Downloading resource...</div>
-                            : ''}
-                    </div>
-                )
+                ? <div className={styles.problemResourceIndicator}>
+                    {problemResourceDownloadErrorState
+                        ? <div className={styles.problemResourceDownloadErrorState}>
+                            {isUnauthorized
+                                ? 'Unable to download the resource because you are not logged in. Please log in and try again.'
+                                : 'Unable to download the resource. Please try again later.'}
+                        </div>
+                            
+                        : ''}
+                    {problemResourceDownloadIsLoading
+                        ? <div className={styles.problemResourceLoading}>Downloading resource...</div>
+                        : ''}
+                </div>
+                
                 : null}
         </>
     );

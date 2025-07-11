@@ -2,6 +2,7 @@ import React, { useCallback, useEffect } from 'react';
 import { Outlet, ScrollRestoration } from 'react-router-dom';
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import usePageViewTracking from 'src/hooks/use-page-view-tracking';
 
 import MuiUiThemeProvider from '../../../hooks/use-mui-ui-theme';
 import useTheme from '../../../hooks/use-theme';
@@ -46,6 +47,8 @@ const ClientPortal = () => {
             rootElement.classList.remove(darkAutofillClass, lightAutofillClass);
         };
     }, [ isDarkMode ]);
+
+    usePageViewTracking();
 
     useEffect(() => {
         toggleGlobalStyles();

@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import { FaFileUpload } from 'react-icons/fa';
 import { MdOutlineRemoveCircle } from 'react-icons/md';
 import { Button, FormControl, FormGroup, IconButton, styled, Tooltip, Typography } from '@mui/material';
@@ -88,13 +88,13 @@ const FileUpload = (props: IFileUploadProps) => {
                     {uploadButtonName || 'No file selected'}
                 </Typography>
             </FormControl>
-            {showDownloadButton && (
+            {showDownloadButton &&
                 <FormControl sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start' }}>
                     <Button sx={{ width: '200px' }} variant="contained" onClick={() => setSkipDownload(false)}>
                         Download
                     </Button>
                 </FormControl>
-            )}
+            }
         </FormGroup>
     );
 };

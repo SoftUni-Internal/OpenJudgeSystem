@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-types */
+
 import React, { ReactNode } from 'react';
 import { IoMdClose } from 'react-icons/io';
 import { Box, IconButton, Modal } from '@mui/material';
@@ -24,6 +24,7 @@ const AdministrationModal = (props: IAdministrationModalProps) => {
     const { index, children, open, onClose, className } = props;
 
     const onModalClose = (event: object, reason: string) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         if (reason === ModalReasonsToClose.BackDropClick) {
             return;
         }
