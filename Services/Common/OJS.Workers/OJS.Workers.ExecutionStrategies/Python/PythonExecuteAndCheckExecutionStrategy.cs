@@ -110,7 +110,8 @@ public class PythonExecuteAndCheckExecutionStrategy<TSettings> : BaseInterpreted
         IExecutor executor,
         string codeSavePath,
         string inputData = null,
-        string directory = null)
+        string directory = null,
+        CancellationToken cancellationToken = default)
         => executor.Execute(
             this.Settings.PythonExecutablePath,
             executionContext.TimeLimit,
@@ -119,7 +120,8 @@ public class PythonExecuteAndCheckExecutionStrategy<TSettings> : BaseInterpreted
             this.ExecutionArguments.Concat([codeSavePath]),
             directory,
             useProcessTime: false,
-            useSystemEncoding: true);
+            useSystemEncoding: true,
+            cancellationToken: cancellationToken);
 }
 
 public record PythonExecuteAndCheckExecutionStrategySettings(

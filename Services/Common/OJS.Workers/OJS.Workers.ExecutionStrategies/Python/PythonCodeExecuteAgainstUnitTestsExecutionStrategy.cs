@@ -66,9 +66,10 @@ public class PythonCodeExecuteAgainstUnitTestsExecutionStrategy<TSettings> : Pyt
         IExecutor executor,
         string codeSavePath,
         string input = null,
-        string directory = null)
+        string directory = null,
+        CancellationToken cancellationToken = default)
     {
-        var processExecutionResult = await base.Execute(executionContext, executor, codeSavePath, input, directory);
+        var processExecutionResult = await base.Execute(executionContext, executor, codeSavePath, input, directory, cancellationToken);
         this.FixReceivedOutput(processExecutionResult);
         return processExecutionResult;
     }
