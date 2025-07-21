@@ -32,7 +32,7 @@
             bool useProcessTime = false,
             bool useSystemEncoding = false,
             bool dependOnExitCodeForRunTimeError = false,
-            double timeoutMultiplier = 1.5);
+            double timeoutMultiplier = Constants.DefaultProcessTimeoutMultiplier);
 
         IDictionary<string, string> EnvironmentVariables { get; }
     }

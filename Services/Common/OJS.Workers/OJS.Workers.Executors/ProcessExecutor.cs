@@ -49,7 +49,7 @@
             bool useProcessTime = false,
             bool useSystemEncoding = false,
             bool dependOnExitCodeForRunTimeError = false,
-            double timeoutMultiplier = 1.5)
+            double timeoutMultiplier = DefaultProcessTimeoutMultiplier)
         {
             this.timeLimit = processTimeLimit;
             this.memoryLimit = processMemoryLimit;

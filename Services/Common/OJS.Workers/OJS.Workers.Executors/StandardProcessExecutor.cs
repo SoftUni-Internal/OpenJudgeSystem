@@ -80,7 +80,6 @@
                 strategyLogger.LogInformation("With environment variables: {EnvironmentVariables}", envVariablesString.ToString());
             }
 
-
             using var process = Process.Start(processStartInfo)
                 ?? throw new Exception($"Could not start process: {fileName}!");
 
@@ -92,6 +91,9 @@
             }
 
             var resourceConsumptionSamplingThread = this.StartResourceConsumptionSamplingThread(process, result);
+
+            var processTimeout = (int)(timeLimit * timeoutMultiplier);
+            var safetyCts = CreateSafetyTimeout(process, processTimeout);
 
             // Start reading standard output and error before writing to standard input to avoid deadlocks
             // and ensure fast reading of the output in case of a fast execution
@@ -107,25 +109,38 @@
 
             // Wait the process to complete. Kill it after (timeLimit * 1.5) milliseconds if not completed.
             // We are waiting the process for more than defined time and after this we compare the process time with the real time limit.
-            var exited = process.WaitForExit((int)(timeLimit * timeoutMultiplier));
+            using var waitCts = new CancellationTokenSource(processTimeout);
+            bool exited;
+
+            try
+            {
+                await process.WaitForExitAsync(waitCts.Token);
+                exited = true;
+            }
+            catch (OperationCanceledException)
+            {
+                exited = false;
+            }
+
             if (!exited)
             {
-                // Double check if the process has exited before killing it
-                if (!process.HasExited)
-                {
-                    process.Kill();
-                    result.ProcessWasKilled = true;
-
-                    strategyLogger.LogWarning("Process was killed because it exceeded the time limit.");
-
-                    // Approach: https://msdn.microsoft.com/en-us/library/system.diagnostics.process.kill(v=vs.110).aspx#Anchor_2
-                    process.WaitForExit(Constants.DefaultProcessExitTimeOutMilliseconds);
-                }
-
+                strategyLogger.LogWarning("Process exceeded time limit; terminating …");
+                await this.KillProcessTreeAsync(process);
+                result.ProcessWasKilled = true;
                 result.Type = ProcessExecutionResultType.TimeLimit;
             }
 
             strategyLogger.LogInformation("Process exited with code: {ExitCode}", process.ExitCode);
+
+            try
+            {
+                await safetyCts.CancelAsync();
+                safetyCts.Dispose();
+            }
+            catch
+            {
+                /* ignored */
+            }
 
             try
             {
@@ -214,6 +229,66 @@
             {
                 logger.LogErrorReadingProcessErrorOutput(ex);
                 return $"Error while reading the {outputName} of the underlying process: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Secondary watchdog that hard‑kills the entire process tree if the main path fails to do so.
+        /// The timeout is 25% longer than the primary one but never exceeds the global safety cap.
+        /// </summary>
+        private static CancellationTokenSource CreateSafetyTimeout(Process process, int primaryTimeoutMs)
+        {
+            // 25% extra time, but not more than 5 seconds
+            var extraTimeout = Math.Min(primaryTimeoutMs / 4, 5000);
+
+            // totalTimeout is never more than 2x the max time limit
+            var totalTimeout = Math.Min(primaryTimeoutMs + extraTimeout, Constants.MaxTimeLimitInMilliseconds + extraTimeout);
+
+            var cts = new CancellationTokenSource();
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(totalTimeout, cts.Token);
+                    if (!process.HasExited)
+                    {
+                        process.Kill(entireProcessTree: true);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    /* expected */
+                }
+            }, cts.Token);
+
+            return cts;
+        }
+
+        private async Task KillProcessTreeAsync(Process process)
+        {
+            const int maxAttempts = 3;
+            const int delayBetweenAttemptsMs = 1000;
+            const int waitForExitMs = 2000;
+
+            for (var attempt = 1; attempt <= maxAttempts && !process.HasExited; attempt++)
+            {
+                try
+                {
+                    process.Kill(entireProcessTree: true);
+                    if (process.WaitForExit(waitForExitMs))
+                    {
+                        return;
+                    }
+                }
+                catch when (attempt < maxAttempts)
+                {
+                    await Task.Delay(delayBetweenAttemptsMs);
+                }
+            }
+
+            if (!process.HasExited)
+            {
+                strategyLogger.LogError("Unable to kill process tree with PID: {Pid}", process.Id);
             }
         }
     }
