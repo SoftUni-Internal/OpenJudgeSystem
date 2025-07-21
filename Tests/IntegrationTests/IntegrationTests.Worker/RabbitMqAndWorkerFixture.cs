@@ -94,7 +94,7 @@ public class RabbitMqAndWorkerFixture : IAsyncLifetime
             .WithHostname(WorkerName)
             .WithEnvironment("MessageQueue__Host", this.rabbitMqContainer.IpAddress)
             .WithEnvironment("DOTNET_ENVIRONMENT", "Production")
-            .WithBindMount(dockerCompatiblePath, "/app/ExecutionStrategies")
+            .WithBindMount(dockerCompatiblePath, "/tmp/ExecutionStrategies")
             .WithBindMount("/var/run/docker.sock", "/var/run/docker.sock")
             .DependsOn(this.rabbitMqContainer)
             .WithLogger(loggerFactory.CreateLogger<ImageFromDockerfileBuilder>())
