@@ -31,7 +31,8 @@ public class CPlusPlusZipFileExecutionStrategy<TSettings> : BaseCompiledCodeExec
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         executionContext.SanitizeContent();
 

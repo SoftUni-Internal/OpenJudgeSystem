@@ -203,9 +203,9 @@ kill_container = {KillContainerPlaceholder}
 try:
     docker_client = docker.from_env()
     container = docker_client.containers.get(container_name)
-    
+
     commands = [mocha_path, tests_path, '-R', 'json']
-    
+
     process = subprocess.run(
         commands,
     )
@@ -227,7 +227,8 @@ finally:
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         try
         {

@@ -80,7 +80,8 @@ public class JavaSpringAndHibernateProjectExecutionStrategy<TSettings> : JavaPro
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         string submissionFilePath;
         try

@@ -68,7 +68,7 @@ public class SubmissionsForProcessingConsumer(
 
                     activity?.SetTag("submission.content_length", submission.FileContent?.Length ?? 0);
 
-                    var executionResult = await submissionsBusiness.ExecuteSubmission(submission);
+                    var executionResult = await submissionsBusiness.ExecuteSubmission(submission, context.CancellationToken);
 
                     logger.LogProducedExecutionResult(submission.Id, executionResult);
                     result.SetExecutionResult(executionResult);

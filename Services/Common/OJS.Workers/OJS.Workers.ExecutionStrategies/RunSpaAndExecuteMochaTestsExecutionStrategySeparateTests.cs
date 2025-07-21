@@ -270,7 +270,8 @@ finally:
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(executionContext.Input.TaskSkeletonAsString))
         {
@@ -297,7 +298,7 @@ finally:
         try
         {
             var checker = executionContext.Input.GetChecker();
-            var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath);
+            var preExecutionResult = await this.Execute(executionContext, executor, preExecuteCodeSavePath, cancellationToken: cancellationToken);
             var output = preExecutionResult.ReceivedOutput.Trim().Split(',');
 
             if (output.Length == 2)

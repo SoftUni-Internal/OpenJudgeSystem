@@ -41,6 +41,7 @@
 
         // Other
         public const int DefaultProcessExitTimeOutMilliseconds = 5000;
+        public const double DefaultProcessTimeoutMultiplier = 1.5;
         public const int ProcessDefaultBufferSizeInBytes = 4096;
         public const int MinimumMemoryLimitInBytes = 1024 * 1024 * 5;
         public const int MaxMemoryLimitInBytes = 1024 * 1024 * 1000;

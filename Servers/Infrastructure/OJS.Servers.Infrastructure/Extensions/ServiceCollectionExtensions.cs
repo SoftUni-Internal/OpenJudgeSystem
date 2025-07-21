@@ -271,6 +271,10 @@ namespace OJS.Servers.Infrastructure.Extensions
                     if (cfg is IRabbitMqReceiveEndpointConfigurator configurator)
                     {
                         configurator.Durable = true;
+                        configurator.UseTimeout(timeoutConfig =>
+                        {
+                            timeoutConfig.Timeout = TimeSpan.FromSeconds(messageQueueConfig.TimeoutInSeconds);
+                        });
                     }
                 });
             });

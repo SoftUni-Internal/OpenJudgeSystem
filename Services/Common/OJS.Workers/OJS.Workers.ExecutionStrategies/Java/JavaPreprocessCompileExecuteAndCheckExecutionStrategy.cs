@@ -209,7 +209,8 @@ class _$SandboxSecurityManager extends SecurityManager {
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         var compileResult = this.SetupAndCompile(executionContext, result);
 
@@ -228,7 +229,8 @@ class _$SandboxSecurityManager extends SecurityManager {
                 executor,
                 executionContext,
                 compileResult.OutputFile,
-                test.Input);
+                test.Input,
+                cancellationToken);
 
             var testResult = CheckAndGetTestResult(
                 test,
@@ -253,7 +255,7 @@ class _$SandboxSecurityManager extends SecurityManager {
             return result;
         }
 
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         var processExecutionResult = await this.Execute(
             executor,
@@ -289,7 +291,8 @@ class _$SandboxSecurityManager extends SecurityManager {
         IExecutor executor,
         IExecutionContext<TInput> executionContext,
         string filePath,
-        string? inputData = null)
+        string? inputData = null,
+        CancellationToken cancellationToken = default)
     {
         var classToExecute = filePath
             .Substring(
@@ -315,7 +318,8 @@ class _$SandboxSecurityManager extends SecurityManager {
                 inputData,
                 executionArguments,
                 useProcessTime: false,
-                useSystemEncoding: true);
+                useSystemEncoding: true,
+                cancellationToken: cancellationToken);
 
         UpdateExecutionTime(
             timeMeasurementFilePath,
