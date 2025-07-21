@@ -25,5 +25,5 @@ public class MessageQueueConfig : BaseConfig
 
     public int? PrefetchCount { get; set; }
 
-    public int TimeoutInSeconds { get; set; } = 600;
+    public int TimeoutInSeconds { get; set; } = 10 * 60; // 10 minutes
 }
