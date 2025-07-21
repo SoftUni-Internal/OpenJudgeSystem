@@ -30,7 +30,8 @@ public abstract class BaseCompiledCodeExecutionStrategy<TSettings> : BaseCodeExe
         IExecutor executor,
         bool useSystemEncoding = true,
         bool dependOnExitCodeForRunTimeError = false,
-        bool useWorkingDirectoryForProcess = false)
+        bool useWorkingDirectoryForProcess = false,
+        CancellationToken cancellationToken = default)
     {
         // Compile the file
         var compileResult = this.ExecuteCompiling(
@@ -57,7 +58,8 @@ public abstract class BaseCompiledCodeExecutionStrategy<TSettings> : BaseCodeExe
                 test.Input,
                 useProcessTime: false,
                 useSystemEncoding: useSystemEncoding,
-                dependOnExitCodeForRunTimeError: dependOnExitCodeForRunTimeError);
+                dependOnExitCodeForRunTimeError: dependOnExitCodeForRunTimeError,
+                cancellationToken: cancellationToken);
 
             var testResult = CheckAndGetTestResult(
                 test,

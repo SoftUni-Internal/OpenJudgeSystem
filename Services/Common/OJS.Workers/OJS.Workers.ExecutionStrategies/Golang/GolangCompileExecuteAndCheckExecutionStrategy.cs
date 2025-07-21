@@ -24,14 +24,16 @@ public class GolangCompileExecuteAndCheckExecutionStrategy<TSettings> : BaseComp
 
     protected override Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
         => this.CompileExecuteAndCheck(
             executionContext,
             result,
                 this.CreateRestrictedExecutor(),
             useSystemEncoding: true,
             dependOnExitCodeForRunTimeError: false,
-            useWorkingDirectoryForProcess: true);
+            useWorkingDirectoryForProcess: true,
+            cancellationToken);
 
     protected override string SaveCodeToTempFile<TInput>(IExecutionContext<TInput> executionContext)
         => FileHelpers.SaveStringToFile(

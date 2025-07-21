@@ -31,7 +31,8 @@
             IEnumerable<string>? executionArguments,
             string? workingDirectory,
             bool useSystemEncoding,
-            double timeoutMultiplier)
+            double timeoutMultiplier,
+            CancellationToken cancellationToken)
         {
             var result = new ProcessExecutionResult { Type = ProcessExecutionResultType.Success };
 
@@ -92,29 +93,30 @@
 
             var resourceConsumptionSamplingThread = this.StartResourceConsumptionSamplingThread(process, result);
 
-            var processTimeout = (int)(timeLimit * timeoutMultiplier);
-            var safetyCts = CreateSafetyTimeout(process, processTimeout);
+            var processTimeoutMs = (int)(timeLimit * timeoutMultiplier);
+            using var timeoutCts = new CancellationTokenSource(processTimeoutMs);
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutCts.Token);
+            var safetyCts = CreateSafetyTimeout(process, processTimeoutMs, linkedCts.Token);
 
             // Start reading standard output and error before writing to standard input to avoid deadlocks
             // and ensure fast reading of the output in case of a fast execution
-            var processOutputTask = process.StandardOutput.ReadToEndAsync();
-            var errorOutputTask = process.StandardError.ReadToEndAsync();
+            var processOutputTask = process.StandardOutput.ReadToEndAsync(CancellationToken.None);
+            var errorOutputTask = process.StandardError.ReadToEndAsync(CancellationToken.None);
 
             if (inputData is not null)
             {
                 strategyLogger.LogInformation("Writing the following input data to process: {NewLine}{InputData}", Environment.NewLine, inputData);
 
-                await this.WriteInputToProcess(process, inputData);
+                await this.WriteInputToProcess(process, inputData, linkedCts.Token);
             }
 
             // Wait the process to complete. Kill it after (timeLimit * 1.5) milliseconds if not completed.
             // We are waiting the process for more than defined time and after this we compare the process time with the real time limit.
-            using var waitCts = new CancellationTokenSource(processTimeout);
             bool exited;
 
             try
             {
-                await process.WaitForExitAsync(waitCts.Token);
+                await process.WaitForExitAsync(linkedCts.Token);
                 exited = true;
             }
             catch (OperationCanceledException)
@@ -181,12 +183,12 @@
             return result;
         }
 
-        private async Task WriteInputToProcess(Process process, string inputData)
+        private async Task WriteInputToProcess(Process process, string inputData, CancellationToken cancellationToken)
         {
             try
             {
                 await process.StandardInput.WriteLineAsync(inputData);
-                await process.StandardInput.FlushAsync();
+                await process.StandardInput.FlushAsync(cancellationToken);
             }
             catch (Exception ex)
             {
@@ -236,7 +238,7 @@
         /// Secondary watchdog that hard‑kills the entire process tree if the main path fails to do so.
         /// The timeout is 25% longer than the primary one but never exceeds the global safety cap.
         /// </summary>
-        private static CancellationTokenSource CreateSafetyTimeout(Process process, int primaryTimeoutMs)
+        private static CancellationTokenSource CreateSafetyTimeout(Process process, int primaryTimeoutMs, CancellationToken externalToken)
         {
             // 25% extra time, but not more than 5 seconds
             var extraTimeout = Math.Min(primaryTimeoutMs / 4, 5000);
@@ -244,22 +246,38 @@
             // totalTimeout is never more than 2x the max time limit
             var totalTimeout = Math.Min(primaryTimeoutMs + extraTimeout, Constants.MaxTimeLimitInMilliseconds + extraTimeout);
 
-            var cts = new CancellationTokenSource();
+            var cts = CancellationTokenSource.CreateLinkedTokenSource(externalToken);
+            cts.CancelAfter(totalTimeout);
+
             _ = Task.Run(async () =>
             {
                 try
                 {
-                    await Task.Delay(totalTimeout, cts.Token);
-                    if (!process.HasExited)
-                    {
-                        process.Kill(entireProcessTree: true);
-                    }
+                    // Wait until either the timer fires *or* the linked token is
+                    // cancelled (whichever comes first).
+                    await Task.Delay(Timeout.Infinite, cts.Token);
                 }
                 catch (OperationCanceledException)
                 {
-                    /* expected */
+                    // Either the timer elapsed or an external cancellation fired –
+                    // in both cases we fall through to the kill check below.
                 }
-            }, cts.Token);
+
+                if (!process.HasExited)
+                {
+                    // The timer elapsed (not an external cancellation) – force kill.
+                    try
+                    {
+                        process.Kill(entireProcessTree: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Best‑effort: log but don’t throw from the background task.
+                        Debug.WriteLine($"Watchdog kill failed: {ex.Message}");
+                    }
+                }
+
+            }, CancellationToken.None);
 
             return cts;
         }

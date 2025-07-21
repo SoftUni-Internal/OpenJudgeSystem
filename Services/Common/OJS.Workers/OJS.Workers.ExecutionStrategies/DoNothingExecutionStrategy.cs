@@ -17,7 +17,8 @@ namespace OJS.Workers.ExecutionStrategies
 
         protected override Task<IExecutionResult<TResult>> InternalExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            IExecutionResult<TResult> result)
+            IExecutionResult<TResult> result,
+            CancellationToken cancellationToken = default)
         {
             result.CompilerComment = null;
             result.IsCompiledSuccessfully = true;

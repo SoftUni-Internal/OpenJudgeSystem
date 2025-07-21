@@ -49,7 +49,8 @@
             bool useProcessTime = false,
             bool useSystemEncoding = false,
             bool dependOnExitCodeForRunTimeError = false,
-            double timeoutMultiplier = DefaultProcessTimeoutMultiplier)
+            double timeoutMultiplier = DefaultProcessTimeoutMultiplier,
+            CancellationToken cancellationToken = default)
         {
             this.timeLimit = processTimeLimit;
             this.memoryLimit = processMemoryLimit;
@@ -65,7 +66,8 @@
                 executionArguments,
                 workingDirectory,
                 useSystemEncoding,
-                timeoutMultiplier);
+                timeoutMultiplier,
+                cancellationToken);
 
             this.AfterExecute(
                 useProcessTime,
@@ -84,7 +86,8 @@
             IEnumerable<string>? executionArguments,
             string? workingDirectory,
             bool useSystemEncoding,
-            double timeoutMultiplier);
+            double timeoutMultiplier,
+            CancellationToken cancellationToken);
 
         protected TaskInfo StartResourceConsumptionSamplingThread(
             System.Diagnostics.Process process,

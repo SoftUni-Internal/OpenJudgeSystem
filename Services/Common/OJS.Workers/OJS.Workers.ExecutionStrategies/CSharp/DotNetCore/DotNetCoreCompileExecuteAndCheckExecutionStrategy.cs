@@ -52,7 +52,8 @@ public class DotNetCoreCompileExecuteAndCheckExecutionStrategy<TSettings> : Base
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         var compileResult = this.ExecuteCompiling(
             executionContext,

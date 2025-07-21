@@ -45,7 +45,8 @@ public class PythonProjectTestsExecutionStrategy<TSettings> : PythonCodeExecuteA
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 

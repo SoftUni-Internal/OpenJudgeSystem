@@ -18,6 +18,7 @@ using OJS.Services.Common.Models.Submissions;
 using OJS.Services.Common.Models.Submissions.ExecutionContext;
 using OJS.Workers.Common.Models;
 using OJS.Common.Constants;
+using System.Threading;
 using System.Threading.Tasks;
 
 public class SubmissionsBusinessService : ISubmissionsBusinessService
@@ -45,7 +46,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         this.mapper = mapper;
     }
 
-    public Task<ExecutionResultServiceModel> ExecuteSubmission(SubmissionServiceModel submission)
+    public Task<ExecutionResultServiceModel> ExecuteSubmission(SubmissionServiceModel submission, CancellationToken cancellationToken = default)
     {
         this.submissionsValidation
             .GetValidationResult(submission)
@@ -55,11 +56,13 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         {
             case ExecutionType.SimpleExecution:
                 return this.InternalExecuteSubmission<SimpleInputModel, OutputResult>(
-                    submission);
+                    submission,
+                    cancellationToken);
 
             case ExecutionType.TestsExecution:
                 return this.InternalExecuteSubmission<TestsInputModel, TestResult>(
-                    submission);
+                    submission,
+                    cancellationToken);
 
             default:
                 throw new ArgumentException("Submission execution type not valid");
@@ -111,7 +114,8 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
     }
 
     private async Task<ExecutionResultServiceModel> InternalExecuteSubmission<TInput, TResult>(
-        SubmissionServiceModel submission)
+        SubmissionServiceModel submission,
+        CancellationToken cancellationToken)
         where TResult : ISingleCodeRunResult, new()
     {
         PreprocessSubmission(submission);
@@ -119,7 +123,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
 
         var ojsSubmission = this.executionContextBuilder.BuildOjsSubmission<TInput>(submission);
 
-        var ojsWorkerExecutionResult = await this.submissionExecutor.Execute<TInput, TResult>(ojsSubmission);
+        var ojsWorkerExecutionResult = await this.submissionExecutor.Execute<TInput, TResult>(ojsSubmission, cancellationToken);
 
         var executionResult = this.mapper.Map<ExecutionResultServiceModel>(ojsWorkerExecutionResult);
 

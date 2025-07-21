@@ -22,7 +22,8 @@ public class CPlusPlusCompileExecuteAndCheckExecutionStrategy<TSettings> : Compi
 
     protected override Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         executionContext.SanitizeContent();
 
@@ -31,7 +32,8 @@ public class CPlusPlusCompileExecuteAndCheckExecutionStrategy<TSettings> : Compi
             result,
                 this.CreateRestrictedExecutor(),
             useSystemEncoding: false,
-            dependOnExitCodeForRunTimeError: true);
+            dependOnExitCodeForRunTimeError: true,
+            cancellationToken: cancellationToken);
     }
 }
 

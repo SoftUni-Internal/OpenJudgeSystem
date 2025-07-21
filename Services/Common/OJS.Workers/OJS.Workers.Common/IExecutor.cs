@@ -22,6 +22,7 @@
         /// different from 0 as a RunTime error if the ErrorOutput and ReceivedOutput are empty.</param>
         /// <param name="timeoutMultiplier">A multiplier for the timeLimit, the total execution limit for the process is equal
         /// to the <param name="timeLimit">timeLimit</param> * .<param name="timeoutMultiplier">timeoutMultiplier</param></param>
+        /// <param name="cancellationToken">A cancellation token that can be used to cancel the execution.</param>
         Task<ProcessExecutionResult> Execute(
             string fileName,
             int timeLimit,
@@ -32,7 +33,8 @@
             bool useProcessTime = false,
             bool useSystemEncoding = false,
             bool dependOnExitCodeForRunTimeError = false,
-            double timeoutMultiplier = Constants.DefaultProcessTimeoutMultiplier);
+            double timeoutMultiplier = Constants.DefaultProcessTimeoutMultiplier,
+            CancellationToken cancellationToken = default);
 
         IDictionary<string, string> EnvironmentVariables { get; }
     }

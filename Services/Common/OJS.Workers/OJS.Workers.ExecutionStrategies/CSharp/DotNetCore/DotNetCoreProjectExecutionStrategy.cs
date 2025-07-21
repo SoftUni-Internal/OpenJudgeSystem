@@ -24,7 +24,8 @@ public class DotNetCoreProjectExecutionStrategy<TSettings> : CSharpProjectTestsE
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         executionContext.SanitizeContent();
 

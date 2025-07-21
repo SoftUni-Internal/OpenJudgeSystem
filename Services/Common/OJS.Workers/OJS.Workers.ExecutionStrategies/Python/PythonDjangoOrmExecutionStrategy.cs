@@ -51,7 +51,8 @@ public class PythonDjangoOrmExecutionStrategy<TSettings> : PythonProjectTestsExe
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         var virtualEnvironmentName = Guid.NewGuid().ToString();
         SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);

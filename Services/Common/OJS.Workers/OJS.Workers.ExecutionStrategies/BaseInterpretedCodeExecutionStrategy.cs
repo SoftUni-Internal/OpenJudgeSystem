@@ -26,11 +26,12 @@
 
         protected override Task<IExecutionResult<TResult>> InternalExecute<TInput, TResult>(
             IExecutionContext<TInput> executionContext,
-            IExecutionResult<TResult> result)
+            IExecutionResult<TResult> result,
+            CancellationToken cancellationToken = default)
         {
             result.IsCompiledSuccessfully = true;
 
-            return base.InternalExecute(executionContext, result);
+            return base.InternalExecute(executionContext, result, cancellationToken);
         }
     }
 

@@ -9,6 +9,7 @@
     using OJS.Workers.ExecutionStrategies.Models;
     using System.Threading.Tasks;
     using OJS.Workers.Common.Exceptions;
+    using System.Threading;
 
     public class SubmissionExecutor(
         IExecutionStrategyFactory executionStrategyFactory,
@@ -18,14 +19,15 @@
         private readonly SubmissionExecutionConfig executionConfig = submissionExecutionConfigAccessor.Value;
 
         public Task<IExecutionResult<TResult>> Execute<TInput, TResult>(
-            OjsSubmission<TInput> submission)
+            OjsSubmission<TInput> submission,
+            CancellationToken cancellationToken = default)
             where TResult : ISingleCodeRunResult, new()
         {
             var executionStrategy = this.CreateExecutionStrategy(submission);
 
             var executionContext = this.CreateExecutionContext(submission);
 
-            return this.ExecuteSubmission<TInput, TResult>(executionStrategy, executionContext, submission);
+            return this.ExecuteSubmission<TInput, TResult>(executionStrategy, executionContext, submission, cancellationToken);
         }
 
         private IExecutionStrategy CreateExecutionStrategy(IOjsSubmission submission)
@@ -70,12 +72,13 @@
         private async Task<IExecutionResult<TResult>> ExecuteSubmission<TInput, TResult>(
             IExecutionStrategy executionStrategy,
             IExecutionContext<TInput> executionContext,
-            IOjsSubmission submission)
+            IOjsSubmission submission,
+            CancellationToken cancellationToken)
             where TResult : ISingleCodeRunResult, new()
         {
             try
             {
-                return await executionStrategy.SafeExecute<TInput, TResult>(executionContext, submission);
+                return await executionStrategy.SafeExecute<TInput, TResult>(executionContext, submission, cancellationToken);
             }
             catch (Exception exception) when (exception is not ConfigurationException and not SolutionException)
             {

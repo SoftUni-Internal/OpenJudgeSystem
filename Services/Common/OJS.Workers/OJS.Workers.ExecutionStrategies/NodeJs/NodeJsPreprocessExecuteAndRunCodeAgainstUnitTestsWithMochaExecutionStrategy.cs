@@ -39,9 +39,10 @@ public class NodeJsPreprocessExecuteAndRunCodeAgainstUnitTestsWithMochaExecution
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         var codeSavePath = this.SaveCodeToTempFile(executionContext);
 

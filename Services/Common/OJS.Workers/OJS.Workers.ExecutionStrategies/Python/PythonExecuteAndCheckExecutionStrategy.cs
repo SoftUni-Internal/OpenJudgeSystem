@@ -33,7 +33,8 @@ public class PythonExecuteAndCheckExecutionStrategy<TSettings> : BaseInterpreted
 
     protected override Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
