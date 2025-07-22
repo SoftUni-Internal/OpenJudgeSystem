@@ -90,6 +90,8 @@ namespace OJS.Servers.Infrastructure.Extensions
                 x.ValueLengthLimit = maxRequestLimit;
             });
 
+            services.AddHealthChecks();
+
             return services
                 .AddAuthorizationPolicies();
         }
