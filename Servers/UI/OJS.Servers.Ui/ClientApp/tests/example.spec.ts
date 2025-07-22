@@ -22,11 +22,10 @@ test('Can log out', async ({ page, auth }) => {
     await page.goto('/logout');
 
     await expect(page.getByText('You are now successfully logged out')).toBeVisible();
-    await page.waitForURL('/');
     await expect(page).toHaveURL('/');
 
     const response = await page.goto('/profile');
-    expect(response?.status()).not.toBe(200);
+    await expect(page).toHaveURL('/login');
 });
 
 test('Should contain the text "How to use SoftUni Judge Platform"', async ({ page }) => {
