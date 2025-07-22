@@ -158,11 +158,12 @@ process.stdin.on('end', function() {
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         var checker = executionContext.Input.GetChecker();
 
@@ -179,7 +180,7 @@ process.stdin.on('end', function() {
     {
         var codeSavePath = this.SaveCodeToTempFile(executionContext);
 
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         var processExecutionResult = await this.ExecuteCode(
             executionContext,

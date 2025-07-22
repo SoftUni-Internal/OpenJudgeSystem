@@ -22,7 +22,8 @@ public class TypeScriptPreprocessExecuteAndCheckExecutionStrategy<TSettings>(
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         var compilerResult = this.Compile(executionContext);
 

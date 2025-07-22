@@ -18,7 +18,8 @@ public class SqlServerSingleDatabaseRunSkeletonRunQueriesAndCheckDatabaseExecuti
 
     protected override Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
         => this.Execute(
             executionContext,
             result,

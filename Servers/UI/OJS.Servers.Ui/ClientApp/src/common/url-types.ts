@@ -38,12 +38,6 @@ interface IContestCategoriesUrlParams {
     id: number;
 }
 
-interface ISubmitContestPasswordParams {
-    contestId: string;
-    isOfficial: boolean;
-    password: string;
-}
-
 interface IGetSubmissionsUrlParams {
     itemsPerPage: number;
     page: number;
@@ -136,7 +130,6 @@ export type {
     IGetByTestId,
     IGetByRoleId,
     IGetByUserId,
-    ISubmitContestPasswordParams,
     ISubmitContestSolutionParams,
     IGetSubmissionsByUserParams,
     IRegisterUserForContestParams,

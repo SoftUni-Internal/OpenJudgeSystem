@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ES2022",
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
     "allowJs": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -12,10 +16,6 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "lib": [
-      "es2015",
-      "dom"
-    ],
     "skipLibCheck": true,
     "sourceMap": true,
     "noFallthroughCasesInSwitch": true,

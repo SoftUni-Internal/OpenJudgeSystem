@@ -24,4 +24,6 @@ public class MessageQueueConfig : BaseConfig
     public int RetryInterval { get; set; } = 200;
 
     public int? PrefetchCount { get; set; }
+
+    public int? TimeoutInSeconds { get; set; }
 }

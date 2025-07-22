@@ -24,7 +24,8 @@ public class TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrateg
 {
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         // Prepare TypeScript file with combined user code and tests
         var typeScriptTemplate = this.GetTemplateContent(isTypeScript: true);

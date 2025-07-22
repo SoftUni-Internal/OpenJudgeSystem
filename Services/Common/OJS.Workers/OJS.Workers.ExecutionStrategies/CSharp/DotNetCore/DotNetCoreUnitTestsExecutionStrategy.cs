@@ -19,7 +19,11 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
     [
         "NUnit",
         "NUnitLite",
-        "Microsoft.EntityFrameworkCore.InMemory"
+        "Microsoft.EntityFrameworkCore.InMemory",
+        "Microsoft.NET.Test.Sdk",
+        "NUnit.Analyzers",
+        "NUnit3TestAdapter",
+        "coverlet.collector",
     ];
 
     private readonly string csFileSearchPattern = $"*{Constants.cSharpFileExtension}";
@@ -38,7 +42,8 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         executionContext.SanitizeContent();
 
@@ -55,7 +60,7 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
 
         this.nUnitLiteConsoleAppCsProjTemplate = nunitLiteConsoleApp.csProjTemplate;
 
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         return await this.RunUnitTests(
             nunitLiteConsoleApp.csProjPath,

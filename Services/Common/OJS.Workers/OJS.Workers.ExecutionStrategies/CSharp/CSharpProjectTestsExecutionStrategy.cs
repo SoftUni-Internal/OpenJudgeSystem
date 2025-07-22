@@ -61,7 +61,7 @@ public class CSharpProjectTestsExecutionStrategy<TSettings> : BaseCompiledCodeEx
         @"Test Count: (\d+), Passed: (\d+), Failed: (\d+), Warnings: \d+, Inconclusive: \d+, Skipped: \d+";
 
     // Extracts error/failure messages and the class which threw it
-    protected static readonly string ErrorMessageRegex =
+    protected const string ErrorMessageRegex =
         @"((?:\d+|\d+-\d+)\) (?:Failed|Error)\s:\s(.*)\.(.*))\r?\n((?:.*)\r?\n(?:.*))";
 
     public CSharpProjectTestsExecutionStrategy(
@@ -114,7 +114,8 @@ public class CSharpProjectTestsExecutionStrategy<TSettings> : BaseCompiledCodeEx
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
@@ -148,7 +149,7 @@ public class CSharpProjectTestsExecutionStrategy<TSettings> : BaseCompiledCodeEx
         // Delete tests before execution so the user can't access them
         FileHelpers.DeleteFiles([.. this.TestPaths]);
 
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         return await this.RunUnitTests(
             this.NUnitConsoleRunnerPath,

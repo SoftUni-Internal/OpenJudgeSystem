@@ -18,7 +18,6 @@ import { IContestResultsType } from '../../hooks/contests/types';
 import {
     IContestDetailsUrlParams,
     IGetContestResultsParams,
-    ISubmitContestPasswordParams,
     ISubmitContestSolutionParams,
     IRegisterUserForContestParams,
 } from '../../common/url-types';
@@ -132,14 +131,6 @@ export const contestsService = createApi({
                     body: formData,
                 };
             },
-        }),
-        submitContestPassword: builder.mutation<void, ISubmitContestPasswordParams>({
-            query: ({ contestId, isOfficial, password }) => ({
-                url: `/contests/SubmitContestPassword/${contestId}`,
-                method: 'POST',
-                params: { isOfficial },
-                body: { password },
-            }),
         }),
         registerUserForContest: builder.mutation<
             { isRegisteredSuccessfully: boolean },

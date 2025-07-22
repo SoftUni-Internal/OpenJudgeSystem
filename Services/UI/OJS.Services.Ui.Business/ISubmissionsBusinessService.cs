@@ -1,7 +1,6 @@
 ﻿namespace OJS.Services.Ui.Business
 {
     using OJS.Common.Enumerations;
-    using OJS.Services.Common.Models;
     using OJS.Services.Common.Models.Submissions;
     using OJS.Services.Ui.Models.Submissions;
     using OJS.Services.Infrastructure;
@@ -12,9 +11,9 @@
 
     public interface ISubmissionsBusinessService : IService
     {
-        Task Submit(SubmitSubmissionServiceModel model);
+        Task<ServiceResult<VoidResult>> Submit(SubmitSubmissionServiceModel model);
 
-        Task Retest(int submissionId, bool verbosely = false);
+        Task<ServiceResult<VoidResult>> Retest(int submissionId, bool verbosely = false);
 
         Task<SubmissionDetailsServiceModel> GetDetailsById(int submissionId);
 

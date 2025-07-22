@@ -21,11 +21,13 @@
 
         protected override Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
             IExecutionContext<TestsInputModel> executionContext,
-            IExecutionResult<TestResult> result)
+            IExecutionResult<TestResult> result,
+            CancellationToken cancellationToken = default)
             => this.CompileExecuteAndCheck(
                 executionContext,
                 result,
-                this.CreateRestrictedExecutor());
+                this.CreateRestrictedExecutor(),
+                cancellationToken: cancellationToken);
 
         protected override async Task<IExecutionResult<OutputResult>> ExecuteAgainstSimpleInput(
             IExecutionContext<SimpleInputModel> executionContext,

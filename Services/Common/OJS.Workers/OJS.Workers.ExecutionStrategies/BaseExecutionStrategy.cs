@@ -36,7 +36,8 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
 
     public async Task<IExecutionResult<TResult>> SafeExecute<TInput, TResult>(
         IExecutionContext<TInput> executionContext,
-            IOjsSubmission submission)
+        IOjsSubmission submission,
+        CancellationToken cancellationToken = default)
         where TResult : ISingleCodeRunResult, new()
     {
         var submissionId = (int)submission.Id;
@@ -46,7 +47,7 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
         try
         {
             executionContext.Code = this.PreprocessCode(executionContext);
-            return await this.InternalExecute(executionContext, new ExecutionResult<TResult>());
+            return await this.InternalExecute(executionContext, new ExecutionResult<TResult>(), cancellationToken);
 
             // The caller handles catch logic
         }
@@ -80,12 +81,14 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
 
     protected virtual Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
         => throw new DerivedImplementationNotFoundException();
 
     protected virtual async Task<IExecutionResult<TResult>> InternalExecute<TInput, TResult>(
         IExecutionContext<TInput> executionContext,
-        IExecutionResult<TResult> result)
+        IExecutionResult<TResult> result,
+        CancellationToken cancellationToken = default)
         where TResult : ISingleCodeRunResult, new()
     {
         if (executionContext is IExecutionContext<SimpleInputModel> stringInputExecutionContext &&
@@ -101,7 +104,8 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
         {
             return (IExecutionResult<TResult>)await this.ExecuteAgainstTestsInput(
                 testsExecutionContext,
-                testsResult);
+                testsResult,
+                cancellationToken);
         }
 
         throw new InvalidExecutionContextException<TInput, TResult>(executionContext, result);

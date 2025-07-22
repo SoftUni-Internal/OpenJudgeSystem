@@ -70,7 +70,8 @@ public class NodeJsPreprocessExecuteAndRunAllUnitTestsWithMochaExecutionStrategy
 
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(
         IExecutionContext<TestsInputModel> executionContext,
-        IExecutionResult<TestResult> result)
+        IExecutionResult<TestResult> result,
+        CancellationToken cancellationToken = default)
     {
         // Prepare JavaScript file with combined user code and tests
         var jsTemplate = this.GetTemplateContent(isTypeScript: false);
@@ -185,7 +186,7 @@ public class NodeJsPreprocessExecuteAndRunAllUnitTestsWithMochaExecutionStrategy
 
     protected string GetTemplateContent(bool isTypeScript) => @$"
     // Imports
-    {(isTypeScript ? "// @ts-ignore" : "")} 
+    {(isTypeScript ? "// @ts-ignore" : "")}
     const chai = require('{this.Settings.ChaiModulePath}');
     {(isTypeScript ? "// @ts-ignore" : "")}
     const sinon = require('{this.Settings.SinonModulePath}');

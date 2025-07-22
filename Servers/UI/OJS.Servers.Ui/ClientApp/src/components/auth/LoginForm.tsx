@@ -56,7 +56,7 @@ const LoginForm = () => {
     const handleOnChangeUpdateUsername = useCallback((value?: IFormControlOnChangeValueType) => {
         if (isEmpty(value)) {
             setUsernameFormError(EmptyUsernameErrorMessage);
-        } else if (!isNil(value) && (value.length < 5 || value.length > 32)) {
+        } else if (!isNil(value) && (typeof value === 'string' && (value.length < 5 || value.length > 32))) {
             setUsernameFormError(UsernameLengthErrorMessage);
         } else {
             const regex = /^[a-zA-Z][a-zA-Z0-9._]{3,30}[a-zA-Z0-9]$/;
@@ -83,7 +83,7 @@ const LoginForm = () => {
     const handleOnChangeUpdatePassword = useCallback((value?: IFormControlOnChangeValueType) => {
         if (isEmpty(value)) {
             setPasswordFormError(EmptyPasswordErrorMessage);
-        } else if (!isNil(value) && value.length < 6) {
+        } else if (!isNil(value) && typeof value === 'string' && value.length < 6) {
             setPasswordFormError(PasswordLengthErrorMessage);
         } else {
             setPasswordFormError('');
