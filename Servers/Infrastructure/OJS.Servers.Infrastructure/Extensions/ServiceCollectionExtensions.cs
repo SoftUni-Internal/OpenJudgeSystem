@@ -268,12 +268,18 @@ namespace OJS.Servers.Infrastructure.Extensions
 
                 config.AddConfigureEndpointsCallback((_, cfg) =>
                 {
-                    if (cfg is IRabbitMqReceiveEndpointConfigurator configurator)
+                    if (cfg is not IRabbitMqReceiveEndpointConfigurator configurator)
                     {
-                        configurator.Durable = true;
+                        return;
+                    }
+
+                    configurator.Durable = true;
+
+                    if (messageQueueConfig.TimeoutInSeconds is > 0)
+                    {
                         configurator.UseTimeout(timeoutConfig =>
                         {
-                            timeoutConfig.Timeout = TimeSpan.FromSeconds(messageQueueConfig.TimeoutInSeconds);
+                            timeoutConfig.Timeout = TimeSpan.FromSeconds(messageQueueConfig.TimeoutInSeconds.Value);
                         });
                     }
                 });
