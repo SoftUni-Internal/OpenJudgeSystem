@@ -1,46 +1,44 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.Helpers
 {
     using System.Collections.Generic;
-    using System.IO;
     using System.Linq;
-    using System.Text.RegularExpressions;
+    using System.Xml.Linq;
 
     internal static class DotNetCoreStrategiesHelper
     {
-        /// <summary>
-        /// Removes all "<ProjectReference />" items from the given .csproj path.
-        /// </summary>
-        /// <param name="csProjPath">Path to .csproj file.</param>
-        public static void RemoveAllProjectReferencesFromCsProj(string csProjPath)
-        {
-            var projectReferencesSearchRegex =
-                new Regex(@"(<ItemGroup>\s*<ProjectReference(?s)(.*)<\/ItemGroup>)");
-
-            DeleteTextFromFileByPathAndRegex(csProjPath, projectReferencesSearchRegex);
-        }
-
         /// <summary>
         /// Removes all "<PackageReference />" items from the given .csproj path
         /// that Include the given package names.
         /// </summary>
         /// <param name="csProjPath">Path to .csproj file.</param>
-        /// <param name="packageNames">The names of the packages that should be removed (case insensitive).</param>
-        public static void RemovePackageReferencesFromCsProj(string csProjPath, IEnumerable<string> packageNames)
+        /// <param name="packageNames">The names of the packages that should be removed (case-insensitive).</param>
+        /// <param name="removeProjectReferences">Whether to remove "<ProjectReference />" items as well.</param>
+        public static void RemoveReferencesFromCsProj(string csProjPath, IEnumerable<string> packageNames, bool removeProjectReferences = false)
         {
-            packageNames = packageNames.Select(pn => pn.Replace(".", "\\.").Trim());
+            var packageNamesToLower = new HashSet<string>(
+                packageNames.Select(p => p.ToLowerInvariant()));
 
-            var packageReferencesSearchRegex = new Regex(
-                $@"<PackageReference\s+Include=""\s*(?:{string.Join("|", packageNames)})\s*"".+\/>",
-                RegexOptions.IgnoreCase);
+            var csProjDoc = XDocument.Load(csProjPath);
 
-            DeleteTextFromFileByPathAndRegex(csProjPath, packageReferencesSearchRegex);
-        }
+            var ns = csProjDoc.Root?.Name.Namespace ?? XNamespace.None;
 
-        private static void DeleteTextFromFileByPathAndRegex(string path, Regex regex)
-        {
-            var text = regex.Replace(File.ReadAllText(path), string.Empty);
+            var toRemove = csProjDoc
+                .Descendants(ns + "PackageReference")
+                .Where(pr =>
+                {
+                    var include = pr.Attribute("Include")?.Value;
+                    return include != null && packageNamesToLower.Contains(include.ToLowerInvariant());
+                })
+                .ToList();
 
-            File.WriteAllText(path, text);
+            if (removeProjectReferences)
+            {
+                toRemove.AddRange(csProjDoc.Descendants(ns + "ProjectReference"));
+            }
+
+            toRemove.ForEach(x => x.Remove());
+
+            csProjDoc.Save(csProjPath);
         }
     }
 }

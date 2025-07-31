@@ -15,17 +15,6 @@ using System.Text.RegularExpressions;
 public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProjectTestsExecutionStrategy<TSettings>
     where TSettings : DotNetCoreUnitTestsExecutionStrategySettings
 {
-    private readonly IEnumerable<string> packageNamesToRemoveFromUserCsProjFile =
-    [
-        "NUnit",
-        "NUnitLite",
-        "Microsoft.EntityFrameworkCore.InMemory",
-        "Microsoft.NET.Test.Sdk",
-        "NUnit.Analyzers",
-        "NUnit3TestAdapter",
-        "coverlet.collector",
-    ];
-
     private readonly string csFileSearchPattern = $"*{Constants.cSharpFileExtension}";
 
     private string nUnitLiteConsoleAppCsProjTemplate;
@@ -54,16 +43,30 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
 
         this.MoveUserCsFilesToNunitLiteConsoleAppFolder();
 
-        var userCsProjPath = this.RemoveUnwantedReferencesFromUserCsProjFile();
+        var userCsProjPaths = FileHelpers
+            .FindAllFilesMatchingPattern(this.UserProjectDirectory, CsProjFileSearchPattern)
+            .ToArray();
 
-        var nunitLiteConsoleApp = this.CreateNUnitLiteConsoleApp([userCsProjPath]);
+        if (userCsProjPaths.Length != 1)
+        {
+            throw new SolutionException($"The submission should have exactly one .csproj file, currently there are {userCsProjPaths.Length} .csproj files.");
+        }
 
-        this.nUnitLiteConsoleAppCsProjTemplate = nunitLiteConsoleApp.csProjTemplate;
+        var userCsProjPath = userCsProjPaths.Single();
+
+        DotNetCoreStrategiesHelper.RemoveReferencesFromCsProj(
+            userCsProjPath,
+            this.PackageNamesToRemoveFromUserCsProjFile,
+            removeProjectReferences: true);
+
+        var (csProjTemplate, csProjPath) = this.CreateNUnitLiteConsoleApp([userCsProjPath]);
+
+        this.nUnitLiteConsoleAppCsProjTemplate = csProjTemplate;
 
         var executor = this.CreateRestrictedExecutor();
 
         return await this.RunUnitTests(
-            nunitLiteConsoleApp.csProjPath,
+            csProjPath,
             executionContext,
             executor,
             executionContext.Input.GetChecker(),
@@ -78,7 +81,7 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
         IExecutor executor,
         IChecker checker,
         IExecutionResult<TestResult> result,
-        string csProjFilePath,
+        string compiledFile,
         string additionalExecutionArguments)
     {
         var additionalExecutionArgumentsArray = additionalExecutionArguments
@@ -175,29 +178,6 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
             new FileInfo(destination).Directory?.Create();
             File.Move(userFile.FullName, destination);
         }
-    }
-
-    private string RemoveUnwantedReferencesFromUserCsProjFile()
-    {
-        var userCsProjFiles = FileHelpers
-            .FindAllFilesMatchingPattern(this.UserProjectDirectory, CsProjFileSearchPattern)
-            .ToList();
-
-        var userCsProjFilesCount = userCsProjFiles.Count;
-        if (userCsProjFilesCount != 1)
-        {
-            throw new SolutionException($"The submission should have exactly one .csproj file, currently there are {userCsProjFilesCount} .csproj files.");
-        }
-
-        var csProjPath = userCsProjFiles.First();
-
-        DotNetCoreStrategiesHelper.RemoveAllProjectReferencesFromCsProj(csProjPath);
-
-        DotNetCoreStrategiesHelper.RemovePackageReferencesFromCsProj(
-            csProjPath,
-            this.packageNamesToRemoveFromUserCsProjFile);
-
-        return csProjPath;
     }
 }
 

@@ -9,6 +9,7 @@
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Compilers;
     using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
 
@@ -17,6 +18,20 @@
     {
         protected new const string AdditionalExecutionArguments = "--noresult";
         protected const string CsProjFileExtension = ".csproj";
+
+        protected IEnumerable<string> PackageNamesToRemoveFromUserCsProjFile =>
+        [
+            "NUnit",
+            "NUnitLite",
+            "Microsoft.EntityFrameworkCore.InMemory",
+            "Microsoft.EntityFrameworkCore.Proxies",
+            "Microsoft.EntityFrameworkCore.Tools",
+            "Microsoft.EntityFrameworkCore.Design",
+            "Microsoft.NET.Test.Sdk",
+            "NUnit.Analyzers",
+            "NUnit3TestAdapter",
+            "coverlet.collector",
+        ];
 
         private const string ProjectPathPlaceholder = "##projectPath##";
         private const string ProjectReferencesPlaceholder = "##ProjectReferences##";
@@ -90,8 +105,16 @@
             this.SaveTestFiles(executionContext.Input.Tests, this.NUnitLiteConsoleAppDirectory);
             this.SaveSetupFixture(this.NUnitLiteConsoleAppDirectory);
 
-            var userCsProjPaths = FileHelpers.FindAllFilesMatchingPattern(
-                this.UserProjectDirectory, CsProjFileSearchPattern);
+            var userCsProjPaths = FileHelpers
+                .FindAllFilesMatchingPattern(this.UserProjectDirectory, CsProjFileSearchPattern)
+                .ToArray();
+
+            foreach (var csProjPath in userCsProjPaths)
+            {
+                DotNetCoreStrategiesHelper.RemoveReferencesFromCsProj(
+                    csProjPath,
+                    this.PackageNamesToRemoveFromUserCsProjFile);
+            }
 
             var nUnitLiteConsoleApp = this.CreateNUnitLiteConsoleApp(userCsProjPaths);
 

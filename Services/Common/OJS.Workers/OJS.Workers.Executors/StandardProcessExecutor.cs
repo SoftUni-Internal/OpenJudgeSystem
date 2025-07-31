@@ -166,7 +166,8 @@
             result.ExitCode = process.ExitCode;
             result.TimeWorked = process.ExitTime - processStartTime;
 
-            strategyLogger.LogInformation("Total process working time: {TimeWorked} ms", result.TimeWorked.TotalMilliseconds);
+            strategyLogger.LogInformation("Total time worked: {TimeWorked} ms", result.TimeWorked.TotalMilliseconds);
+            strategyLogger.LogInformation("Total processor time: {TotalProcessorTime} ms", result.TotalProcessorTime.TotalMilliseconds);
 
             if (!string.IsNullOrEmpty(result.ErrorOutput))
             {
