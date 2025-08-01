@@ -13,7 +13,8 @@
         /// <param name="csProjPath">Path to .csproj file.</param>
         /// <param name="packageNames">The names of the packages that should be removed (case-insensitive).</param>
         /// <param name="removeProjectReferences">Whether to remove "<ProjectReference />" items as well.</param>
-        public static void RemoveReferencesFromCsProj(string csProjPath, IEnumerable<string> packageNames, bool removeProjectReferences = false)
+        /// <param name="removeGlobalUsings">Whether to remove "<Using />" items as well.</param>
+        public static void RemoveReferencesFromCsProj(string csProjPath, IEnumerable<string> packageNames, bool removeProjectReferences = false, bool removeGlobalUsings = false)
         {
             var packageNamesToLower = new HashSet<string>(
                 packageNames.Select(p => p.ToLowerInvariant()));
@@ -34,6 +35,20 @@
             if (removeProjectReferences)
             {
                 toRemove.AddRange(csProjDoc.Descendants(ns + "ProjectReference"));
+            }
+
+            if (removeGlobalUsings)
+            {
+                toRemove.AddRange(csProjDoc.Descendants(ns + "Using")
+                    .Where(u =>
+                    {
+                        var value = u.Attribute("Include")?.Value;
+                        return value != null &&
+                               packageNamesToLower.Any(pn =>
+                                   value == pn ||
+                                   value.StartsWith($"{pn}.", StringComparison.InvariantCultureIgnoreCase) ||
+                                   value.StartsWith($"{pn}:", StringComparison.InvariantCultureIgnoreCase));
+                    }));
             }
 
             toRemove.ForEach(x => x.Remove());
