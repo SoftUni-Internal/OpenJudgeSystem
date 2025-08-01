@@ -19,7 +19,7 @@
         protected new const string AdditionalExecutionArguments = "--noresult";
         protected const string CsProjFileExtension = ".csproj";
 
-        protected IEnumerable<string> PackageNamesToRemoveFromUserCsProjFile =>
+        protected string[] PackageNamesToRemoveFromUserCsProjFile =>
         [
             "NUnit",
             "NUnitLite",

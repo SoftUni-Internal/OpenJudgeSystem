@@ -57,8 +57,7 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
         DotNetCoreStrategiesHelper.RemoveReferencesFromCsProj(
             userCsProjPath,
             this.PackageNamesToRemoveFromUserCsProjFile,
-            removeProjectReferences: true,
-            removeGlobalUsings: true);
+            removeProjectReferences: true);
 
         var (csProjTemplate, csProjPath) = this.CreateNUnitLiteConsoleApp([userCsProjPath]);
 
