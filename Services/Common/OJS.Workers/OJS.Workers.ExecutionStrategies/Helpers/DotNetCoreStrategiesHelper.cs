@@ -31,6 +31,18 @@
                 })
                 .ToList();
 
+            toRemove.AddRange(csProjDoc
+                .Descendants(ns + "Using")
+                .Where(u =>
+                {
+                    var value = u.Attribute("Include")?.Value;
+                    return value != null &&
+                           packageNamesToLower.Any(pn =>
+                               value.Equals(pn, StringComparison.OrdinalIgnoreCase) ||
+                               value.StartsWith($"{pn}.", StringComparison.InvariantCultureIgnoreCase) ||
+                               value.StartsWith($"{pn}:", StringComparison.InvariantCultureIgnoreCase));
+                }));
+
             if (removeProjectReferences)
             {
                 toRemove.AddRange(csProjDoc.Descendants(ns + "ProjectReference"));
