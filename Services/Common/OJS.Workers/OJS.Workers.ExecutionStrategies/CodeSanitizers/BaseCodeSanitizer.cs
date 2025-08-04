@@ -22,7 +22,7 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
         {
             if (ExecutionContextContainsZipFile(executionContext))
             {
-                executionContext.FileContent = SanitizeZipFileContent(
+                executionContext.FileContent = this.SanitizeZipFileContent(
                     executionContext.FileContent,
                     this.DoSanitize);
             }
@@ -39,7 +39,7 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
         /// <returns>The sanitized content.</returns>
         protected abstract string DoSanitize(string content);
 
-        private static byte[] SanitizeZipFileContent(byte[] zipFileContent, Func<string, string> sanitizingFunc)
+        protected virtual byte[] SanitizeZipFileContent(byte[] zipFileContent, Func<string, string> sanitizingFunc)
         {
             var sanitizedZipFile = new ZipFile();
 
@@ -49,6 +49,12 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
 
                 foreach (var zipEntry in zipFile.Entries.Where(e => !e.IsDirectory))
                 {
+                    var normalizedPath = NormalizePath(zipEntry.FileName);
+                    if (this.ShouldRemovePathInZipEntry(normalizedPath))
+                    {
+                        continue; // drop __MACOSX, AppleDouble, and .DS_Store
+                    }
+
                     using var memoryInputStream = new MemoryStream();
                     zipEntry.Extract(memoryInputStream);
 
@@ -67,8 +73,34 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
             return outputStream.ToArray();
         }
 
+        protected virtual bool ShouldRemovePathInZipEntry(string normalizedPath)
+        {
+            if (normalizedPath.StartsWith("__MACOSX/", StringComparison.Ordinal))
+            {
+                return true;
+            }
+
+            var trimmed = normalizedPath.TrimEnd('/');
+            var leafStart = trimmed.LastIndexOf('/') + 1;
+            var leaf = trimmed[leafStart..];
+
+            return leaf.StartsWith("._", StringComparison.Ordinal) || // AppleDouble files
+                   leaf.Equals(".DS_Store", StringComparison.Ordinal); // macOS Finder metadata
+        }
+
         private static bool ExecutionContextContainsZipFile<TInput>(IExecutionContext<TInput> executionContext) =>
             !string.IsNullOrWhiteSpace(executionContext.AllowedFileExtensions) &&
-            executionContext.AllowedFileExtensions.Contains(Constants.ZipFileExtension.Substring(1));
+            executionContext.AllowedFileExtensions.Contains(Constants.ZipFileExtension[1..]);
+
+        private static string NormalizePath(string path)
+        {
+            var p = path.Replace('\\', '/');
+            if (p.StartsWith("./", StringComparison.Ordinal))
+            {
+                p = p[2..];
+            }
+
+            return p;
+        }
     }
 }

@@ -3,7 +3,7 @@
 using Microsoft.Extensions.Logging;
 using OJS.Workers.Common;
 using OJS.Workers.Compilers;
-using OJS.Workers.ExecutionStrategies.Extensions;
+using OJS.Workers.ExecutionStrategies.CodeSanitizers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
 
@@ -27,8 +27,6 @@ public class DotNetCoreProjectExecutionStrategy<TSettings> : CSharpProjectTestsE
         IExecutionResult<TestResult> result,
         CancellationToken cancellationToken = default)
     {
-        executionContext.SanitizeContent();
-
         SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
         var csProjFilePath = this.GetCsProjFilePath();
@@ -49,7 +47,7 @@ public class DotNetCoreProjectExecutionStrategy<TSettings> : CSharpProjectTestsE
             return result;
         }
 
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         var checker = executionContext.Input.GetChecker();
 
@@ -79,6 +77,12 @@ public class DotNetCoreProjectExecutionStrategy<TSettings> : CSharpProjectTestsE
         }
 
         return result;
+    }
+
+    protected override void SanitizeContent<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        base.SanitizeContent(executionContext);
+        new DotNetCoreSanitizer().Sanitize(executionContext);
     }
 }
 

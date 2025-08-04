@@ -9,6 +9,21 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
     {
         private const string ProcessAccessRightsPattern = @"(PROCESS_[A-Z_]+)|(0x0[0-9]+)";
         private const string VisualStudioPrecompiledHeaderPattern = @"#\s*include\s+\""pch\.h\""\s*";
+        private static readonly string[] FunctionsToDisable =
+        [
+            "OpenProcess",
+            "OpenThread",
+            "GetProcessId",
+            "GetThreadId",
+            "GetCurrentProcess",
+            "GetCurrentThread",
+            "GetCurrentProcessId",
+            "GetCurrentThreadId",
+            "TerminateProcess",
+            "TerminateThread",
+            "SwitchToThread",
+            "SuspendThread",
+        ];
 
         /// <inheritdoc/>
         protected override string DoSanitize(string content)
@@ -22,25 +37,7 @@ namespace OJS.Workers.ExecutionStrategies.CodeSanitizers
 
         private static string RemoveProcessAndThreadAccessFunctions(string content)
         {
-            var functionsToDisable = new[]
-            {
-                "OpenProcess",
-                "OpenThread",
-                "GetProcessId",
-                "GetThreadId",
-                "GetCurrentProcess",
-                "GetCurrentThread",
-                "GetCurrentProcessId",
-                "GetCurrentThreadId",
-                "TerminateProcess",
-                "TerminateThread",
-                "SwitchToThread",
-                "SuspendThread",
-            }
-            .Select(f => f + "\\s*\\(")
-            .ToList();
-
-            var functionsToDisableRegexPattern = string.Join("|", functionsToDisable);
+            var functionsToDisableRegexPattern = string.Join("|", FunctionsToDisable.Select(f => f + @"\s*\("));
 
             return Regex.Replace(content, functionsToDisableRegexPattern, string.Empty);
         }

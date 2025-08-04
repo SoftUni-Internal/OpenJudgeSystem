@@ -6,7 +6,6 @@ using OJS.Workers.Common;
 using OJS.Workers.Common.Exceptions;
 using OJS.Workers.Common.Helpers;
 using OJS.Workers.Compilers;
-using OJS.Workers.ExecutionStrategies.Extensions;
 using OJS.Workers.ExecutionStrategies.Helpers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
@@ -34,8 +33,6 @@ public class DotNetCoreUnitTestsExecutionStrategy<TSettings> : DotNetCoreProject
         IExecutionResult<TestResult> result,
         CancellationToken cancellationToken = default)
     {
-        executionContext.SanitizeContent();
-
         Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
         Directory.CreateDirectory(this.UserProjectDirectory);
 

@@ -40,6 +40,7 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
         CancellationToken cancellationToken = default)
         where TResult : ISingleCodeRunResult, new()
     {
+        this.SanitizeContent(executionContext);
         var submissionId = (int)submission.Id;
         this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
         this.Logger.LogExecutionStrategyCreatedWorkingDirectory(this.Type.ToString(), this.WorkingDirectory, submissionId);
@@ -114,6 +115,11 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
     protected virtual string PreprocessCode<TInput>(
         IExecutionContext<TInput> executionContext)
         => executionContext.Code;
+
+    protected virtual void SanitizeContent<TInput>(
+        IExecutionContext<TInput> executionContext)
+    {
+    }
 }
 
 public abstract record BaseExecutionStrategySettings : IExecutionStrategySettings
