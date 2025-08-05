@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using OJS.Workers.Common;
 using OJS.Workers.Common.Helpers;
 using OJS.Workers.Compilers;
-using OJS.Workers.ExecutionStrategies.Extensions;
+using OJS.Workers.ExecutionStrategies.CodeSanitizers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
 
@@ -34,8 +34,6 @@ public class CPlusPlusZipFileExecutionStrategy<TSettings> : BaseCompiledCodeExec
         IExecutionResult<TestResult> result,
         CancellationToken cancellationToken = default)
     {
-        executionContext.SanitizeContent();
-
         var submissionDestination = Path.Combine(this.WorkingDirectory, ZippedSubmissionName);
         File.WriteAllBytes(submissionDestination, executionContext.FileContent);
         FileHelpers.RemoveFilesFromZip(submissionDestination, RemoveMacFolderPattern);
@@ -60,7 +58,7 @@ public class CPlusPlusZipFileExecutionStrategy<TSettings> : BaseCompiledCodeExec
             return result;
         }
 
-            var executor = this.CreateRestrictedExecutor();
+        var executor = this.CreateRestrictedExecutor();
 
         var checker = executionContext.Input.GetChecker();
 
@@ -107,6 +105,12 @@ public class CPlusPlusZipFileExecutionStrategy<TSettings> : BaseCompiledCodeExec
         }
 
         return pathsToHeadersAndCppFiles;
+    }
+
+    protected override void SanitizeContent<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        base.SanitizeContent(executionContext);
+        new CPlusPlusSanitizer().Sanitize(executionContext);
     }
 }
 

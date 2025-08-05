@@ -8,7 +8,7 @@
     using OJS.Workers.Common;
     using OJS.Workers.Common.Helpers;
     using OJS.Workers.Compilers;
-    using OJS.Workers.ExecutionStrategies.Extensions;
+    using OJS.Workers.ExecutionStrategies.CodeSanitizers;
     using OJS.Workers.ExecutionStrategies.Helpers;
     using OJS.Workers.ExecutionStrategies.Models;
     using OJS.Workers.Executors;
@@ -94,8 +94,6 @@
             IExecutionResult<TestResult> result,
             CancellationToken cancellationToken = default)
         {
-            executionContext.SanitizeContent();
-
             Directory.CreateDirectory(this.NUnitLiteConsoleAppDirectory);
             Directory.CreateDirectory(this.UserProjectDirectory);
 
@@ -178,6 +176,12 @@
             File.WriteAllText(consoleAppCsProjPath, csProjTemplate);
 
             return consoleAppCsProjPath;
+        }
+
+        protected override void SanitizeContent<TInput>(IExecutionContext<TInput> executionContext)
+        {
+            base.SanitizeContent(executionContext);
+            new DotNetCoreSanitizer().Sanitize(executionContext);
         }
     }
 

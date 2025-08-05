@@ -6,13 +6,13 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using Ionic.Zip;
 using Microsoft.Extensions.Logging;
 using OJS.Workers.Common;
 using OJS.Workers.Common.Exceptions;
 using OJS.Workers.Common.Extensions;
 using OJS.Workers.Common.Helpers;
 using OJS.Workers.Common.Models;
+using OJS.Workers.ExecutionStrategies.CodeSanitizers;
 using OJS.Workers.ExecutionStrategies.Eslint;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.ExecutionStrategies.Python;
@@ -381,6 +381,12 @@ finally:
         return result;
     }
 
+    protected override void SanitizeContent<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        base.SanitizeContent(executionContext);
+        new JavaScriptSanitizer().Sanitize(executionContext);
+    }
+
     private static Dictionary<string, int> MapTitlesToTestId(IEnumerable<TestContext> tests, IEnumerable<string> titles)
     {
         try
@@ -447,13 +453,6 @@ finally:
 
         var submissionFilePath = FileHelpers.BuildPath(this.WorkingDirectory, "temp");
         File.WriteAllBytes(submissionFilePath, executionContext.FileContent);
-        using (var zip = ZipFile.Read(submissionFilePath))
-        {
-            zip.RemoveSelectedEntries("node_modules/*");
-            zip.Save();
-        }
-
-        FileHelpers.RemoveFilesFromZip(submissionFilePath, RemoveMacFolderPattern);
         FileHelpers.UnzipFile(submissionFilePath, this.UserApplicationPath);
 
         if (executionContext.AdditionalFiles.Length != 0)

@@ -3,7 +3,7 @@
 using Microsoft.Extensions.Logging;
 using OJS.Workers.Common;
 using OJS.Workers.Compilers;
-using OJS.Workers.ExecutionStrategies.Extensions;
+using OJS.Workers.ExecutionStrategies.CodeSanitizers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.Executors;
 
@@ -25,8 +25,6 @@ public class CPlusPlusCompileExecuteAndCheckExecutionStrategy<TSettings> : Compi
         IExecutionResult<TestResult> result,
         CancellationToken cancellationToken = default)
     {
-        executionContext.SanitizeContent();
-
         return this.CompileExecuteAndCheck(
             executionContext,
             result,
@@ -34,6 +32,12 @@ public class CPlusPlusCompileExecuteAndCheckExecutionStrategy<TSettings> : Compi
             useSystemEncoding: false,
             dependOnExitCodeForRunTimeError: true,
             cancellationToken: cancellationToken);
+    }
+
+    protected override void SanitizeContent<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        base.SanitizeContent(executionContext);
+        new CPlusPlusSanitizer().Sanitize(executionContext);
     }
 }
 

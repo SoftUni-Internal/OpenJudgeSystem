@@ -24,6 +24,7 @@ using OJS.Services.Common.Models;
 using OJS.Services.Common.Models.Contests;
 using OJS.Services.Common.Models.Contests.Results;
 using OJS.Services.Common.Models.Files;
+using OJS.Services.Infrastructure;
 using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Exceptions;
 using OJS.Services.Infrastructure.Extensions;
@@ -55,6 +56,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
     private readonly IDataService<LecturerInContest> lecturerInContestDataService;
     private readonly ISettingsCacheService settingsCache;
     private readonly ILogger<ContestsBusinessService> logger;
+    private readonly IDatesService datesService;
 
     public ContestsBusinessService(
         IContestsDataService contestsData,
@@ -72,7 +74,8 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         IZipArchivesService zipArchivesService,
         IDataService<LecturerInContest> lecturerInContestDataService,
         ISettingsCacheService settingsCache,
-        ILogger<ContestsBusinessService> logger)
+        ILogger<ContestsBusinessService> logger,
+        IDatesService datesService)
     {
         this.contestsData = contestsData;
         this.ipsData = ipsData;
@@ -90,6 +93,7 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
         this.lecturerInContestDataService = lecturerInContestDataService;
         this.settingsCache = settingsCache;
         this.logger = logger;
+        this.datesService = datesService;
     }
 
     public async Task<IEnumerable<LecturerInContestActionsModel>> GetForLecturerInContest(string userId)
@@ -451,9 +455,14 @@ public class ContestsBusinessService : AdministrationOperationService<Contest, i
             ratioFactor,
             queueFactor);
 
+        var now = this.datesService.GetUtcNow();
+        var cutoff = now.AddHours(-settings.HoursToKeepAutoAdjustedLimitBetweenSubmissionsAfterContestEnd);
+
+        // Update all active contests and contests that have ended in the last N hours (to post-reduce possibly increased limit)
         await this.contestsData
             .GetAllVisible()
-            .Where(c => c.AutoChangeLimitBetweenSubmissions)
+            .Where(c => c.AutoChangeLimitBetweenSubmissions &&
+                (c.EndTime >= now || (c.EndTime <= now && c.EndTime >= cutoff)))
             .UpdateFromQueryAsync(c => new Contest
             {
                 // Will be clamped between 0 and max allowed limit
