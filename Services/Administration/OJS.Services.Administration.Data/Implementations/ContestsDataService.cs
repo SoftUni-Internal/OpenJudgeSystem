@@ -13,9 +13,10 @@ namespace OJS.Services.Administration.Data.Implementations
     using OJS.Services.Common.Data;
     using OJS.Services.Common.Models.Contests;
     using OJS.Services.Common.Models.Users;
+    using OJS.Services.Infrastructure;
     using OJS.Services.Infrastructure.Extensions;
 
-    public class ContestsDataService(OjsDbContext db, IContestsActivityService activityService)
+    public class ContestsDataService(OjsDbContext db, IContestsActivityService activityService, IDatesService datesService)
         : AdministrationDataService<Contest>(db), IContestsDataService
     {
         public Task<Contest?> GetByIdWithProblems(int id)
@@ -40,7 +41,7 @@ namespace OJS.Services.Administration.Data.Implementations
                 .FirstOrDefaultAsync();
 
         public IQueryable<Contest> GetAllVisible()
-            => this.GetQuery(c => c.IsVisible);
+            => this.GetQuery(c => c.IsVisible || c.VisibleFrom <= datesService.GetUtcNow());
 
         public IQueryable<Contest> GetAllByLecturer(string? lecturerId)
             => this.GetQuery(c =>

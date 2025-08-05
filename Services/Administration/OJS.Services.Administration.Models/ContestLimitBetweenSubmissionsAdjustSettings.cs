@@ -37,4 +37,9 @@ public class ContestLimitBetweenSubmissionsAdjustSettings
     /// e.g. for 3.0, if the queue is 3 times larger than the number of workers, it is considered to be critically full.
     /// </summary>
     public double QueueLenghtCriticalThresholdMultiplier { get; set; } = 3;
+
+    /// <summary>
+    /// The number of hours after the contest end time in which the system will keep auto adjusting the limit between submissions.
+    /// </summary>
+    public int HoursToKeepAutoAdjustedLimitBetweenSubmissionsAfterContestEnd { get; set; } = 24;
 }
