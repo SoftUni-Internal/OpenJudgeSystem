@@ -13,6 +13,7 @@ using OJS.Workers.Common.Exceptions;
 using OJS.Workers.Common.Extensions;
 using OJS.Workers.Common.Helpers;
 using OJS.Workers.Common.Models;
+using OJS.Workers.ExecutionStrategies.CodeSanitizers;
 using OJS.Workers.ExecutionStrategies.Models;
 using OJS.Workers.ExecutionStrategies.Python;
 using OJS.Workers.Executors;
@@ -299,6 +300,12 @@ finally:
         }
 
         return result;
+    }
+
+    protected override void SanitizeContent<TInput>(IExecutionContext<TInput> executionContext)
+    {
+        base.SanitizeContent(executionContext);
+        new JavaScriptSanitizer().Sanitize(executionContext);
     }
 
     private static void ValidateAllowedFileExtension<TInput>(IExecutionContext<TInput> executionContext)
