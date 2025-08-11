@@ -18,8 +18,6 @@ namespace OJS.Services.Ui.Data
 
         IQueryable<Participant> GetAllByUsernameAndContests(string username, IEnumerable<int> contestIds);
 
-        IQueryable<Participant> GetAllByContestWithScoresAndProblems(int contestId);
-
         IQueryable<Participant> GetAllOfficialByContest(int contestId);
 
         Task<bool> ExistsByContestByUserAndIsOfficial(int contestId, string userId, bool isOfficial);

@@ -41,12 +41,6 @@ namespace OJS.Services.Ui.Data.Implementations
         public IQueryable<Participant> GetAllByContest(int contestId)
             => this.GetQuery(p => p.ContestId == contestId);
 
-        public IQueryable<Participant> GetAllByContestWithScoresAndProblems(int contestId)
-            => this.GetAllByContest(contestId)
-                .Include(p => p.Scores)
-                .ThenInclude(s => s.Problem)
-                .ThenInclude(p => p.ProblemGroup);
-
         public IQueryable<Participant> GetAllOfficialByContest(int contestId)
             => this.GetAllByContest(contestId)
                 .Where(p => p.IsOfficial);

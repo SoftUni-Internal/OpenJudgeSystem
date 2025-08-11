@@ -110,7 +110,10 @@ public class ContestResultsBusinessService : IContestResultsBusinessService
         }
 
         var participants = await this.participantsData
-            .GetAllByContestWithScoresAndProblems(contestId.Value)
+            .GetAllOfficialByContest(contestId.Value)
+            .Include(p => p.Scores)
+            .ThenInclude(s => s.Problem)
+            .ThenInclude(p => p.ProblemGroup)
             .ToListAsync();
 
         var participantResults = participants
