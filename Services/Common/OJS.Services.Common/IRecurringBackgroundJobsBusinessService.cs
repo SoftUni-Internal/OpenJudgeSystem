@@ -29,5 +29,17 @@
 
         [Queue(AdministrationQueueName)]
         Task<object> NormalizeAllPointsThatExceedAllowedLimit();
+
+        /// <summary>
+        /// Archives old submissions in batches for automatic nightly archiving.
+        /// </summary>
+        [Queue(AdministrationQueueName)]
+        Task<object> ArchiveOldSubmissionsDailyBatch();
+
+        /// <summary>
+        /// Hard deletes archived submissions that are no longer needed.
+        /// </summary>
+        [Queue(AdministrationQueueName)]
+        Task<object> HardDeleteArchivedSubmissions();
     }
 }

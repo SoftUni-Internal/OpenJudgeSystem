@@ -40,5 +40,7 @@
         Task RemoveTestRunsCacheByProblem(int problemId);
 
         Task<IEnumerable<int>> GetIdsByProblemId(int problemId);
+
+        Task<int> HardDeleteArchived(int deleteCountLimit = 0);
     }
 }
