@@ -7,7 +7,6 @@ using Microsoft.Extensions.Options;
 using OJS.Services.Infrastructure.Configurations;
 using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Exceptions;
-using OJS.Services.Ui.Data;
 using OJS.Services.Ui.Models.Problems;
 using OJS.Services.Infrastructure.Extensions;
 using System;

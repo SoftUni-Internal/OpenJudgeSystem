@@ -14,6 +14,7 @@ using OJS.Common.Enumerations;
 using OJS.Common.Extensions;
 using OJS.Data.Models;
 using OJS.Data.Models.Mentor;
+using OJS.Data.Models.Resources;
 using OJS.Services.Common.Data;
 using OJS.Services.Infrastructure.Cache;
 using OJS.Services.Infrastructure.Constants;
@@ -549,28 +550,39 @@ public class MentorBusinessService(
             .AsNoTracking()
             .FirstOrDefaultAsync();
 
-        var problemsResources = await contestsData
+        var resources = await contestsData
             .GetByIdQuery(model.ContestId)
             .AsNoTracking()
-            .Select(c => c.ProblemGroups
-                .SelectMany(pg => pg.Problems
-                    .SelectMany(p => p.Resources
-                        .Where(r => r.Type == ProblemResourceType.ProblemDescription))))
-            .SelectMany(resources => resources)
+            .Select(c => new
+            {
+                ContestResources = c.Resources
+                    .Where(r => r.Type == ProblemResourceType.ProblemDescription),
+                ProblemResources = c.ProblemGroups
+                    .SelectMany(pg => pg.Problems
+                        .SelectMany(p => p.Resources
+                            .Where(r => r.Type == ProblemResourceType.ProblemDescription))),
+            })
             .ToListAsync();
 
-        var wordFiles = problemsResources
-            .Where(pr =>
-                   (pr.File is not null && pr.FileExtension?.Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal) == true) ||
-                   (pr.Link is not null && pr.Link.Split('.').Last().Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal)))
+        var contestResources = resources
+            .SelectMany(cr => cr.ContestResources)
+            .Where(IsResourceValidProblemDescription)
+            .ToList();
+
+        var problemsResources = resources
+            .SelectMany(pr => pr.ProblemResources)
+            .Where(IsResourceValidProblemDescription)
             .ToList();
 
         /*
-         *  There are 2 cases when it comes to document retrieval:
-         *  1. The problem has its own problem resource ( Word file ) ( e.g. online / onsite exam ).
-         *  2. All the problems' descriptions are in a single Word file ( e.g. Lab / Exercise ).
+         *  There are 3 cases when it comes to document retrieval:
+         *  1. Each problem has its own problem resource (Word file) (e.g., online / onsite exam).
+         *  2. The contest has a single resource with all the problems' descriptions (Word file).
+         *  3. A single problem has a resource with all the problems' descriptions (e.g., Lab / Exercise).
          */
-        var problemsDescription = wordFiles.FirstOrDefault(pr => pr.ProblemId == model.ProblemId) ?? wordFiles.FirstOrDefault();
+        var problemsDescription = problemsResources.FirstOrDefault(pr => pr.ProblemId == model.ProblemId)
+            ?? (Resource?)contestResources.FirstOrDefault() // If there is a contest resource, use it
+            ?? problemsResources.FirstOrDefault(); // Otherwise, use the first problem resource
 
         if (problemsDescription is null)
         {
@@ -601,6 +613,14 @@ public class MentorBusinessService(
             SequenceNumber = int.MinValue,
             ProblemIsExtractedSuccessfully = !string.IsNullOrWhiteSpace(text),
         };
+    }
+
+    private static bool IsResourceValidProblemDescription<TResource>(TResource r)
+        where TResource : Resource
+    {
+        return r.Type == ProblemResourceType.ProblemDescription &&
+               ((r.File != null && r.FileExtension != null && r.FileExtension.Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal)) ||
+                (r.Link != null && r.Link.Split('.', StringSplitOptions.RemoveEmptyEntries).Last().Equals(WithoutLeadingDot(Docx), StringComparison.Ordinal)));
     }
 
     private async Task<byte[]> DownloadDocument(string link, int problemId, int contestId)
