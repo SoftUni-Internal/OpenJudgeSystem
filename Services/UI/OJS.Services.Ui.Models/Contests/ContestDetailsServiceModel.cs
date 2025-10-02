@@ -93,5 +93,6 @@ public class ContestDetailsServiceModel : IMapExplicitly, ICanBeCompetedAndPract
             .ForMember(d => d.CanBePracticed, opt => opt.Ignore())
             .ForMember(d => d.IsActive, opt => opt.Ignore())
             .ForMember(d => d.UserIsAdminOrLecturerInContest, opt => opt.Ignore())
-            .ReverseMap();
+            .ReverseMap()
+            .ForMember(d => d.Resources, opt => opt.Ignore());
 }
