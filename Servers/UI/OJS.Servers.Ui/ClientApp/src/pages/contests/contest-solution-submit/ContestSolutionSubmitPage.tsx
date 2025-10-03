@@ -512,10 +512,9 @@ const ContestSolutionSubmitPage = () => {
 
         return (
             <div className={styles.contestResourcesWrapper}>
-                {contest.resources.map((resource: IProblemResourceType, index: number) =>
+                {contest.resources.map((resource: IProblemResourceType) =>
                     <span key={`contest-resource-${resource.id}`}>
                         <Resource resource={resource} />
-                        {contest.resources.length > 1 && index < contest.resources.length - 1 && ' | '}
                     </span>)}
             </div>
         );
