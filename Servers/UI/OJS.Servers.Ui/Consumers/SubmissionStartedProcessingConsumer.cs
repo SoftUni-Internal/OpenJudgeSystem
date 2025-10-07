@@ -12,6 +12,7 @@ using static OJS.Servers.Infrastructure.Telemetry.OjsActivitySources;
 
 public class SubmissionStartedProcessingConsumer(
     ISubmissionsForProcessingCommonDataService submissionsForProcessingCommonData,
+    ISubmissionsCommonDataService submissionsData,
     ILogger<SubmissionStartedProcessingConsumer> logger,
     ITracingService tracingService)
     : IConsumer<SubmissionStartedProcessingPubSubModel>
@@ -23,10 +24,21 @@ public class SubmissionStartedProcessingConsumer(
             async activity =>
             {
                 var submissionId = context.Message.SubmissionId;
+                var workerName = context.Message.WorkerName;
+                var processingStartedAt = context.Message.ProcessingStartedAt;
 
                 var submissionForProcessing = await submissionsForProcessingCommonData.GetBySubmission(submissionId);
+                var submission = await submissionsData.Find(submissionId);
 
-                var isUpdated = false;
+                if (submission == null)
+                {
+                    logger.LogSubmissionNotFound(submissionId);
+                    return;
+                }
+
+                submission.WorkerName = workerName;
+                submission.StartedExecutionOn = processingStartedAt.UtcDateTime;
+
                 if (submissionForProcessing == null)
                 {
                     logger.LogSubmissionForProcessingNotFoundForSubmission(null, submissionId);
@@ -39,12 +51,11 @@ public class SubmissionStartedProcessingConsumer(
                     await submissionsForProcessingCommonData.SetProcessingState(
                         submissionForProcessing,
                         SubmissionProcessingState.Processing,
-                        context.Message.ProcessingStartedAt);
-
-                    isUpdated = true;
+                        processingStartedAt,
+                        saveChanges: false);
                 }
 
-                activity?.SetTag(SubmissionTags.SubmissionForProcessingStateUpdated, isUpdated);
+                await submissionsData.SaveChanges();
             },
             tags: null,
             BusinessContext.ForSubmission(context.Message.SubmissionId),

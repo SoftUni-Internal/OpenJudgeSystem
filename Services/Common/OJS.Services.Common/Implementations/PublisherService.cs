@@ -3,21 +3,23 @@ namespace OJS.Services.Common.Implementations;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using MassTransit;
+using Microsoft.Extensions.Options;
+using OJS.Services.Infrastructure.Configurations;
 using System;
 using System.Threading;
 using System.Diagnostics;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 
-public class PublisherService(IPublishEndpoint publishEndpoint) : IPublisherService
+public class PublisherService(IPublishEndpoint publishEndpoint, IOptions<MessageQueueConfig> messageQueueConfigAccessor) : IPublisherService
 {
-    private const int DefaultTimeoutMilliseconds = 3000;
+    private readonly MessageQueueConfig messageQueueConfig = messageQueueConfigAccessor.Value;
     private static readonly TextMapPropagator Propagator = Propagators.DefaultTextMapPropagator;
 
     public async Task Publish<T>(T obj, CancellationToken? cancellationToken = null)
         where T : class
     {
-        var token = cancellationToken ?? new CancellationTokenSource(DefaultTimeoutMilliseconds).Token;
+        var token = cancellationToken ?? new CancellationTokenSource(this.messageQueueConfig.PublishDefaultTimeoutMilliseconds).Token;
 
         await publishEndpoint.Publish(obj, InjectTraceContext, token);
     }
@@ -54,7 +56,7 @@ public class PublisherService(IPublishEndpoint publishEndpoint) : IPublisherServ
         // Calculate timeout based on batch size
         var objectsCountTimeoutMultiplier = (int)Math.Min(10, objs.Count * 0.1);
         var timeoutMultiplier = Math.Max(1, objectsCountTimeoutMultiplier);
-        var token = cancellationToken ?? new CancellationTokenSource(DefaultTimeoutMilliseconds * timeoutMultiplier).Token;
+        var token = cancellationToken ?? new CancellationTokenSource(this.messageQueueConfig.PublishDefaultTimeoutMilliseconds * timeoutMultiplier).Token;
 
         await publishEndpoint.PublishBatch(objs, InjectTraceContext, token);
     }

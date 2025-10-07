@@ -26,4 +26,6 @@ public class MessageQueueConfig : BaseConfig
     public int? PrefetchCount { get; set; }
 
     public int? TimeoutInSeconds { get; set; }
+
+    public int PublishDefaultTimeoutMilliseconds { get; set; } = 5000;
 }

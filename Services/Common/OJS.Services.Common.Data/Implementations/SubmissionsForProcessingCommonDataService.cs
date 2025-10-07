@@ -110,7 +110,8 @@ public class SubmissionsForProcessingCommonDataService(
     public async Task SetProcessingState(
         SubmissionForProcessing submissionForProcessing,
         SubmissionProcessingState state,
-        DateTimeOffset? stateChangedAt = null)
+        DateTimeOffset? stateChangedAt = null,
+        bool saveChanges = true)
     {
         var updateState = true;
         stateChangedAt ??= dates.GetUtcNowOffset();
@@ -150,7 +151,10 @@ public class SubmissionsForProcessingCommonDataService(
         }
 
         this.Update(submissionForProcessing);
-        await this.SaveChanges();
+        if (saveChanges)
+        {
+            await this.SaveChanges();
+        }
     }
 
     public async Task<int> MarkMultipleEnqueued(ICollection<int> submissionIds, DateTimeOffset? enqueuedAt = null)

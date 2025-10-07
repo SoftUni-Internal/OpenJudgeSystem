@@ -449,7 +449,7 @@ namespace OJS.Servers.Infrastructure.Extensions
             var result = JsonSerializer.Serialize(new ExceptionResponseModel
             {
                 Name = "You are not logged in.",
-                Message = "Your session may have expired or you may not be authenticated."
+                Message = "Your session may have expired or you may not be authenticated.",
             });
 
             return context.Response.WriteAsync(result);

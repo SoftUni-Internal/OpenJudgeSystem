@@ -47,8 +47,10 @@ public interface ISubmissionsForProcessingCommonDataService : IDataService<Submi
     /// <param name="submissionForProcessing">The submission for processing to update.</param>
     /// <param name="state">The new state to set.</param>
     /// <param name="stateChangedAt">The date of the state change. If not provided, the current date is used.</param>
+    /// <param name="saveChanges">Whether to save the changes. If not provided, the changes are saved.</param>
     Task SetProcessingState(
         SubmissionForProcessing submissionForProcessing,
         SubmissionProcessingState state,
-        DateTimeOffset? stateChangedAt = null);
+        DateTimeOffset? stateChangedAt = null,
+        bool saveChanges = true);
 }

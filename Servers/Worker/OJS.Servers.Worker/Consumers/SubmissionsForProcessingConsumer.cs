@@ -51,6 +51,7 @@ public class SubmissionsForProcessingConsumer(
                 var submissionStartedProcessingPubSubModel = new SubmissionStartedProcessingPubSubModel
                 {
                     SubmissionId = context.Message.Id,
+                    WorkerName = workerName,
                     ProcessingStartedAt = startedExecutionOn,
                 };
 
