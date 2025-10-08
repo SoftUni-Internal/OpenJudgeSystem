@@ -55,7 +55,6 @@ namespace OJS.Servers.Infrastructure.Extensions
     using System.Text.Json;
     using System.Threading.Tasks;
     using OpenAI;
-    using RabbitMQ.Client;
     using static OJS.Common.GlobalConstants;
     using static OJS.Common.GlobalConstants.FileExtensions;
     using static OJS.Servers.Infrastructure.ServerConstants.Authorization;
@@ -286,23 +285,6 @@ namespace OJS.Servers.Infrastructure.Extensions
                     }
                 });
             });
-
-            var clientName = (Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty) + "_client";
-
-            services
-                .AddSingleton<IConnection>(_ =>
-                    new ConnectionFactory
-                    {
-                        HostName = messageQueueConfig.Host,
-                        VirtualHost = messageQueueConfig.VirtualHost,
-                        UserName = messageQueueConfig.User,
-                        Password = messageQueueConfig.Password,
-                        ClientProvidedName = clientName,
-                    }.CreateConnectionAsync()
-                        .GetAwaiter()
-                        .GetResult())
-                .AddHealthChecks()
-                .AddRabbitMQ();
 
             return services;
         }

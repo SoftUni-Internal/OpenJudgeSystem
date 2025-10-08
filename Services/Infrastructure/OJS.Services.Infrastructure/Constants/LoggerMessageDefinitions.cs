@@ -157,6 +157,9 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(1054, LogLevel.Error, "Submission #{SubmissionId} not found in the database.", SkipEnabledCheck = true)]
     public static partial void LogSubmissionNotFound(this ILogger logger, int submissionId);
 
+    [LoggerMessage(1056, LogLevel.Error, "Error consuming submission for processing message for submission #{SubmissionId}: {ExceptionMessage}", SkipEnabledCheck = true)]
+    public static partial void LogErrorConsumingSubmissionForProcessing(this ILogger logger, int submissionId, string? exceptionMessage);
+
     [LoggerMessage(1060, LogLevel.Warning, "Submission for processing for Submission #{SubmissionId} is in state {CurrentProcessingState} state. Skipping updating it to {UpdateToProcessingState}.")]
     public static partial void LogSubmissionProcessingStateNotUpdated(this ILogger logger, int submissionId, string currentProcessingState, string updateToProcessingState);
 
