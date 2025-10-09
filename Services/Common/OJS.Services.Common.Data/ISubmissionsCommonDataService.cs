@@ -10,4 +10,6 @@ public interface ISubmissionsCommonDataService : IDataService<Submission>
     IQueryable<Submission> GetAllEnqueued();
 
     IQueryable<Submission> GetAllProcessing();
+
+    IQueryable<Submission> GetAllFaulted();
 }

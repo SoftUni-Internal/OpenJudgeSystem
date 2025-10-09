@@ -546,6 +546,10 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
         {
             query = this.submissionsCommonData.GetAllPending();
         }
+        else if (status == SubmissionStatus.Faulted)
+        {
+            query = this.submissionsCommonData.GetAllFaulted();
+        }
         else
         {
             if (!this.userProviderService.GetCurrentUser().IsAdminOrLecturer)

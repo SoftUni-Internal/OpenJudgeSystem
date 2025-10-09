@@ -26,6 +26,10 @@ public class SubmissionsCommonDataService : DataService<Submission>, ISubmission
         => this.GetFromSubmissionsForProcessing(
             this.submissionsForProcessingCommonDataService.GetAllProcessing());
 
+    public IQueryable<Submission> GetAllFaulted()
+        => this.GetFromSubmissionsForProcessing(
+            this.submissionsForProcessingCommonDataService.GetAllFaulted());
+
     private IQueryable<Submission> GetFromSubmissionsForProcessing(
         IQueryable<SubmissionForProcessing> submissionsForProcessing)
         => submissionsForProcessing

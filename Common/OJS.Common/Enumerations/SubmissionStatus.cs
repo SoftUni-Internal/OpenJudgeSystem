@@ -6,5 +6,6 @@
         Processing = 2,
         Enqueued = 3,
         Pending = 4,
+        Faulted = 5,
     }
 }

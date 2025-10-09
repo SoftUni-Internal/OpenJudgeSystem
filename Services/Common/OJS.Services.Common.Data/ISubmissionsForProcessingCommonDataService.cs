@@ -19,6 +19,8 @@ public interface ISubmissionsForProcessingCommonDataService : IDataService<Submi
 
     IQueryable<SubmissionForProcessing> GetAllProcessing();
 
+    IQueryable<SubmissionForProcessing> GetAllFaulted();
+
     IQueryable<SubmissionForProcessing> GetAllProcessed(int fromMinutesAgo);
 
     Task<SubmissionForProcessing> Add(int submissionId);

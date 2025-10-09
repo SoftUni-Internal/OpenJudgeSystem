@@ -41,6 +41,9 @@ public class SubmissionsForProcessingCommonDataService(
     public IQueryable<SubmissionForProcessing> GetAllProcessing()
         => this.GetQuery(sfp => sfp.State == Processing);
 
+    public IQueryable<SubmissionForProcessing> GetAllFaulted()
+        => this.GetQuery(sfp => sfp.State == Faulted);
+
     public IQueryable<SubmissionForProcessing> GetAllProcessed(int fromMinutesAgo)
         => this.GetQuery(sfp => sfp.State == Processed
             && sfp.ProcessedAt < dates.GetUtcNowOffset().AddMinutes(-fromMinutesAgo));
