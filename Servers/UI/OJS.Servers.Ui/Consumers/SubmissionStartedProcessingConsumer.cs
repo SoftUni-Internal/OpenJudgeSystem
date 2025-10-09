@@ -24,6 +24,8 @@ public class SubmissionStartedProcessingConsumer(
             {
                 var submissionId = context.Message.SubmissionId;
 
+                logger.LogReceivedSubmissionStartedProcessing(submissionId);
+
                 var submissionForProcessing = await submissionsForProcessingCommonData.GetBySubmission(submissionId);
 
                 var isUpdated = false;

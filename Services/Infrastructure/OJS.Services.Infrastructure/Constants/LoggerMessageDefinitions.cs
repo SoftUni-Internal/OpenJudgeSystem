@@ -193,6 +193,9 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(1206, LogLevel.Information, "Published processed submission #{SubmissionId} from worker: {WorkerName}")]
     public static partial void LogPublishedProcessedSubmission(this ILogger logger, int submissionId, string? workerName);
 
+    [LoggerMessage(1207, LogLevel.Information, "Received submission started processing notification for submission #{SubmissionId}")]
+    public static partial void LogReceivedSubmissionStartedProcessing(this ILogger logger, int submissionId);
+
     // Contests
     [LoggerMessage(1300, LogLevel.Information, "{Direction} limit between submissions by adjusting factor of {AdjustingFactor} for {WorkersTotalCount} workers. {SubmissionsAwaitingExecution} submissions are awaiting execution. Data for measured period: combined busy ratio: {CombinedBusyRatio}; ratio factor: {RatioFactor}; queue factor: {QueueFactor}.")]
     public static partial void LogContestsLimitBetweenSubmissionsAdjustment(this ILogger logger, string direction, double adjustingFactor, int workersTotalCount, int submissionsAwaitingExecution, double combinedBusyRatio, double ratioFactor, double queueFactor);

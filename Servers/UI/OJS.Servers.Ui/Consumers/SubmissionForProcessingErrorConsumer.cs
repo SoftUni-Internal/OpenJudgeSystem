@@ -59,7 +59,7 @@ public class SubmissionForProcessingErrorConsumer(
                 }
 
                 // Check if already processed to ensure idempotency (in case this consumer is retried)
-                if (submission.Processed && submissionForProcessing?.State == Processed)
+                if (submission.Processed && submissionForProcessing?.State is Processed or Faulted)
                 {
                     activity?.SetTag(SubmissionTags.Updated, false);
                     activity?.SetTag("already_processed", true);
@@ -70,7 +70,7 @@ public class SubmissionForProcessingErrorConsumer(
                 {
                     if (submissionForProcessing is not null)
                     {
-                        await submissionsForProcessingCommonData.SetProcessingState(submissionForProcessing, Processed);
+                        await submissionsForProcessingCommonData.SetProcessingState(submissionForProcessing, Faulted);
                         activity?.SetTag(SubmissionTags.SubmissionForProcessingStateUpdated, true);
                     }
 
