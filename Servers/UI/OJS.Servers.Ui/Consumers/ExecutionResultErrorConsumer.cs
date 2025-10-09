@@ -28,7 +28,7 @@ public class ExecutionResultErrorConsumer(
     public async Task Consume(ConsumeContext<Fault<ProcessedSubmissionPubSubModel>> context)
         => await tracingService.TraceAsync(
             submissions,
-            SubmissionActivities.ProcessingExecutionErrorResult,
+            SubmissionActivities.ProcessedSubmissionErrorResult,
             async activity =>
             {
                 // If we get here, the submission result was not processed successfully, and there is an unexpected error.

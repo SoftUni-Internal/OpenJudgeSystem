@@ -93,7 +93,8 @@ public static class OjsActivitySources
         public const string ProcessingStarted = "submission.processing_started";
         public const string Execution = "submission.execution";
         public const string ProcessingExecutionResult = "submission.processing_result";
-        public const string ProcessingExecutionErrorResult = "submission.processing_error_result";
+        public const string ProcessedSubmissionErrorResult = "submission.processed_error_result";
+        public const string ProcessingSubmissionError = "submission.processing_error";
         public const string Retest = "submission.retest";
     }
 

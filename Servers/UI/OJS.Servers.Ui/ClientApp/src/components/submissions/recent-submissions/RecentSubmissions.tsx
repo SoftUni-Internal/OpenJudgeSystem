@@ -34,6 +34,7 @@ const selectedSubmissionsStateMapping = {
     2: 'Processing',
     3: 'Enqueued',
     4: 'Pending',
+    5: 'Faulted',
 } as IDictionary<string>;
 
 const RecentSubmissions = () => {
@@ -84,7 +85,7 @@ const RecentSubmissions = () => {
 
         if (stateFromUrl) {
             const stateNumber = parseInt(stateFromUrl, 10);
-            if (stateNumber >= 1 && stateNumber <= 4) {
+            if (stateNumber >= 1 && stateNumber <= 5) {
                 setSelectedActive(stateNumber);
                 setStatus(stateNumber);
             }
@@ -171,7 +172,7 @@ const RecentSubmissions = () => {
         const { isAdmin } = user;
 
         return (
-            isAdmin && 
+            isAdmin &&
             <Heading
               type={HeadingType.secondary}
             >
@@ -210,6 +211,14 @@ const RecentSubmissions = () => {
                   count={getSubmissionsAwaitingExecution(selectedSubmissionsStateMapping[4])}
                   handleOnSelect={handleSelectSubmissionState}
                 />
+                /
+                <SubmissionStateLink
+                    stateIndex={5}
+                    isSelected={selectedActive === 5}
+                    text={selectedSubmissionsStateMapping[5]}
+                    count={getSubmissionsAwaitingExecution(selectedSubmissionsStateMapping[5])}
+                    handleOnSelect={handleSelectSubmissionState}
+                />
                 )
                 <IconButton
                   title="Refresh"
@@ -219,14 +228,14 @@ const RecentSubmissions = () => {
                     <RefreshIcon size={IconSize.Large} />
                 </IconButton>
             </Heading>
-            
+
         );
     }, [ user, getSubmissionsAwaitingExecution, selectedActive, handleSelectSubmissionState ]);
 
     return (
         <div className={styles.recentSubmissionsWrapper}>
             {
-                !user.canAccessAdministration && 
+                !user.canAccessAdministration &&
                     <Heading
                       type={HeadingType.primary}
                     >
@@ -242,7 +251,7 @@ const RecentSubmissions = () => {
                         {' '}
                         total
                     </Heading>
-                
+
             }
             {renderSubmissionsStateAdminToggle()}
             {
@@ -250,7 +259,7 @@ const RecentSubmissions = () => {
                     ? <div style={{ ...flexCenterObjectStyles, marginTop: '10px' }}>
                         <SpinningLoader />
                     </div>
-                    
+
                     : <SubmissionsGrid
                           isDataFetching={areSubmissionsFetching}
                           className={styles.recentSubmissionsGrid}
@@ -267,7 +276,7 @@ const RecentSubmissions = () => {
                           setSearchParams={setSearchParams}
                           setQueryParams={setQueryParams}
                         />
-                    
+
             }
         </div>
     );

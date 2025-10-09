@@ -157,6 +157,9 @@ public static partial class LoggerMessageDefinitions
     [LoggerMessage(1054, LogLevel.Error, "Submission #{SubmissionId} not found in the database.", SkipEnabledCheck = true)]
     public static partial void LogSubmissionNotFound(this ILogger logger, int submissionId);
 
+    [LoggerMessage(1056, LogLevel.Error, "Error consuming submission for processing message for submission #{SubmissionId}: {ExceptionMessage}", SkipEnabledCheck = true)]
+    public static partial void LogErrorConsumingSubmissionForProcessing(this ILogger logger, int submissionId, string? exceptionMessage);
+
     [LoggerMessage(1060, LogLevel.Warning, "Submission for processing for Submission #{SubmissionId} is in state {CurrentProcessingState} state. Skipping updating it to {UpdateToProcessingState}.")]
     public static partial void LogSubmissionProcessingStateNotUpdated(this ILogger logger, int submissionId, string currentProcessingState, string updateToProcessingState);
 
@@ -189,6 +192,9 @@ public static partial class LoggerMessageDefinitions
 
     [LoggerMessage(1206, LogLevel.Information, "Published processed submission #{SubmissionId} from worker: {WorkerName}")]
     public static partial void LogPublishedProcessedSubmission(this ILogger logger, int submissionId, string? workerName);
+
+    [LoggerMessage(1207, LogLevel.Information, "Received submission started processing notification for submission #{SubmissionId}")]
+    public static partial void LogReceivedSubmissionStartedProcessing(this ILogger logger, int submissionId);
 
     // Contests
     [LoggerMessage(1300, LogLevel.Information, "{Direction} limit between submissions by adjusting factor of {AdjustingFactor} for {WorkersTotalCount} workers. {SubmissionsAwaitingExecution} submissions are awaiting execution. Data for measured period: combined busy ratio: {CombinedBusyRatio}; ratio factor: {RatioFactor}; queue factor: {QueueFactor}.")]
