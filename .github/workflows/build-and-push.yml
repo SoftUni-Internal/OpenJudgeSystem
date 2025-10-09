@@ -32,6 +32,9 @@ jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
     steps:
+    - name: Remove unnecessary files
+      run: |
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
     - name: Configure Environment Variables
       run: |
         OWNER="$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')"
