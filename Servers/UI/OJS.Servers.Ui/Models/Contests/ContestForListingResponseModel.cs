@@ -43,4 +43,6 @@ public class ContestForListingResponseModel : IMapFrom<ContestForListingServiceM
     public bool RequirePasswordForPractice { get; set; }
 
     public bool IsVisible { get; set; }
+
+    public DateTime? VisibleFrom { get; set; }
 }
