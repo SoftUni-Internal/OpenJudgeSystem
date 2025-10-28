@@ -41,4 +41,6 @@ public class ContestForListingResponseModel : IMapFrom<ContestForListingServiceM
     public bool RequirePasswordForCompete { get; set; }
 
     public bool RequirePasswordForPractice { get; set; }
+
+    public bool IsVisible { get; set; }
 }

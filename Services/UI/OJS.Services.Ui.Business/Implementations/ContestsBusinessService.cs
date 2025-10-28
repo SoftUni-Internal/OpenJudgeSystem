@@ -338,12 +338,12 @@ public class ContestsBusinessService(
         ContestFiltersServiceModel? model)
     {
         model = await this.GetNestedFilterCategoriesIfAny(model);
+        var user = userProviderService.GetCurrentUser();
 
         var pagedContests =
-            await contestsData.GetAllAsPageByFiltersAndSorting<ContestForListingServiceModel>(model);
+            await contestsData.GetAllAsPageByFiltersAndSorting<ContestForListingServiceModel>(model, user.IsAdmin);
 
         var participantResultsByContest = new Dictionary<int, List<ParticipantResultServiceModel>>();
-        var user = userProviderService.GetCurrentUser();
         if (user.IsAuthenticated)
         {
             participantResultsByContest = await this.GetUserParticipantResultsForContestInPage([.. pagedContests
