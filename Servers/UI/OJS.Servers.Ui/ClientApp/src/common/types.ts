@@ -99,6 +99,7 @@ interface IContestsSortAndFilterOptions {
     page: number;
     itemsPerPage?: number;
     category?: number | null;
+    includeHidden?: boolean;
 }
 
 // TODO: Unify these types, some are called params, others options
