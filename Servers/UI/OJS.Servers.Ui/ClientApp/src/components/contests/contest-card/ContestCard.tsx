@@ -118,12 +118,12 @@ const ContestCard = (props: IContestCardProps) => {
 
         const getColorClass = () => {
             switch (color) {
-                case ContestDetailColor.Green:
-                    return styles.greenColor;
-                case ContestDetailColor.Red:
-                    return styles.redColor;
-                default:
-                    return '';
+            case ContestDetailColor.Green:
+                return styles.greenColor;
+            case ContestDetailColor.Red:
+                return styles.redColor;
+            default:
+                return '';
             }
         };
 
@@ -280,8 +280,8 @@ const ContestCard = (props: IContestCardProps) => {
                     {!contest.isVisible &&
                         renderContestDetailsFragment(
                             FaEyeSlash,
-                            `Hidden`,
-                            `Non visible for users`,
+                            'Hidden',
+                            'Non visible for users',
                             ContestDetailColor.Red,
                             false,
                         )}
