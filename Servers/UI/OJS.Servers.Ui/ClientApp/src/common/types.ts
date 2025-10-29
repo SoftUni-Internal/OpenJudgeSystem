@@ -896,6 +896,8 @@ interface IProfilePageContests {
     officialParticipants: number;
     requirePasswordForCompete: boolean;
     requirePasswordForPractice: boolean;
+    isVisible: boolean;
+    visibleFrom: Date | null;
 }
 
 interface IExcelFilter {
