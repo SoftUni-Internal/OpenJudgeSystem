@@ -18,7 +18,7 @@ namespace OJS.Services.Ui.Data
 
         Task<IEnumerable<TServiceModel>> GetAllExpired<TServiceModel>();
 
-        Task<PagedResult<TServiceModel>> GetAllAsPageByFiltersAndSorting<TServiceModel>(ContestFiltersServiceModel model);
+        Task<PagedResult<TServiceModel>> GetAllAsPageByFiltersAndSorting<TServiceModel>(ContestFiltersServiceModel model, bool includeHidden = false);
 
         IQueryable<Contest> GetLatestForParticipantByUsername(string username);
 

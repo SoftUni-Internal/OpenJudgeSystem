@@ -17,4 +17,6 @@ public class ContestFiltersServiceModel
     public ContestSortType? SortType { get; set; }
 
     public ContestSortTypeDirection SortTypeDirection { get; set; }
+
+    public bool IncludeHidden { get; set; }
 }

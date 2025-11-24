@@ -2,12 +2,18 @@ import React from 'react';
 import { concatClassnames } from 'react-alice-carousel/lib/utils';
 import { IconType } from 'react-icons';
 import { BiTransfer } from 'react-icons/bi';
-import { FaCalendarAlt, FaClock, FaFile, FaUser } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaEye, FaEyeSlash, FaFile, FaUser } from 'react-icons/fa';
 import { IoIosLock } from 'react-icons/io';
 import { Link } from 'react-router-dom';
 import EditIcon from '@mui/icons-material/Edit';
 import { Tooltip } from '@mui/material';
 import isNil from 'lodash/isNil';
+
+enum ContestDetailColor {
+    Default = 'default',
+    Green = 'green',
+    Red = 'red',
+}
 
 import { ContestParticipationType } from '../../../common/constants';
 import { getCompeteResultsAreVisibleInContestCards, getPracticeResultsAreVisibleInContestCards } from '../../../common/contest-helpers';
@@ -88,7 +94,7 @@ const ContestCard = (props: IContestCardProps) => {
         Icon: IconType,
         text: string | number | undefined,
         tooltipTitle?: string,
-        isGreenColor?: boolean,
+        color?: ContestDetailColor,
         hasUnderLine?: boolean,
         participationType?: string,
     ) => {
@@ -110,11 +116,20 @@ const ContestCard = (props: IContestCardProps) => {
             </>
         ;
 
+        const getColorClass = () => {
+            switch (color) {
+            case ContestDetailColor.Green:
+                return styles.greenColor;
+            case ContestDetailColor.Red:
+                return styles.redColor;
+            default:
+                return '';
+            }
+        };
+
         const content = participationType
             ? <Link
-                  className={`${styles.contestDetailsFragment} ${isGreenColor
-                      ? styles.greenColor
-                      : ''}`}
+                  className={`${styles.contestDetailsFragment} ${getColorClass()}`}
                   to={getContestsResultsPageUrl({
                       contestName: name,
                       contestId: id,
@@ -128,9 +143,7 @@ const ContestCard = (props: IContestCardProps) => {
                 {renderBody()}
             </Link>
 
-            : <div className={`${styles.contestDetailsFragment} ${isGreenColor
-                ? styles.greenColor
-                : ''}`}
+            : <div className={`${styles.contestDetailsFragment} ${getColorClass()}`}
                 >
                 {renderBody()}
             </div>
@@ -191,7 +204,7 @@ const ContestCard = (props: IContestCardProps) => {
     };
 
     return (
-        <div className={`${backgroundColorClassName} ${textColorClass} ${styles.contestCardWrapper}`}>
+        <div className={`${backgroundColorClassName} ${textColorClass} ${styles.contestCardWrapper} ${!contest.isVisible && styles.nonVisible}`}>
             <div>
                 <div className={styles.actionsWrapper}>
                     <Link
@@ -237,7 +250,7 @@ const ContestCard = (props: IContestCardProps) => {
                             FaUser,
                             `Practice results: ${practiceResults}`,
                             undefined,
-                            false,
+                            ContestDetailColor.Default,
                             true,
                             ContestParticipationType.Practice,
                         )
@@ -248,7 +261,7 @@ const ContestCard = (props: IContestCardProps) => {
                             FaUser,
                             `Compete results: ${competeResults}`,
                             undefined,
-                            true,
+                            ContestDetailColor.Green,
                             true,
                             ContestParticipationType.Compete,
                         )
@@ -261,7 +274,23 @@ const ContestCard = (props: IContestCardProps) => {
                             FaClock,
                             `Remaining time: ${remainingTimeFormatted}`,
                             'Remaining time',
+                            ContestDetailColor.Default,
                             false,
+                        )}
+                    {!contest.isVisible &&
+                        renderContestDetailsFragment(
+                            FaEyeSlash,
+                            'Hidden',
+                            'Non visible for users',
+                            ContestDetailColor.Red,
+                            false,
+                        )}
+                    {!contest.isVisible && contest.visibleFrom &&
+                        renderContestDetailsFragment(
+                            FaEye,
+                            `${preciseFormatDate(contest.visibleFrom, dateTimeFormatWithSpacing)}`,
+                            `Visible from: ${preciseFormatDate(contest.visibleFrom, dateTimeFormatWithSpacing)}`,
+                            ContestDetailColor.Default,
                             false,
                         )}
                 </div>

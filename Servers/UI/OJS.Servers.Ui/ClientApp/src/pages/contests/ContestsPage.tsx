@@ -1,7 +1,14 @@
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
-import { CATEGORY_ID_PARAM, CONTEST_CATEGORIES_HIERARCHY_PATH, CONTESTS_PATH, OPEN_CREATE_PARAM } from 'src/common/urls/administration-urls';
+import {
+    CATEGORY_ID_PARAM,
+    CONTEST_CATEGORIES_HIERARCHY_PATH,
+    CONTESTS_PATH,
+    OPEN_CREATE_PARAM,
+} from 'src/common/urls/administration-urls';
 import AdministrationLink from 'src/components/guidelines/buttons/AdministrationLink';
+import Button, { ButtonSize } from 'src/components/guidelines/buttons/Button';
 import { CONTESTS_BULK_EDIT } from 'src/utils/constants';
 
 import { SortType } from '../../common/contest-types';
@@ -28,7 +35,9 @@ import { flexCenterObjectStyles } from '../../utils/object-utils';
 import styles from './ContestsPage.module.scss';
 
 const ContestsPage = () => {
+    const [ includeHidden, setIncludeHidden ] = useState(false);
     const dispatch = useAppDispatch();
+    const { internalUser: user } = useAppSelector((state) => state.authorization);
     const { categoryId } = useParams();
     const { themeColors, getColorClassName } = useTheme();
     const {
@@ -60,12 +69,16 @@ const ContestsPage = () => {
             params.category = selectedCategory.id;
         }
 
+        if (includeHidden) {
+            params.includeHidden = includeHidden;
+        }
+
         if (selectedStrategy) {
             params.strategy = selectedStrategy.id;
         }
 
         return params;
-    }, [ selectedCategory, selectedStrategy, selectedPage ]);
+    }, [ selectedCategory, selectedStrategy, selectedPage, includeHidden ]);
 
     const {
         data: allContests,
@@ -94,7 +107,7 @@ const ContestsPage = () => {
     }, [ allContests, dispatch ]);
 
     const renderContest = useCallback(
-        (contest: IIndexContestsType) => 
+        (contest: IIndexContestsType) =>
             <ContestCard contest={contest} />
         , [],
     );
@@ -168,7 +181,7 @@ const ContestsPage = () => {
                             : 'All Categories'}
                     </div>
                     <div className={styles.headingActions}>
-                        {selectedCategory?.id && selectedCategory?.children.length === 0 && 
+                        {selectedCategory?.id && selectedCategory?.children.length === 0 &&
                             <>
                                 <AdministrationLink
                                   text="Edit Contests"
@@ -187,16 +200,34 @@ const ContestsPage = () => {
                     </div>
                 </div>
                 <div className={styles.contestsListContainer}>
-                    <PaginationControls
-                      isDataFetching={areContestsFetching}
-                      count={contests?.pagesCount || 0}
-                      page={selectedPage}
-                      onChange={(page:number) => {
-                          searchParams.set('page', page.toString());
-                          setSearchParams(searchParams);
-                      }}
-                      className={styles.paginationControlsUpper}
-                    />
+                    <div>
+                        {user.canAccessAdministration &&
+                            <Button
+                                className={styles.showHiddenButton}
+                                size={ButtonSize.small}
+                                onClick={() => {
+                                    setIncludeHidden(!includeHidden);
+                                    if (selectedPage > 1) {
+                                        searchParams.set('page', '1');
+                                        setSearchParams(searchParams);
+                                    }
+                                }}>
+                                {includeHidden
+                                    ? <FaEyeSlash title='Hide hidden' />
+                                    : <FaEye title='Show hidden' />}
+                            </Button>
+                        }
+                        <PaginationControls
+                            isDataFetching={areContestsFetching}
+                            count={contests?.pagesCount || 0}
+                            page={selectedPage}
+                            onChange={(page:number) => {
+                                searchParams.set('page', page.toString());
+                                setSearchParams(searchParams);
+                            }}
+                            className={styles.paginationControlsUpper}
+                        />
+                    </div>
                     {renderContests()}
                 </div>
             </div>
