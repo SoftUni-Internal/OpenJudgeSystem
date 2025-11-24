@@ -22,7 +22,6 @@ import {
     IRegisterUserForContestParams,
 } from '../../common/url-types';
 
- 
 export const contestsService = createApi({
     reducerPath: 'contestService',
     baseQuery: fetchBaseQuery({
@@ -58,13 +57,14 @@ export const contestsService = createApi({
     // baseQuery: getCustomBaseQuery('contests'),
     endpoints: (builder) => ({
         getAllContests: builder.query<IPagedResultType<IIndexContestsType>, IContestsSortAndFilterOptions>({
-            query: ({ sortType, page, category, strategy }) => ({
+            query: ({ sortType, page, category, strategy, includeHidden }) => ({
                 url: '/Contests/GetAll',
                 params: {
                     sortType,
                     page,
                     category,
                     strategy,
+                    includeHidden,
                 },
             }),
         }),
@@ -178,7 +178,6 @@ export const contestsService = createApi({
     }),
 });
 
- 
 export const {
     useGetAllContestsQuery,
     useGetContestCategoriesQuery,

@@ -99,6 +99,7 @@ interface IContestsSortAndFilterOptions {
     page: number;
     itemsPerPage?: number;
     category?: number | null;
+    includeHidden?: boolean;
 }
 
 // TODO: Unify these types, some are called params, others options
@@ -268,6 +269,8 @@ interface IIndexContestsType {
     officialParticipants: number;
     requirePasswordForCompete: boolean;
     requirePasswordForPractice: boolean;
+    isVisible: boolean;
+    visibleFrom: Date | null;
 }
 
 interface IIndexProblemsType {
@@ -893,6 +896,8 @@ interface IProfilePageContests {
     officialParticipants: number;
     requirePasswordForCompete: boolean;
     requirePasswordForPractice: boolean;
+    isVisible: boolean;
+    visibleFrom: Date | null;
 }
 
 interface IExcelFilter {

@@ -28,6 +28,8 @@ public class ContestFiltersRequestModel : IMapExplicitly
 
     public string? SortTypeDirection { get; set; } = null!;
 
+    public bool IncludeHidden { get; set; }
+
     public void RegisterMappings(IProfileExpression configuration)
         => configuration
             .CreateMap<ContestFiltersRequestModel, ContestFiltersServiceModel>()

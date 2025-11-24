@@ -40,11 +40,18 @@ public class ContestsDataService : DataService<Contest>, IContestsDataService
         => this.GetQuery(c => c.IsVisible || c.VisibleFrom <= this.dates.GetUtcNow());
 
     public async Task<PagedResult<TServiceModel>> GetAllAsPageByFiltersAndSorting<TServiceModel>(
-        ContestFiltersServiceModel model)
+        ContestFiltersServiceModel model,
+        bool includeHidden = false)
     {
-        var contests = model.CategoryIds.Any()
-            ? this.GetAllVisibleByCategories(model.CategoryIds)
-            : this.GetAllVisible();
+        var contests = includeHidden
+                ? this.GetQuery()
+                : this.GetAllVisible();
+
+        if (model.CategoryIds.Any())
+        {
+            contests = contests
+                .Where(c => c.CategoryId.HasValue && model.CategoryIds.Contains(c.CategoryId.Value));
+        }
 
         return await this.ApplyFiltersSortAndPagination<TServiceModel>(contests, model);
     }
@@ -175,10 +182,6 @@ public class ContestsDataService : DataService<Contest>, IContestsDataService
 
         return maxPoints;
     }
-
-    private IQueryable<Contest> GetAllVisibleByCategories(IEnumerable<int> categoryIds)
-        => this.GetAllVisible()
-            .Where(c => c.CategoryId.HasValue && categoryIds.Contains(c.CategoryId.Value));
 
     private IQueryable<Contest> GetAllCompetableQuery()
         => this.GetAllVisible()
