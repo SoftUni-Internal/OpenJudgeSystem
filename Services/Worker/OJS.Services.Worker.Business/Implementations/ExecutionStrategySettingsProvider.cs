@@ -59,7 +59,8 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
                     this.GetNodeResourcePath(executionStrategyType, this.settings.UnderscoreModulePath))
 
             as TSettings,
-            ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha => new
+            ExecutionStrategyType.TypeScriptV20PreprocessExecuteAndRunUnitTestsWithMocha or
+            ExecutionStrategyType.TypeScriptV20ProjectMochaUnitTestsExecutionStrategy => new
                     NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings(
                     GetBaseTimeUsed(submission, this.settings.NodeJsBaseTimeUsedInMilliseconds * 2),
                     GetBaseMemoryUsed(submission, this.settings.NodeJsBaseMemoryUsedInBytes),

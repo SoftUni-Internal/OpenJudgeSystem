@@ -190,6 +190,14 @@ namespace OJS.Services.Worker.Business.Implementations
                         loggerFactory.CreateStrategyLogger<TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes),
                         compilerFactory);
                     break;
+                case ExecutionStrategyType.TypeScriptV20ProjectMochaUnitTestsExecutionStrategy:
+                    executionStrategy = new TypeScriptProjectMochaUnitTestsExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
+                        submission,
+                        processExecutorFactory,
+                        executionStrategySettingsProvider,
+                        loggerFactory.CreateStrategyLogger<TypeScriptProjectMochaUnitTestsExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>>(submissionId, verbosely, logFileMaxBytes),
+                        compilerFactory);
+                    break;
                 case ExecutionStrategyType.NodeJsPreprocessExecuteAndRunUnitTestsWithMocha:
                 case ExecutionStrategyType.NodeJsV20PreprocessExecuteAndRunUnitTestsWithMocha:
                     executionStrategy = new NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings>(
