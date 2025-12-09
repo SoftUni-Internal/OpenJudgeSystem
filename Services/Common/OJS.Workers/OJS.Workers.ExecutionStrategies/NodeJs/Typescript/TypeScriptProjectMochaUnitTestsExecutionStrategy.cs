@@ -1,7 +1,6 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.NodeJs.Typescript;
 
 using Common;
-using Common.Helpers;
 using Compilers;
 using Executors;
 using Microsoft.Extensions.Logging;
@@ -19,7 +18,7 @@ public class TypeScriptProjectMochaUnitTestsExecutionStrategy<TSettings>(
         settingsProvider,
         logger,
         compilerFactory)
-    where TSettings : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings
+    where TSettings : TypeScriptProjectMochaUnitTestsExecutionStrategySettings
 {
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(IExecutionContext<TestsInputModel> executionContext, IExecutionResult<TestResult> result,
         CancellationToken cancellationToken = default)
@@ -28,7 +27,7 @@ public class TypeScriptProjectMochaUnitTestsExecutionStrategy<TSettings>(
 
         var executor = this.CreateStandardExecutor();
         var bundleResult = await executor.Execute(
-            "/judge-resources/js/v20/node_modules/esbuild/bin/esbuild",
+            this.Settings.EsBuildModulePath,
             executionContext.TimeLimit,
             executionContext.MemoryLimit,
             executionArguments: ["src/index.ts", "--bundle", "--platform=node", "--format=cjs", "--target=node21", "--packages=external", "--outfile=dist/app.bundle.js"],
@@ -47,3 +46,23 @@ public class TypeScriptProjectMochaUnitTestsExecutionStrategy<TSettings>(
         return await base.ExecuteAgainstTestsInput(executionContext, result, cancellationToken);
     }
 }
+
+public record TypeScriptProjectMochaUnitTestsExecutionStrategySettings(
+    int BaseTimeUsed,
+    int BaseMemoryUsed,
+    string NodeJsExecutablePath,
+    string UnderscoreModulePath,
+    string MochaModulePath,
+    string ChaiModulePath,
+    string SinonModulePath,
+    string SinonChaiModulePath,
+    string EsBuildModulePath)
+    : NodeJsPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategySettings(
+        BaseTimeUsed,
+        BaseMemoryUsed,
+        NodeJsExecutablePath,
+        UnderscoreModulePath,
+        MochaModulePath,
+        ChaiModulePath,
+        SinonModulePath,
+        SinonChaiModulePath);
