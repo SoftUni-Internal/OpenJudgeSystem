@@ -1,7 +1,7 @@
 ﻿namespace OJS.Workers.ExecutionStrategies.NodeJs.Typescript;
 
 using Common;
-using Compilers;
+using Common.Helpers;
 using Executors;
 using Microsoft.Extensions.Logging;
 using Models;
@@ -10,14 +10,12 @@ public class TypeScriptProjectMochaUnitTestsExecutionStrategy<TSettings>(
     IOjsSubmission submission,
     IProcessExecutorFactory processExecutorFactory,
     IExecutionStrategySettingsProvider settingsProvider,
-    ILogger<BaseExecutionStrategy<TSettings>> logger,
-    ICompilerFactory compilerFactory)
-    : TypeScriptPreprocessExecuteAndRunUnitTestsWithMochaExecutionStrategy<TSettings>(
+    ILogger<BaseExecutionStrategy<TSettings>> logger)
+    : NodeJsPreprocessExecuteAndRunAllUnitTestsWithMochaExecutionStrategy<TSettings>(
         submission,
         processExecutorFactory,
         settingsProvider,
-        logger,
-        compilerFactory)
+        logger)
     where TSettings : TypeScriptProjectMochaUnitTestsExecutionStrategySettings
 {
     protected override async Task<IExecutionResult<TestResult>> ExecuteAgainstTestsInput(IExecutionContext<TestsInputModel> executionContext, IExecutionResult<TestResult> result,
@@ -36,12 +34,14 @@ public class TypeScriptProjectMochaUnitTestsExecutionStrategy<TSettings>(
 
         if (bundleResult.ExitCode != 0)
         {
-            return new ExecutionResult<TestResult>
-            {
-                IsCompiledSuccessfully = false,
-                CompilerComment = bundleResult.ErrorOutput,
-            };
+            result.IsCompiledSuccessfully = false;
+            result.CompilerComment = bundleResult.ErrorOutput;
+            return result;
         }
+
+        var bundlePath = FileHelpers.BuildPath(this.WorkingDirectory, "dist", "app.bundle.js");
+
+        executionContext.Code = FileHelpers.ReadFile(bundlePath);
 
         return await base.ExecuteAgainstTestsInput(executionContext, result, cancellationToken);
     }
