@@ -1,4 +1,4 @@
-﻿namespace OJS.Workers.ExecutionStrategies;
+namespace OJS.Workers.ExecutionStrategies;
 
 using System;
 using System.Threading.Tasks;
@@ -44,7 +44,6 @@ public abstract class BaseExecutionStrategy<TSettings> : IExecutionStrategy
         var submissionId = (int)submission.Id;
         this.WorkingDirectory = DirectoryHelpers.CreateTempDirectoryForExecutionStrategy();
         this.Logger.LogExecutionStrategyCreatedWorkingDirectory(this.Type.ToString(), this.WorkingDirectory, submissionId);
-
         try
         {
             executionContext.Code = this.PreprocessCode(executionContext);

@@ -422,6 +422,7 @@ public class SubmissionsBusinessService : ISubmissionsBusinessService
             or ExecutionStrategyType.DoNothing)
         {
             // Submission is just uploaded and should not be processed
+            // TODO: ask - when do we go into this case? 
             await this.AddNewDefaultProcessedSubmission(participant.Id, newSubmission);
             return ServiceResult.EmptySuccess;
         }

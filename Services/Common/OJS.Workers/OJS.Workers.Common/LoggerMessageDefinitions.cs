@@ -2,6 +2,7 @@ namespace OJS.Workers.Common;
 
 using Microsoft.Extensions.Logging;
 
+// TODO: ask - additional info per each message
 public static partial class LoggerMessageDefinitions
 {
     [LoggerMessage(900, LogLevel.Error, "Exception in writing to standard input with input data: {StandardProcessExecutorInputData}")]
