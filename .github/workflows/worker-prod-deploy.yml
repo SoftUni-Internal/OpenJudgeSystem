@@ -30,6 +30,11 @@ jobs:
         username: ${{ github.triggering_actor }}
         team: 'Alpha Judge Prod deploy'
         GITHUB_TOKEN: ${{ secrets.SOFTUNIBUILD_PAT }}
+  clean-runner:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Clean runner to free up space
+      run: rm -rf /opt/hostedtoolcache
   build-and-push:
     needs: [check-user-access]
     if: ${{ needs.check-user-access.outputs.isTeamMember == 'true' }}
