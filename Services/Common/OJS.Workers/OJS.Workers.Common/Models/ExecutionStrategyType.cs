@@ -76,5 +76,6 @@
         DotNetCore8UnitTestsExecutionStrategy = 79,
         PythonDjangoOrmParallelExecutionStrategy = 80,
         NodeJsV20PreprocessExecuteAndRunAllUnitTestsWithMocha = 81,
+        TypeScriptV20ProjectMochaUnitTestsExecutionStrategy = 82,
     }
 }

@@ -128,6 +128,9 @@ public class OjsWorkersConfig : BaseConfig
     public string SinonChaiModulePath { get; set; } = string.Empty;
 
     [Required]
+    public string EsBuildModulePath { get; set; } = string.Empty;
+
+    [Required]
     public string UnderscoreModulePath { get; set; } = string.Empty;
 
     [Required]

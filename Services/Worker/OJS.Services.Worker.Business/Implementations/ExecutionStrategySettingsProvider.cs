@@ -71,6 +71,19 @@ public class ExecutionStrategySettingsProvider : IExecutionStrategySettingsProvi
                     this.GetNodeResourcePath(executionStrategyType, this.settings.SinonChaiModulePath))
 
             as TSettings,
+            ExecutionStrategyType.TypeScriptV20ProjectMochaUnitTestsExecutionStrategy => new
+                TypeScriptProjectMochaUnitTestsExecutionStrategySettings(
+                    GetBaseTimeUsed(submission, this.settings.NodeJsBaseTimeUsedInMilliseconds * 2),
+                    GetBaseMemoryUsed(submission, this.settings.NodeJsBaseMemoryUsedInBytes),
+                    this.GetNodeJsExecutablePath(executionStrategyType),
+                    this.GetNodeResourcePath(executionStrategyType, this.settings.UnderscoreModulePath),
+                    this.GetNodeResourcePath(executionStrategyType, this.settings.MochaModulePath),
+                    this.GetNodeResourcePath(executionStrategyType, this.settings.ChaiModulePath),
+                    this.GetNodeResourcePath(executionStrategyType, this.settings.SinonModulePath),
+                    this.GetNodeResourcePath(executionStrategyType, this.settings.SinonChaiModulePath),
+                    this.GetNodeResourcePath(executionStrategyType, this.settings.EsBuildModulePath))
+
+            as TSettings,
             ExecutionStrategyType.JavaPreprocessCompileExecuteAndCheck or
             ExecutionStrategyType.Java21PreprocessCompileExecuteAndCheck => new
                 JavaPreprocessCompileExecuteAndCheckExecutionStrategySettings(
