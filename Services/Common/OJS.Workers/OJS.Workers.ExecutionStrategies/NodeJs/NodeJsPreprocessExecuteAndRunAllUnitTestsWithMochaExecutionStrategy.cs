@@ -107,23 +107,18 @@ public class NodeJsPreprocessExecuteAndRunAllUnitTestsWithMochaExecutionStrategy
     protected static string FormatTests(IEnumerable<TestContext> tests, bool isTypeScript)
     {
         var formattedTests = new List<string>();
-        var testCounter = 1;
 
         foreach (var test in tests)
         {
             // Use simple sequential test names
-            var testName = $"Test{testCounter}";
             var testContent = test.Input.Trim();
 
             // Format the test with proper it() wrapper
             var formattedTest = $@"
             {(isTypeScript ? "// @ts-ignore" : "")}
-            it('{testName}', function () {{
-                    {testContent}
-                }})";
+            {testContent}";
 
             formattedTests.Add(formattedTest);
-            testCounter++;
         }
 
         // Join all formatted tests
