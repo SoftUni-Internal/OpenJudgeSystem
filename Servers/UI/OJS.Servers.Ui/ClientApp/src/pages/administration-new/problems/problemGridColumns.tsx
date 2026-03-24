@@ -79,7 +79,7 @@ const problemFilterableColumns: AdministrationGridColDef[] = [
                   contestId: params.row.contestId,
                   contestName: params.row.contest,
               })}
-              text={params.value.toString()}
+              text={params.value?.toString()}
             />
         ,
     },

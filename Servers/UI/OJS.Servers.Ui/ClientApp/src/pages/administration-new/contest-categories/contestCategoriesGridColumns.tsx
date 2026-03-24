@@ -70,7 +70,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
                   categoryId: params.row.id,
                   categoryName: params.row.name,
               })}
-              text={params.value.toString()}
+              text={params.value?.toString()}
             />
         ,
     },
@@ -100,7 +100,7 @@ const categoriesFilterableColumns: AdministrationGridColDef[] = [
                   categoryId: params.row.parentId,
                   categoryName: params.row.parent,
               })}
-              text={params.value.toString()}
+              text={params.value?.toString()}
             />
         ,
     },

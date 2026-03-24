@@ -61,7 +61,7 @@ const participantsFilteringColumns: AdministrationGridColDef[] = [
                   contestId: params.row.contestId,
                   contestName: params.row.contestName,
               })}
-              text={params.value.toString()}
+              text={params.value?.toString()}
             />
         ,
     },
