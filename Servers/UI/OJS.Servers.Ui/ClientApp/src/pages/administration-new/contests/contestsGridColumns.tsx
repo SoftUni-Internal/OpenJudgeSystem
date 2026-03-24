@@ -53,7 +53,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
                   contestId: params.row.id,
                   contestName: params.row.name,
               })}
-              text={params.value.toString()}
+              text={params.value?.toString()}
             />
         ,
     },
@@ -73,7 +73,7 @@ const contestFilterableColumns: AdministrationGridColDef[] = [
                   contestId: params.row.id,
                   contestName: params.row.name,
               })}
-              text={params.value.toString()}
+              text={params.value?.toString()}
             />
         ,
     },
