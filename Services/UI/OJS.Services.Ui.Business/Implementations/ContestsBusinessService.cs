@@ -330,10 +330,7 @@ public class ContestsBusinessService(
             .MapCollection<ContestForListingServiceModel>()
             .ToPagedListAsync(model.PageNumber, model.ItemsPerPage);
 
-        foreach (var contest in searchContests)
-        {
-            contest.IsVisible = contest.IsVisible || contest.VisibleFrom <= datesService.GetUtcNow();
-        }
+        this.SetContestVisibility(searchContests);
 
         modelResult.Contests = searchContests;
         modelResult.TotalContestsCount = allContestsQueryable.Count();
@@ -350,6 +347,8 @@ public class ContestsBusinessService(
 
         var pagedContests =
             await contestsData.GetAllAsPageByFiltersAndSorting(model, includeHidden);
+
+        this.SetContestVisibility(pagedContests.Items);
 
         var participantResultsByContest = new Dictionary<int, List<ParticipantResultServiceModel>>();
         if (user.IsAuthenticated)
@@ -397,10 +396,7 @@ public class ContestsBusinessService(
             participatedContests,
             sortAndFilterModel);
 
-        foreach (var contest in participatedContestsInPage.Items)
-        {
-            contest.IsVisible = contest.IsVisible || contest.VisibleFrom <= datesService.GetUtcNow();
-        }
+        this.SetContestVisibility(participatedContestsInPage.Items);
 
         var participantResultsByContest = new Dictionary<int, List<ParticipantResultServiceModel>>();
         var loggedInUser = userProviderService.GetCurrentUser();
@@ -517,10 +513,7 @@ public class ContestsBusinessService(
             .MapCollection<ContestForListingServiceModel>()
             .ToListAsync();
 
-        foreach (var contest in contests)
-        {
-            contest.IsVisible = contest.IsVisible || contest.VisibleFrom <= datesService.GetUtcNow();
-        }
+        this.SetContestVisibility(contests);
 
         return contests;
     }
@@ -585,5 +578,14 @@ public class ContestsBusinessService(
             userId,
             official,
             isUserAdminOrLecturerInContest);
+    }
+
+    private void SetContestVisibility(IEnumerable<ContestForListingServiceModel> contests)
+    {
+        var now = datesService.GetUtcNow();
+        foreach (var contest in contests)
+        {
+            contest.IsVisible = contest.IsVisible || contest.VisibleFrom <= now;
+        }
     }
 }

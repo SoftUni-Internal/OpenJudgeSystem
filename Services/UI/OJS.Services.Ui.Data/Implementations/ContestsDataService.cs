@@ -53,14 +53,7 @@ public class ContestsDataService : DataService<Contest>, IContestsDataService
                 .Where(c => c.CategoryId.HasValue && model.CategoryIds.Contains(c.CategoryId.Value));
         }
 
-        var contestsPage = await this.ApplyFiltersSortAndPagination<ContestForListingServiceModel>(contests, model);
-
-        foreach (var contest in contestsPage.Items)
-        {
-            contest.IsVisible = contest.IsVisible || contest.VisibleFrom <= this.dates.GetUtcNow();
-        }
-
-        return contestsPage;
+        return await this.ApplyFiltersSortAndPagination<ContestForListingServiceModel>(contests, model);
     }
 
     public IQueryable<Contest> GetLatestForParticipantByUsername(string username)
