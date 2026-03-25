@@ -39,7 +39,7 @@ public class ContestsDataService : DataService<Contest>, IContestsDataService
     public IQueryable<Contest> GetAllVisible()
         => this.GetQuery(c => c.IsVisible || c.VisibleFrom <= this.dates.GetUtcNow());
 
-    public async Task<PagedResult<TServiceModel>> GetAllAsPageByFiltersAndSorting<TServiceModel>(
+    public async Task<PagedResult<ContestForListingServiceModel>> GetAllAsPageByFiltersAndSorting(
         ContestFiltersServiceModel model,
         bool includeHidden = false)
     {
@@ -53,7 +53,14 @@ public class ContestsDataService : DataService<Contest>, IContestsDataService
                 .Where(c => c.CategoryId.HasValue && model.CategoryIds.Contains(c.CategoryId.Value));
         }
 
-        return await this.ApplyFiltersSortAndPagination<TServiceModel>(contests, model);
+        var contestsPage = await this.ApplyFiltersSortAndPagination<ContestForListingServiceModel>(contests, model);
+
+        foreach (var contest in contestsPage.Items)
+        {
+            contest.IsVisible = contest.IsVisible || contest.VisibleFrom <= this.dates.GetUtcNow();
+        }
+
+        return contestsPage;
     }
 
     public IQueryable<Contest> GetLatestForParticipantByUsername(string username)
