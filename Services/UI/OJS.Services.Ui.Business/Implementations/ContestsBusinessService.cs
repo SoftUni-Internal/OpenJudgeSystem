@@ -346,7 +346,7 @@ public class ContestsBusinessService(
         var includeHidden = model.IncludeHidden && user.IsAdmin;
 
         var pagedContests =
-            await contestsData.GetAllAsPageByFiltersAndSorting(model, includeHidden);
+            await contestsData.GetAllAsPageByFiltersAndSorting<ContestForListingServiceModel>(model, includeHidden);
 
         this.SetContestVisibility(pagedContests.Items);
 
