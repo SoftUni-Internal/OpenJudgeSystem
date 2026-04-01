@@ -13,6 +13,7 @@ using OJS.Services.Common.Models.Contests;
 using OJS.Services.Infrastructure.Constants;
 using OJS.Services.Infrastructure.Extensions;
 using OJS.Services.Infrastructure.Models;
+using OJS.Services.Infrastructure;
 using OJS.Services.Ui.Business.Cache;
 using OJS.Services.Ui.Business.Validations.Implementations.Contests;
 using OJS.Services.Ui.Data;
@@ -34,7 +35,8 @@ public class ContestsBusinessService(
     IContestParticipantsCacheService contestParticipantsCacheService,
     IContestsCacheService contestsCacheService,
     ILecturersInContestsCacheService lecturersInContestsCache,
-    IContestDetailsValidationService contestDetailsValidationService)
+    IContestDetailsValidationService contestDetailsValidationService,
+    IDatesService datesService)
     : IContestsBusinessService
 {
     public async Task<ServiceResult<ContestDetailsServiceModel>> GetContestDetails(int id)
@@ -328,6 +330,8 @@ public class ContestsBusinessService(
             .MapCollection<ContestForListingServiceModel>()
             .ToPagedListAsync(model.PageNumber, model.ItemsPerPage);
 
+        this.SetContestVisibility(searchContests);
+
         modelResult.Contests = searchContests;
         modelResult.TotalContestsCount = allContestsQueryable.Count();
 
@@ -343,6 +347,8 @@ public class ContestsBusinessService(
 
         var pagedContests =
             await contestsData.GetAllAsPageByFiltersAndSorting<ContestForListingServiceModel>(model, includeHidden);
+
+        this.SetContestVisibility(pagedContests.Items);
 
         var participantResultsByContest = new Dictionary<int, List<ParticipantResultServiceModel>>();
         if (user.IsAuthenticated)
@@ -389,6 +395,8 @@ public class ContestsBusinessService(
         var participatedContestsInPage = await contestsData.ApplyFiltersSortAndPagination<ContestForListingServiceModel>(
             participatedContests,
             sortAndFilterModel);
+
+        this.SetContestVisibility(participatedContestsInPage.Items);
 
         var participantResultsByContest = new Dictionary<int, List<ParticipantResultServiceModel>>();
         var loggedInUser = userProviderService.GetCurrentUser();
@@ -499,10 +507,16 @@ public class ContestsBusinessService(
             .ToListAsync();
 
     public async Task<IEnumerable<ContestForListingServiceModel>> GetAllParticipatedContests(string username)
-         => await contestsData
-             .GetLatestForParticipantByUsername(username)
-             .MapCollection<ContestForListingServiceModel>()
-             .ToListAsync();
+    {
+        var contests = await contestsData
+            .GetLatestForParticipantByUsername(username)
+            .MapCollection<ContestForListingServiceModel>()
+            .ToListAsync();
+
+        this.SetContestVisibility(contests);
+
+        return contests;
+    }
 
     private static async Task<Dictionary<int, List<ParticipantResultServiceModel>>> MapParticipationResultsToContestsInPage(
         IQueryable<Participant> participants)
@@ -564,5 +578,14 @@ public class ContestsBusinessService(
             userId,
             official,
             isUserAdminOrLecturerInContest);
+    }
+
+    private void SetContestVisibility(IEnumerable<ContestForListingServiceModel> contests)
+    {
+        var now = datesService.GetUtcNow();
+        foreach (var contest in contests)
+        {
+            contest.IsVisible = contest.IsVisible || contest.VisibleFrom <= now;
+        }
     }
 }
