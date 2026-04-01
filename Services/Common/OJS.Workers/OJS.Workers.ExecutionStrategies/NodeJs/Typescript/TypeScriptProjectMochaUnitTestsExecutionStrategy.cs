@@ -23,12 +23,24 @@ public class TypeScriptProjectMochaUnitTestsExecutionStrategy<TSettings>(
     {
         SaveZipSubmission(executionContext.FileContent, this.WorkingDirectory);
 
+        var esBuildExecutionArguments = new[]
+        {
+            "src/index.ts",
+            "--bundle",
+            "--platform=node",
+            "--format=cjs",
+            "--target=node21",
+            "--packages=external",
+            "--drop:console",
+            "--outfile=dist/app.bundle.js"
+        };
+
         var executor = this.CreateStandardExecutor();
         var bundleResult = await executor.Execute(
             this.Settings.EsBuildModulePath,
             executionContext.TimeLimit,
             executionContext.MemoryLimit,
-            executionArguments: ["src/index.ts", "--bundle", "--platform=node", "--format=cjs", "--target=node21", "--packages=external", "--outfile=dist/app.bundle.js"],
+            executionArguments: esBuildExecutionArguments,
             workingDirectory: this.WorkingDirectory,
             cancellationToken: cancellationToken);
 

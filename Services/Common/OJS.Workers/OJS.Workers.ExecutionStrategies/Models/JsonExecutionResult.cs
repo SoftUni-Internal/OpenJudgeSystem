@@ -10,6 +10,9 @@ namespace OJS.Workers.ExecutionStrategies.Models
     public class JsonExecutionResult
     {
         private const string InvalidJsonReplace = "]}[},!^@,Invalid,!^@,{]{[";
+        private const string MissingJsonStructureError = "Invalid console output! Please make sure there are no console.log statements in the solution. The system expects JSON output from Mocha test results.";
+        private const string MissingPassingFieldError = "Invalid console output! Please make sure there are no console.log statements in the solution. Missing or invalid 'passing' array in test results.";
+        private const string MissingFailuresFieldError = "Invalid console output! Please make sure there are no console.log statements in the solution. Missing or invalid 'failures' array with 'err.message' fields.";
 
         public IList<string> TestErrors { get; set; }
 
@@ -68,7 +71,7 @@ namespace OJS.Workers.ExecutionStrategies.Models
             }
             catch
             {
-                error = "Invalid console output!";
+                error = MissingJsonStructureError;
             }
 
             var testsIndexes = new List<int>();
@@ -80,7 +83,7 @@ namespace OJS.Workers.ExecutionStrategies.Models
                 }
                 catch
                 {
-                    error = "Invalid console output!";
+                    error = MissingPassingFieldError;
                 }
             }
 
@@ -97,7 +100,7 @@ namespace OJS.Workers.ExecutionStrategies.Models
                 }
                 catch
                 {
-                    error = "Invalid console output!";
+                    error = MissingFailuresFieldError;
                 }
             }
 
