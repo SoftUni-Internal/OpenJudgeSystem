@@ -22,11 +22,18 @@ namespace OJS.Services.Common.Data
 
         Task<int> Update(Expression<Func<TEntity, bool>> filter, Expression<Func<SetPropertyCalls<TEntity>,SetPropertyCalls<TEntity>>> setPropertyCalls);
 
+        Task<int> Update(
+            Expression<Func<TEntity, bool>> filterExpression,
+            Expression<Func<TEntity, TEntity>> updateExpression,
+            int batchSize);
+
         void UpdateMany(IEnumerable<TEntity> entities);
 
         void Delete(TEntity entity);
 
         void Delete(Expression<Func<TEntity, bool>>? filter = null);
+
+        Task<int> Delete(Expression<Func<TEntity, bool>> filterExpression, int batchSize);
 
         void DeleteMany(IEnumerable<TEntity> entities);
 
