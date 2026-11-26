@@ -6,6 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="DotNetZip" Version="1.16.0" />
+    <!-- Security pin: overrides vulnerable transitive System.Drawing.Common 4.7.0 (CVE-2021-24112, critical) pulled in by DotNetZip. Keep on 4.7.x: 6.0+ is Windows-only. -->
+    <PackageReference Include="System.Drawing.Common" Version="4.7.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="8.0.1" />

@@ -115,15 +115,23 @@
         {
             using var zip = new ZipFile(pathToArchive);
 
-            var entryToExtract = zip.Entries.FirstOrDefault(f => f.FileName.EndsWith(fileName));
+            var entryToExtract = zip.Entries.FirstOrDefault(f => !f.IsDirectory && f.FileName.EndsWith(fileName));
             if (entryToExtract == null)
             {
                 throw new SolutionException($"The file \"{fileName}\" was not found in the submission!");
             }
 
-            entryToExtract.Extract(destinationDirectory);
+            // Do not use entry.Extract(directory): DotNetZip <= 1.16.0 does not stop "../" or absolute
+            // entry names from escaping the folder (CVE-2024-48510). Build and check the path ourselves.
+            var extractedFilePath = GetSafeExtractionPath(destinationDirectory, entryToExtract.FileName);
 
-            var extractedFilePath = $"{destinationDirectory}{Path.DirectorySeparatorChar}{entryToExtract.FileName.Replace("/", Path.DirectorySeparatorChar.ToString())}";
+            Directory.CreateDirectory(Path.GetDirectoryName(extractedFilePath)!);
+
+            // FileMode.CreateNew keeps DotNetZip's default behaviour of throwing if the file already exists.
+            using (var output = new FileStream(extractedFilePath, FileMode.CreateNew, FileAccess.Write))
+            {
+                entryToExtract.Extract(output);
+            }
 
             return extractedFilePath;
         }
@@ -185,6 +193,29 @@
             }
 
             return files;
+        }
+
+        private static string GetSafeExtractionPath(string destinationDirectory, string entryName)
+        {
+            var destinationRoot = Path.GetFullPath(destinationDirectory);
+            if (!destinationRoot.EndsWith(Path.DirectorySeparatorChar))
+            {
+                destinationRoot += Path.DirectorySeparatorChar;
+            }
+
+            var relativePath = entryName.Replace('\\', '/').Replace('/', Path.DirectorySeparatorChar);
+
+            // An absolute entry name ("/etc/x", "C:\x") makes Path.Combine return it unchanged,
+            // so it fails the check below too.
+            var fullPath = Path.GetFullPath(Path.Combine(destinationRoot, relativePath));
+
+            var comparison = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            if (!fullPath.StartsWith(destinationRoot, comparison))
+            {
+                throw new SolutionException($"The file \"{entryName}\" in the submission has an invalid path.");
+            }
+
+            return fullPath;
         }
     }
 }
