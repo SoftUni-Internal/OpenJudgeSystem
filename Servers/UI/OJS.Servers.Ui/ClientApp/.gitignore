@@ -6,3 +6,5 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 .env.e2e
+bundle-analysis.html
+dist/
